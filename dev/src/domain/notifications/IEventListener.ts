@@ -1,0 +1,6 @@
+
+
+interface IEventListener {
+    onEvent(),
+
+}
