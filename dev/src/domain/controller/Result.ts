@@ -1,13 +1,14 @@
 
+
 class Result<T> {
     ok: boolean
     data: T
-    massage?:string
+    message?:string
 
 
-    constructor(ok: boolean, data: T, massage?: string) {
+    constructor(ok: boolean, data: T, message?: string) {
         this.ok = ok;
         this.data = data;
-        this.massage = massage;
+        this.message = message;
     }
 }

@@ -1,6 +1,6 @@
 import {Guest} from "../user/Guest";
 import {SecurityController} from "./SecurityController";
-import {loginData, newRoleData, newShopData, registerMemberData} from "../dataObjs";
+import {loginData, newRoleData, newShopData, registerMemberData} from "../DataObjs";
 import {Member} from "../user/Member";
 import {Id} from "../Utils";
 import {Role} from "../user/Role";
@@ -58,7 +58,7 @@ class SystemController {
 
         //dispatch to security controller
 
-        //if success get the memberid
+        //if success get the member_id
 
         //retrieve member and add it to active users
 
@@ -108,12 +108,12 @@ class SystemController {
         return null
     }
 
-    addShopManagerPermissions(manager: Member, owner: Member, ...permissions:Permission[]): Result<Role> {
+    addShopManagerPermissions(manager: Member, owner: Member, ...permissions:MemberPermissions[]): Result<Role> {
 
         return null
     }
 
-    removeShopManagerPermissions(manager: Member, owner: Member, ...permissions:Permission[]): Result<Role> {
+    removeShopManagerPermissions(manager: Member, owner: Member, ...permissions:MemberPermissions[]): Result<Role> {
 
         return null
     }

@@ -1,9 +1,8 @@
 
 
-
-interface message {
+interface Message {
     timestamp: number,
     title: string,
     body: string,
-    recievers: number[]
+    receivers: number[]
 }

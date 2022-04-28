@@ -1,6 +1,6 @@
 
 
-// User Related data Objects
+// User Related Data Objects
 
 import {Member} from "./user/Member";
 import {JobType} from "./user/Role";
@@ -32,7 +32,7 @@ export interface newRoleData {
     jobRole: JobType;
     shopBelonging: Shop;
     assigner: Member | null;
-    permissions: Permission[]
+    permissions: MemberPermissions[]
     
     
 }

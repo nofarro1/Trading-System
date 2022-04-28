@@ -1,6 +1,5 @@
 
 
-
 interface IEventPublisher {
     subs: IEventListener[]
     notificationController: NotificationController
