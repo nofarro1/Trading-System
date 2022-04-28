@@ -6,7 +6,7 @@ import {Id} from "../../utilities/Utils";
 import {Role} from "../user/Role";
 
 
-class SystemController {
+export class SystemController {
 
     mpController: MarketplaceController
     scController: ShoppingCartController

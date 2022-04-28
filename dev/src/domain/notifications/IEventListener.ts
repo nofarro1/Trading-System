@@ -1,6 +1,6 @@
 
 
-interface IEventListener {
+export interface IEventListener {
     onEvent(),
 
 }

@@ -1,5 +1,5 @@
 
 
-class ShoppingCartController {
+export class ShoppingCartController {
 
 }

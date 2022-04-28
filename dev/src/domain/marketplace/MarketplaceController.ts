@@ -1,5 +1,5 @@
 
 
-class MarketplaceController {
+export class MarketplaceController {
 
 }

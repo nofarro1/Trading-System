@@ -1,6 +1,7 @@
+import {IEventListener} from "./IEventListener";
 
 
-interface IEventPublisher {
+export interface IEventPublisher {
     subs: IEventListener[]
     notificationController: NotificationController
     addSub(sub:IEventListener): Result<boolean>

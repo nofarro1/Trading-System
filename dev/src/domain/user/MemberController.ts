@@ -1,5 +1,5 @@
 
 
-class MemberController {
+export class MemberController {
 
 }
