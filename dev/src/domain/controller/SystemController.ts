@@ -1,6 +1,6 @@
 import {Guest} from "../user/Guest";
 import {SecurityController} from "./SecurityController";
-import {loginData, newRoleData, newShopData, registerMemberData} from "../../utilities/DataObjs";
+import {loginData, newRoleData, newShopData, registerMemberData} from "../../utilities/DataObjects";
 import {Member} from "../user/Member";
 import {Id} from "../../utilities/Utils";
 import {Role} from "../user/Role";
