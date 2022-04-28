@@ -1,4 +1,4 @@
-import {Id} from "../Utils";
+import {Id} from "../../utilities/Utils";
 
 
 export enum JobType {

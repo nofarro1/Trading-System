@@ -2,8 +2,8 @@
 
 // User Related Data Objects
 
-import {Member} from "./user/Member";
-import {JobType} from "./user/Role";
+import {Member} from "../domain/user/Member";
+import {JobType} from "../domain/user/Role";
 
 export interface loginData {
     username: string;
