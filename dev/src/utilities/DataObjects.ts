@@ -5,7 +5,7 @@
 import {Member} from "../domain/user/Member";
 import {JobType} from "../domain/user/Role";
 import {Shop} from "../domain/marketplace/Shop";
-import {Permissions} from "../domain/user/Permissions";
+import {Permissions} from "./Permissions";
 
 export interface loginData {
     username: string;

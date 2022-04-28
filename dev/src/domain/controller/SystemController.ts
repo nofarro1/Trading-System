@@ -2,8 +2,17 @@ import {Guest} from "../user/Guest";
 import {SecurityController} from "./SecurityController";
 import {loginData, newRoleData, newShopData, registerMemberData} from "../../utilities/DataObjects";
 import {Member} from "../user/Member";
+import {Permissions} from "../../utilities/Permissions";
 import {Id} from "../../utilities/Utils";
 import {Role} from "../user/Role";
+import {MarketplaceController} from "../marketplace/MarketplaceController";
+import {ShoppingCartController} from "../marketplace/ShoppingCartController";
+import {GuestController} from "../user/GuestController";
+import {MemberController} from "../user/MemberController";
+import {PurchaseController} from "../purchase/PurchaseController";
+import {NotificationController} from "../notifications/NotificationController";
+import {Result} from "../../utilities/Result";
+import {Shop} from "../marketplace/Shop";
 
 
 export class SystemController {
@@ -108,12 +117,12 @@ export class SystemController {
         return null
     }
 
-    addShopManagerPermissions(manager: Member, owner: Member, ...permissions:MemberPermissions[]): Result<Role> {
+    addShopManagerPermissions(manager: Member, owner: Member, permissions: Permissions[]): Result<Role> {
 
         return null
     }
 
-    removeShopManagerPermissions(manager: Member, owner: Member, ...permissions:MemberPermissions[]): Result<Role> {
+    removeShopManagerPermissions(manager: Member, owner: Member, permissions: Permissions[]): Result<Role> {
 
         return null
     }
