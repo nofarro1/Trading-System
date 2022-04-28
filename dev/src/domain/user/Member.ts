@@ -1,5 +1,5 @@
 
 
-class Member {
+export class Member {
 
 }

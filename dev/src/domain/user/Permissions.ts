@@ -1,5 +1,5 @@
 
 
-class Permmistions {
+class Permission {
 
 }
