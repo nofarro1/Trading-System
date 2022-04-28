@@ -1,4 +1,4 @@
-import {UUIDGenerator} from "../Utils";
+import {UUIDGenerator} from "../../utilities/Utils";
 
 
 export class Guest {
