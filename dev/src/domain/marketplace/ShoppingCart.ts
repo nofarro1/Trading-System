@@ -1,6 +1,6 @@
 
 
-class ShoppingCart {
+export class ShoppingCart {
 
 }
 

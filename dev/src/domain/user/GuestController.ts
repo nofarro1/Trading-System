@@ -1,6 +1,6 @@
 
 
-class GuestController {
+export class GuestController {
 
     addNewGuest() {
         return undefined;

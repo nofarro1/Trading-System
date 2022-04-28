@@ -1,5 +1,5 @@
 
 
-class ShoppingBag {
+export class ShoppingBag {
 
 }

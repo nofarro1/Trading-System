@@ -1,6 +1,6 @@
 
 
-class Result<T> {
+export class Result<T> {
     ok: boolean
     data: T
     message?:string

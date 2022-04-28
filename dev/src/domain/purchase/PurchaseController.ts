@@ -1,5 +1,5 @@
 
 
-class PurchaseController {
+export class PurchaseController {
 
 }

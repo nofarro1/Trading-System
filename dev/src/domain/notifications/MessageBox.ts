@@ -1,5 +1,5 @@
 
 
-class MessageBox {
+export class MessageBox {
 
 }

@@ -1,5 +1,5 @@
 
 
-class DeliveryServiceAdaptor {
+export class DeliveryServiceAdaptor {
 
 }

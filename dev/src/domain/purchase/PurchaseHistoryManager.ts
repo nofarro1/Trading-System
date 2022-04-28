@@ -1,5 +1,5 @@
 
 
-class PurchaseHistoryManager {
+export class PurchaseHistoryManager {
 
 }

@@ -4,6 +4,8 @@
 
 import {Member} from "../domain/user/Member";
 import {JobType} from "../domain/user/Role";
+import {Shop} from "../domain/marketplace/Shop";
+import {Permissions} from "../domain/user/Permissions";
 
 export interface loginData {
     username: string;
@@ -32,7 +34,7 @@ export interface newRoleData {
     jobRole: JobType;
     shopBelonging: Shop;
     assigner: Member | null;
-    permissions: MemberPermissions[]
+    permissions: Permissions[]
     
     
 }

@@ -1,5 +1,5 @@
 
 
-class Shop {
+export class Shop {
 
 }

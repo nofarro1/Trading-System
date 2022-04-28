@@ -1,5 +1,5 @@
 
 
-class BuyerOrder {
+export class BuyerOrder {
 
 }

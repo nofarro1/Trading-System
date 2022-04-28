@@ -1,6 +1,6 @@
 
 
-interface Message {
+export interface Message {
     timestamp: number,
     title: string,
     body: string,

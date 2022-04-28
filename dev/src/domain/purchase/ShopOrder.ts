@@ -1,5 +1,5 @@
 
 
-class ShopOrder {
+export class ShopOrder {
 
 }
