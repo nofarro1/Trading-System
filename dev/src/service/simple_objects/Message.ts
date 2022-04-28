@@ -1,5 +1,6 @@
 
 
-class Message {
+export class Message {
+    username: string
 
 }
