@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "ts-node ./src/app.ts"
   },
   "keywords": [],
@@ -12,5 +12,19 @@
   "license": "ISC",
   "dependencies": {
     "uuidv4": "^6.2.13"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/jest": "^27.4.1",
+    "jest": "^28.0.2",
+    "ts-jest": "^27.1.4"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "global": {
+      "ts-jest": {
+
+      }
+    }
   }
 }
