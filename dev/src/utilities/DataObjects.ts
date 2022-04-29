@@ -2,8 +2,8 @@
 
 // User Related Data Objects
 
-import {Member} from "../domain/user/Member";
-import {JobType} from "../domain/user/Role";
+import {Member} from "../domain/user package/Member";
+import {JobType} from "../domain/user package/Role";
 import {Shop} from "../domain/marketplace/Shop";
 import {Permissions} from "./Permissions";
 
