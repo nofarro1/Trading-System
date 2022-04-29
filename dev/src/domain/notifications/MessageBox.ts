@@ -20,13 +20,13 @@ export interface NewMessagePublisher {
 
 export class MessageBox implements NewMessagePublisher{
 
-    _member: Member
+    _member: Id
     messages: Message[]
     unReadMessages: Message[]
     subs: NewMessageSubscriber[]
 
 
-    constructor(member:Member) {
+    constructor(member:Id) {
         this.messages = [];
         this.unReadMessages = []
         this.subs = []

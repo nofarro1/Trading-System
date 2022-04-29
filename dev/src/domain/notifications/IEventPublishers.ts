@@ -3,7 +3,7 @@ import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Messages
 
 export interface IMessagePublisher<T extends Message> {
     subscriber: IMessageListener<T>
-    sub(sub:IMessageListener<T>)
+    subscribe(sub:IMessageListener<T>)
     unsub(sub:IMessageListener<T>)
     notify(message: T)
     accept(v: IMessageListener<T>, msg: T)

@@ -60,7 +60,8 @@ export class SystemController {
         let security = new SecurityController();
 
         //todo: configure dependencies between controllers
-        purchase.sub(messages)
+        purchase.subscribe(messages)
+        marketplace.subscribe(messages)
         return new SystemController(marketplace, shoppingCart, guest, member, purchase, messages, security);
 
     }

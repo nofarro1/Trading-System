@@ -5,7 +5,6 @@ import {ShopOrder} from "../purchase/ShopOrder";
 export abstract class Message {
     id: Id
     timestamp: number
-    content:string
     isRead: boolean
 
     protected constructor(){
@@ -23,10 +22,8 @@ export abstract class Message {
 
 export class ShopPurchaseMessage extends Message {
 
-    id: Id;
+
     content: string;
-    isRead: boolean;
-    timestamp: number;
     shopOwnersIds: Id[]
     purchase: ShopOrder
 
@@ -46,10 +43,7 @@ export class ShopPurchaseMessage extends Message {
 
 export class ShopStatusChangedMessage extends Message {
 
-    id: Id;
     content: string;
-    isRead: boolean;
-    timestamp: number;
     shopOwnersIds: Id[]
 
 

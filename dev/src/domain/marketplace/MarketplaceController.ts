@@ -24,7 +24,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             throw new Error("No one to get the message");
     }
 
-    sub(sub: IMessageListener<ShopStatusChangedMessage>) {
+    subscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
         this.subscriber = sub;
     }
 
