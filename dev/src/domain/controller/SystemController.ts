@@ -9,7 +9,7 @@ import {ShoppingCartController} from "../marketplace/ShoppingCartController";
 import {GuestController} from "../user/GuestController";
 import {MemberController} from "../user/MemberController";
 import {PurchaseController} from "../purchase/PurchaseController";
-import {NotificationController} from "../notifications/NotificationController";
+import MessageController from "../notifications/MessageController";
 import {Result} from "../../utilities/Result";
 import {Shop} from "../marketplace/Shop";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
@@ -26,17 +26,17 @@ export class SystemController {
     gController: GuestController
     mController: MemberController
     pController: PurchaseController
-    nController: NotificationController
+    nController: MessageController
     securityController: SecurityController
 
 
-    constructor(mpController: MarketplaceController, scController: ShoppingCartController, gController: GuestController, mController: MemberController, pController: PurchaseController, nController: NotificationController, sController: SecurityController) {
+    constructor(mpController: MarketplaceController, scController: ShoppingCartController, gController: GuestController, mController: MemberController, pController: PurchaseController, msgController: MessageController, sController: SecurityController) {
         this.mpController = mpController;
         this.scController = scController;
         this.gController = gController;
         this.mController = mController;
         this.pController = pController;
-        this.nController = nController;
+        this.nController = msgController;
         this.securityController = sController;
     }
 
@@ -49,12 +49,12 @@ export class SystemController {
         let guest = new GuestController();
         let member = new MemberController();
         let purchase = new PurchaseController();
-        let notification = new NotificationController();
+        let messages = new MessageController();
         let security = new SecurityController();
 
         //todo: configure dependencies between controllers
 
-        return new SystemController(marketplace, shoppingCart, guest, member, purchase, notification, security);
+        return new SystemController(marketplace, shoppingCart, guest, member, purchase, messages, security);
 
     }
 
@@ -191,19 +191,19 @@ export class SystemController {
         return new Result(false, null, "no implementation");
     }
 
-    removeShopManager(toRemove: Member, remover: Member, shop: Shop): Result<void> {
+    removeShopManager(toRemove: Id, remover: Id, shop: Shop): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
-    removeShopOwner(toRemove: Member, remover: Member, shop: Shop): Result<void> {
+    removeShopOwner(toRemove: Id, remover: Id, shop: Shop): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
-    addShopManagerPermissions(manager: Member, owner: Member, permissions: Permissions[]): Result<Role> {
+    addShopManagerPermissions(manager: Id, owner: Id, permissions: Permissions[]): Result<Role> {
         return new Result(false, null, "no implementation");
     }
 
-    removeShopManagerPermissions(manager: Member, owner: Member, permissions: Permissions[]): Result<Role> {
+    removeShopManagerPermissions(manager: Id, owner: Id, permissions: Permissions[]): Result<Role> {
 
         return new Result(false, null, "no implementation");
     }
