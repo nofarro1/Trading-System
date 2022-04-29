@@ -2,10 +2,10 @@ import {Id} from "../../utilities/Utils";
 import {MessageBox} from "./MessageBox";
 
 import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Messages";
-import {IEventListener} from "./IEventPublishers";
+import {IMessageListener} from "./IEventPublishers";
 
 
-export default class MessageController implements IEventListener<ShopPurchaseMessage | ShopStatusChangedMessage> {
+export default class MessageController implements IMessageListener<ShopPurchaseMessage | ShopStatusChangedMessage> {
 
     messageBoxes: Map<Id, MessageBox>
 
