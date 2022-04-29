@@ -117,12 +117,12 @@ export class SystemController {
         return null
     }
 
-    addShopManagerPermissions(manager: Member, owner: Member, ...permissions:Permissions[]): Result<Role> {
+    addShopManagerPermissions(manager: Member, owner: Member, permissions:Permissions[]): Result<Role> {
 
         return null
     }
 
-    removeShopManagerPermissions(manager: Member, owner: Member, ...permissions:Permissions[]): Result<Role> {
+    removeShopManagerPermissions(manager: Member, owner: Member, permissions:Permissions[]): Result<Role> {
 
         return null
     }

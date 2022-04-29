@@ -1,6 +1,6 @@
 
 
-export type Id = string
+export type Id = string | number;
 
 export const UUIDGenerator = (): Id => {
     const head = Date.now().toString();

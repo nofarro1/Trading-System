@@ -1,9 +1,9 @@
 import {SystemController} from "../domain/controller/SystemController";
-import {Permission} from "../utilities/Permission";
+import {Permissions} from "../utilities/Permissions";
 import {Result} from "../utilities/Result";
 
 
-class GuestService {
+export class GuestService {
     systemController: SystemController;
 
     constructor(systemController: SystemController) {
@@ -11,12 +11,12 @@ class GuestService {
     }
 
     //General Guest - Use-Case 3
-    register(username: string, password: string): Result<boolean> {
-        return new Result<boolean>(true, null, "Success");
+    register(guestID: string, username: string, password: string): Result<void> {
+        return new Result<void>(true, null, "Success");
     }
 
-    login(username: string, password: string): Result<boolean> {
-        return new Result<boolean>(true, null, "Login successful");
+    login(guestID: string, username: string, password: string): Result<void> {
+        return null;
     }
 
 

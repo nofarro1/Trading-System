@@ -2,9 +2,11 @@ import {SystemController} from "../domain/controller/SystemController";
 import {Result} from "../utilities/Result";
 import {Product} from "./simple_objects/Product";
 import {ShoppingCart} from "./simple_objects/ShoppingCart";
+import {ShoppingCart as DomainShoppingCart} from "../domain/marketplace/ShoppingCart";
+import {Id} from "../utilities/Utils";
 
 
-class ShoppingCartService {
+export class ShoppingCartService {
     systemController: SystemController;
 
     constructor(systemController: SystemController) {
@@ -12,27 +14,38 @@ class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 4.1
-    addToCart(userID: string, product: Product): Result<boolean> {
-        return new Result<boolean>(true, null, "Success");
+    addToCart(userID: Id, productID: number, productQuantity: number): Result<void> {
+        // return this.systemController.addToCart(userID, product);
+        return null;
     }
 
     //Guest Payment - Use-Case 4.2
-    checkShoppingCart(userID: string): Result<boolean> {
-        return new Result<boolean>(true, null, "Success");
+    checkShoppingCart(userID: Id): Result<ShoppingCart> {
+        // const domainResult: Result<DomainShoppingCart> = this.systemController.checkShoppingCart(userID);
+        // let result: Result<ShoppingCart> = new Result <ShoppingCart>(domainResult.ok, null, domainResult.message);
+        // if(domainResult.ok) {
+        //     const domainShoppingCart = domainResult.data;
+        //     result.data = new ShoppingCart();
+        // }
+        // return result;
+        return null;
     }
 
     //Guest Payment - Use-Case 4.3
-    removeFromCart(userID: string, product: Product): Result<boolean> {
-        return new Result<boolean>(true, null, "Success");
+    removeFromCart(userID: Id, productId: number): Result<void> {
+        // return this.systemController.removeFromCart(userID, product);
+        return null;
     }
 
     //Guest Payment - Use-Case 4.4
-    editProductInCart(userID: string, product: Product, additionalDetails: any): Result<boolean> {
-        return new Result<boolean>(true, null, "Success");
+    editProductInCart(userID: string, productId: number, productQuantity: number, additionalDetails?: any): Result<void> {
+        // return this.systemController.editProductInCart(userID, product);
+        return null;
     }
 
     //Guest Payment - Use-Case 5
-    checkout(shoppingCart: ShoppingCart, paymentDetails: any, deliveryDetails: any): Result<boolean> {
-        return new Result<boolean>(true, null, "Success");
+    checkout(userID: Id, paymentDetails: any, deliveryDetails: any): Result<void> {
+        // return this.systemController.checkoutProductInCart(shoppingCart, paymentDetails, deliveryDetails);
+        return null;
     }
 }

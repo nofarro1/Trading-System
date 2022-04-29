@@ -23,9 +23,8 @@ export interface registerMemberData {
 
 export interface newShopData {
     shopName: string;
-    founder: Member;
+    founder: string;
     description: string;
-    contactEmail: string;
     foundedDate: Date;
 }
 
