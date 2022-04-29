@@ -9,9 +9,15 @@ export default class MessageController implements IMessageListener<ShopPurchaseM
 
     messageBoxes: Map<Id, MessageBox>
 
-    onEvent(m: ShopPurchaseMessage | ShopStatusChangedMessage) {
-        let recipients = m.shopOwnersIds;
-        recipients.forEach((id) => this.messageBoxes[id].addMessage(m))
+    // onEvent(m: ShopPurchaseMessage | ShopStatusChangedMessage) {
+    //     let recipients = m.shopOwnersIds;
+    //     recipients.forEach((id) => this.messageBoxes[id].addMessage(m))
+    // }
+
+    visitPurchaseEvent(msg: ShopPurchaseMessage) {
+    }
+
+    visitShopStatusChangedEvent(msg: ShopStatusChangedMessage) {
     }
 
 

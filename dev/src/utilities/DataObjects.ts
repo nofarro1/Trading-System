@@ -6,8 +6,10 @@ import {Member} from "../domain/user/Member";
 import {JobType} from "../domain/user/Role";
 import {Shop} from "../domain/marketplace/Shop";
 import {Permissions} from "./Permissions";
+import {Id} from "./Utils";
 
 export interface loginData {
+    guestId:Id;
     username: string;
     password: string;
 }
@@ -23,18 +25,25 @@ export interface registerMemberData {
 
 export interface newShopData {
     shopName: string;
-    founder: Member;
+    founder: number;
     description: string;
-    contactEmail: string;
     foundedDate: Date;
 }
 
+export interface newProductData {
+    name: string,
+    description: string;
+    shopId: number;
+    price: number;
+    quantity: number;
+}
+
+
+
 export interface newRoleData {
     title: string;
-    jobRole: JobType;
-    shopBelonging: Shop;
-    assigner: Member | null;
-    permissions: Permissions[]
-    
-    
+    shop: Id;
+    assigner: string;
+    jobRole?: JobType;
+    permissions?: Permissions[]
 }

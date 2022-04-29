@@ -1,6 +1,6 @@
 import {Guest} from "../user/Guest";
 import {SecurityController} from "./SecurityController";
-import {loginData, newRoleData, newShopData, registerMemberData} from "../../utilities/DataObjects";
+import {loginData, newProductData, newRoleData, newShopData, registerMemberData} from "../../utilities/DataObjects";
 import {Member} from "../user/Member";
 import {Permissions} from "../../utilities/Permissions";
 import {Id} from "../../utilities/Utils";
@@ -30,7 +30,14 @@ export class SystemController {
     securityController: SecurityController
 
 
-    constructor(mpController: MarketplaceController, scController: ShoppingCartController, gController: GuestController, mController: MemberController, pController: PurchaseController, msgController: MessageController, sController: SecurityController) {
+    constructor(mpController: MarketplaceController,
+                scController: ShoppingCartController,
+                gController: GuestController,
+                mController: MemberController,
+                pController: PurchaseController,
+                msgController: MessageController,
+                sController: SecurityController) {
+
         this.mpController = mpController;
         this.scController = scController;
         this.gController = gController;
@@ -53,14 +60,14 @@ export class SystemController {
         let security = new SecurityController();
 
         //todo: configure dependencies between controllers
-
+        purchase.sub(messages)
         return new SystemController(marketplace, shoppingCart, guest, member, purchase, messages, security);
 
     }
 
     //Guest actions
 
-    connectGuest(): Result<Guest> {
+    accessMarketplace(): Result<Guest> {
         let newGuest: Guest = this.gController.addNewGuest();
 
 
@@ -69,8 +76,12 @@ export class SystemController {
         return new Result(true, newGuest);
     }
 
-    disconnectGuest(/*a way to distinguish users connection*/): void {
-        let guest = "this guest";
+    exitMarketplace(userId: Id) {
+        this.disconnectGuest(userId);
+    }
+
+    disconnectGuest(guestId: Id): void {
+        let guest = `this is guest ${guestId}`;
         // gController.removeGuest(guest)
         //scController.removeShoppingCart(guest.ShoppingCart.id);
 
@@ -103,7 +114,7 @@ export class SystemController {
 
         //update guestController
 
-        return this.connectGuest();
+        return this.accessMarketplace();
     }
 
     registerMember(guestId: Id, NewMember: registerMemberData): Result<void> {
@@ -116,11 +127,11 @@ export class SystemController {
         return new Result(false, null, "no implementation");
     }
 
-    getProducts(user: Id, productIds: Id[]): Result<Product[]> {
+    getProducts(user: Id, productIds: number[]): Result<Product[]> {
         return new Result(false, null, "no implementation");
     }
 
-    getShop(user: Id[], shopIds: Id[]): Result<Shop[]> {
+    getShop(user: Id, shopIds: number): Result<Shop[]> {
         return new Result(false, null, "no implementation");
     }
 
@@ -153,22 +164,21 @@ export class SystemController {
         return new Result(false, null, "no implementation")
     }
 
-
-    becomeShopFounder(shopData: newShopData): Result<Shop> {
+    setupShop(shopData: newShopData): Result<Shop> {
         return new Result(false, null, "no implementation");
     }
 
     //shop owner related
 
-    addProduct(member: Id, shop: Id, newProductData): Result<Product> {
+    addProduct(member: Id, newProductData:newProductData): Result<Product> {
         return new Result(false, null, "no implementation");
     }
 
-    updateProduct(member: Id, shop: Id, attributes): Result<Product> {
+    updateProduct(member: Id, shop: Id, quantity: number): Result<Product> {
         return new Result(false, null, "no implementation");
     }
 
-    deleteProduct(member: Id, shop: Id, attributes): Result<Product> {
+    deleteProduct(member: Id, shop: Id, product: Id): Result<Product> {
         return new Result(false, null, "no implementation");
     }
 
@@ -180,30 +190,33 @@ export class SystemController {
         return new Result(false, null, "no implementation");
     }
 
-    appointShopOwner(newRole: newRoleData, assigner: Id): Result<Role> {
+    appointShopOwner(assigner: Id, newRole: newRoleData): Result<Role> {
         return new Result(false, null, "no implementation");
     }
 
     //shop management and ownership
 
-    appointShopManager(newRole: newRoleData, assigner: Id): Result<Role> {
+    appointShopManager(assigner: Id, newRole: newRoleData): Result<Role> {
 
         return new Result(false, null, "no implementation");
     }
 
-    removeShopManager(toRemove: Id, remover: Id, shop: Shop): Result<void> {
+    /* not for this version
+
+
+        removeShopManager(toRemove: Id, remover: Id, shop: Shop): Result<void> {
+            return new Result(false, null, "no implementation");
+        }
+
+        removeShopOwner(toRemove: Id, remover: Id, shop: Shop): Result<void> {
+            return new Result(false, null, "no implementation");
+        }
+    */
+    addShopManagerPermissions(owner: Id, manager: Id, shop: Id, permissions: Permissions[]): Result<Role> {
         return new Result(false, null, "no implementation");
     }
 
-    removeShopOwner(toRemove: Id, remover: Id, shop: Shop): Result<void> {
-        return new Result(false, null, "no implementation");
-    }
-
-    addShopManagerPermissions(manager: Id, owner: Id, permissions: Permissions[]): Result<Role> {
-        return new Result(false, null, "no implementation");
-    }
-
-    removeShopManagerPermissions(manager: Id, owner: Id, permissions: Permissions[]): Result<Role> {
+    removeShopManagerPermissions(owner: Id, manager: Id, shop: Id, permissions: Permissions[]): Result<Role> {
 
         return new Result(false, null, "no implementation");
     }
@@ -217,18 +230,23 @@ export class SystemController {
         return new Result(false, null, "no implementation");
     }
 
-    getPersonnelInfo(memberId: Id, shopId: Id): Result<{ Member: Permissions[] }> {
-
+    getPersonnelInfo(memberId: Id, shopId: Id): Result<Member[]> {
         return new Result(false, null, "no implementation");
     }
 
-    getShopPurchases(memberId: Id, shopId: Id): Result<ShopOrder[]> {
+    getShopPurchases(memberId: Id, shopId: Id, startDate: Date, endDate: Date, filters?: any): Result<ShopOrder[]> {
+        return new Result(false, null, "no implementation");
+    }
+
+    getShopPurchasesFiltered(memberId: Id, shopId: Id): Result<ShopOrder[]> {
         return new Result(false, null, "no implementation");
     }
 
     //system Admin actions
 
-    registerAsAdmin(username: string, password: string, adminSecretKey:string):Result<void> {
+    registerAsAdmin(username: string, password: string, adminSecretKey: string): Result<void> {
         return new Result(false, null, "no implementation");
     }
+
+    //todo: external services.
 }
