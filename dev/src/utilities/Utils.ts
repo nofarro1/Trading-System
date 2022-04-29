@@ -17,9 +17,9 @@ export const aggregateSuccessResults = <T>(results:Result<T>[]):Result<T[]> =>{
     return new Result<T[]>(allsucc,allData,allsucc ? '' : 'not all results have been resolved successfully');
 
 }
-
-export const aggregateFailedResults = <T>(results:Result<T>[]):Result<T[]> =>{
-    const allData = results.filter(r => !r.ok).map( x => x.data);
-    return
-
-}
+//
+// export const aggregateFailedResults = <T>(results:Result<T>[]):Result<T[]> =>{
+//     const allData = results.filter(r => !r.ok).map( x => x.data);
+//     return
+//
+// }

@@ -6,7 +6,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     subscriber: IMessageListener<ShopPurchaseMessage>;
 
 
-    sub(sub: IMessageListener<ShopPurchaseMessage>) {
+    subscribe(sub: IMessageListener<ShopPurchaseMessage>) {
         this.subscriber = sub;
     }
     unsub(sub: IMessageListener<ShopPurchaseMessage>) {
