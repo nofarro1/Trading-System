@@ -1,5 +1,11 @@
+import {NewMessageSubscriber} from "./MessageBox";
+import {Message} from "./Messages";
 
 
-export class NotificationController {
+class NotificationController implements NewMessageSubscriber {
+
+    onNewMessages(msgs: Message[]): void {
+        console.log("new messages:" + msgs)
+    }
 
 }
