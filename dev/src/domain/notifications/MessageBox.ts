@@ -77,8 +77,6 @@ export class MessageBox implements NewMessagePublisher{
         if(this.subs.length > 0) {
             this.subs.forEach(sub => sub.onNewMessages(this.messages));
             this.updateUnreadMessages();
-        } else {
-
         }
     }
 
