@@ -4,7 +4,7 @@ import {ExternalServiceType} from "../utilities/Utils";
 
 
 export class OrderService {
-    systemController: SystemController;
+    private systemController: SystemController;
 
     constructor(systemController: SystemController) {
         this.systemController = systemController;

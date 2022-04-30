@@ -13,18 +13,17 @@ import {ExternalServiceType, Id} from "../utilities/Utils";
 import {Shop} from "./simple_objects/marketplace/Shop";
 import {Product} from "./simple_objects/marketplace/Product";
 import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
-import {Product as DomainProduct} from "../domain/marketplace/Product";
 import {ShoppingCart} from "./simple_objects/marketplace/ShoppingCart";
 
 
 export class Service {
-    systemController: SystemController;
+    private readonly systemController: SystemController;
 
-    guestService: GuestService;
-    memberService: MemberService;
-    marketplaceService: MarketplaceService;
-    shoppingCartService: ShoppingCartService;
-    orderService: OrderService;
+    private guestService: GuestService;
+    private memberService: MemberService;
+    private marketplaceService: MarketplaceService;
+    private shoppingCartService: ShoppingCartService;
+    private orderService: OrderService;
 
     constructor() {
         //System - Use-Case 1

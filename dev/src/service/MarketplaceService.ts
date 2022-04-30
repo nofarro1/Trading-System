@@ -13,7 +13,7 @@ import {Guest as DomainGuest} from "../domain/user/Guest";
 
 
 export class MarketplaceService {
-    systemController: SystemController;
+    private systemController: SystemController;
 
     constructor(systemController: SystemController) {
         this.systemController = systemController;
@@ -92,15 +92,16 @@ export class MarketplaceService {
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
     getShopPurchaseHistory(ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Result<ShopOrder[]> {
-        const domainResult: Result<DomainProduct[]> = this.systemController.getShopPurchases(ownerID, shopID, startDate, endDate);
-        const shopOrders: ShopOrder[] = new Array<ShopOrder>();
-        const result: Result<ShopOrder[]> = new Result <ShopOrder[]>(domainResult.ok, shopOrders, domainResult.message);
-        if(domainResult.ok) {
-            for (const domainShopOrder of domainResult.data) {
-                const shopOrder: ShopOrder = new ShopOrder(); //TODO
-                shopOrders.push(shopOrder);
-            }
-        }
-        return result;
+        // const domainResult: Result<DomainProduct[]> = this.systemController.getShopPurchases(ownerID, shopID, startDate, endDate);
+        // const shopOrders: ShopOrder[] = new Array<ShopOrder>();
+        // const result: Result<ShopOrder[]> = new Result <ShopOrder[]>(domainResult.ok, shopOrders, domainResult.message);
+        // if(domainResult.ok) {
+        //     for (const domainShopOrder of domainResult.data) {
+        //         const shopOrder: ShopOrder = new ShopOrder(); //TODO
+        //         shopOrders.push(shopOrder);
+        //     }
+        // }
+        // return result;
+        return null;
     }
 }

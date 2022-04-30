@@ -6,7 +6,7 @@ import {Member as DomainMember} from "../domain/user/Member";
 
 
 export class GuestService {
-    systemController: SystemController;
+    private systemController: SystemController;
 
     constructor(systemController: SystemController) {
         this.systemController = systemController;

@@ -7,7 +7,7 @@ import {Id} from "../utilities/Utils";
 
 
 export class ShoppingCartService {
-    systemController: SystemController;
+    private systemController: SystemController;
 
     constructor(systemController: SystemController) {
         this.systemController = systemController;

@@ -12,7 +12,7 @@ import {NewRoleData} from "../utilities/DataObjects";
 
 
 export class MemberService {
-    systemController: SystemController;
+    private systemController: SystemController;
 
     constructor(systemController: SystemController) {
         this.systemController = systemController;

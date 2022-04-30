@@ -1,7 +1,7 @@
 
 
 export class Guest {
-    guestID: number;
+    private guestID: number;
 
     constructor(guestID: number) {
         this.guestID = guestID;

@@ -1,7 +1,14 @@
-import {Product} from "./Product";
 
 
 export class ShoppingBag {
-    shopID: string;
-    products: Product[];
+    userId: string;
+    private shopID: string;
+    private products: number[];
+
+
+    constructor(userId: string, shopID: string, products: number[]) {
+        this.userId = userId;
+        this.shopID = shopID;
+        this.products = products;
+    }
 }
