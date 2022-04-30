@@ -26,7 +26,6 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         this.deliveryService = deliveryService;
     }
 
-    controller(){}
     subscribe(sub: IMessageListener<ShopPurchaseMessage>) {
         this.subscriber = sub;
     }
