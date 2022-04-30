@@ -1,6 +1,7 @@
 import { Result } from "../../utilities/Result";
 import { DeliveryServiceAdaptor } from "../external_services/DeliveryServiceAdaptor";
 import { PaymentServiceAdaptor } from "../external_services/PaymentServiceAdaptor";
+import { ShoppingBag } from "../marketplace/ShoppingBag";
 import {IMessagePublisher, IMessageListener} from "../notifications/IEventPublishers";
 import { ShopPurchaseMessage } from "../notifications/Message";
 import { User } from "../user package/User";
@@ -9,7 +10,7 @@ import { ShopOrder } from "./ShopOrder";
 
 
 export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage> {
-    subscriber: IMessageListener<ShopPurchaseMessage>;
+    subscriber: IMessageListener<ShopPurchaseMessage> | null;
     private paymentService: PaymentServiceAdaptor;
     private deliveryService: DeliveryServiceAdaptor;
     private buyerOrderCounter: number = 0;
@@ -17,6 +18,13 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     private buyerOrders: Map<number, BuyerOrder[]>;
     private shopOrders: Map<number, ShopOrder[]>;
 
+    constructor(paymentService: PaymentServiceAdaptor, deliveryService: DeliveryServiceAdaptor) {
+        this.subscriber = null;
+        this.buyerOrders = new Map<number, BuyerOrder[]>();
+        this.shopOrders = new Map<number, ShopOrder[]>();
+        this.paymentService = paymentService;
+        this.deliveryService = deliveryService;
+    }
 
     controller(){}
     subscribe(sub: IMessageListener<ShopPurchaseMessage>) {
@@ -32,7 +40,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             throw new Error("No one to get the message");
 
     }
-    accept(v: IMessageListener<ShopPurchaseMessage>, msg) {
+    accept(v: IMessageListener<ShopPurchaseMessage>, msg:ShopPurchaseMessage) {
         v.visitPurchaseEvent(msg)
     }
 
@@ -44,27 +52,39 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         this.deliveryService = deliveryService;
     }
 
+    getPaymentService(){
+        return this.paymentService;
+    }
+
+    getDeliveryService(){
+        return this.deliveryService;
+    }
+
     checkout(user: User): Result<void>{
         let shoppingCart = user.getShoppingCart();
         let totalCartPrice = 0;
-        let shopOrders = shoppingCart.bags.map((bag) => {
+        let shopOrders = shoppingCart.bags.map((bag: ShoppingBag) => {
             totalCartPrice += bag.totalPrice;
             let shopOrder =  new ShopOrder(this.shopOrderCounter, bag.shopId, bag.products, bag.totalPrice, this.getCurrTime());
-            let orders = []
-            if (this.shopOrders.has(bag.shopId))
-                orders = this.shopOrders.get(bag.shopId);
-            orders.push(shopOrder);
-            this.shopOrders.set(bag.shopId, orders);
+            if (this.shopOrders.has(bag.shopId)){
+                let orders = this.shopOrders.get(bag.shopId);
+                orders?.push(shopOrder);
+            }
+            else{
+                this.shopOrders.set(bag.shopId,[shopOrder])
+            }
         });
         // this.paymentService.makePayment(totalCartPrice);
         // this.deliveryService.makeDelivery("details");
-        let buyerOrder = new BuyerOrder(this.buyerOrderCounter, shopOrders, totalCartPrice, this.getCurrTime());
-        let orders = []
-        if (this.buyerOrders.has(user.getId()))
-            orders = this.shopOrders.get(user.getId());
-        orders.push(buyerOrder);
-        this.buyerOrders.set(user.getId(), orders);
-        return new Result(true, null);
+        let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.getId(), shopOrders, totalCartPrice, this.getCurrTime());
+        if (this.buyerOrders.has(user.getId())){
+            let orders = this.buyerOrders.get(user.getId());
+            orders?.push(buyerOrder);
+        }
+        else{
+            this.buyerOrders.set(user.getId(), [buyerOrder])
+        }
+        return new Result(true, undefined);
     }
 
     getCurrTime(): string{

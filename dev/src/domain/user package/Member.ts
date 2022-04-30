@@ -1,6 +1,6 @@
 import { ShoppingCart } from "../marketplace/ShoppingCart";
 import { MessageBox } from "../notifications/MessageBox";
-import { Permission, Role } from "./Role";
+import { JobType, Permission, Role } from "./Role";
 import { User } from "./User";
 
 
@@ -29,22 +29,28 @@ export class Member implements User{
         this.roles.push(role);
     }
 
-    removeRole(roleId: number) {
-        this.roles = this.roles.filter((role) => role.getId() !== roleId)
+    removeRole(shopId: number, jobType: JobType) {
+        this.roles = this.roles.filter((role) => role.getShopId() !== shopId || role.getJobType() !== jobType)
     }
 
-    getRole(roleId: number){
-        return this.roles.find((role) => role.getId() === roleId);
+    getRole(shopId: number, jobType: JobType) {
+        return this.roles.find((role) => role.getShopId() === shopId && role.getJobType() === jobType);
     }
 
-    addPermission(roleId: number, perm: Permission) {
-        let role = this.roles.find((role) => role.getId() === roleId);
-        role.addPermition(perm);
+    hasRole(shopId: number, jobType: JobType){
+        return this.roles.reduce((bool, role) => bool || (role.getShopId() === shopId && role.getJobType() === jobType));
     }
 
-    removePermission(roleId: number, perm: Permission) {
-        let role = this.roles.find((role) => role.getId() === roleId);
-        role.removePermission(perm);
+    addPermission(shopId: number, jobType: JobType, perm: Permission) {
+        let role = this.getRole(shopId, jobType);
+        if (role)
+            role.addPermition(perm);
+    }
+
+    removePermission(shopId: number, jobType: JobType, perm: Permission) {
+        let role = this.getRole(shopId, jobType);
+        if (role)
+            role.removePermission(perm);
     }
 
 }

@@ -7,7 +7,7 @@ export abstract class Message {
     timestamp: number
     isRead: boolean
 
-    protected constructor(){
+    protected constructor() {
         this.id = UUIDGenerator();
         this.timestamp = Date.now();
         this.isRead = false;
@@ -16,9 +16,26 @@ export abstract class Message {
     setIsRead(state: boolean): void {
         this.isRead = state;
     }
+
     abstract getContent(): string;
 
 }
+
+export class GenericMessage extends Message {
+    content: any
+
+
+    constructor(content: any) {
+        super();
+        this.content = content;
+    }
+
+    getContent(): string {
+        return "";
+    }
+
+}
+
 
 export class ShopPurchaseMessage extends Message {
 
@@ -27,7 +44,7 @@ export class ShopPurchaseMessage extends Message {
     shopOwnersIds: Id[]
     purchase: ShopOrder
 
-    constructor(shopOrder: ShopOrder, shopOwners:Id[], buyer:string) {
+    constructor(shopOrder: ShopOrder, shopOwners: Id[], buyer: string) {
         super()
         this.purchase = shopOrder;
         this.shopOwnersIds = shopOwners;
@@ -47,7 +64,7 @@ export class ShopStatusChangedMessage extends Message {
     shopOwnersIds: Id[]
 
 
-    constructor(status: boolean, shopOwners:Id[], shopName:string) {
+    constructor(status: boolean, shopOwners: Id[], shopName: string) {
         super()
         this.shopOwnersIds = shopOwners;
         this.content = `hello Owner, We would like to notify you that the shop founder of '${shopName} ${status === true ? `opened the shop for business` : `closed the shop temporarily`}`

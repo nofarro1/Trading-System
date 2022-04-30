@@ -13,8 +13,9 @@ export class BuyerOrder {
     private totalPrice: number;
     private creationTime: string;
 
-    constructor(orderNum: number, shopOrders: ShopOrder[], totalPrice: number, creationTime: string) {
+    constructor(orderNum: number,userId: number, shopOrders: ShopOrder[], totalPrice: number, creationTime: string) {
         this.orderNum = orderNum;
+        this.userId = userId;
         this.shopOrders = shopOrders;
         this.totalPrice = totalPrice;
         this.creationTime = creationTime;
