@@ -1,4 +1,3 @@
-import Product from "../marketplace/Product";
 import { ShopOrder } from "./ShopOrder";
 
 

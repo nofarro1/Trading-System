@@ -1,4 +1,5 @@
-import Product from "../marketplace/Product";
+import { Product } from "../marketplace/Product";
+
 
 
 export class ShopOrder {

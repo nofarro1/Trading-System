@@ -1,11 +1,9 @@
 import { Result } from "../../utilities/Result";
 import { DeliveryServiceAdaptor } from "../external_services/DeliveryServiceAdaptor";
 import { PaymentServiceAdaptor } from "../external_services/PaymentServiceAdaptor";
-import Product from "../marketplace/Product";
 import {IMessagePublisher, IMessageListener} from "../notifications/IEventPublishers";
-import {ShopPurchaseMessage} from "../notifications/Messages";
-import { Guest } from "../user/Guest";
-import { Member } from "../user/Member";
+import { ShopPurchaseMessage } from "../notifications/Message";
+import { User } from "../user package/User";
 import { BuyerOrder } from "./BuyerOrder";
 import { ShopOrder } from "./ShopOrder";
 
@@ -62,10 +60,10 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         this.deliveryService.makeDelivery("details");
         let buyerOrder = new BuyerOrder(this.buyerOrderCounter, shopOrders, totalCartPrice, this.getCurrTime());
         let orders = []
-        if (this.shopOrders.has(user.userId))
-            orders = this.shopOrders.get(user.userId);
+        if (this.buyerOrders.has(user.getId()))
+            orders = this.shopOrders.get(user.getId());
         orders.push(buyerOrder);
-        this.shopOrders.set(user.userId, orders);
+        this.buyerOrders.set(user.getId(), orders);
         return new Result(true, null);
     }
 
