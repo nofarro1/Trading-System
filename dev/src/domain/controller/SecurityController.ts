@@ -1,15 +1,15 @@
-import {Guest} from "../user/Guest";
-import {Member} from "../user/Member";
+import {User} from "../user package/User";
+import {Member} from "../user package/Member";
 
 
 export class SecurityController {
 
 
-    activeGuests: Guest[] = [];
+    activeGuests: User[] = [];
     loggedMembers: Member[] = [];
 
 
-    addActiveGuest(newGuest: Guest) {
+    addActiveGuest(newGuest: User) {
 
     }
 }
