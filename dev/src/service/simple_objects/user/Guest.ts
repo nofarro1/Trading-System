@@ -1,9 +1,9 @@
 
 
 export class Guest {
-    guestID: string;
+    guestID: number;
 
-    constructor(guestID: string) {
+    constructor(guestID: number) {
         this.guestID = guestID;
     }
 }

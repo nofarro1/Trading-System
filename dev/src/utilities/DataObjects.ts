@@ -2,48 +2,42 @@
 
 // User Related Data Objects
 
-import {Member} from "../domain/user/Member";
 import {JobType} from "../domain/user/Role";
-import {Shop} from "../domain/marketplace/Shop";
 import {Permissions} from "./Permissions";
-import {Id} from "./Utils";
 
-export interface loginData {
-    guestId:Id;
+export interface LoginData {
     username: string;
     password: string;
 }
 
-export interface registerMemberData {
+export interface RegisterMemberData {
     username: string;
     password: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    country: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    country?: string;
 }
 
-export interface newShopData {
-    shopName: string;
+export interface NewShopData {
     founder: string;
+    shopName: string;
     description: string;
-    foundedDate: Date;
+    foundedDate?: Date;
 }
 
-export interface newProductData {
-    name: string,
-    description: string;
+export interface NewProductData {
     shopId: number;
+    name: string;
     price: number;
     quantity: number;
+    description?: string;
 }
 
-
-
-export interface newRoleData {
+export interface NewRoleData {
     title: string;
     shopId: number;
     assigner: string;
     jobRole?: JobType;
-    permissions?: Permissions[]
+    permissions?: Permissions[];
 }

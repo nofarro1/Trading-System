@@ -1,6 +1,6 @@
 import {Guest} from "../user/Guest";
 import {SecurityController} from "./SecurityController";
-import {loginData, newProductData, newRoleData, newShopData, registerMemberData} from "../../utilities/DataObjects";
+import {LoginData, NewProductData, NewRoleData, NewShopData, RegisterMemberData} from "../../utilities/DataObjects";
 import {Member} from "../user/Member";
 import {Permissions} from "../../utilities/Permissions";
 import {Id} from "../../utilities/Utils";
@@ -13,7 +13,7 @@ import MessageController from "../notifications/MessageController";
 import {Result} from "../../utilities/Result";
 import {Shop} from "../marketplace/Shop";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
-import Product, {} from "../marketplace/Product";
+import {Product} from "../marketplace/Product";
 import {ShoppingCart} from "../marketplace/ShoppingCart";
 import {BuyerOrder} from "../purchase/BuyerOrder";
 import {ShopOrder} from "../purchase/ShopOrder";
@@ -76,8 +76,10 @@ export class SystemController {
         return new Result(true, newGuest);
     }
 
-    exitMarketplace(userId: Id) {
+    exitMarketplace(userId: Id): Result<void> {
         this.disconnectGuest(userId);
+
+        return new Result(true, null);
     }
 
     disconnectGuest(guestId: Id): void {
@@ -88,7 +90,7 @@ export class SystemController {
 
     }
 
-    login(d: loginData): Result<Member> {
+    login(guestId: number, d: LoginData): Result<Member> {
 
         //dispatch to security controller
 
@@ -117,7 +119,7 @@ export class SystemController {
         return this.accessMarketplace();
     }
 
-    registerMember(guestId: Id, NewMember: registerMemberData): Result<void> {
+    registerMember(guestId: Id, NewMember: RegisterMemberData): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
@@ -164,21 +166,21 @@ export class SystemController {
         return new Result(false, null, "no implementation")
     }
 
-    setupShop(shopData: newShopData): Result<Shop> {
+    setUpShop(shopData: NewShopData): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
     //shop owner related
 
-    addProduct(member: Id, newProductData:newProductData): Result<Product> {
+    addProduct(member: Id, newProductData:NewProductData): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
-    updateProduct(member: Id, shop: Id, quantity: number): Result<Product> {
+    updateProduct(member: Id, shop: Id, product: Id, quantity: number): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
-    deleteProduct(member: Id, shop: Id, product: Id): Result<Product> {
+    deleteProduct(member: Id, shop: Id, product: Id): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
@@ -190,13 +192,13 @@ export class SystemController {
         return new Result(false, null, "no implementation");
     }
 
-    appointShopOwner(assigner: Id, newRole: newRoleData): Result<Role> {
+    appointShopOwner(assigner: Id, newRole: NewRoleData): Result<Role> {
         return new Result(false, null, "no implementation");
     }
 
     //shop management and ownership
 
-    appointShopManager(assigner: Id, newRole: newRoleData): Result<Role> {
+    appointShopManager(assigner: Id, newRole: NewRoleData): Result<Role> {
 
         return new Result(false, null, "no implementation");
     }
@@ -212,16 +214,16 @@ export class SystemController {
             return new Result(false, null, "no implementation");
         }
     */
-    addShopManagerPermissions(owner: Id, manager: Id, shop: Id, permissions: Permissions[]): Result<Role> {
+    addShopManagerPermissions(owner: Id, manager: Id, shop: Id, permissions: Permissions[]): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
-    removeShopManagerPermissions(owner: Id, manager: Id, shop: Id, permissions: Permissions[]): Result<Role> {
+    removeShopManagerPermissions(owner: Id, manager: Id, shop: Id, permissions: Permissions[]): Result<void> {
 
         return new Result(false, null, "no implementation");
     }
 
-    deactivateShop(member: Id, shop: Id): Result<Shop> {
+    deactivateShop(member: Id, shop: Id): Result<void> {
         //check that member can
         return new Result(false, null, "no implementation");
     }
@@ -244,7 +246,7 @@ export class SystemController {
 
     //system Admin actions
 
-    registerAsAdmin(username: string, password: string, adminSecretKey: string): Result<void> {
+    registerAsAdmin(guestId: number, registrationData: RegisterMemberData, adminSecretKey?: string): Result<void> {
         return new Result(false, null, "no implementation");
     }
 

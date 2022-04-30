@@ -1,11 +1,11 @@
-import {UUIDGenerator} from "../../utilities/Utils";
+import {Id, UUIDGenerator} from "../../utilities/Utils";
 
 
 export class Guest {
-    id: string
+    id: Id;
 
 
-    constructor(id: string) {
+    constructor(id: Id) {
         this.id = id;
     }
 

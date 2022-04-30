@@ -1,5 +1,5 @@
 
 
-export default class Product {
+export class Product {
 
 }
