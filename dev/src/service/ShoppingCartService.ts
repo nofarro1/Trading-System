@@ -15,7 +15,7 @@ export class ShoppingCartService {
 
     //Guest Payment - Use-Case 4.1
     addToCart(userID: Id, productID: number, productQuantity: number): Result<void> {
-        // return this.systemController.addToCart(userID, product);
+        // return this.systemController.addToCart(userID, productID, productQuantity);
         return null;
     }
 
@@ -32,7 +32,7 @@ export class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 4.3
-    removeFromCart(userID: Id, productId: number): Result<void> {
+    removeFromCart(userID: Id, productID: number): Result<void> {
         // return this.systemController.removeFromCart(userID, product);
         return null;
     }

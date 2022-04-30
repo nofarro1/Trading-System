@@ -8,6 +8,7 @@ import {Member} from "./simple_objects/user/Member";
 import {Member as DomainMember} from "../domain/user/Member";
 import {Product as DomainProduct} from "../domain/marketplace/Product";
 import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
+import {NewRoleData} from "../utilities/DataObjects";
 
 
 export class MemberService {
@@ -30,15 +31,13 @@ export class MemberService {
     }
 
     //Shop Owner - Use-Case 4
-    appointShopOwner(assigningOwnerID: string, newOwnerID: string, shopID: number, title: string): Result<void> {
-        // return this.systemController.appointShopOwner(assigningOwnerID, newOwnerID, shopID);
-        return null;
+    appointShopOwner(newRoleData: NewRoleData): Result<void> {
+        return this.systemController.appointShopOwner(newRoleData);
     }
 
     //Shop Owner - Use-Case 6
-    appointShopManager(assigningOwnerID: string, newManagerID: string, shopID: number, title: string): Result<void> {
-        // return this.systemController.appointShopManager(assigningOwnerID, newManagerID, shopID);
-        return null;
+    appointShopManager(newRoleData: NewRoleData): Result<void> {
+        return this.systemController.appointShopManager(newRoleData);
     }
 
     //Shop Owner - Use-Case 7.1

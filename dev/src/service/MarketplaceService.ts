@@ -19,12 +19,6 @@ export class MarketplaceService {
         this.systemController = systemController;
     }
 
-    //System - Use-Case 1
-    initializeMarketplaceSystem(): Result<void> {
-        // return this.systemController.initializeMarketplace();
-        return null;
-    }
-
     //General Guest - Use-Case 1
     accessMarketplace(): Result<Guest> {
         // const domainResult: Result<DomainGuest> = this.systemController.accessMarketplace();

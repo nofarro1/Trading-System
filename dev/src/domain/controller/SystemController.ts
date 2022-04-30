@@ -3,7 +3,7 @@ import {SecurityController} from "./SecurityController";
 import {LoginData, NewProductData, NewRoleData, NewShopData, RegisterMemberData} from "../../utilities/DataObjects";
 import {Member} from "../user/Member";
 import {Permissions} from "../../utilities/Permissions";
-import {Id} from "../../utilities/Utils";
+import {ExternalServiceType, Id} from "../../utilities/Utils";
 import {Role} from "../user/Role";
 import {ShoppingCartController} from "../marketplace/ShoppingCartController";
 import {GuestController} from "../user/GuestController";
@@ -192,13 +192,13 @@ export class SystemController {
         return new Result(false, null, "no implementation");
     }
 
-    appointShopOwner(assigner: Id, newRole: NewRoleData): Result<Role> {
+    appointShopOwner(newRole: NewRoleData): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
     //shop management and ownership
 
-    appointShopManager(assigner: Id, newRole: NewRoleData): Result<Role> {
+    appointShopManager(newRole: NewRoleData): Result<void> {
 
         return new Result(false, null, "no implementation");
     }
@@ -251,4 +251,19 @@ export class SystemController {
     }
 
     //todo: external services.
+    addConnectionWithExternalService(type: ExternalServiceType, serviceName: string): Result<void> {
+        return new Result(false, null, "no implementation");
+    }
+
+    editConnectionWithExternalService(type: ExternalServiceType, serviceName: string, settings: any): Result<void> {
+        return new Result(false, null, "no implementation");
+    }
+
+    swapConnectionWithExternalService(type: ExternalServiceType, newServiceName: string): Result<void> {
+        return new Result(false, null, "no implementation");
+    }
+
+    callService(type: ExternalServiceType, serviceDetails: any): Result<void> {
+        return new Result(false, null, "no implementation");
+    }
 }

@@ -33,8 +33,4 @@ export class GuestService {
         // return result;
         return null;
     }
-
-
-
-
 }

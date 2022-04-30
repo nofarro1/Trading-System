@@ -35,9 +35,10 @@ export interface NewProductData {
 }
 
 export interface NewRoleData {
-    title: string;
+    member: string
+    jobRole: JobType;
     shopId: number;
     assigner: string;
-    jobRole?: JobType;
+    title?: string;
     permissions?: Permissions[];
 }
