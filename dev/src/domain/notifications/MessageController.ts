@@ -1,7 +1,7 @@
 import {Id} from "../../utilities/Utils";
 import {MessageBox, NewMessageSubscriber} from "./MessageBox";
 
-import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Messages";
+import {GenericMessage, Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Messages";
 import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
 
@@ -13,11 +13,6 @@ export default class MessageController implements IMessageListener<Message> {
     constructor() {
         this.messageBoxes = new Map<Id, MessageBox>();
     }
-
-    // onEvent(m: ShopPurchaseMessage | ShopStatusChangedMessage) {
-    //     let recipients = m.shopOwnersIds;
-    //     recipients.forEach((id) => this.messageBoxes[id].addMessage(m))
-    // }
 
 
     addMessageBox(memberId: Id): void {
@@ -36,7 +31,7 @@ export default class MessageController implements IMessageListener<Message> {
         }
     }
 
-    RemoveSubscriberFromBox(memberId: Id, subscriber: NewMessageSubscriber): void {
+    removeSubscriberFromBox(memberId: Id, subscriber: NewMessageSubscriber): void {
         try {
             let box =  this.getMessageBox(memberId);
             box.unsubscribe(subscriber);
@@ -69,6 +64,16 @@ export default class MessageController implements IMessageListener<Message> {
             console.log(e)
             return [];
         }
+    }
+
+    getMessage(memberId: Id, msgId:Id): Message {
+        try {
+            let box= this.getMessageBox(memberId);
+            return box.getMessage(msgId)
+        } catch(e) {
+            return new GenericMessage(e)
+        }
+
     }
 
     removeMessage(memberId: Id, messageId: Id): void {
