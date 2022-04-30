@@ -56,8 +56,8 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             orders.push(shopOrder);
             this.shopOrders.set(bag.shopId, orders);
         });
-        this.paymentService.makePayment(totalCartPrice);
-        this.deliveryService.makeDelivery("details");
+        // this.paymentService.makePayment(totalCartPrice);
+        // this.deliveryService.makeDelivery("details");
         let buyerOrder = new BuyerOrder(this.buyerOrderCounter, shopOrders, totalCartPrice, this.getCurrTime());
         let orders = []
         if (this.buyerOrders.has(user.getId()))
