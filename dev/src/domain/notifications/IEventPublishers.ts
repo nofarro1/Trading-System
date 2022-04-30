@@ -1,4 +1,4 @@
-import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Messages";
+import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message";
 
 
 export interface IMessagePublisher<T extends Message> {

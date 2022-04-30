@@ -2,7 +2,7 @@ import {Id, UUIDGenerator} from "../../utilities/Utils";
 
 
 export class Guest {
-    id: Id
+    id: Id;
 
 
     constructor(id: Id) {

@@ -1,5 +1,5 @@
 import {IMessageListener, IMessagePublisher} from "../notifications/IEventPublishers";
-import {ShopStatusChangedMessage} from "../notifications/Messages";
+import {ShopStatusChangedMessage} from "../notifications/Message";
 import {Shop} from "./Shop";
 
 
