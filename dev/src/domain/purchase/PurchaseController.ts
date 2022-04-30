@@ -3,8 +3,12 @@ import {ShopPurchaseMessage} from "../notifications/Messages";
 
 
 export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage> {
-    subscriber: IMessageListener<ShopPurchaseMessage>;
 
+    subscriber: IMessageListener<ShopPurchaseMessage> | null;
+
+    constructor() {
+        this.subscriber = null;
+    }
 
     subscribe(sub: IMessageListener<ShopPurchaseMessage>) {
         this.subscriber = sub;
@@ -19,8 +23,9 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             throw new Error("No one to get the message");
 
     }
-    accept(v: IMessageListener<ShopPurchaseMessage>, msg) {
+    accept(v: IMessageListener<ShopPurchaseMessage>, msg:ShopPurchaseMessage) {
         v.visitPurchaseEvent(msg)
     }
+
 
 }

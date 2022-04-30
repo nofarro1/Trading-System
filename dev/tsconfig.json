@@ -4,12 +4,12 @@
     "target": "es2021",
     "sourceMap": true,
     "outDir": "dist",
-    "strict": false,
-    "noImplicitAny": false,
+    "strict": true,
+    "noImplicitAny": true,
     "esModuleInterop": true,
     "rootDirs": ["./src","./tests"],
     "skipLibCheck": true,
-    "allowJs": true,
+//    "allowJs": true,
     "allowSyntheticDefaultImports": true
   },
   "exclude": [
