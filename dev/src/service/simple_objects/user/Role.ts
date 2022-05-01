@@ -1,10 +1,10 @@
 
 
 export class Role {
-    username: string;
-    appointingOwnerID: string;
-    shopID: number;
-    permissions: Permissions[];
+    private username: string;
+    private appointingOwnerID: string;
+    private shopID: number;
+    private permissions: Permissions[];
 
 
     constructor(username: string, appointingOwnerID: string, shopID: number, permissions: Permissions[]) {

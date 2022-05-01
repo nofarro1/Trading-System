@@ -1,13 +1,12 @@
-import {Product} from "./Product";
 
 
 export class Shop {
-    ID: number;
-    founderID: string;
-    personnelIDs: string[];
-    products: Product[];
+    private ID: number;
+    private founderID: string;
+    private personnelIDs: string[];
+    private products: number[];
 
-    constructor(shopID: number, founderID: string, personnelIDs: string[], products: Product[]) {
+    constructor(shopID: number, founderID: string, personnelIDs: string[], products: number[]) {
         this.ID = shopID;
         this.founderID = founderID;
         this.personnelIDs = personnelIDs;
