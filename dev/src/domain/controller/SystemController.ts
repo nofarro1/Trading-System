@@ -1,4 +1,4 @@
-import {Guest} from "../user package/Guest";
+import {Guest} from "../user/Guest";
 import {SecurityController} from "./SecurityController";
 <<<<<<< HEAD
 import {LoginData, NewProductData, NewRoleData, NewShopData, RegisterMemberData} from "../../utilities/DataObjects";
@@ -8,15 +8,15 @@ import {ExternalServiceType, Id} from "../../utilities/Utils";
 import {Role} from "../user/Role";
 =======
 import {loginData, newRoleData, newShopData, registerMemberData} from "../../utilities/DataObjects";
-import {Member} from "../user package/Member";
+import {Member} from "../user/Member";
 import {Permissions} from "../../utilities/Permissions";
 import {Id} from "../../utilities/Utils";
-import {Role} from "../user package/Role";
+import {Role} from "../user/Role";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
 >>>>>>> origin/23-nr_user-package
 import {ShoppingCartController} from "../marketplace/ShoppingCartController";
-import {GuestController} from "../user package/GuestController";
-import {MemberController} from "../user package/MemberController";
+import {GuestController} from "../user/GuestController";
+import {MemberController} from "../user/MemberController";
 import {PurchaseController} from "../purchase/PurchaseController";
 import MessageController from "../notifications/MessageController";
 import {Result} from "../../utilities/Result";

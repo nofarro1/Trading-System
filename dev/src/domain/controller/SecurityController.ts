@@ -1,5 +1,5 @@
-import {User} from "../user package/User";
-import {Member} from "../user package/Member";
+import {User} from "../user/User";
+import {Member} from "../user/Member";
 
 
 export class SecurityController {
