@@ -9,7 +9,7 @@ import {Result} from "../utilities/Result";
 import {Member} from "./simple_objects/user/Member";
 import {Guest} from "./simple_objects/user/Guest";
 import {Permissions} from "../utilities/Permissions";
-import {ExternalServiceType, Id} from "../utilities/Utils";
+import {ExternalServiceType, UserID} from "../utilities/Utils";
 import {Shop} from "./simple_objects/marketplace/Shop";
 import {Product} from "./simple_objects/marketplace/Product";
 import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
@@ -94,17 +94,17 @@ export class Service {
 
     //General Guest - Use-Case 2
     //General Member - Use-Case 1
-    exitMarketplace(userID: string): Result<void> {
+    exitMarketplace(userID: UserID): Result<void> {
         return this.marketplaceService.exitMarketplace(userID);
     }
 
     //Guest Payment - Use-Case 1
-    getShopInfo(userID: string, shopID: number): Result<Shop> {
+    getShopInfo(userID: UserID, shopID: number): Result<Shop> {
         return this.marketplaceService.getShopInfo(userID, shopID);
     }
 
     //Guest Payment - Use-Case 2
-    searchProducts(userID: string, searchTerm: string, filters?: any): Result<Product[]> {
+    searchProducts(userID: UserID, searchTerm: string, filters?: any): Result<Product[]> {
         return this.marketplaceService.searchProducts(userID, searchTerm, filters);
     }
 
@@ -142,27 +142,27 @@ export class Service {
     //----------------------Shopping Cart Service methods-------------------------------
 
     //Guest Payment - Use-Case 4.1
-    addToCart(userID: string, productID: number, productQuantity: number): Result<void> {
+    addToCart(userID: UserID, productID: number, productQuantity: number): Result<void> {
         return this.shoppingCartService.addToCart(userID, productID, productQuantity);
     }
 
     //Guest Payment - Use-Case 4.2
-    checkShoppingCart(userID: string): Result<ShoppingCart> {
+    checkShoppingCart(userID: UserID): Result<ShoppingCart> {
         return this.shoppingCartService.checkShoppingCart(userID);
     }
 
     //Guest Payment - Use-Case 4.3
-    removeFromCart(userID: string, productID: number): Result<void> {
+    removeFromCart(userID: UserID, productID: number): Result<void> {
         return this.shoppingCartService.removeFromCart(userID, productID);
     }
 
     //Guest Payment - Use-Case 4.4
-    editProductInCart(userID: string, productID: number, productQuantity: number, additionalDetails?: any): Result<void> {
+    editProductInCart(userID: UserID, productID: number, productQuantity: number, additionalDetails?: any): Result<void> {
         return this.shoppingCartService.editProductInCart(userID, productID, productQuantity, additionalDetails);
     }
 
     //Guest Payment - Use-Case 5
-    checkout(userID: string, paymentDetails: any, deliveryDetails: any): Result<void> {
+    checkout(userID: UserID, paymentDetails: any, deliveryDetails: any): Result<void> {
         return this.shoppingCartService.checkout(userID, paymentDetails, deliveryDetails);
     }
 

@@ -28,6 +28,7 @@ export class MemberService {
         //     result = new Result<Guest>(true, simpleGuest, domainResult.message);
         // } else result.message = domainResult.message;
         // return result;
+        // @ts-ignore
         return null;
     }
 
@@ -63,6 +64,7 @@ export class MemberService {
         //     }
         // }
         // return result;
+        // @ts-ignore
         return null;
     }
 }
