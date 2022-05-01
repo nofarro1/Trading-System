@@ -2,13 +2,9 @@
 
 // User Related Data Objects
 
-<<<<<<< HEAD
+import {Member} from "../domain/user/Member";
 import {JobType} from "../domain/user/Role";
-=======
-import {Member} from "../domain/user package/Member";
-import {JobType} from "../domain/user package/Role";
 import {Shop} from "../domain/marketplace/Shop";
->>>>>>> origin/23-nr_user-package
 import {Permissions} from "./Permissions";
 
 export interface LoginData {
