@@ -1,3 +1,4 @@
+import { ExceptionHandler } from "winston";
 import { Result } from "../../utilities/Result";
 import { Product } from "./Product";
 import { ShoppingCart } from "./ShoppingCart";
@@ -10,18 +11,32 @@ export class ShoppingCartController {
         this.carts= new Map<number, ShoppingCart>();
     }
     addProduct(cartId: number, toAdd: Product, quantity: number): Result<void>{
-        if(this.carts.has(cartId)){
-            this.carts.get(cartId).addProduct(toAdd, quantity);
-            return new Result(true, null);}
-        else
-            return new Result(false, null, "Failed to add product to cart");
+        let cart= this.carts.get(cartId);
+        if(cart){
+            try {
+                cart.addProduct(toAdd, quantity);
+                return new Result(true, undefined);
+            }
+
+            catch (error: any) {
+                return new Result(false, undefined, error.message)
+            }
+        }
+        return new Result(false, undefined, "Failed to addProduct to cart because the needed cart wasn't found")
     }
 
     removeProduct(cartId: number, toRemove: Product, quantity: number): Result<void>{
-        if(this.carts.has(cartId)){
-            if(this.carts.get(cartId).removeProduct(toRemove))
-                return new Result(true, null);}
+        let cart= this.carts.get(cartId);
+        if(cart){
+            try {
+                cart.removeProduct(toRemove)
+                return new Result(true, undefined)
+            } 
+            catch (error: any) {
+                return new Result(false, undefined, error.message)
+            } 
+        }     
         else
-            return new Result(false, null, "Failed to remove product from cart");
+            return new Result(false, undefined, "Failed to remove product from cart because the needed cart wasn't found");
     }
 }

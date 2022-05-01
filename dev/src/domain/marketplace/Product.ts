@@ -1,23 +1,30 @@
 import {Sale} from "./Sale";
 import { Shop } from "./Shop";
 
+export enum productCategory{}
+export enum productRate{NotRated}
+
 export class Product {
     private _id: number;  
     private _name: string;
     private _shopId: number;
+    private _category: productCategory;
+    private _rate: productRate
     private _description: string;
     private _discountPrice: number;
     private _relatedSale: Sale;
 
     
-    constructor(id: number, name: string, shopId: number, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
-        this.id= id;
-        this.name= name;
-        this.shopId = shopId;
-        this.description = description;
-        this.fullPrice= fullPrice;
-        this.discountPrice= discountPrice;
-        this.relatedSale = relatedSale;
+    constructor(id: number, name: string, shopId: number, category: productCategory, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
+        this._id= id;
+        this._name= name;
+        this._shopId= shopId;
+        this._category= category; 
+        this._rate= productRate.NotRated
+        this._description = description;
+        this._fullPrice= fullPrice;
+        this._discountPrice= discountPrice;
+        this._relatedSale = relatedSale;
     }
 
     public get id(): number {
@@ -39,6 +46,13 @@ export class Product {
     }
     public set shopId(value: number) {
         this._shopId = value;
+    }
+
+    public get category(): productCategory {
+        return this._category;
+    }
+    public set category(value: productCategory) {
+        this._category = value;
     }
 
     public get description(): string {

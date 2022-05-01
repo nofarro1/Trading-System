@@ -11,10 +11,10 @@ export class ShoppingBag {
     private _totalPrice: number;
 
     constructor(shopId: number){
-        this.shopId= shopId;
-        this.products= new Map<number, [Product, number]>();
-        this.productsOnSale= new Map<Sale, PriorityQueue<Product>>();
-        this.totalPrice= 0;
+        this._shopId= shopId;
+        this._products= new Map<number, [Product, number]>();
+        this._productsOnSale= new Map<Sale, PriorityQueue<Product>>();
+        this._totalPrice= 0;
     }
 
     public get shopId(): number {
@@ -46,19 +46,23 @@ export class ShoppingBag {
     }
 
     addProduct(toAdd:Product, quantity: number): number{
-        if(this.products.has(toAdd.id)){
-            let updateQuantity = this.products.get(toAdd.id)[1]+quantity;
+        let productPair= this.products.get(toAdd.id);
+        if(productPair){
+            let updateQuantity = productPair[1]+quantity;
             this.products.set(toAdd.id, [toAdd, updateQuantity]);
         }
         else
             this.products.set(toAdd.id, [toAdd, quantity]);
-        if(toAdd.relatedSale!= null){
+        if(toAdd.relatedSale){// if the product is on sale
             if(this.productsOnSale.has(toAdd.relatedSale)){
                 var queue= this.productsOnSale.get(toAdd.relatedSale);
-                queue.queue(toAdd); //check if the queue in the sales is update or need to be put again
-                this.totalPrice+= toAdd.fullPrice;
-                this.totalPrice-= toAdd.relatedSale.applyDiscount(queue);
+                if(queue){
+                    queue.queue(toAdd); //check if the queue in the sales is update or need to be put again
+                    this.totalPrice+= toAdd.fullPrice;
+                    this.totalPrice-= toAdd.relatedSale.applyDiscount(queue);
                 }
+                throw new Error("Failed to add product beacause the queue of the assoicated Sale was undifiend")
+            }
             else{  
                 queue= new PriorityQueue({comparator: compProducts});
                 queue.queue(toAdd);
@@ -72,17 +76,20 @@ export class ShoppingBag {
     
     removeProduct(toRemove: Product):number {
         if(!this.products.has(toRemove.id))
-            return -1;
+            throw new Error("Failed to remove product because the product wasn't found in bag.")
         this.totalPrice-= toRemove.discountPrice;
-        if(toRemove.relatedSale!=null){
+        if(toRemove.relatedSale){
             var queue= this.productsOnSale.get(toRemove.relatedSale);
-            var updatedQueue= new PriorityQueue({comparator: compProducts});
-            while(queue.length!=0){
-                var p=queue.dequeue();
-                if(p!=toRemove)
-                    updatedQueue.queue(p);
+            if(queue){
+                var updatedQueue= new PriorityQueue({comparator: compProducts});
+                while(queue.length!=0){
+                    var p=queue.dequeue();
+                    if(p!=toRemove)
+                        updatedQueue.queue(p);
+                }
+                this.totalPrice-= toRemove.relatedSale.applyDiscount(updatedQueue); 
             }
-            this.totalPrice-= toRemove.relatedSale.applyDiscount(updatedQueue);
+            throw new Error("Failed to remove product beacause the queue of the assoicated Sale was undifiend")  
         }
         return this.totalPrice;
     }
