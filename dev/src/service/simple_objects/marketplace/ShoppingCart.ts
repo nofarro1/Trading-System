@@ -2,12 +2,21 @@ import {ShoppingBag} from "./ShoppingBag";
 
 
 export class ShoppingCart {
-    private userId: string;
-    private totalPrice: number;
+    private readonly _userId: string;
+    private readonly _totalPrice: number;
 
 
     constructor(userId: string, totalPrice: number) {
-        this.userId = userId;
-        this.totalPrice = totalPrice;
+        this._userId = userId;
+        this._totalPrice = totalPrice;
+    }
+
+
+    get userId(): string {
+        return this._userId;
+    }
+
+    get totalPrice(): number {
+        return this._totalPrice;
     }
 }
