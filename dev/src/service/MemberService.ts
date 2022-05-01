@@ -9,10 +9,11 @@ import {Member as DomainMember} from "../domain/user/Member";
 import {Product as DomainProduct} from "../domain/marketplace/Product";
 import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
 import {NewRoleData} from "../utilities/DataObjects";
+import {JobType} from "../domain/user/Role";
 
 
 export class MemberService {
-    systemController: SystemController;
+    private systemController: SystemController;
 
     constructor(systemController: SystemController) {
         this.systemController = systemController;
@@ -31,13 +32,13 @@ export class MemberService {
     }
 
     //Shop Owner - Use-Case 4
-    appointShopOwner(newRoleData: NewRoleData): Result<void> {
-        return this.systemController.appointShopOwner(newRoleData);
+    appointShopOwner(newOwnerID: string, jobRole: JobType = JobType.Owner, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Result<void> {
+        return this.systemController.appointShopOwner({member: newOwnerID, jobRole: jobRole, shopId: shopID, assigner: assigningOwnerID, title: title, permissions: permissions});
     }
 
     //Shop Owner - Use-Case 6
-    appointShopManager(newRoleData: NewRoleData): Result<void> {
-        return this.systemController.appointShopManager(newRoleData);
+    appointShopManager(newManagerID: string, jobRole: JobType = JobType.Manager, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Result<void> {
+        return this.systemController.appointShopManager({member: newManagerID, jobRole: jobRole, shopId: shopID, assigner: assigningOwnerID, title: title, permissions: permissions});
     }
 
     //Shop Owner - Use-Case 7.1

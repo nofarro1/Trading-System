@@ -6,25 +6,25 @@ import {Member as DomainMember} from "../domain/user/Member";
 
 
 export class GuestService {
-    systemController: SystemController;
+    private systemController: SystemController;
 
     constructor(systemController: SystemController) {
         this.systemController = systemController;
     }
 
     //General Guest - Use-Case 3
-    register(guestId: number, registrationData: RegisterMemberData): Result<void> {
-        return this.systemController.registerMember(guestId, registrationData);
+    register(guestID: number, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Result<void> {
+        return this.systemController.registerMember(guestID, {username: username, password: password, firstName: firstName, lastName: lastName, email: email, country: country});
     }
 
     //General Admin - Use-Case 0
-    registerAdmin(guestId: number, registrationData: RegisterMemberData): Result<void> {
-        return this.systemController.registerAsAdmin(guestId, registrationData);
+    registerAdmin(guestID: number, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Result<void> {
+        return this.systemController.registerAsAdmin(guestID, {username: username, password: password, firstName: firstName, lastName: lastName, email: email, country: country});
     }
 
     //General Guest - Use-Case 4
-    login(guestID: number, loginData: LoginData): Result<Member> {
-        // const domainResult: Result<DomainMember> = this.systemController.login(guestID, loginData);
+    login(guestID: number, username: string, password: string): Result<Member> {
+        // const domainResult: Result<DomainMember> = this.systemController.login(guestID, {username: string, password: string});
         // let result: Result<Member> = new Result <Member>(domainResult.ok, null, domainResult.message);
         // if(domainResult.ok) {
         //     const domainMember = domainResult.data;
