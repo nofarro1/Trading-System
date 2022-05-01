@@ -1,5 +1,5 @@
 import {IMessagePublisher, IMessageListener} from "../notifications/IEventPublishers";
-import {ShopPurchaseMessage} from "../notifications/Messages";
+import {ShopPurchaseMessage} from "../notifications/Message";
 
 
 export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage> {

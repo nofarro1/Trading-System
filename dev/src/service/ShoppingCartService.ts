@@ -14,13 +14,13 @@ export class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 4.1
-    addToCart(userID: Id, productID: number, productQuantity: number): Result<void> {
+    addToCart(userID: string, productID: number, productQuantity: number): Result<void> {
         // return this.systemController.addToCart(userID, productID, productQuantity);
         return null;
     }
 
     //Guest Payment - Use-Case 4.2
-    checkShoppingCart(userID: Id): Result<ShoppingCart> {
+    checkShoppingCart(userID: string): Result<ShoppingCart> {
         // const domainResult: Result<DomainShoppingCart> = this.systemController.checkShoppingCart(userID);
         // let result: Result<ShoppingCart> = new Result <ShoppingCart>(domainResult.ok, null, domainResult.message);
         // if(domainResult.ok) {
@@ -32,7 +32,7 @@ export class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 4.3
-    removeFromCart(userID: Id, productID: number): Result<void> {
+    removeFromCart(userID: string, productID: number): Result<void> {
         // return this.systemController.removeFromCart(userID, product);
         return null;
     }
@@ -44,7 +44,7 @@ export class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 5
-    checkout(userID: Id, paymentDetails: any, deliveryDetails: any): Result<void> {
+    checkout(userID: string, paymentDetails: any, deliveryDetails: any): Result<void> {
         // return this.systemController.checkoutProductInCart(shoppingCart, paymentDetails, deliveryDetails);
         return null;
     }
