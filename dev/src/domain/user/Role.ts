@@ -1,25 +1,17 @@
+import { JobType } from "../../utilities/Enums";
+import { Permissions } from "../../utilities/Permissions";
 import {UserID} from "../../utilities/Utils";
 
 
-export enum JobType {
-    Founder,
-    Owner,
-    Manager,
-    admin
-}
 
-export enum Permission{
-    Perm,
-    ProductManagement
-}
 
 export class Role {
     private shopId : number;
     private title: string;
     private jobType: JobType;
-    private permissions: Permission[];
+    private permissions: Set<Permissions>;
 
-    constructor(shopId: number, title: string, type: JobType, permissions: Permission[]){
+    constructor(shopId: number, title: string, type: JobType, permissions: Set<Permissions>){
         this.shopId = shopId;
         this.title = title;
         this.jobType = type;
@@ -38,15 +30,19 @@ export class Role {
         return this.shopId;
     }
     
-    addPermition(perm: Permission){
-        this.permissions.push(perm);
+    addPermission(perm: Permissions){
+        this.permissions.add(perm);
     }
 
-    hasPermition(perm: Permission){
-        return this.permissions.includes(perm);
+    hasPermission(perm: Permissions){
+        return this.permissions.has(perm);
     }
 
-    removePermission(perm: Permission){
-        this.permissions = this.permissions.filter((permition)=> !perm);
+    removePermission(perm: Permissions){
+        this.permissions.delete(perm);
+    }
+
+    hasPermissions(perm: Permissions){
+        return this.permissions.has(perm);
     }
 }

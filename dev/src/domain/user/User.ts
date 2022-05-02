@@ -2,10 +2,7 @@ import { ShoppingCart } from "../marketplace/ShoppingCart";
 import { MessageBox } from "../notifications/MessageBox";
 
 export interface User{
-    shoppingCart: ShoppingCart;
-    messageBox: MessageBox;
+    _shoppingCart: ShoppingCart;
 
-    getShoppingCart(): ShoppingCart;
-
-    getMessageBox(): MessageBox;
+    get shoppingCart(): ShoppingCart;
 }

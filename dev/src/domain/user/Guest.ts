@@ -1,23 +1,22 @@
 import {UUIDGenerator} from "../../utilities/Utils";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
-import { MessageBox } from "../notifications/MessageBox";
 import { User } from "./User";
 
-//Guest doesn't need a message box
-export class Guest implements User{
-    id: number;
-    shoppingCart: ShoppingCart;
-    messageBox: MessageBox;
 
-    constructor(id: number, shoppingCart: ShoppingCart, messageBox: MessageBox){
-        this.id = id;
-        this.shoppingCart = shoppingCart;
-        this.messageBox = messageBox;
+export class Guest implements User{
+    private _id: number;
+    _shoppingCart: ShoppingCart;
+
+    constructor(id: number, shoppingCart: ShoppingCart){
+        this._id = id;
+        this._shoppingCart = shoppingCart;
+    }
+    public get id(): number {
+            return this._id;
     }
 
-    getId(): number { return this.id; }
+    public get shoppingCart(): ShoppingCart {
+        return this._shoppingCart;
+    }
 
-    getShoppingCart(): ShoppingCart { return this.shoppingCart; }
-
-    getMessageBox(): MessageBox { return this.messageBox; }
 }
