@@ -10,11 +10,11 @@ export class Member implements User{
     messageBox: MessageBox;
     private roles: Role[];
 
-    constructor(username: string, shoppingCart: ShoppingCart, messageBox: MessageBox, roles: Role[]){
+    constructor(username: string, shoppingCart: ShoppingCart, messageBox: MessageBox){
         this.username = username;
         this.shoppingCart = shoppingCart;
         this.messageBox = messageBox;
-        this.roles = roles;
+        this.roles = [];
     }
     
     getUsername(): string { return this.username; }

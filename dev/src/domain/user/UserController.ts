@@ -54,11 +54,11 @@ export class UserController {
             member.removeRole(shopId, jobType);
     }
 
-    addMember(username: string): Result<void>{
+    addMember(username: string, shoppingCart: ShoppingCart, msgBox: MessageBox): Result<void>{
         if(this.members.has(username))
-            return new Result(false, undefined, `user ${username} already exist`);;
+            return new Result(false, undefined, `user ${username} already exist`);
         else{
-            let member = new Member(username, new ShoppingCart(), new MessageBox(), [])
+            let member = new Member(username, shoppingCart, msgBox);
             return new Result(true, undefined);
         }
     }
