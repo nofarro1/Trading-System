@@ -4,7 +4,6 @@ import {ShoppingCartService} from "./ShoppingCartService";
 import {MarketplaceService} from "./MarketplaceService";
 import {OrderService} from "./OrderService";
 import {SystemController} from "../domain/controller/SystemController";
-import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
 import {Result} from "../utilities/Result";
 import {Member} from "./simple_objects/user/Member";
 import {Guest} from "./simple_objects/user/Guest";
@@ -14,7 +13,7 @@ import {Shop} from "./simple_objects/marketplace/Shop";
 import {Product} from "./simple_objects/marketplace/Product";
 import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
 import {ShoppingCart} from "./simple_objects/marketplace/ShoppingCart";
-import {JobType} from "../domain/user/Role";
+import {ProductCategory} from "../domain/marketplace/Product";
 
 
 export class Service {
@@ -49,25 +48,25 @@ export class Service {
     }
 
     //General Guest - Use-Case 4
-    login(guestID: number, username: string, password: string): Result<Member> {
+    login(guestID: number, username: string, password: string): Result<void | Member> {
         return this.guestService.login(guestID, username, password);
     }
 
     //----------------------Member Service methods-------------------------------
 
     //General Member - Use-Case 1
-    logout(username: string): Result<Guest> {
+    logout(username: string): Result<void | Guest> {
         return this.memberService.logout(username);
     }
 
     //Shop Owner - Use-Case 4
-    appointShopOwner(newOwnerID: string, jobRole: JobType = JobType.Owner, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Result<void> {
-        return this.memberService.appointShopOwner(newOwnerID, jobRole, shopID, assigningOwnerID, title, permissions);
+    appointShopOwner(newOwnerID: string, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Result<void> {
+        return this.memberService.appointShopOwner(newOwnerID, shopID, assigningOwnerID, title, permissions);
     }
 
     //Shop Owner - Use-Case 6
-    appointShopManager(newManagerID: string, jobRole: JobType = JobType.Manager, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Result<void> {
-        return this.memberService.appointShopManager(newManagerID, jobRole, shopID, assigningOwnerID, title, permissions);
+    appointShopManager(newManagerID: string, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Result<void> {
+        return this.memberService.appointShopManager(newManagerID, shopID, assigningOwnerID, title, permissions);
     }
 
     //Shop Owner - Use-Case 7.1
@@ -81,14 +80,14 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 11
-    requestShopPersonnelInfo(username: string, shopID: number): Result<Member[]> {
+    requestShopPersonnelInfo(username: string, shopID: number): Result<void | Member[]> {
         return this.memberService.requestShopPersonnelInfo(username, shopID);
     }
 
     //----------------------Marketplace Service methods-------------------------------
 
     //General Guest - Use-Case 1
-    accessMarketplace(): Result<Guest> {
+    accessMarketplace(): Result<void | Guest> {
         return this.marketplaceService.accessMarketplace();
     }
 
@@ -99,23 +98,24 @@ export class Service {
     }
 
     //Guest Payment - Use-Case 1
-    getShopInfo(userID: UserID, shopID: number): Result<Shop> {
+    getShopInfo(userID: UserID, shopID: number): Result<void | Shop> {
         return this.marketplaceService.getShopInfo(userID, shopID);
     }
 
     //Guest Payment - Use-Case 2
-    searchProducts(userID: UserID, searchTerm: string, filters?: any): Result<Product[]> {
+    searchProducts(userID: UserID, searchTerm: string, filters?: any): Result<void | Product[]> {
         return this.marketplaceService.searchProducts(userID, searchTerm, filters);
     }
 
     //Member Payment - Use-Case 2
-    setUpShop(shopName: string, username: string, description: string): Result<void> {
-        return this.marketplaceService.setUpShop(shopName, username, description);
+    setUpShop(username: string, shopName: string): Result<void | Shop> {
+        return this.marketplaceService.setUpShop(shopName, username);
     }
 
     //Shop Owner - Use-Case 1.1
-    addProductToShop(username: string, shopID: number, name: string, price: number, quantity: number, description?: string): Result<void> {
-        return this.marketplaceService.addProductToShop(username, shopID, name, price, quantity, description);
+    addProductToShop(username: string, shopID: number, category: ProductCategory, name: string, price: number,
+                     quantity: number, description?: string): Result<void> {
+        return this.marketplaceService.addProductToShop(username, shopID, category, name, price, quantity, description);
     }
 
     //Shop Owner - Use-Case 1.2
@@ -124,8 +124,8 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 1.3
-    modifyProductQuantityInShop(username: string, shopID: number, productName: string, productQuantity: number): Result<void> {
-        return this.marketplaceService.modifyProductQuantityInShop(username, shopID, productName, productQuantity);
+    modifyProductQuantityInShop(username: string, shopID: number, productID: number, productQuantity: number): Result<void> {
+        return this.marketplaceService.modifyProductQuantityInShop(username, shopID, productID, productQuantity);
     }
 
     //Shop Owner - Use-Case 9
@@ -135,7 +135,7 @@ export class Service {
 
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
-    getShopPurchaseHistory(ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Result<ShopOrder[]> {
+    getShopPurchaseHistory(ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Result<void | ShopOrder[]> {
         return this.marketplaceService.getShopPurchaseHistory(ownerID, shopID, startDate, endDate, filters);
     }
 
@@ -147,7 +147,7 @@ export class Service {
     }
 
     //Guest Payment - Use-Case 4.2
-    checkShoppingCart(userID: UserID): Result<ShoppingCart> {
+    checkShoppingCart(userID: UserID): Result<void | ShoppingCart> {
         return this.shoppingCartService.checkShoppingCart(userID);
     }
 

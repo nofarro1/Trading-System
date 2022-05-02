@@ -252,7 +252,7 @@ export class SystemController {
         })
     }
 
-    setUpShop(founder: string, shopName: string): Result<void> {
+    setUpShop(founder: string, shopName: string): Result<void | Shop> {
         const authCallback = (): Result<void> => {
             const result = this.uController.getMember(founder);
             if (result.ok) {
