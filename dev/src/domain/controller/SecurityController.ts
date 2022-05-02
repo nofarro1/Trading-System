@@ -1,25 +1,26 @@
+import {UserID} from "../../utilities/Utils";
 
 export class SecurityController {
     private readonly MINIMUM_PASSWORD_LENGTH = 8;
 
     private users: Map<string, string>;
-    private activeGuests: string[];
+    private activeGuests: number[];
     private loggedInMembers: string[];
 
     constructor() {
         this.users = new Map<string, string>();
-        this.activeGuests = new Array<string>();
+        this.activeGuests = new Array<number>();
         this.loggedInMembers = new Array<string>();
     }
 
-    accessMarketplace(guestID: string): void {
+    accessMarketplace(guestID: number): void {
         if(this.activeGuests.includes(guestID))
             throw new Error(`There already exists a guest with ${guestID} in the marketplace`);
 
         this.activeGuests.push(guestID);
     }
 
-    exitMarketplace(guestID: string): void {
+    exitMarketplace(guestID: number): void {
         if(!this.activeGuests.includes(guestID))
             throw new Error(`There is no guest with ${guestID} currently in the marketplace`);
 
@@ -61,7 +62,8 @@ export class SecurityController {
         }
     }
 
-    isLoggedIn(userID: string): boolean {
+    //change to UserID
+    isLoggedIn(userID: UserID): boolean {
         return !(!this.loggedInMembers.includes(userID) || !this.activeGuests.includes(userID));
     }
 }

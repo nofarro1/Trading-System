@@ -1,21 +1,21 @@
 import {Sale} from "./Sale";
 import { Shop } from "./Shop";
 
-export enum productCategory{}
+export enum ProductCategory{}
 export enum productRate{NotRated}
 
 export class Product {
     private _id: number;  
     private _name: string;
     private _shopId: number;
-    private _category: productCategory;
+    private _category: ProductCategory;
     private _rate: productRate
     private _description: string;
     private _discountPrice: number;
     private _relatedSale: Sale;
 
     
-    constructor(id: number, name: string, shopId: number, category: productCategory, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
+    constructor(id: number, name: string, shopId: number, category: ProductCategory, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
         this._id= id;
         this._name= name;
         this._shopId= shopId;
@@ -48,10 +48,10 @@ export class Product {
         this._shopId = value;
     }
 
-    public get category(): productCategory {
+    public get category(): ProductCategory {
         return this._category;
     }
-    public set category(value: productCategory) {
+    public set category(value: ProductCategory) {
         this._category = value;
     }
 

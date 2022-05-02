@@ -1,7 +1,7 @@
 import {UserID} from "../../utilities/Utils";
 import {MessageBox, NewMessageSubscriber} from "./MessageBox";
 
-import {GenericMessage, Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Messages";
+import {GenericMessage, Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message";
 import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
 
@@ -15,11 +15,13 @@ export default class MessageController implements IMessageListener<Message> {
     }
 
 
-    addMessageBox(memberId: UserID): void {
+    addMessageBox(memberId: UserID): Result<MessageBox| undefined> {
         if (!this.messageBoxes.has(memberId)) {
             let newMb = new MessageBox(memberId);
             this.messageBoxes.set(memberId, newMb);
+            return new Result(true, newMb);
         }
+        return new Result(false,undefined,"user already has a message box")
     }
 
     addSubscriberToBox(memberId: UserID, subscriber: NewMessageSubscriber): void {

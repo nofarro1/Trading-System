@@ -8,7 +8,7 @@ import {logger} from "../../helpers/logger";
 
 export class NotificationController implements NewMessageSubscriber {
 
-    activeMembers: Map<number,(m:Message) => void>
+    activeMembers: Map<string,(m:Message) => void>
 
 
     constructor() {
@@ -19,7 +19,7 @@ export class NotificationController implements NewMessageSubscriber {
         console.log("new messages:" + msgs)
     }
 
-    addActiveUser(id:number): Result<void> {
+    addActiveUser(id:string): Result<void> {
         if(!this.activeMembers.has(id)){
             const messageCallback = (message:any) => logger.info(message);
             this.activeMembers.set(id,messageCallback);
@@ -29,7 +29,7 @@ export class NotificationController implements NewMessageSubscriber {
         }
     }
 
-    removeActiveUser(id:number): Result<void>{
+    removeActiveUser(id:string): Result<void>{
         const removed = this.activeMembers.delete(id);
         return new Result(removed,undefined);
 

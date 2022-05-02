@@ -44,12 +44,12 @@ export class MemberService {
 
     //Shop Owner - Use-Case 7.1
     addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Permissions[]): Result<void> {
-        return this.systemController.addShopManagerPermissions(assigningOwnerID, promotedManagerID, shopID, permissions);
+        return this.systemController.addShopManagerPermission(assigningOwnerID, promotedManagerID, shopID, permissions);
     }
 
     //Shop Owner - Use-Case 7.2
     removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Permissions[]): Result<void> {
-        return this.systemController.removeShopManagerPermissions(assigningOwnerID, demotedManagerID, shopID, permissions);
+        return this.systemController.removeShopManagerPermission(assigningOwnerID, demotedManagerID, shopID, permissions);
     }
 
     //Shop Owner - Use-Case 11

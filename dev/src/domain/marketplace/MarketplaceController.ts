@@ -2,9 +2,9 @@ import {IMessageListener, IMessagePublisher} from "../notifications/IEventPublis
 import {ShopStatusChangedMessage} from "../notifications/Message";
 import {Shop} from "./Shop";
 import { Result } from "../../utilities/Result";
-import { Product, productCategory } from "./Product";
+import { Product, ProductCategory } from "./Product";
 import { Sale } from "./Sale";
-import { Member } from "../user package/Member";
+import { Member } from "../user/Member";
 export enum searchType{productName, category, keyword}
 export enum sortType{price, rate, category, shopRate}
 
@@ -12,7 +12,7 @@ export enum sortType{price, rate, category, shopRate}
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
     private shops: Map<number, Shop>
     private idsCounter: number;
-    private subscriber: IMessageListener<ShopStatusChangedMessage> | null;
+    subscriber: IMessageListener<ShopStatusChangedMessage> | null;
 
     constructor(){
         this.shops= new Map<number,Shop>();
@@ -41,16 +41,16 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     
 
-    setUpShop(userId: number, shopName: String, purchaseAndDiscountPolicies: String): Result<void>{
+    setUpShop(userId: string, shopName: string, purchaseAndDiscountPolicies: string = " this is a default text"): Result<Shop>{
         let toAdd= new Shop(this.idsCounter, shopName, userId, purchaseAndDiscountPolicies);
         this.shops.set(toAdd.id, toAdd);
-        return new Result(true, undefined);
+        return new Result(true, toAdd);
     }
 
-    closeShop(founder: number, shopId: number): Result<void>{
+    closeShop(founder: string, shopId: number): Result<void>{
         let toClose= this.shops.get(shopId);
-        if(toClose){
-            if(founder!= toClose.shopFounder)
+        if(toClose !== undefined){
+            if(founder!== toClose.shopFounder)
                 return new Result(false, undefined, "Only the shop's founder can close it");
             else{
                 toClose.isActive= false;
@@ -61,10 +61,10 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false,undefined, "Failed to close shop because the shop isn't exsist");
     }
     
-    reopenShop(founder: number, shopId: number): Result<void>{ 
+    reopenShop(founder: string, shopId: number): Result<void>{
         let toReopen= this.shops.get(shopId);
         if(toReopen){
-            if(founder= toReopen.shopFounder)
+            if(founder === toReopen.shopFounder)
                 return new Result(false, undefined, "Only the shop's founder can reopen it");
             else{
                 toReopen.isActive= true;
@@ -75,7 +75,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false,undefined, "Failed to reopen shop because the shop isn't exsist");
     }
 
-    addProductToShop(userId: number, shopId: number, productCategory:productCategory, productName: string, quantity: number, fullPrice: number, discountPrice:number, relatedSale: Sale, productDesc: string): Result<void>{
+    addProductToShop(userId: number, shopId: number, productCategory:ProductCategory, productName: string, quantity: number, fullPrice: number, discountPrice:number, relatedSale: Sale, productDesc: string): Result<void>{
         let shop= this.shops.get(shopId);
         if(!shop)
             return new Result(false, undefined, "Failed to add product to the shop because the shop wasn't found");
@@ -109,7 +109,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
          }
     }
 
-    appointShopOwner(ownerId: number, shopId: number): Result<void>{
+    appointShopOwner(ownerId: string, shopId: number): Result<void>{
         let shop= this.shops.get(shopId);
         if(!shop)
             return new Result(false, undefined, "Failed to appoint owner because the shop wasn't found");
@@ -123,7 +123,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
                  
     }
 
-    appointShopManager(managerId: number, shopId: number): Result<void>{
+    appointShopManager(managerId: string, shopId: number): Result<void>{
         let shop= this.shops.get(shopId);
         if(!shop)
             return new Result(false, undefined, "Failed to appoint owner because the shop wasn't found");

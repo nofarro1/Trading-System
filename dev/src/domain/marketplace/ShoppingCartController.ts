@@ -5,12 +5,16 @@ import { ShoppingCart } from "./ShoppingCart";
 
 
 export class ShoppingCartController {
-    private carts: Map<number, ShoppingCart>;
+    private carts: Map<number | string, ShoppingCart>;
 
     constructor(){
         this.carts= new Map<number, ShoppingCart>();
     }
-    addProduct(cartId: number, toAdd: Product, quantity: number): Result<void>{
+
+    //add cart missing
+
+    //remove cart missing
+    addProduct(cartId: string | number, toAdd: Product, quantity: number): Result<void>{
         let cart= this.carts.get(cartId);
         if(cart){
             try {
@@ -25,7 +29,7 @@ export class ShoppingCartController {
         return new Result(false, undefined, "Failed to addProduct to cart because the needed cart wasn't found")
     }
 
-    removeProduct(cartId: number, toRemove: Product, quantity: number): Result<void>{
+    removeProduct(cartId: number | string, toRemove: Product, quantity: number): Result<void>{
         let cart= this.carts.get(cartId);
         if(cart){
             try {
