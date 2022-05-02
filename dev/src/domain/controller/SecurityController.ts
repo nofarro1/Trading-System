@@ -20,13 +20,17 @@ export class SecurityController {
         this.activeGuests.push(guestID);
     }
 
-    exitMarketplace(guestID: number): void {
-        if(!this.activeGuests.includes(guestID))
-            throw new Error(`There is no guest with ${guestID} currently in the marketplace`);
+    exitMarketplace(userID: UserID): void {
+        if(typeof userID === "string")
+            this.logout(userID);
+        else {
+            if (!this.activeGuests.includes(userID))
+                throw new Error(`There is no guest with ${userID} currently in the marketplace`);
 
-        const index = this.activeGuests.indexOf(guestID);
-        if (index > -1) {
-            this.activeGuests.splice(index, 1);
+            const index = this.activeGuests.indexOf(userID);
+            if (index > -1) {
+                this.activeGuests.splice(index, 1);
+            }
         }
     }
 
