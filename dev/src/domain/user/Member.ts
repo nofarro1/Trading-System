@@ -14,6 +14,7 @@ export class Member implements User{
         this.username = username;
         this.shoppingCart = shoppingCart;
         this.messageBox = messageBox;
+        this.roles = []
     }
     
     getUsername(): string { return this.username; }
@@ -23,7 +24,7 @@ export class Member implements User{
     getMessageBox(): MessageBox { return this.messageBox; }
 
     addRole(role: Role) {
-        this.roles.set
+        this.roles.push(role)
     }
 
     removeRole(shopId: number, jobType: JobType) {
