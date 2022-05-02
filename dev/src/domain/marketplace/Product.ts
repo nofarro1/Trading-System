@@ -1,8 +1,8 @@
 import {Sale} from "./Sale";
 import { Shop } from "./Shop";
+import {productCategory, productRate} from "../../utilities/Enums";
 
-export enum productCategory{}
-export enum productRate{NotRated}
+
 
 export class Product {
     private _id: number;  

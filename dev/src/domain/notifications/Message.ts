@@ -1,6 +1,6 @@
 import {UserID, UUIDGenerator} from "../../utilities/Utils";
 import {ShopOrder} from "../purchase/ShopOrder";
-
+import {logger} from "../../helpers/logger"
 
 export abstract class Message {
     id: UserID

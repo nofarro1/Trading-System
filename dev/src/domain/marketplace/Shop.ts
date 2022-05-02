@@ -1,92 +1,106 @@
-import { Result } from "../../utilities/Result";
-import { Product, productCategory } from "./Product";
-import { Sale } from "./Sale";
-export enum shopRate {NotRated};
+import {Product} from "./Product";
+import {Sale} from "./Sale";
+import {productCategory, shopRate, shopStatus} from "../../utilities/Enums";
+
 let productsCounter= 0;
 
 export class Shop {
-    private _id: number; 
-    private _name: String;
-    private _isActive: boolean;
-    private _shopFounder: number;
-    private _shopOwners: Set<number> | undefined;
-    private _shopManagers: Set<number> | undefined;
+    private _id: number;
+    private _name: string;
+    private _status: shopStatus;
+    private _shopFounder: string;
+    private _shopOwners: Set<string>;
+    private _shopManagers: Set<string>;
     private _products: Map<number, [Product, number]>;
-    private _shopAndDiscountPolicy: String;
+    private _shopAndDiscountPolicy?: string;
     private _rate: shopRate;
    
 
-    constructor(id: number, name: String, shopFounder: number,shopAndDiscountPolicy: String, shopManagers?: Set<number>, shopOwners?: Set<number>){
+    constructor(id: number, name: string, shopFounder: string,shopAndDiscountPolicy?: string){
         this._id= id;
         this._name= name;
-        this._isActive= true;
+        this._status= shopStatus.open;
         this._shopFounder= shopFounder;
-        this._shopManagers= shopManagers;  
+        this._shopOwners= new Set<string>([shopFounder]);
+        this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
         this._shopAndDiscountPolicy= shopAndDiscountPolicy
         this._rate= shopRate.NotRated
     }
 
-    public get id(): number {
+
+    get id(): number {
         return this._id;
     }
-    public set id(value: number) {
+
+    set id(value: number) {
         this._id = value;
     }
-    public get name(): String {
+
+    get name(): string {
         return this._name;
     }
-    public set name(value: String) {
+
+    set name(value: string) {
         this._name = value;
     }
-    public get isActive(): boolean {
-        return this._isActive;
+
+    get status(): shopStatus {
+        return this._status;
     }
-    public set isActive(value: boolean) {
-        this._isActive = value;
+
+    set status(value: shopStatus) {
+        this._status = value;
     }
-    public get shopFounder(): number {
+
+    get shopFounder(): string {
         return this._shopFounder;
     }
-    public set shopFounder(value: number) {
+
+    set shopFounder(value: string) {
         this._shopFounder = value;
     }
 
-    public get shopOwners(): Set<number> | undefined {
+    get shopOwners(): Set<string> {
         return this._shopOwners;
     }
-    public set shopOwners(value: Set<number> | undefined) {
+
+    set shopOwners(value: Set<string>) {
         this._shopOwners = value;
     }
 
-    public get shopManagers(): Set<number> | undefined {
+    get shopManagers(): Set<string> {
         return this._shopManagers;
     }
-    public set shopManagers(value: Set<number> | undefined) {
+
+    set shopManagers(value: Set<string>) {
         this._shopManagers = value;
     }
 
-    public get products(): Map<number, [Product, number]> {
+    get products(): Map<number, [Product, number]> {
         return this._products;
     }
-    public set products(value: Map<number, [Product, number]>) {
+
+    set products(value: Map<number, [Product, number]>) {
         this._products = value;
     }
 
-    public get shopAndDiscountPolicy(): String {
+    get shopAndDiscountPolicy(): string | undefined {
         return this._shopAndDiscountPolicy;
     }
-    public set shopAndDiscountPolicy(value: String) {
+
+    set shopAndDiscountPolicy(value: string | undefined) {
         this._shopAndDiscountPolicy = value;
     }
 
-    public get shopRate(): shopRate {
+    get rate(): shopRate {
         return this._rate;
     }
-    public set shopRate(value: shopRate) {
+
+    set rate(value: shopRate) {
         this._rate = value;
     }
-    
+
     searchProduct(productId: number): Product | boolean{
         if(!this.products)
             throw new Error("Failed to search product in shop because the product map of the shop is undefined");
@@ -126,13 +140,13 @@ export class Shop {
         this.products.set(productId, [product[0],newQuantity]); 
     }
 
-    appointShopOwner(ownerId: number): void{
+    appointShopOwner(ownerId: string): void{
         if(this.shopOwners?.has(ownerId))
             throw new Error("Failed to appoint owner because the memmber is already a owner of the shop")
         this.shopOwners?.add(ownerId);
     }
 
-    appointShopManager(managerId: number): void{
+    appointShopManager(managerId: string): void{
         if(this.shopOwners?.has(managerId))
             throw new Error("Failed to appoint owner because the memmber is already a owner of the shop")
         this.shopOwners?.add(managerId);
