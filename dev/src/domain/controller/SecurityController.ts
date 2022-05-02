@@ -62,8 +62,10 @@ export class SecurityController {
         }
     }
 
-    //change to UserID
     isLoggedIn(userID: UserID): boolean {
-        return !(!this.loggedInMembers.includes(userID) || !this.activeGuests.includes(userID));
+        if(typeof userID === "string")
+            return this.loggedInMembers.includes(userID);
+        else
+            return this.activeGuests.includes(userID);
     }
 }
