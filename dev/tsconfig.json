@@ -10,7 +10,11 @@
     "rootDirs": ["./src","./tests"],
     "skipLibCheck": true,
 //    "allowJs": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es2021.full",
+      "es2015.collection"
+    ]
   },
   "exclude": [
     "node_modules"

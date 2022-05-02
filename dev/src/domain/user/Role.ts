@@ -1,4 +1,4 @@
-import {Id} from "../../utilities/Utils";
+import {UserID} from "../../utilities/Utils";
 
 
 export enum JobType {
