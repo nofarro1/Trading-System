@@ -2,13 +2,20 @@ import {Role} from "./Role";
 
 
 export class Member {
-    username: string;
-    password: string;
-    roles?: Role[];
+    private readonly _username: string;
+    private readonly _roles?: Role[];
 
-    constructor(username: string, password: string, roles?: Role[]) {
-        this.username = username;
-        this.password = password;
-        this.roles = roles;
+    constructor(username: string, roles?: Role[]) {
+        this._username = username;
+        this._roles = roles;
+    }
+
+
+    get username(): string {
+        return this._username;
+    }
+
+    get roles(): Role[] {
+        return this._roles;
     }
 }

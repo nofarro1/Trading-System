@@ -4,7 +4,7 @@ import {ExternalServiceType} from "../utilities/Utils";
 
 
 export class OrderService {
-    systemController: SystemController;
+    private systemController: SystemController;
 
     constructor(systemController: SystemController) {
         this.systemController = systemController;
@@ -21,7 +21,7 @@ export class OrderService {
     }
 
     //System - Use-Case 2.2
-    swapConnectionWithExternalService(type: ExternalServiceType, newServiceName: string): Result<void> {
+    swapConnectionWithExternalService(type: ExternalServiceType, oldServiceName: string, newServiceName: string): Result<void> {
         return this.systemController.swapConnectionWithExternalService(type, newServiceName);
     }
 

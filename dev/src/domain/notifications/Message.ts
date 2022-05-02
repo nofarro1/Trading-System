@@ -1,9 +1,9 @@
-import {Id, UUIDGenerator} from "../../utilities/Utils";
+import {UserID, UUIDGenerator} from "../../utilities/Utils";
 import {ShopOrder} from "../purchase/ShopOrder";
 
 
 export abstract class Message {
-    id: Id
+    id: UserID
     timestamp: number
     isRead: boolean
 
@@ -41,10 +41,10 @@ export class ShopPurchaseMessage extends Message {
 
 
     content: string;
-    shopOwnersIds: Id[]
+    shopOwnersIds: UserID[]
     purchase: ShopOrder
 
-    constructor(shopOrder: ShopOrder, shopOwners: Id[], buyer: string) {
+    constructor(shopOrder: ShopOrder, shopOwners: UserID[], buyer: string) {
         super()
         this.purchase = shopOrder;
         this.shopOwnersIds = shopOwners;
@@ -61,10 +61,10 @@ export class ShopPurchaseMessage extends Message {
 export class ShopStatusChangedMessage extends Message {
 
     content: string;
-    shopOwnersIds: Id[]
+    shopOwnersIds: UserID[]
 
 
-    constructor(status: boolean, shopOwners: Id[], shopName: string) {
+    constructor(status: boolean, shopOwners: UserID[], shopName: string) {
         super()
         this.shopOwnersIds = shopOwners;
         this.content = `hello Owner, We would like to notify you that the shop founder of '${shopName} ${status === true ? `opened the shop for business` : `closed the shop temporarily`}`

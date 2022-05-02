@@ -2,7 +2,7 @@ import {MessageBox, NewMessageSubscriber} from "../../../src/domain/notification
 import {GenericMessage, Message} from "../../../src/domain/notifications/Messages";
 import {Member} from "../../../src/domain/user/Member";
 import MessageController from "../../../src/domain/notifications/MessageController";
-import {Id} from "../../../src/utilities/Utils";
+import {UserID} from "../../../src/utilities/Utils";
 
 class TestMessage extends Message {
 

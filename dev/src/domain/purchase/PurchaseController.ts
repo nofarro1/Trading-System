@@ -4,7 +4,7 @@ import { PaymentServiceAdaptor } from "../external_services/PaymentServiceAdapto
 import { ShoppingBag } from "../marketplace/ShoppingBag";
 import {IMessagePublisher, IMessageListener} from "../notifications/IEventPublishers";
 import { ShopPurchaseMessage } from "../notifications/Message";
-import { User } from "../user package/User";
+import { User } from "../user/User";
 import { BuyerOrder } from "./BuyerOrder";
 import { ShopOrder } from "./ShopOrder";
 
@@ -26,7 +26,6 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         this.deliveryService = deliveryService;
     }
 
-    controller(){}
     subscribe(sub: IMessageListener<ShopPurchaseMessage>) {
         this.subscriber = sub;
     }
