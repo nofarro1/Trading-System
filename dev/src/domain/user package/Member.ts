@@ -5,21 +5,19 @@ import { User } from "./User";
 
 
 export class Member implements User{
-    id: number;
+    private username: string;
     shoppingCart: ShoppingCart;
     messageBox: MessageBox;
-    private username: string;
     private roles: Role[];
 
-    constructor(id: number, shoppingCart: ShoppingCart, messageBox: MessageBox, username: string, roles: Role[]){
-        this.id = id;
+    constructor(username: string, shoppingCart: ShoppingCart, messageBox: MessageBox){
+        this.username = username;
         this.shoppingCart = shoppingCart;
         this.messageBox = messageBox;
-        this.username = username;
-        this.roles = roles;
+        this.roles = [];
     }
     
-    getId(): number { return this.id; }
+    getUsername(): string { return this.username; }
 
     getShoppingCart(): ShoppingCart { return this.shoppingCart; }
 
