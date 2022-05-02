@@ -39,11 +39,11 @@ export class Role {
         return this.shopId;
     }
     
-    addPermition(perm: Permission){
+    addPermission(perm: Permission){
         this.permissions.add(perm);
     }
 
-    hasPermition(perm: Permission){
+    hasPermission(perm: Permission){
         return this.permissions.has(perm);
     }
 

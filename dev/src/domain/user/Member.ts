@@ -8,13 +8,13 @@ export class Member implements User{
     private username: string;
     shoppingCart: ShoppingCart;
     messageBox: MessageBox;
-    private roles: Role[];
+    private roles: Set<Role>;
 
     constructor(username: string, shoppingCart: ShoppingCart, messageBox: MessageBox){
         this.username = username;
         this.shoppingCart = shoppingCart;
         this.messageBox = messageBox;
-        this.roles = [];
+        this.roles = new Set<Role>();
     }
 
     getRoles(): Role[]{
@@ -28,31 +28,47 @@ export class Member implements User{
     getMessageBox(): MessageBox { return this.messageBox; }
 
     addRole(role: Role) {
-        this.roles.push(role)
+        this.roles.add(role);
     }
 
-    removeRole(shopId: number) {
-        this.roles = this.roles.filter((role) => role.getShopId() !== shopId )
+    removeRole(shopId: number, jobType: JobType) {
+        let r;
+        this.roles.forEach((role) => {
+            if (role.getShopId() === shopId && role.getJobType() === jobType)
+                r = role;
+        });
+        if (r)
+            this.roles.delete(r);
     }
 
-    getRole(shopId: number) {
-        return this.roles.find((role) => role.getShopId() === shopId );
+    getRole(shopId: number, jobType: JobType) {
+        this.roles.forEach((role) => {
+            if (role.getShopId() === shopId && role.getJobType() === jobType){
+                return role;
+            }
+        });
     }
 
-    hasRole(shopId: number){
-        return this.roles.reduce((bool, role) => bool || (role.getShopId() === shopId));
+    hasRole(shopId: number, jobType: JobType) {
+        this.roles.forEach((role) => {
+            if (role.getShopId() === shopId && role.getJobType() === jobType)
+                return true;
+        });
+        return false;
     }
 
-    addPermission(shopId: number, perm: Permission) {
-        let role = this.getRole(shopId);
-        if (role)
-            role.addPermition(perm);
+    addPermission(shopId: number, jobType: JobType, perm: Permission) {
+        this.roles.forEach((role) => {
+            if (role.getShopId() === shopId && role.getJobType() === jobType)
+                role.addPermission(perm);
+        })
     }
 
-    removePermission(shopId: number, perm: Permission) {
-        let role = this.getRole(shopId);
-        if (role)
-            role.removePermission(perm);
+    removePermission(shopId: number, jobType: JobType, perm: Permission) {
+        this.roles.forEach((role) => {
+            if (role.getShopId() === shopId && role.getJobType() === jobType)
+                role.removePermission(perm);
+        })
     }
 
 }
