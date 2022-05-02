@@ -4,7 +4,6 @@ import {ShoppingCartService} from "./ShoppingCartService";
 import {MarketplaceService} from "./MarketplaceService";
 import {OrderService} from "./OrderService";
 import {SystemController} from "../domain/controller/SystemController";
-import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
 import {Result} from "../utilities/Result";
 import {Member} from "./simple_objects/user/Member";
 import {Guest} from "./simple_objects/user/Guest";

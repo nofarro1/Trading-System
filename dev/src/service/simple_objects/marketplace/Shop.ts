@@ -1,32 +1,32 @@
+import {Product} from "./Product";
 
 
 export class Shop {
     private readonly _ID: number;
-    private readonly _founderID: string;
-    private readonly _personnelIDs: string[];
-    private readonly _products: number[];
+    private readonly _name: string;
+    private readonly _isActive: boolean;
+    private readonly _products: Map<Product, number>; //<Product, quantity>
 
-    constructor(shopID: number, founderID: string, personnelIDs: string[], products: number[]) {
-        this._ID = shopID;
-        this._founderID = founderID;
-        this._personnelIDs = personnelIDs;
+    constructor(ID: number, name: string, isActive: boolean, products: Map<Product, number>) {
+        this._ID = ID;
+        this._name = name;
+        this._isActive = isActive;
         this._products = products;
     }
-
 
     get ID(): number {
         return this._ID;
     }
 
-    get founderID(): string {
-        return this._founderID;
+    get name(): string {
+        return this._name;
     }
 
-    get personnelIDs(): string[] {
-        return this._personnelIDs;
+    get isActive(): boolean {
+        return this._isActive;
     }
 
-    get products(): number[] {
+    get products(): Map<Product, number> {
         return this._products;
     }
 }
