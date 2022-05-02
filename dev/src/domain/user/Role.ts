@@ -10,16 +10,17 @@ export enum JobType {
 
 export enum Permission{
     Perm,
-    ProductManagement
+    ProductManagement,
+    Perm2
 }
 
 export class Role {
     private shopId : number;
     private title: string;
     private jobType: JobType;
-    private permissions: Permission[];
+    private permissions: Set<Permission>;
 
-    constructor(shopId: number, title: string, type: JobType, permissions: Permission[]){
+    constructor(shopId: number, title: string, type: JobType, permissions: Set<Permission>){
         this.shopId = shopId;
         this.title = title;
         this.jobType = type;
@@ -39,14 +40,14 @@ export class Role {
     }
     
     addPermition(perm: Permission){
-        this.permissions.push(perm);
+        this.permissions.add(perm);
     }
 
     hasPermition(perm: Permission){
-        return this.permissions.includes(perm);
+        return this.permissions.has(perm);
     }
 
     removePermission(perm: Permission){
-        this.permissions = this.permissions.filter((permition)=> !perm);
+        this.permissions.delete(perm);
     }
 }

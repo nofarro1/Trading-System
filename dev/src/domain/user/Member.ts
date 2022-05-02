@@ -16,6 +16,10 @@ export class Member implements User{
         this.messageBox = messageBox;
         this.roles = [];
     }
+
+    getRoles(): Role[]{
+        return this.roles;
+    }
     
     getUsername(): string { return this.username; }
 
