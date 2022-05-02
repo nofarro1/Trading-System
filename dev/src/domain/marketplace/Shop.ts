@@ -1,7 +1,7 @@
 import { Result } from "../../utilities/Result";
-import { Member } from "../user package/Member";
 import { Product, productCategory } from "./Product";
 import { Sale } from "./Sale";
+export enum shopRate {NotRated};
 let productsCounter= 0;
 
 export class Shop {
@@ -13,6 +13,8 @@ export class Shop {
     private _shopManagers: Set<number> | undefined;
     private _products: Map<number, [Product, number]>;
     private _shopAndDiscountPolicy: String;
+    private _rate: shopRate;
+   
 
     constructor(id: number, name: String, shopFounder: number,shopAndDiscountPolicy: String, shopManagers?: Set<number>, shopOwners?: Set<number>){
         this._id= id;
@@ -22,6 +24,7 @@ export class Shop {
         this._shopManagers= shopManagers;  
         this._products= new Map<number, [Product, number]>();
         this._shopAndDiscountPolicy= shopAndDiscountPolicy
+        this._rate= shopRate.NotRated
     }
 
     public get id(): number {
@@ -75,6 +78,13 @@ export class Shop {
     }
     public set shopAndDiscountPolicy(value: String) {
         this._shopAndDiscountPolicy = value;
+    }
+
+    public get shopRate(): shopRate {
+        return this._rate;
+    }
+    public set shopRate(value: shopRate) {
+        this._rate = value;
     }
     
     searchProduct(productId: number): Product | boolean{

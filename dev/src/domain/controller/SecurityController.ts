@@ -1,31 +1,36 @@
+import {UserID} from "../../utilities/Utils";
 
 export class SecurityController {
     private readonly MINIMUM_PASSWORD_LENGTH = 8;
 
     private users: Map<string, string>;
-    private activeGuests: string[];
+    private activeGuests: number[];
     private loggedInMembers: string[];
 
     constructor() {
         this.users = new Map<string, string>();
-        this.activeGuests = new Array<string>();
+        this.activeGuests = new Array<number>();
         this.loggedInMembers = new Array<string>();
     }
 
-    accessMarketplace(guestID: string): void {
+    accessMarketplace(guestID: number): void {
         if(this.activeGuests.includes(guestID))
             throw new Error(`There already exists a guest with ${guestID} in the marketplace`);
 
         this.activeGuests.push(guestID);
     }
 
-    exitMarketplace(guestID: string): void {
-        if(!this.activeGuests.includes(guestID))
-            throw new Error(`There is no guest with ${guestID} currently in the marketplace`);
+    exitMarketplace(userID: UserID): void {
+        if(typeof userID === "string")
+            this.logout(userID);
+        else {
+            if (!this.activeGuests.includes(userID))
+                throw new Error(`There is no guest with ${userID} currently in the marketplace`);
 
-        const index = this.activeGuests.indexOf(guestID);
-        if (index > -1) {
-            this.activeGuests.splice(index, 1);
+            const index = this.activeGuests.indexOf(userID);
+            if (index > -1) {
+                this.activeGuests.splice(index, 1);
+            }
         }
     }
 
@@ -61,7 +66,10 @@ export class SecurityController {
         }
     }
 
-    isLoggedIn(userID: string): boolean {
-        return !(!this.loggedInMembers.includes(userID) || !this.activeGuests.includes(userID));
+    isLoggedIn(userID: UserID): boolean {
+        if(typeof userID === "string")
+            return this.loggedInMembers.includes(userID);
+        else
+            return this.activeGuests.includes(userID);
     }
 }

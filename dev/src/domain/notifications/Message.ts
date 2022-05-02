@@ -41,10 +41,10 @@ export class ShopPurchaseMessage extends Message {
 
 
     content: string;
-    shopOwnersIds: UserID[]
+    shopOwnersIds: Set<UserID>
     purchase: ShopOrder
 
-    constructor(shopOrder: ShopOrder, shopOwners: UserID[], buyer: string) {
+    constructor(shopOrder: ShopOrder, shopOwners: Set<UserID>, buyer: string) {
         super()
         this.purchase = shopOrder;
         this.shopOwnersIds = shopOwners;
@@ -61,10 +61,10 @@ export class ShopPurchaseMessage extends Message {
 export class ShopStatusChangedMessage extends Message {
 
     content: string;
-    shopOwnersIds: UserID[]
+    shopOwnersIds: Set<UserID>
 
 
-    constructor(status: boolean, shopOwners: UserID[], shopName: string) {
+    constructor(status: boolean, shopOwners:Set<UserID>, shopName: string) {
         super()
         this.shopOwnersIds = shopOwners;
         this.content = `hello Owner, We would like to notify you that the shop founder of '${shopName} ${status === true ? `opened the shop for business` : `closed the shop temporarily`}`

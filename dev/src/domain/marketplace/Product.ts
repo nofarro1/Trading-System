@@ -9,7 +9,7 @@ export class Product {
     private _name: string;
     private _shopId: number;
     private _category: productCategory;
-    private _rate: productRate
+    private _rate: productRate;
     private _description: string;
     private _discountPrice: number;
     private _relatedSale: Sale;
@@ -55,6 +55,13 @@ export class Product {
         this._category = value;
     }
 
+    public get rate(): productRate {
+        return this._rate;
+    }
+    public set rate(value: productRate) {
+        this._rate = value;
+    }
+    
     public get description(): string {
         return this._description;
     }

@@ -19,8 +19,6 @@ export class ShoppingCart {
 //When adding a product to the shopping cart, 
 //check if there is a discount to be included on the product.
 //If there is, update the total price accordingly.
-
-
 addProduct(toAdd:Product, quantity: number): void{
     let shopId= toAdd.shopId;
     let bag= this.bags.get(shopId);

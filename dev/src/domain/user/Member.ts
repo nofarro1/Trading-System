@@ -27,26 +27,26 @@ export class Member implements User{
         this.roles.push(role)
     }
 
-    removeRole(shopId: number, jobType: JobType) {
-        this.roles = this.roles.filter((role) => role.getShopId() !== shopId || role.getJobType() !== jobType)
+    removeRole(shopId: number) {
+        this.roles = this.roles.filter((role) => role.getShopId() !== shopId )
     }
 
-    getRole(shopId: number, jobType: JobType) {
-        return this.roles.find((role) => role.getShopId() === shopId && role.getJobType() === jobType);
+    getRole(shopId: number) {
+        return this.roles.find((role) => role.getShopId() === shopId );
     }
 
-    hasRole(shopId: number, jobType: JobType){
-        return this.roles.reduce((bool, role) => bool || (role.getShopId() === shopId && role.getJobType() === jobType));
+    hasRole(shopId: number){
+        return this.roles.reduce((bool, role) => bool || (role.getShopId() === shopId));
     }
 
-    addPermission(shopId: number, jobType: JobType, perm: Permission) {
-        let role = this.getRole(shopId, jobType);
+    addPermission(shopId: number, perm: Permission) {
+        let role = this.getRole(shopId);
         if (role)
             role.addPermition(perm);
     }
 
-    removePermission(shopId: number, jobType: JobType, perm: Permission) {
-        let role = this.getRole(shopId, jobType);
+    removePermission(shopId: number, perm: Permission) {
+        let role = this.getRole(shopId);
         if (role)
             role.removePermission(perm);
     }

@@ -42,16 +42,16 @@ export class UserController {
         return new Result(true, undefined);
     }
 
-    removeRole(username: string, shopId: number, jobType: JobType){
+    removeRole(username: string, shopId: number){
         if (!this.members.has(username))
             return new Result(false, undefined, `user ${username} not found`);
         const member = this.members.get(username);
         if (member){
-            if (!member.hasRole(shopId, jobType))
+            if (!member.hasRole(shopId))
                 return new Result(false, undefined, `user ${username} not found`);
         }
         if (member)
-            member.removeRole(shopId, jobType);
+            member.removeRole(shopId);
     }
 
     addMember(username: string, shoppingCart: ShoppingCart, msgBox: MessageBox): Result<void>{
@@ -77,34 +77,34 @@ export class UserController {
             return new Result(false, undefined, `guest with id ${guestId} not found`);
     }
 
-    addPermition(username: string, shopId: number, jobType: JobType, perm: Permission): Result<void>{
+    addPermission(username: string, shopId: number, perm: Permission): Result<void>{
         if (!this.members.has(username))
         return new Result(false, undefined, `user ${username} not found`);
         const member = this.members.get(username);
         if (member)
-            member.addPermission(shopId, jobType, perm);
+            member.addPermission(shopId, perm);
         return new Result(true, undefined);
     }
 
-    removePermition(username: string, shopId: number, jobType: JobType, perm: Permission): Result<void>{
+    removePermission(username: string, shopId: number, perm: Permission): Result<void>{
         if (!this.members.has(username))
             return new Result(false, undefined, `user ${username} not found`);
         const member = this.members.get(username);
         if(member)
-            member.removePermission(shopId, jobType, perm);
+            member.removePermission(shopId,  perm);
         return new Result(true, undefined);
     }
 
-    checkPermission(username: string, shopId: number, jobType:JobType, perm: Permission): Result<boolean>{
+    checkPermission(username: string, shopId: number, perm: Permission): Result<boolean>{
         if (!this.members.has(username))
             return new Result(false, false, `user ${username} not found`);
         let user = this.members.get(username);
-        if (!user?.hasRole(shopId, jobType))
+        if (!user?.hasRole(shopId))
             return new Result(false, false, `user ${username} not found`);
-        let role = user.getRole(shopId, jobType);
+        let role = user.getRole(shopId);
         if (role)
             return new Result(true, role.hasPermition(perm));
-        return new Result(false, false, `user ${username} don't have role with shop id ${shopId} and job type ${jobType}`);
+        return new Result(false, false, `user ${username} don't have role with shop id ${shopId}`);
             
 
         }

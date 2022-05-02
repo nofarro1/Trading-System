@@ -1,16 +1,36 @@
 import {IMessageListener, IMessagePublisher} from "../notifications/IEventPublishers";
 import {ShopStatusChangedMessage} from "../notifications/Message";
-import {Shop} from "./Shop";
+import {Shop, shopRate} from "./Shop";
 import { Result } from "../../utilities/Result";
-import { Product, productCategory } from "./Product";
+import { Product, productCategory, productRate } from "./Product";
 import { Sale } from "./Sale";
-import { Member } from "../user package/Member";
-export enum searchType{productName, category, keyword}
-export enum sortType{price, rate, category, shopRate}
 
+export enum searchType{productName, category, keyword}
+export enum sortType{price, productRate, category, shopRate}
+export class Range<T>{
+    private _min: T;
+    private _max: T;
+
+    constructor(min: T, max: T){
+        this._min= min;
+        this._max= max;
+    }
+    public get min(): T {
+        return this._min;
+    }
+    public set min(value: T) {
+        this._min = value;
+    }
+    public get max(): T {
+        return this._max;
+    }
+    public set max(value: T) {
+        this._max = value;
+    }
+}
 
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
-    private shops: Map<number, Shop>
+    private shops: Map<number, Shop>;
     private idsCounter: number;
     private subscriber: IMessageListener<ShopStatusChangedMessage> | null;
 
@@ -148,6 +168,46 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             return new Result(false, undefined, "Failed to show the shop products because the shop wasn't found");
     }
 
-    //TODO: searchProduct(toSearch: pr){}
+    searchProduct(searchBy: searchType, searchInput: String | productCategory): Result<Product[]>{
+        let shopsArray = Array.from(this.shops.values());
+        let allProductsMap= shopsArray.map(shop=> Array.from(shop.products.values()));
+        let allProductsInMarket= this.extractProducts(allProductsMap);
+        switch (searchBy) {
+            case searchType.productName:
+                let searchedByName= allProductsInMarket.filter(p=> p.name==searchInput);
+                return new Result(true,searchedByName);
+            case searchType.category:
+                let searchedByCategory= allProductsInMarket.filter(p=> p.category==searchInput);
+                return new Result(true,searchedByCategory);
+            case searchType.keyword:
+                if(typeof searchInput == "string"){
+                    let searchByKeyWord= allProductsInMarket.filter(p=> p.description.includes(searchInput));
+                    return new Result(true,searchByKeyWord);
+                }
+        }
+    }
 
+    private extractProducts(pTuples: [Product, number][][]): Product[]{
+        return pTuples.map(pTuple=> pTuple[0][0]);
+    }
+
+    private sortProducts(sortBy: sortType, sortInput: productCategory| productRate| Range<number> | shopRate, toSort: Product[]): Result<Product[]>{
+        switch(sortBy){
+            case sortType.category:
+                let sortByCategory= toSort.filter(p=> p.category== sortInput);
+                return new Result(true, sortByCategory);
+            case sortType.price:
+                if(sortInput instanceof Range){
+                    let sortByPrice= toSort.filter(p=> {let price= p.discountPrice;
+                                         price>=sortInput.min && price<=sortInput.max})
+                    return new Result(true, sortByPrice);
+                }
+            case sortType.productRate:
+                let sortByProductRate= toSort.filter(p=> p.rate==sortInput);
+                return new Result(true, sortByProductRate);
+            case sortType.shopRate:
+                let sortByShopRate= toSort.filter(p=> this.shops.get(p.shopId)?.shopRate == sortInput)
+                return new Result(true, sortByShopRate);
+        }
+    }
 } 

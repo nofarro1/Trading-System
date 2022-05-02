@@ -4,11 +4,13 @@ import {UserID} from "../../utilities/Utils";
 export enum JobType {
     Founder,
     Owner,
-    Manager
+    Manager,
+    admin
 }
 
 export enum Permission{
-    Perm
+    Perm,
+    ProductManagement
 }
 
 export class Role {

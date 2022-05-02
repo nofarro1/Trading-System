@@ -1,11 +1,11 @@
-
-
 // User Related Data Objects
 
 import {Member} from "../domain/user/Member";
-import {JobType} from "../domain/user/Role";
+import {JobType, Permission} from "../domain/user/Role";
 import {Shop} from "../domain/marketplace/Shop";
-import {Permissions} from "./Permissions";
+
+import {ProductCategory} from "../domain/marketplace/Product";
+import {Sale} from "../domain/marketplace/Sale";
 
 export interface LoginData {
     username: string;
@@ -21,26 +21,23 @@ export interface RegisterMemberData {
     country?: string;
 }
 
-export interface NewShopData {
-    founder: string;
-    shopName: string;
-    description: string;
-    foundedDate?: Date;
-}
 
 export interface NewProductData {
-    shopId: number;
-    name: string;
-    price: number;
-    quantity: number;
-    description?: string;
+    userId: number,
+    shopId: number,
+    productCategory: ProductCategory,
+    productName: string,
+    quantity: number,
+    fullPrice: number,
+    discountPrice: number,
+    relatedSale: Sale,
+    productDesc: string
 }
 
 export interface NewRoleData {
     member: string
-    jobRole: JobType;
     shopId: number;
     assigner: string;
-    title?: string;
-    permissions?: Permissions[];
+    title: string;
+    permissions: Permission[];
 }
