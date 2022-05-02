@@ -1,59 +1,52 @@
 import {Guest} from "../user/Guest";
 import {SecurityController} from "./SecurityController";
-<<<<<<< HEAD
+
 import {LoginData, NewProductData, NewRoleData, NewShopData, RegisterMemberData} from "../../utilities/DataObjects";
 import {Member} from "../user/Member";
-import {Permissions} from "../../utilities/Permissions";
 import {ExternalServiceType, Id} from "../../utilities/Utils";
-import {Role} from "../user/Role";
-=======
-import {loginData, newRoleData, newShopData, registerMemberData} from "../../utilities/DataObjects";
-import {Member} from "../user/Member";
 import {Permissions} from "../../utilities/Permissions";
-import {Id} from "../../utilities/Utils";
-import {Role} from "../user/Role";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
->>>>>>> origin/23-nr_user-package
 import {ShoppingCartController} from "../marketplace/ShoppingCartController";
-import {GuestController} from "../user/GuestController";
-import {MemberController} from "../user/MemberController";
 import {PurchaseController} from "../purchase/PurchaseController";
 import MessageController from "../notifications/MessageController";
+import {NotificationController} from "../notifications/NotificationController";
 import {Result} from "../../utilities/Result";
 import {Shop} from "../marketplace/Shop";
-import {MarketplaceController} from "../marketplace/MarketplaceController";
 import {Product} from "../marketplace/Product";
 import {ShoppingCart} from "../marketplace/ShoppingCart";
 import {BuyerOrder} from "../purchase/BuyerOrder";
 import {ShopOrder} from "../purchase/ShopOrder";
+import {UserController} from "../user/UserController";
+import {User} from "../user/User";
+import {logger} from "../../helpers/logger";
 
 
 export class SystemController {
 
     mpController: MarketplaceController
     scController: ShoppingCartController
-    gController: GuestController
-    mController: MemberController
+    uController: UserController
     pController: PurchaseController
-    nController: MessageController
+    mController: MessageController
     securityController: SecurityController
+    notifyController: NotificationController
 
 
     constructor(mpController: MarketplaceController,
                 scController: ShoppingCartController,
-                gController: GuestController,
-                mController: MemberController,
+                uController: UserController,
                 pController: PurchaseController,
                 msgController: MessageController,
-                sController: SecurityController) {
+                sController: SecurityController,
+                notifyController: NotificationController) {
 
         this.mpController = mpController;
         this.scController = scController;
-        this.gController = gController;
-        this.mController = mController;
+        this.uController = uController;
         this.pController = pController;
-        this.nController = msgController;
+        this.mController = msgController;
         this.securityController = sController;
+        this.notifyController = notifyController;
     }
 
     static initialize(): SystemController {
@@ -62,10 +55,9 @@ export class SystemController {
         //create all services
         let marketplace = new MarketplaceController();
         let shoppingCart = new ShoppingCartController();
-        let guest = new GuestController();
-        let member = new MemberController();
-        let purchase = new PurchaseController();
+        let purchase = new PurchaseController({}, {});
         let messages = new MessageController();
+        let notifications = new NotificationController();
         let security = new SecurityController();
 
         //todo: configure dependencies between controllers
@@ -75,24 +67,32 @@ export class SystemController {
 
     }
 
+    private authenticateMarketVisitor<T>(user, callback: () => Result<T>) {
+        if (!this.securityController.isLoggedIn(user)) {
+            return new Result(false, null, "this is not one of our visitors!");
+        }
+        return callback();
+    }
+
     //Guest actions
 
     accessMarketplace(): Result<Guest> {
-        let newGuest: Guest = this.gController.addNewGuest();
-
-
-        this.securityController.addActiveGuest(newGuest);
-
-        return new Result(true, newGuest);
+        let newGuest: Result<Guest> = this.uController.createGuest();
+        if (!newGuest.ok) {
+            return newGuest;
+        }
+        const guest = newGuest.data
+        this.securityController.accessMarketplace(String(guest.id));
+        return new Result(true, guest);
     }
 
     exitMarketplace(userId: Id): Result<void> {
         this.disconnectGuest(userId);
 
-        return new Result(true, null);
+        return new Result(true, undefined);
     }
 
-    disconnectGuest(guestId: Id): void {
+    disconnectGuest(guestId: number): void {
         let guest = `this is guest ${guestId}`;
         // gController.removeGuest(guest)
         //scController.removeShoppingCart(guest.ShoppingCart.id);
@@ -100,68 +100,108 @@ export class SystemController {
 
     }
 
-    login(guestId: number, d: LoginData): Result<Member> {
+    login(guestId: number, d: LoginData): Result<Member | null> {
+        const secCallback = () => {
+            //if success get the member_id
+            try {
+                this.securityController.login(d.username, d.password);
+            } catch (e: any) {
+                return new Result(false, null, e.message);
+            }
+            //retrieve member and add it to active users
+            const user: Member = this.uController.getUser(d.username).data as Member;
 
-        //dispatch to security controller
 
-        //if success get the member_id
+            //initiate live notification connection with user
+            this.notifyController.addActiveUser(user.id);
+            return new Result(true, user)
+        }
 
-        //retrieve member and add it to active users
-
-        //initiate live notification connection with user
-
-        //save member id with notification connection in map.
-
-
-        return new Result(true, null)
+        return this.authenticateMarketVisitor(guestId, secCallback);
     }
 
-    logout(memberId): Result<Guest> {
-
-        // dispatch to security controller
-
-        // get conformation of log out
-
-        // remove member and live notification
-
-        //update guestController
-
-        return this.accessMarketplace();
+    logout(memberId: number): Result<Guest | null> {
+        const secCallback = () => {
+            // get conformation of log out
+            logger.info(`member ${memberId} logged out`);
+            // remove member and live notification
+            this.notifyController.removeActiveUser(memberId);
+            //update guestController
+            return this.accessMarketplace();
+        }
+        return this.authenticateMarketVisitor(memberId, secCallback);
     }
 
-    registerMember(guestId: Id, NewMember: RegisterMemberData): Result<void> {
-        return new Result(false, null, "no implementation");
+    registerMember(guestId: Id, newMember: RegisterMemberData): Result<any> {
+        const secCallback = (): Result<void> => {
+            //register process
+            try {
+                this.securityController.register(newMember.username, newMember.password);
+            } catch (e: any) {
+                return new Result(false, undefined, e.massage);
+            }
+
+            //record in user package
+            // this.uController.addMember(newMember.username, ...);
+            return new Result(true, undefined, "User registered successfully");
+
+        }
+
+        return this.authenticateMarketVisitor(guestId, secCallback);
     }
 
     //buyer actions
 
-    getProduct(user: Id, productId: Id): Result<Product> {
-        return new Result(false, null, "no implementation");
+    getProduct(user: Id, productId: Id): Result<Product | null> {
+        //market visitor authentication
+
+       return this.authenticateMarketVisitor(user,() => {
+            return this.mpController.getProduct(productId)
+        })
     }
 
-    getProducts(user: Id, productIds: number[]): Result<Product[]> {
-        return new Result(false, null, "no implementation");
+    // nice to have
+    // getProducts(user: Id, productIds: number[]): Result<Product[]> {
+    //     return new Result(false, null, "no implementation");
+    // }
+
+    getShop(user: Id, shopId: number): Result<Shop | null> {
+        return this.authenticateMarketVisitor(user,() => {
+            return this.mpController.getShop(shopId)
+        })
     }
 
-    getShop(user: Id, shopIds: number): Result<Shop[]> {
-        return new Result(false, null, "no implementation");
-    }
-
-
-    getShops(user: Id, shopIds: Id[]): Result<Shop> {
-        return new Result(false, null, "no implementation");
-    }
+    // nice to have
+    // getShops(user: Id, shopIds: Id[]): Result<Shop[]> {
+    //     return this.mpController.getShop(shopid)
+    // }
 
     searchProducts(user: Id, searchTerm: string): Result<Product[]> {
-        return new Result(false, null, "no implementation");
+        //market visitor authentication
+        return this.authenticateMarketVisitor(user,() => {
+            return this.mpController.searchProducts(productId)
+        })
     }
 
     addToCart(user: Id, product: Id, quantity: number): Result<void> {
-        return new Result(false, null, "no implementation");
+
+        const authCallback = () => {
+            const product = this.mpController.getProduct(productId)
+
+
+        }
+        return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    getCart(user: Id): Result<ShoppingCart> {
-        return new Result(false, null, "no implementation");
+    getCart(user: Id): Result<ShoppingCart | null> {
+
+        const authCallback = ():Result<ShoppingCart> | Result<null> => {
+            const result = this.uController.getUser(user)
+            return result.data ? new Result(true, result.data!!.getShoppingCart()) : new Result(false, null,result.message);
+
+
+        }
+        return this.authenticateMarketVisitor(user, authCallback);
     }
 
     editCart(user: Id, product: Id, quantity: number, additionalData?: any): Result<ShoppingCart> {
@@ -177,12 +217,19 @@ export class SystemController {
     }
 
     setUpShop(shopData: NewShopData): Result<void> {
-        return new Result(false, null, "no implementation");
+        const authCallback = ():Result<void> => {
+            const result = this.uController.getUser(shopData.founder);
+            //found shop
+            // insert role
+
+
+        }
+        return this.authenticateMarketVisitor(user, authCallback);
     }
 
     //shop owner related
 
-    addProduct(member: Id, newProductData:NewProductData): Result<void> {
+    addProduct(member: Id, newProductData: NewProductData): Result<void> {
         return new Result(false, null, "no implementation");
     }
 
@@ -203,7 +250,10 @@ export class SystemController {
     }
 
     appointShopOwner(newRole: NewRoleData): Result<void> {
-        return new Result(false, null, "no implementation");
+
+        const authCallback = () => {
+
+        }
     }
 
     //shop management and ownership
