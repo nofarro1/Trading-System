@@ -254,8 +254,11 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     visitPurchaseEvent(msg: ShopPurchaseMessage): void {
         logger.info(`"ShopPurchaseMessage" was received in marketPlaceController.`);
-        let shop= msg.purchase.getShopId();
-        let productTupl= msg.purchase.products.forEach((product, quantity)=>{shop.updateProductQuantity(product.id, quantity)});
+        let shopId= msg.purchase.shopId;
+        let shop: Shop= this.shops.get(shopId);
+        if(shop){
+            let productTupl= msg.purchase.products.forEach((product, quantity)=>{shop.updateProductQuantity(product.id, quantity)});
+        }
     }
 
     visitShopStatusChangedEvent(msg: ShopStatusChangedMessage): void {
