@@ -1,7 +1,5 @@
-import PriorityQueue from "ts-priority-queue"
 import { Product } from "./Product"
 import { Sale } from "./Sale"
-import Comparator from "ts-priority-queue/src/PriorityQueue"
 import { Result } from "../../utilities/Result";
 import { ShoppingBag } from "./ShoppingBag";
 import { exceptions } from "winston";
