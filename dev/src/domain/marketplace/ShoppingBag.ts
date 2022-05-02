@@ -1,7 +1,6 @@
 import PriorityQueue from "ts-priority-queue";
 import { Product } from "./Product";
 import { Sale } from "./Sale";
-import { Shop } from "./Shop"
 const compProducts = (p1: Product, p2: Product)=>  p1.fullPrice - p2.fullPrice;
 
 export class ShoppingBag {

@@ -3,7 +3,7 @@ import { ShoppingCart } from "../marketplace/ShoppingCart";
 import { MessageBox } from "../notifications/MessageBox";
 import { User } from "./User";
 
-
+//Guest doesn't need a message box
 export class Guest implements User{
     id: number;
     shoppingCart: ShoppingCart;
