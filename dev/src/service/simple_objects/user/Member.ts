@@ -5,10 +5,10 @@ import {JobType} from "../../../utilities/Enums";
 export class Member {
     private readonly _username: string;
     private readonly _jobType: JobType;
-    private readonly _permissions: Permissions[]
+    private readonly _permissions: Set<Permissions>
     private readonly _title?: string;
 
-    constructor(username: string, jobType: JobType, permissions: Permissions[], title: string) {
+    constructor(username: string, jobType: JobType, permissions: Set<Permissions>, title: string) {
         this._username = username;
         this._jobType = jobType;
         this._permissions = permissions;
@@ -23,7 +23,7 @@ export class Member {
         return this._jobType;
     }
 
-    get permissions(): Permissions[] {
+    get permissions(): Set<Permissions> {
         return this._permissions;
     }
 

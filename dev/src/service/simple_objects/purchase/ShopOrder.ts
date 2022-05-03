@@ -5,13 +5,13 @@ export class ShopOrder {
     private readonly _shopId: number;
     private readonly _products: Map<Product, number>; //<Product, quantity>
     private readonly _totalPrice: number;
-    private readonly _creationDate: number;
+    private readonly _creationTime: Date;
 
-    constructor(shopId: number, products: Map<Product, number>, totalPrice: number, creationDate: number) {
+    constructor(shopId: number, products: Map<Product, number>, totalPrice: number, creationTime: Date) {
         this._shopId = shopId;
         this._products = products;
         this._totalPrice = totalPrice;
-        this._creationDate = creationDate;
+        this._creationTime = creationTime;
     }
 
     get shopId(): number {
@@ -26,7 +26,7 @@ export class ShopOrder {
         return this._totalPrice;
     }
 
-    get creationDate(): number {
-        return this._creationDate;
+    get creationDate(): Date {
+        return this._creationTime;
     }
 }
