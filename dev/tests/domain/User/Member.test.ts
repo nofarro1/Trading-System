@@ -31,10 +31,7 @@ const r4 = new Role(shop1.id, "founder of myShop", JobType.Founder, emptyPerm);
 
 describe('Member - test', function () {
 
-    beforeEach(function () {
-        const m = new MessageBox(test_m1.username);
-    })
-
+    beforeEach(function () {})
 
     test("add role to member", () => {
         m1.addRole(r1);

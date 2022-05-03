@@ -1,3 +1,4 @@
+import { logger } from "../../helpers/logger";
 import { JobType } from "../../utilities/Enums";
 import { Permissions } from "../../utilities/Permissions";
 import { Result } from "../../utilities/Result";
@@ -24,7 +25,6 @@ export class UserController {
         return this._connectedGuests;
     }
 
-
     public get members(): Map<string, Member> {
         return this._members;
     }
@@ -34,27 +34,29 @@ export class UserController {
         const shoppingCart = new ShoppingCart();
         const msgBox = new MessageBox(this.guestIdCounter);
         const guest = new Guest(this.guestIdCounter, shoppingCart);
-        this.guestIdCounter++;
         this.connectedGuests.set(guest.id, guest);
+        logger.info(`Guest ${this.guestIdCounter} connected`);
+        this.guestIdCounter++;
         return new Result(true, guest);
     }
 
     exitGuest(guest: Guest): Result<void> {
         this.connectedGuests.delete(guest.id);
+        logger.info(`Guest ${guest.id} exit`);
         return new Result(true, undefined);
     }
 
-    addRole(username: string, title: string, jobType: JobType, shopId: number, perm: Set<Permissions>): Result<void>{
+    addRole(username: string, title: string, jobType: JobType, shopId: number, perm: Set<Permissions>): Result<Role | undefined>{
         if (!this.members.has(username))
-            return new Result(false, undefined, `user ${username} not found`);
+            return new Result(false, undefined, `User ${username} not found`);
         const member = this.members.get(username);
         let role = new Role(shopId, title, jobType, perm);
         if(member)
             member.addRole(role);
-        return new Result(true, undefined);
+        return new Result(true, role);
     }
 
-    removeRole(username: string, shopId: number, jobType: JobType){
+    removeRole(username: string, shopId: number){
         if (!this.members.has(username))
             return new Result(false, undefined, `user ${username} not found`);
         const member = this.members.get(username);
@@ -66,32 +68,38 @@ export class UserController {
             member.removeRole(shopId);
     }
 
-    addMember(username: string, shoppingCart: ShoppingCart, msgBox: MessageBox): Result<void>{
+    addMember(username: string, shoppingCart: ShoppingCart): Result<Member| undefined>{
         if(this.members.has(username))
-            return new Result(false, undefined, `user ${username} already exist`);
+            return new Result(false, undefined , `User ${username} already exist`);
         else{
             let member = new Member(username, shoppingCart);
-            return new Result(true, undefined);
+            this.members.set(username, member);
+            return new Result(true, member);
         }
     }
 
     getMember(username: string): Result<Member | undefined>{
-        if(this.members.has(username))
+        if(this.members.has(username)){
+            logger.info(`Member ${username} added to the marketplace`);
             return new Result(true, this.members.get(username));
-        else
-            return new Result(false, undefined, `user ${username} not found`);
+        }
+        else{
+            logger.info(`Member ${username} not added to the marketplace because this username is already exists`);
+            return new Result(false, undefined, `User ${username} not found`);
+        }
+
     }
 
     getGuest(guestId: number): Result<User | undefined>{
         if(this.connectedGuests.has(guestId))
             return new Result(true, this.connectedGuests.get(guestId));
         else
-            return new Result(false, undefined, `guest with id ${guestId} not found`);
+            return new Result(false, undefined, `Guest with id ${guestId} not found`);
     }
 
     addPermission(username: string, shopId: number, perm: Permissions): Result<void>{
         if (!this.members.has(username))
-        return new Result(false, undefined, `user ${username} not found`);
+        return new Result(false, undefined, `User ${username} not found`);
         const member = this.members.get(username);
         if (member)
             member.addPermission(shopId, perm);
@@ -100,7 +108,7 @@ export class UserController {
 
     removePermission(username: string, shopId: number, perm: Permissions): Result<void>{
         if (!this.members.has(username))
-            return new Result(false, undefined, `user ${username} not found`);
+            return new Result(false, undefined, `User ${username} not found`);
         const member = this.members.get(username);
         if(member)
             member.removePermission(shopId, perm);
@@ -109,14 +117,14 @@ export class UserController {
 
     checkPermission(username: string, shopId: number, perm: Permissions): Result<boolean>{
         if (!this.members.has(username))
-            return new Result(false, false, `user ${username} not found`);
+            return new Result(false, false, `User ${username} not found`);
         let user = this.members.get(username);
         if (!user?.hasRole(shopId))
-            return new Result(false, false, `user ${username} not found`);
+            return new Result(false, false, `User ${username} not found`);
         let role = user.roles.get(shopId);
         if (role)
             if(role.hasPermission(perm))
                 return new Result(true, true);
-            return new Result(false, false, `user ${username} don't have role with shop id ${shopId}`);
+            return new Result(false, false, `User ${username} don't have role with shop id ${shopId}`);
         }
     }

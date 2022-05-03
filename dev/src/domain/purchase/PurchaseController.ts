@@ -30,6 +30,14 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         this._deliveryService = deliveryService;
     }
     
+    swapDeliveryService(deliveryService: DeliveryServiceAdaptor){
+        this.deliveryService = deliveryService;
+    }
+
+    swapPaymentService(paymentService: PaymentServiceAdaptor){
+        this.paymentService = paymentService;
+    }
+
     public get subscriber(): IMessageListener<ShopPurchaseMessage> | null {
         return this._subscriber;
     }

@@ -12,8 +12,7 @@
 //    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "lib": [
-      "es2021.full",
-      "es2015.collection"
+      "es2021"
     ]
   },
   "exclude": [

@@ -23,7 +23,7 @@ const g1: Guest = new Guest(1, new ShoppingCart());
 const g2: Guest = new Guest(2, new ShoppingCart());
 
 
-describe('messageBox - test', function () {
+describe('UserController tests - test', function () {
 
     beforeEach(function () {
     })
