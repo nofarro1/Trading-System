@@ -7,18 +7,46 @@ export enum OrderStatus {
     Sent
 }
 export class BuyerOrder {
-    private orderNum: number;
-    private userId: number;
-    private shopOrders: ShopOrder[];
-    private totalPrice: number;
-    private creationTime: string;
-
-    constructor(orderNum: number,userId: number, shopOrders: ShopOrder[], totalPrice: number, creationTime: string) {
-        this.orderNum = orderNum;
-        this.userId = userId;
-        this.shopOrders = shopOrders;
-        this.totalPrice = totalPrice;
-        this.creationTime = creationTime;
+    private _orderNum: number;
+    private _userId: number | string;
+    private _shopOrders: ShopOrder[];
+    private _totalPrice: number;
+    private _creationTime: string;
+    
+    constructor(orderNum: number,userId: number | string, shopOrders: ShopOrder[], totalPrice: number, creationTime: string) {
+        this._orderNum = orderNum;
+        this._userId = userId;
+        this._shopOrders = shopOrders;
+        this._totalPrice = totalPrice;
+        this._creationTime = creationTime;
     }
-
+    
+    public get orderNum(): number {
+        return this._orderNum;
+    }
+    
+    public get creationTime(): string {
+        return this._creationTime;
+    }
+    public set creationTime(value: string) {
+        this._creationTime = value;
+    }
+    
+    public get totalPrice(): number {
+        return this._totalPrice;
+    }
+    public set totalPrice(value: number) {
+        this._totalPrice = value;
+    }
+    
+    public get shopOrders(): ShopOrder[] {
+        return this._shopOrders;
+    }
+    public set shopOrders(value: ShopOrder[]) {
+        this._shopOrders = value;
+    }
+    
+    public get userId(): number | string {
+        return this._userId;
+    }  
 }

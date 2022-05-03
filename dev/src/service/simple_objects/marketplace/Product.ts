@@ -1,4 +1,4 @@
-import {ProductCategory, productRate} from "../../../domain/marketplace/Product";
+import {productCategory, productRate} from "../../../utilities/Enums";
 
 
 export class Product {
@@ -6,11 +6,11 @@ export class Product {
     private readonly _productName: string;
     private readonly _shopID: number;
     private readonly _price: number;
-    private readonly _category: ProductCategory;
+    private readonly _category: productCategory;
     private readonly _rating: productRate;
     private readonly _description?: string;
 
-    constructor(productID: number, productName: string, shopID: number, price: number, category: ProductCategory, rating: productRate, description: string) {
+    constructor(productID: number, productName: string, shopID: number, price: number, category: productCategory, rating: productRate, description: string) {
         this._productID = productID;
         this._productName = productName;
         this._shopID = shopID;
@@ -36,7 +36,7 @@ export class Product {
         return this._price;
     }
 
-    get category(): ProductCategory {
+    get category(): productCategory {
         return this._category;
     }
 
