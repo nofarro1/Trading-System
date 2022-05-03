@@ -45,9 +45,18 @@ describe('Shop- products', function(){
 })
 
 describe('Shop- Appointed Members', function(){
+    beforeEach(function(){
+        s1= new Shop(0, "Mega", "ofir");
+    })
+
     test('appointShopOwner', () =>{
         s1.appointShopOwner("Nofar");
-        expect(s1.shopOwners).toContain("Nofar");
+        expect(s1.shopOwners.values()).toContain("Nofar");
+    })
+
+    test('appointShopManager', () =>{
+        s1.appointShopOwner("Idan");
+        expect(s1.shopOwners.values()).toContain("Idan");
     })
 })
 
