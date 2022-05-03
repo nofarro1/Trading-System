@@ -4,13 +4,27 @@ import {logger} from "../../helpers/logger";
 
 export class DeliveryServiceAdaptor {
     private readonly _name: string;
+    private _settings: any;
 
-    constructor(name: string) {
+    constructor(name: string, settings: any) {
         this._name = name;
+        this._settings = settings;
     }
 
     get name(): string {
         return this._name;
+    }
+
+    get settings(): any {
+        return this._settings;
+    }
+
+    set settings(value: any) {
+        this._settings = value;
+    }
+
+    editServiceSettings(settings: any): void {
+        this.settings = settings;
     }
 
     makeDelivery(deliveryDetails: any): Result<void> {
