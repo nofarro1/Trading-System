@@ -60,7 +60,7 @@ export class SystemController {
         let marketplace = new MarketplaceController();
         let shoppingCart = new ShoppingCartController();
         let user = new UserController()
-        let purchase = new PurchaseController(new PaymentServiceAdaptor("poop payments"),new DeliveryServiceAdaptor("sucks delivery"));
+        let purchase = new PurchaseController(new PaymentServiceAdaptor("Pservice"), new DeliveryServiceAdaptor("Dservice"));
         let messages = new MessageController();
         let notifications = new NotificationController();
         let security = new SecurityController();
@@ -68,7 +68,11 @@ export class SystemController {
         //todo: configure dependencies between controllers
         purchase.subscribe(messages)
         marketplace.subscribe(messages)
-        return new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications);
+
+        let sys =  new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications);
+        //adding
+        sys.registerAsAdmin({username:"admin",password:"admin"}, "Edan Rules")
+        return sys;
 
     }
 
@@ -77,10 +81,6 @@ export class SystemController {
             return new Result(false, undefined, "this is not one of our visitors!");
         }
         return callback();
-    }
-
-    private checkPermission(user: string, shop:number, permission:Permissions){
-        this.uController.checkPermission(user,shop, permission)
     }
 
     //Guest actions
@@ -167,24 +167,31 @@ export class SystemController {
     registerMember(guestId: UserID, newMember: RegisterMemberData): Result<void> {
         const secCallback = (): Result<void> => {
             //register process
-            try {
-                this.securityController.register(newMember.username, newMember.password);
-            } catch (e: any) {
-                return new Result(false, undefined, e.massage);
-            }
+            return this.register(newMember);
 
-            let sc: ShoppingCart = new ShoppingCart();
-            let mb = this.mController.addMessageBox(newMember.username)
-            if (mb.ok)
-                return this.uController.addMember(newMember.username, sc, mb.data as MessageBox)
-            else
-                return new Result(false, undefined);
         }
 
         return this.authenticateMarketVisitor(guestId, secCallback);
     }
 
-    //buyer actions
+    private register(newMember: RegisterMemberData) {
+        try {
+            this.securityController.register(newMember.username, newMember.password);
+        } catch (e: any) {
+            return new Result(false, undefined, e.massage);
+        }
+
+        this.scController.addCart(newMember.username)
+        let res = this.scController.getCart(newMember.username)
+        if (res.ok) {
+            let mb = this.mController.addMessageBox(newMember.username)
+            if (mb.ok)
+                return this.uController.addMember(newMember.username, res.data as ShoppingCart, mb.data as MessageBox)
+        }
+        return new Result(false, undefined);
+    }
+
+//buyer actions
 
     getProduct(user: UserID, productId: number): Result<Product | void> {
         //market visitor authentication
@@ -210,7 +217,7 @@ export class SystemController {
     //     return this.mpController.getShop(shopid)
     // }
 
-    searchProducts(user: UserID, searchBy: SearchType, searchTerm: string | ProductCategory, filter?:any): Result<Product[] | void> {
+    searchProducts(user: UserID, searchBy: SearchType, searchTerm: string | ProductCategory, filter?: any): Result<Product[] | void> {
         //market visitor authentication
         return this.authenticateMarketVisitor(user, () => {
             return this.mpController.searchProduct(searchBy, searchTerm)
@@ -224,7 +231,7 @@ export class SystemController {
             if (productRes.ok && productRes.data !== undefined)
                 return this.scController.addProduct(user, productRes.data, quantity)
             else {
-                return new Result(false, undefined,productRes.message)
+                return new Result(false, undefined, productRes.message)
             }
         }
         return this.authenticateMarketVisitor(user, authCallback);
@@ -233,29 +240,33 @@ export class SystemController {
     getCart(user: UserID): Result<ShoppingCart | void> {
 
         const authCallback = (): Result<ShoppingCart | void> => {
-            const result = this.scController.getShoppingCart(user);
-            return result.data ? new Result(true, result.data!!.getShoppingCart()) : new Result(false, undefined, result.message);
+            const result = this.scController.getCart(user);
+            return result.data ? new Result(true, result.data) : new Result(false, undefined, result.message);
 
 
         }
         return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    editCart(user: UserID, productId: number, quantity: number, additionalData?: any): Result<void> {
+    editCart(user: UserID, product: number, quantity: number, additionalData?: any): Result<void> {
         const authCallback = () => {
-            const product = this.mpController.getProduct(productId)
-            return this.scController.addProduct(user, product, quantity)
+            const productRes = this.mpController.getProduct(product);
+            if (productRes.ok && productRes.data !== undefined) {
+                return this.scController.editCart(user, productRes.data, quantity)
+            } else
+                return new Result(false, undefined, "product not found")
+
         }
         return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    removeProductFromCart(user: UserID, product: number, quantity: number): Result<void> {
+    removeProductFromCart(user: UserID, product: number): Result<void> {
         const authCallback = () => {
-            const productRes = this.mpController.getProduct(product)
-
-            this.scController.removeProduct(user, productObj, quantity)
-
-
+            const productRes = this.mpController.getProduct(product);
+            if (productRes.ok && productRes.data !== undefined) {
+                return this.scController.removeProduct(user, productRes.data)
+            }
+            return new Result(false, undefined, "product not found")
         }
         return this.authenticateMarketVisitor(user, authCallback);
     }
@@ -293,7 +304,7 @@ export class SystemController {
             if (this.uController.checkPermission(member, p.shopId, Permissions.AddProduct).data) {
                 return this.mpController.addProductToShop(
                     p.shopId, p.productCategory, p.productName,
-                    p.quantity, p.fullPrice, p.discountPrice,
+                    p.quantity, p.fullPrice, !p.discountPrice ? p.fullPrice : p.discountPrice,
                     p.relatedSale, p.productDesc);
             }
             return new Result(false, undefined, "member does not have permissions");
@@ -333,11 +344,14 @@ export class SystemController {
 
     appointShopOwner(r: NewRoleData): Result<void> {
         const authCallback = () => {
-            const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions))
-            if (result.ok) {
-                this.mpController.appointShopOwner(r.member, r.shopId)
+            if (this.uController.checkPermission(r.assigner, r.shopId, Permissions.AddShopOwner).data) {
+                const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions))
+                if (result.ok) {
+                    this.mpController.appointShopOwner(r.member, r.shopId)
+                }
+                return result;
             }
-            return result;
+            return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
         return this.authenticateMarketVisitor(r.assigner, authCallback)
     }
@@ -346,11 +360,14 @@ export class SystemController {
 
     appointShopManager(r: NewRoleData): Result<void> {
         const authCallback = () => {
-            const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions))
-            if (result.ok) {
-                this.mpController.appointShopManager(r.member, r.shopId)
+            if (this.uController.checkPermission(r.assigner, r.shopId, Permissions.AddShopManager).data) {
+                const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions))
+                if (result.ok) {
+                    this.mpController.appointShopOwner(r.member, r.shopId)
+                }
+                return result;
             }
-            return result;
+            return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
         return this.authenticateMarketVisitor(r.assigner, authCallback)
     }
@@ -366,68 +383,109 @@ export class SystemController {
             return new Result(false, null, "no implementation");
         }
     */
-    addShopManagerPermission(owner: UserID, manager: string, shop: number, permission: Permissions): Result<void> {
+    addShopManagerPermission(owner: string, manager: string, shop: number, permission: Permissions): Result<void> {
         const authCallback = () => {
-            return this.uController.addPermission(manager, shop, permission)
+            if (this.uController.checkPermission(owner, shop, Permissions.AddPermission).data) {
+                return this.uController.addPermission(manager, shop, permission)
+            } else {
+                return new Result(false, undefined, "No permission to add permissions");
+            }
         }
         return this.authenticateMarketVisitor(owner, authCallback)
     }
 
-    removeShopManagerPermission(owner: UserID, manager: string, shop: number, permission: Permissions): Result<void> {
+    removeShopManagerPermission(owner: string, manager: string, shop: number, permission: Permissions): Result<void> {
         const authCallback = () => {
-            return this.uController.removePermission(manager, shop, permission)
+            if (this.uController.checkPermission(owner, shop, Permissions.RemovePermission).data) {
+                return this.uController.removePermission(manager, shop, permission)
+            } else {
+                return new Result(false, undefined, "No permission to add permissions");
+            }
         }
         return this.authenticateMarketVisitor(owner, authCallback)
     }
 
     deactivateShop(member: string, shop: number): Result<void> {
         return this.authenticateMarketVisitor(member, () => {
-
-
-
-            return this.mpController.closeShop(member, shop)
+            if (this.uController.checkPermission(member, shop, Permissions.CloseShop).data) {
+                return this.mpController.closeShop(member, shop)
+            }
+            return new Result(false, undefined, "no permission")
         })
     }
 
-    reactivateShop(memberId: string, shopId: number): Result<void> {
-        return this.authenticateMarketVisitor(memberId, () => {
-            return this.mpController.reopenShop(memberId, shopId)
+    reactivateShop(member: string, shop: number): Result<void> {
+        return this.authenticateMarketVisitor(member, () => {
+            if (this.uController.checkPermission(member, shop, Permissions.ReopenShop).data) {
+                return this.mpController.reopenShop(member, shop)
+            }
+            return new Result(false, undefined, "no permission")
         })
     }
 
-    getPersonnelInfo(memberId: UserID, shopId: number): Result<Member[]> {
-        this.authenticateMarketVisitor(memberId, () => {
-            let shopRes = this.mpController.getShopInfo(shopId);
-            if(shopRes.ok) {
+    getPersonnelInfo(member: string, shop: number): Result<Member[] | void> {
+        const callback = () => {
+            if (!this.uController.checkPermission(member, shop, Permissions.RequestPersonnelInfo).data) {
+                return new Result(false, undefined, "no permission");
+            }
+            let shopRes = this.mpController.getShopInfo(shop);
+            if (shopRes.ok) {
                 let data = shopRes.data!!;
-                const collectedMembers = [...data.shopManagers,...data.shopOwners].map((id)=>{
-                    this.uController.getMember(id);
+                let collectedMembers: Member[] = [];
+                [...data.shopManagers, ...data.shopOwners].forEach((id) => {
+                    let res = this.uController.getMember(id);
+                    if (res.ok && res.data !== undefined) {
+                        collectedMembers.push(res.data);
+                    }
                 });
-
+                return new Result(true, collectedMembers,)
             }
 
             return new Result(false, [], shopRes.message);
-        })
+        }
+        return this.authenticateMarketVisitor(member, callback);
     }
 
-    getShopPurchases(memberId: UserID, shopId: UserID, startDate: Date, endDate: Date, filters?: any): Result<ShopOrder[]> {
-        return new Result(false, undefined, "no implementation");
+    getShopPurchases(member: string, shop: number, startDate: Date, endDate: Date): Result<ShopOrder[] | void> {
+
+        const callback = () => {
+            //check if can preview History
+            if (!this.uController.checkPermission(member, shop, Permissions.RequestPersonnelInfo).data) {
+                return new Result(false, undefined, "no permission");
+            }
+            let orders: ShopOrder[] = this.pController.shopOrders.has(shop) ?
+                [...(this.pController.shopOrders.get(shop) as Set<ShopOrder>)].filter((o) => o.creationTime > startDate && o.creationTime < endDate) : []
+            return new Result(orders.length !== 0, orders, orders.length !== 0 ? undefined : "no Shop order were found");
+        }
+
+        return this.authenticateMarketVisitor(member, callback);
     }
 
-    getShopPurchasesFiltered(memberId: UserID, shopId: UserID): Result<ShopOrder[]> {
-        return new Result(false, undefined, "no implementation");
+    getShopPurchasesFiltered(member: string, shop: number, filters?: any): Result<ShopOrder[] | void> {
+        const callback = () => {
+            if (!this.uController.checkPermission(member, shop, Permissions.RequestPersonnelInfo).data) {
+                return new Result(false, undefined, "no permission");
+            }
+            let orders: ShopOrder[] = this.pController.shopOrders.has(shop) ?
+                [...(this.pController.shopOrders.get(shop) as Set<ShopOrder>)].filter(filters) : []
+            return new Result(orders.length !== 0, orders, orders.length !== 0 ? undefined : "no Shop order were found");
+        }
+
+        return this.authenticateMarketVisitor(member, callback);
     }
 
     //system Admin actions
 
-    registerAsAdmin(guestId: number, registrationData: RegisterMemberData, adminSecretKey?: string): Result<void> {
+    registerAsAdmin(registrationData: RegisterMemberData, adminSecretKey?: string): Result<void> {
         if (adminSecretKey === null || adminSecretKey !== "Edan Rules") {
             return new Result(false, undefined, "admin key not correct");
         }
-        let admin = this.registerMember(guestId, registrationData);
+        let admin = this.register({username:registrationData.username, password: registrationData.password});
         if (admin.ok) {
-            this.uController.addRole(registrationData.username, "system Admin", JobType.admin, -1, [])
+            this.uController.addRole(registrationData.username, "system Admin", JobType.admin, -1, new Set())
+            return new Result(true, undefined, "new addmin is added")
         }
+        return new Result(false, undefined, "admin name cannot be registered");
     }
 
     //todo: external services.

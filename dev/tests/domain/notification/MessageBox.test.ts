@@ -1,5 +1,5 @@
 import {MessageBox, NewMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
-import {Message} from "../../../src/domain/notifications/Messages";
+import {Message} from "../../../src/domain/notifications/Message";
 import {Member} from "../../../src/domain/user/Member";
 
 class TestMessage extends Message {

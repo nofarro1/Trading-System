@@ -3,6 +3,7 @@ import {GenericMessage, Message} from "../../../src/domain/notifications/Message
 import {Member} from "../../../src/domain/user/Member";
 import MessageController from "../../../src/domain/notifications/MessageController";
 import {UserID} from "../../../src/utilities/Utils";
+import { ShoppingCart } from "../marketplace/ShoppingCart";
 
 class TestMessage extends Message {
 
@@ -18,8 +19,9 @@ class TestMessage extends Message {
     }
 
 }
-
-const tu1: Member = new Member("u1")
+const id1 = "u1"
+let cart1 = new ShoppingCart();
+const tu1: Member = new Member(id1,cart1)
 const tu2: Member = new Member("u2")
 let mb1 = new MessageBox(tu1.id);
 let controller: MessageController

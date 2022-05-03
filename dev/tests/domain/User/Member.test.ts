@@ -108,7 +108,7 @@ describe('Member - test', function () {
         m1.addRole(r2);
         m1.addRole(r3);
         m1.addRole(r4);
-        expect(m1.hasRole(r3.shopId) === true);
+        expect(m1.hasRole(r3.shopId));
     })
 
     test("check if role does not exist member", () => {
@@ -116,6 +116,6 @@ describe('Member - test', function () {
         m1.addRole(r2);
         m1.addRole(r3);
         m1.addRole(r4);
-        expect(m1.hasRole(r2.shopId) === false);
+        expect(!m1.hasRole(r2.shopId));
     })
 });

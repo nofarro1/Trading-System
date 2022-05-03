@@ -6,4 +6,12 @@ export enum Permissions {
     ModifyProduct,
     RequestPersonnelInfo,
     GetPurchaseHistory,
+    AddShopOwner,
+    AddShopManager,
+    AddPermission,
+    RemovePermission,
+    CloseShop,
+    ReopenShop
+
+
 }
