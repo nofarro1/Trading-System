@@ -14,6 +14,7 @@ class TestMember extends Member {
     }
 
 }
+
 const m1: Member = new Member("m1", new ShoppingCart());
 const test_m1 = new TestMember(m1);
 const founder = new Member("founder", new ShoppingCart());
