@@ -120,7 +120,7 @@ export class SystemController {
     //
     // }
 
-    login(guestId: UserID, d: LoginData): Result<Member | void> {
+    login(guestId: UserID, d: LoginData): Result<void> {
         const secCallback = () => {
             //if success get the member_id
             try {
@@ -198,7 +198,7 @@ export class SystemController {
     //     return this.mpController.getShop(shopid)
     // }
 
-    searchProducts(user: UserID, searchTerm: string): Result<Product[] | void> {
+    searchProducts(user: UserID, searchTerm: string, filters?: any): Result<Product[] | void> {
         //market visitor authentication
         return this.authenticateMarketVisitor(user, () => {
             return this.mpController.searchProducts(productId)
@@ -214,7 +214,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    getCart(user: UserID): Result<ShoppingCart | null> {
+    getCart(user: UserID): Result<ShoppingCart | void> {
 
         const authCallback = (): Result<ShoppingCart | void> => {
             const result = this.scController.getCart(user);
@@ -225,7 +225,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    editCart(user: UserID, product: UserID, quantity: number, additionalData?: any): Result<ShoppingCart> {
+    editCart(user: UserID, product: UserID, quantity: number, additionalData?: any): Result<void> {
         const authCallback = () => {
             const product = this.mpController.get(productId)
             return this.scController.editCart(product, quantity, additionalDatauser, product, quantity)
@@ -243,7 +243,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    checkout(user: UserID): Result<BuyerOrder | void> {
+    checkout(user: UserID, paymentDetails: any, deliveryDetails: any): Result<void> {
         return this.authenticateMarketVisitor(user, () => {
             let result = this.uController.getGuest(user as number);
             let resultMm = this.uController.getMember(user as string);

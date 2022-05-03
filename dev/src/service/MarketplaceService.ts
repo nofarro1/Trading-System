@@ -9,7 +9,7 @@ import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
 import {ShopOrder as DomainShopOrder} from "../domain/purchase/ShopOrder";
 import {Guest} from "./simple_objects/user/Guest";
 import {Guest as DomainGuest} from "../domain/user/Guest";
-import {productCategory} from "../utilities/Enums";
+import {ProductCategory} from "../utilities/Enums";
 
 
 export class MarketplaceService {
@@ -93,10 +93,10 @@ export class MarketplaceService {
     }
 
     //Shop Owner - Use-Case 1.1
-    addProductToShop(username: string, shopID: number, category: productCategory, name: string, price: number,
+    addProductToShop(username: string, shopID: number, category: ProductCategory, name: string, price: number,
                      quantity: number, description?: string): Result<void> {
-        return this.systemController.addProduct(username, {shopId: shopID, category: category, name: name, price: price,
-            quantity: quantity, description: description});
+        return this.systemController.addProduct(username, {shopId: shopID, productCategory: category, productName: name, fullPrice: price,
+            quantity: quantity, productDesc: description});
     }
 
     //Shop Owner - Use-Case 1.2

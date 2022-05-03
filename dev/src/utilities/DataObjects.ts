@@ -1,11 +1,8 @@
 // User Related Data Objects
 
-import {Member} from "../domain/user/Member";
-import {JobType, Permission} from "../domain/user/Role";
-import {Shop} from "../domain/marketplace/Shop";
-
-import {ProductCategory} from "../domain/marketplace/Product";
 import {Sale} from "../domain/marketplace/Sale";
+import {ProductCategory} from "./Enums";
+import { Permissions } from "./Permissions";
 
 export interface LoginData {
     username: string;
@@ -21,23 +18,21 @@ export interface RegisterMemberData {
     country?: string;
 }
 
-
 export interface NewProductData {
-    userId: number,
     shopId: number,
     productCategory: ProductCategory,
     productName: string,
     quantity: number,
     fullPrice: number,
-    discountPrice: number,
-    relatedSale: Sale,
-    productDesc: string
+    discountPrice?: number,
+    relatedSale?: Sale,
+    productDesc?: string
 }
 
 export interface NewRoleData {
     member: string
     shopId: number;
     assigner: string;
-    title: string;
-    permissions: Permission[];
+    title?: string;
+    permissions: Permissions[];
 }
