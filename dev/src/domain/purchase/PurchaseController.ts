@@ -10,6 +10,9 @@ import { User } from "../user/User";
 import { BuyerOrder } from "./BuyerOrder";
 import { ShopOrder } from "./ShopOrder";
 import { logger}  from "../../helpers/logger"
+import { ShoppingCart } from "../marketplace/ShoppingCart";
+import { urlToHttpOptions } from "url";
+import { UserID } from "../../utilities/Utils";
 
 
 export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage> {
@@ -96,6 +99,11 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 order.add(shopOrder);
                 this.shopOrders.set(bag.shopId, order);
             }
+            if (user instanceof Member)
+                this.notify(new ShopPurchaseMessage(shopOrder, new Set<UserID>(), user.username))
+            // if (user instanceof Guest)
+            //     // TODO: userid in ShopPurchaseMessage string | number
+            //     this.notify(new ShopPurchaseMessage(shopOrder, new Set<UserID>(), user.id))
         });
         // this.paymentService.makePayment(totalCartPrice);
         // this.deliveryService.makeDelivery("details");
@@ -104,8 +112,11 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 let orders = this.buyerOrders.get(user.username);
                 if(orders){
                     let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, new Date(Date.now()));
-                    orders?.add(buyerOrder);
+                    orders.add(buyerOrder);
                     this.buyerOrders.set(user.username, orders);
+                    this.buyerOrderCounter = this.buyerOrderCounter +1;
+                    logger.info(`guest ${user.username} made checkout. order#: ${this.buyerOrderCounter}`);
+                    // return new Result(true, buyerOrder);
                 }
             }
             else{
@@ -113,9 +124,10 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, new Date(Date.now()));
                 orders.add(buyerOrder);
                 this.buyerOrders.set(user.username, orders);
+                this.buyerOrderCounter = this.buyerOrderCounter +1;
+                // return new Result(true, buyerOrder);
             }
             logger.info(`member ${user.username} made checkout. order#: ${this.buyerOrderCounter}`);
-
         }
         if (user instanceof Guest){
             if (this.buyerOrders.has(user.id)){
@@ -124,6 +136,9 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                     let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, new Date(Date.now()));
                     orders?.add(buyerOrder);
                     this.buyerOrders.set(user.id, orders);
+                    this.buyerOrderCounter = this.buyerOrderCounter +1;
+                    logger.info(`guest ${user.id} made checkout. order#: ${this.buyerOrderCounter}`);
+                    // return new Result(true, buyerOrder);
                 }
             }
             else{
@@ -131,11 +146,12 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, new Date(Date.now()));
                 orders.add(buyerOrder);
                 this.buyerOrders.set(user.id, orders);
+                this.buyerOrderCounter = this.buyerOrderCounter +1;
+                logger.info(`guest ${user.id} made checkout. order#: ${this.buyerOrderCounter}`);
+                // return new Result(true, buyerOrder);
             }
-            logger.info(`guest ${user.id} made checkout. order#: ${this.buyerOrderCounter}`);
         }
-        this.buyerOrderCounter = this.buyerOrderCounter +1;
-        return new Result(true, undefined);
+        return new Result(false, undefined);
     }
     // getCurrTime(): string{
     //     var today = new Date();
