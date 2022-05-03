@@ -44,5 +44,12 @@ describe('Shop- products', function(){
     })
 })
 
+describe('Shop- Appointed Members', function(){
+    test('appointShopOwner', () =>{
+        s1.appointShopOwner("Nofar");
+        expect(s1.shopOwners).toContain("Nofar");
+    })
+})
+
 
 

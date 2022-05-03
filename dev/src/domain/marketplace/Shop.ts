@@ -140,13 +140,13 @@ export class Shop {
 
     appointShopOwner(ownerId: string): void{
         if(this.shopOwners?.has(ownerId))
-            throw new Error("Failed to appoint owner because the memmber is already a owner of the shop")
+            throw new Error("Failed to appoint owner because the member is already a owner of the shop")
         this.shopOwners?.add(ownerId);
     }
 
     appointShopManager(managerId: string): void{
         if(this.shopOwners?.has(managerId))
-            throw new Error("Failed to appoint owner because the memmber is already a owner of the shop")
+            throw new Error("Failed to appoint owner because the member is already a owner of the shop")
         this.shopOwners?.add(managerId);
     }
     

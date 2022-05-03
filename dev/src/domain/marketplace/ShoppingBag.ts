@@ -100,7 +100,7 @@ export class ShoppingBag {
 
     updateProductQuanity(toUpdate: Product, quantity: number): number {
         if(!this.products.has(toUpdate.id))
-            throw new Error("Failed to remove product because the product wasn't found in bag.")
+            throw new Error("Failed to update product because the product wasn't found in bag.")
         let pTuple= this.products.get(toUpdate.id);
         if(pTuple) {
             let oldQuantity = pTuple[1];
@@ -120,6 +120,7 @@ export class ShoppingBag {
                 throw new Error("Failed to update product because the queue of the associated Sale was undefined")
             }
         }
+        this.products.set(toUpdate.id, [toUpdate, quantity]);
         return this.totalPrice;
     }
 
