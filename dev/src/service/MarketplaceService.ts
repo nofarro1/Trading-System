@@ -3,12 +3,13 @@ import {SystemController} from "../domain/controller/SystemController";
 import {Shop} from "./simple_objects/marketplace/Shop";
 import {Shop as DomainShop} from "../domain/marketplace/Shop"
 import {Product} from "./simple_objects/marketplace/Product";
-import {Product as DomainProduct, ProductCategory} from "../domain/marketplace/Product";
+import {Product as DomainProduct} from "../domain/marketplace/Product";
 import {UserID} from "../utilities/Utils";
 import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
 import {ShopOrder as DomainShopOrder} from "../domain/purchase/ShopOrder";
 import {Guest} from "./simple_objects/user/Guest";
 import {Guest as DomainGuest} from "../domain/user/Guest";
+import {productCategory} from "../utilities/Enums";
 
 
 export class MarketplaceService {
@@ -50,7 +51,7 @@ export class MarketplaceService {
                 products.set(product, quantity);
             }
 
-            result.data = new Shop(domainShop.id, domainShop.name, domainShop.isActive, products);
+            result.data = new Shop(domainShop.id, domainShop.name, domainShop.status, products);
         }
         return result;
     }
@@ -92,7 +93,7 @@ export class MarketplaceService {
     }
 
     //Shop Owner - Use-Case 1.1
-    addProductToShop(username: string, shopID: number, category: ProductCategory, name: string, price: number,
+    addProductToShop(username: string, shopID: number, category: productCategory, name: string, price: number,
                      quantity: number, description?: string): Result<void> {
         return this.systemController.addProduct(username, {shopId: shopID, category: category, name: name, price: price,
             quantity: quantity, description: description});

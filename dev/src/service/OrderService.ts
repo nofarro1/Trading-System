@@ -16,7 +16,7 @@ export class OrderService {
     }
 
     //System - Use-Case 2.1
-    editConnectionWithExternalService(type: ExternalServiceType, serviceName: string, settings?: any): Result<void> {
+    editConnectionWithExternalService(type: ExternalServiceType, serviceName: string, settings: any): Result<void> {
         return this.systemController.editConnectionWithExternalService(type, serviceName, settings);
     }
 

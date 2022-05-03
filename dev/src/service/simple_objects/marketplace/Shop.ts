@@ -1,16 +1,17 @@
+import { shopStatus } from "../../../utilities/Enums";
 import {Product} from "./Product";
 
 
 export class Shop {
     private readonly _ID: number;
     private readonly _name: string;
-    private readonly _isActive: boolean;
+    private readonly _status: shopStatus;
     private readonly _products: Map<Product, number>; //<Product, quantity>
 
-    constructor(ID: number, name: string, isActive: boolean, products: Map<Product, number>) {
+    constructor(ID: number, name: string, status: shopStatus, products: Map<Product, number>) {
         this._ID = ID;
         this._name = name;
-        this._isActive = isActive;
+        this._status = status;
         this._products = products;
     }
 
@@ -22,8 +23,8 @@ export class Shop {
         return this._name;
     }
 
-    get isActive(): boolean {
-        return this._isActive;
+    get status(): shopStatus {
+        return this._status;
     }
 
     get products(): Map<Product, number> {

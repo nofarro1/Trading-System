@@ -37,6 +37,8 @@ export class MemberService {
     //Shop Owner - Use-Case 6
     appointShopManager(newManagerID: string, shopID: number, assigningOwnerID: string, title?: string,
                        permissions?: Permissions[]): Result<void> {
+        if(!permissions)
+            permissions = new Array<Permissions>();
         return this.systemController.appointShopManager({member: newManagerID, shopId: shopID, assigner: assigningOwnerID,
             title: title, permissions: permissions});
     }

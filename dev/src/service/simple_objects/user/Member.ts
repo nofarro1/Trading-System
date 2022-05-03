@@ -1,5 +1,5 @@
-import {JobType} from "../../../domain/user/Role";
 import { Permissions } from "../../../utilities/Permissions";
+import {JobType} from "../../../utilities/Enums";
 
 
 export class Member {
