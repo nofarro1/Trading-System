@@ -1,5 +1,11 @@
 import {MessageBox, NewMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
 import {Member} from "../../../src/domain/User/Member";
+import { JobType } from "../../utilities/Enums";
+import { Permissions } from "../../utilities/Permissions";
+import { MarketplaceController } from "../marketplace/MarketplaceController";
+import { Shop } from "../marketplace/Shop";
+import { ShoppingCart } from "../marketplace/ShoppingCart";
+import { Guest } from "./Guest";
 import { UserController } from "./UserController";
 
 class TestUserController extends UserController {
@@ -7,109 +13,70 @@ class TestUserController extends UserController {
     constructor() {
         super();
     }
-
 }
+const userController = new UserController();
 
-const tu1: Member = new Member("u1")
-let mb1: MessageBox;
+const m1: Member = new Member("member1", new ShoppingCart());
+const m2: Member = new Member("member2", new ShoppingCart());
 
-const tm1 = new TestMessage();
-const tm2 = new TestMessage();
-const tm3 = new TestMessage();
+const g1: Guest = new Guest(1, new ShoppingCart());
+const g2: Guest = new Guest(2, new ShoppingCart());
 
 
 describe('messageBox - test', function () {
 
     beforeEach(function () {
-        mb1 = new MessageBox(tu1.id);
     })
 
-    test("added massage to box", () => {
-        mb1.addMessage(tm1);
-        expect(mb1.unReadMessages).toContain(tm1);
-        expect(mb1.messages.length).toBe(0);
-        expect(mb1.unReadMessages.length).toBe(1);
+    test("create guest", () => {
+        expect(userController.connectedGuests.size).toBe(0);
+        userController.createGuest();
+        expect(userController.connectedGuests.size).toBe(1);
     })
 
-    test("get massage from box", () => {
-        mb1.addMessage(tm1);
-        const mId = tm1.id;
-        const message = mb1.getMessage(mId);
-        expect(message).not.toBeNull();
-        expect(message).toEqual(tm1);
-        expect(mb1.messages).toContain(tm1);
-        expect(mb1.messages.length).toBe(1);
-        expect(mb1.unReadMessages.length).toBe(0);
+    test("get guest", () => {
+        let g = userController.createGuest().data;
+        if (g)
+            expect(userController.connectedGuests).toBe(g);
     })
 
-    test("get message - should throw", () => {
-        mb1.addMessage(tm1);
-        const mId = tm1.id;
-        expect(() => mb1.getMessage("hi")).toThrow()
+    test("exit guest", () => {
+        let g = userController.createGuest().data;
+        userController.createGuest();
+        userController.createGuest();
+        expect(userController.connectedGuests.size).toBe(3);
+        expect(userController.connectedGuests).toContain(g.id);
+        userController.exitGuest(g);
+        expect(userController.connectedGuests.size).toBe(2);
+        expect(userController.connectedGuests).not.toContain(g.id);
     })
 
-    test("get all massages from box", () => {
-        mb1.addMessage(tm1);
-        mb1.addMessage(tm2);
-        mb1.addMessage(tm3);
-        expect(mb1.unReadMessages.length).toBe(3);
-        expect(mb1.messages.length).toBe(0);
+    test("add member"), () => {
+        let m = userController.addMember("member", new ShoppingCart()).data;
+        expect(userController.members).toContain(m?.username);
+    }
 
-        let messages = mb1.getAllMessages();
-        expect(messages.length).toBe(3);
-        expect(mb1.unReadMessages.length).toBe(0);
+    test("get member"), () => {
+        let m = userController.addMember("member", new ShoppingCart()).data;
+        if (m)
+            expect(userController.getMember(m.username).data).toBe(m);
+    }
 
-    })
+    test("add permission to  member"), () => {
+        let p1 = Permissions.ModifyProduct;
+        let m = userController.addMember("member", new ShoppingCart()).data;
+        if (m){
+            let s1 = new Shop(12, "myShop", m1.username);
+            let perms = new Set<Permissions>(); 
+            let r1 = userController.addRole(m.username, "Manager of myShop", JobType.Manager, s1.id, perms).data;
+            if (r1){
+                userController.addPermission(m.username, r1.shopId, p1);
+                expect(userController.checkPermission(m.username, s1.id, p1).data).toBe(true);
+                expect(userController.checkPermission(m.username, s1.id, Permi).data).toBe(true);
+            }
+        }
+    }
 
-    test("remove message form box - in unread message", () => {
-        mb1.addMessage(tm1);
-        const mId = tm1.id;
-        expect(mb1.unReadMessages).toContain(tm1);
-        expect(mb1.unReadMessages.length).toBe(1);
-
-        mb1.removeMessage(mId);
-        expect(mb1.unReadMessages).not.toContain(tm1);
-        expect(mb1.unReadMessages.length).toBe(0);
-
-    })
-
-    test("remove message from - in messages", () => {
-        mb1.addMessage(tm1);
-        const mId = tm1.id;
-        expect(mb1.unReadMessages).toContain(tm1);
-        expect(mb1.unReadMessages.length).toBe(1);
-        const message = mb1.getMessage(mId);
-        mb1.removeMessage(mId);
-        expect(mb1.messages).not.toContain(tm1);
-        expect(mb1.unReadMessages.length).toBe(0);
-        expect(mb1.messages.length).toBe(0);
-    })
-
-    test("subscribe to mailbox and notify", () => {
-        const onEvent = jest.fn();
-        let sub: NewMessageSubscriber = {
-            onNewMessages:onEvent
-        } as NewMessageSubscriber;
-
-        mb1.subscribe(sub);
-        expect(mb1.subs).toContain(sub);
-        mb1.addMessage(tm1)
-        expect(onEvent).toBeCalledWith([tm1])
-
-
-    })
-
-    test("no sub unsub", () => {
-        const onEvent = jest.fn();
-        let sub: NewMessageSubscriber = {
-            onNewMessages:onEvent
-        } as NewMessageSubscriber;
-        mb1.subscribe(sub);
-        mb1.unsubscribe(sub);
-        expect(mb1.subs).toHaveLength(0);
-        mb1.addMessage(tm1)
-        expect(onEvent).not.toBeCalledWith()
-    })
-
+    
 
 });
