@@ -217,8 +217,8 @@ export class Service {
     }
 
     //System - Use-Case 2.1
-    editConnectionWithExternalService(adminUsername: string, type: ExternalServiceType, serviceName: string, settings: any): Result<void> {
-        logger.info(`The connection with the ${type} service ${serviceName} is being modified using the following settings: ${settings}`);
+    editConnectionWithExternalService(adminUsername: string, type: ExternalServiceType, settings: any): Result<void> {
+        logger.info(`The connection with the ${type} service is being modified using the following settings: ${settings}`);
         return this.orderService.editConnectionWithExternalService(adminUsername, type, settings);
     }
 }

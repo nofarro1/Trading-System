@@ -6,6 +6,7 @@ import {Guest} from "../../src/service/simple_objects/user/Guest";
 import {Member} from "../../src/service/simple_objects/user/Member";
 import {Permissions} from "../../src/utilities/Permissions";
 import {ShoppingCart} from "../../src/service/simple_objects/marketplace/ShoppingCart";
+import {ProductCategory, SearchType} from "../../src/utilities/Enums";
 
 
 let service:Service;
@@ -24,8 +25,8 @@ describe('System dis/connections-tests', function () {
         if (testGuest instanceof Guest) {
             expect(service.login(testGuest.guestID, 'admin', 'admin').ok).toBe(true);
         }else fail('expected testGuest to be Guest');
-        expect(service.callService(ExternalServiceType.Delivery,'defDelivery').ok).toBe(true);
-        expect(service.callService(ExternalServiceType.Payment,'defPayment').ok).toBe(true);
+        expect(service.editConnectionWithExternalService("admin", ExternalServiceType.Delivery, undefined).ok).toBe(true);
+        expect(service.editConnectionWithExternalService("admin", ExternalServiceType.Payment, undefined).ok).toBe(true);
     })
     test('access marketplace-success',()=>{
         expect(testGuest).toBeInstanceOf(Guest);
@@ -148,32 +149,32 @@ describe('Shop-tests', function () {
     })
     test('add product-success',()=>{
         if (testMember instanceof Member && testShop instanceof Shop) {
-            expect(service.addProductToShop(testMember.username, testShop.ID, 'shirts','white shirt' ,50, 10).ok).toBe(true);
+            expect(service.addProductToShop(testMember.username, testShop.ID, ProductCategory.A, 'white shirt' ,50, 10).ok).toBe(true);
         }else fail('expected testMember to be Member and testShop to be Shop');
     })
     test('add product-fail',()=>{
         if (testShop instanceof Shop) {
-            expect(service.addProductToShop('nonuser', testShop.ID, 'shirts', 'white shirt',50, 10 ).ok).toBe(false);
+            expect(service.addProductToShop('nonuser', testShop.ID, ProductCategory.A, 'white shirt',50, 10 ).ok).toBe(false);
         }else fail('expected testShop to be shop');
     })
     test('add product-fail',()=>{
         if (testMember instanceof Member && testShop instanceof Shop) {
-            expect(service.addProductToShop(testMember.username, testShop.ID, 'shirts', 'white shirt',-50, 10).ok).toBe(false);
+            expect(service.addProductToShop(testMember.username, testShop.ID, ProductCategory.A, 'white shirt',-50, 10).ok).toBe(false);
         }else fail('expected testMember to be Member and testShop to be Shop');
     })
     test('add product-fail',()=>{
         if (testMember instanceof Member && testShop instanceof Shop) {
-        expect(service.addProductToShop(testMember.username,testShop.ID,'shirt','white shirt',50,-10).ok).toBe(false);
+        expect(service.addProductToShop(testMember.username,testShop.ID,ProductCategory.A, 'white shirt',50,-10).ok).toBe(false);
         }else fail('expected testMember to be Member and testShop to be Shop');
     })
     test('search products-success',()=>{
         if (testGuest instanceof Guest) {
-            testProducts = service.searchProducts(testGuest.guestID, 'shirt').data;
-            expect(service.searchProducts(testGuest.guestID, 'shirt').data).toHaveLength(1);
+            testProducts = service.searchProducts(testGuest.guestID, SearchType.category, "product").data;
+            expect(service.searchProducts(testGuest.guestID, SearchType.category, "product").data).toHaveLength(1);
         }else fail('expected test guest to be Guest');
     })
     test('search products-fail',()=>{
-        expect(service.searchProducts(-1,'shirt').ok).toBe(false);
+        expect(service.searchProducts(-1,SearchType.category, "product").ok).toBe(false);
     })
     test('modify product-success',()=>{
         if (testMember instanceof Member && testShop instanceof Shop && testProducts instanceof Array) {
@@ -360,9 +361,9 @@ describe('Shopping cart-tests', function () {
         if (testMember instanceof Member) {
             testShop = service.setUpShop('zara', testMember.username).data;
             if(testShop instanceof Shop) {
-                service.addProductToShop(testMember.username, testShop.ID, 'shirts', 'blue shirt', 50, 10);
-                service.addProductToShop(testMember.username, testShop.ID, 'shirts', 'red shirt', 50, 10);
-                testProducts = service.searchProducts(testMember.username, 'shirt').data;
+                service.addProductToShop(testMember.username, testShop.ID, ProductCategory.A, 'blue shirt', 50, 10);
+                service.addProductToShop(testMember.username, testShop.ID, ProductCategory.A, 'red shirt', 50, 10);
+                testProducts = service.searchProducts(testMember.username, SearchType.category, "product").data;
                 if(testProducts instanceof Array)
                     testProduct=testProducts[0];
             }
