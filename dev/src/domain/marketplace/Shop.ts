@@ -104,6 +104,7 @@ export class Shop {
         let toAdd= new Product(productName, shopId, category, productDesc, discountPrice, fullPrice, relatedSale);
         if(!this.products.has(toAdd.id))
             this.products.set(toAdd.id, [toAdd, quantity]);
+
     }
 
     getProductQuantity(productId: number): number{
@@ -123,10 +124,9 @@ export class Shop {
         let product = this.products.get(productId);
         if(!product)
             throw new Error("Failed to update product quantity in shop because the product isn't exist in shop")
-        let newQuantity = product[1]-quantity;
-        if(newQuantity < 0)
-            newQuantity= 0;
-        this.products.set(productId, [product[0],newQuantity]);
+        if(quantity < 0)
+            quantity= 0;
+        this.products.set(productId, [product[0],quantity]);
     }
 
     getProduct(productId: number): Product{
