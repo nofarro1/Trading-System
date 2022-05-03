@@ -10,9 +10,9 @@ export class OrderService {
         this.systemController = systemController;
     }
 
-    //System - Use-Case 2/2.2
-    addConnectionWithExternalService(type: ExternalServiceType, serviceName: string): Result<void> {
-        return this.systemController.addConnectionWithExternalService(type, serviceName);
+    //System - Use-Case 2.2
+    swapConnectionWithExternalService(type: ExternalServiceType, serviceName: string): Result<void> {
+        return this.systemController.swapConnectionWithExternalService(type, serviceName);
     }
 
     //System - Use-Case 2.1
