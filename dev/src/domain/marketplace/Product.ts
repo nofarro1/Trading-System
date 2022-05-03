@@ -13,7 +13,8 @@ export class Product {
     private _discountPrice: number;
     private _relatedSale: Sale;
 
-    
+
+
     constructor(name: string, shopId: number, category: ProductCategory, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
         this._id= productsCounter;
         productsCounter++;

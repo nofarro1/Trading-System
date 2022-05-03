@@ -3,40 +3,58 @@ import { Product } from "../marketplace/Product";
 
 
 export class ShopOrder {
-    private id: number;
-    private shopId: number;
-    private products: Product[];
-    private totalPrice: number;
-    private creationTime: string;
+    private _id: number;
+    private _shopId: number;
+    private _products: Product[];
+    private _totalPrice: number;
+    private _creationTime: string;
 
     constructor(id: number, shopId: number, products: Product[], totalPrices: number, creationTime: string){
-        this.id = id;
-        this.shopId = shopId;
-        this.products = products;
-        this.totalPrice = totalPrices;
-        this.creationTime = creationTime;
+        this._id = id;
+        this._shopId = shopId;
+        this._products = products;
+        this._totalPrice = totalPrices;
+        this._creationTime = creationTime;
     }
 
-    getId(): number { return this.id; }
 
-    getShopId(): number { return this.shopId; }
-
-    getProducts(): Product[] { return this.products; }
-
-    setProducts(products: Product[]): void {
-        products = products;
+    get id(): number {
+        return this._id;
     }
 
-    getTotalPrice(): number { return this.totalPrice; }
-
-    setTotalPrice(totalPrice: number): void {
-        this.totalPrice = totalPrice;
+    set id(value: number) {
+        this._id = value;
     }
 
-    getCreationTime(): string { return this.creationTime; }
-
-    setCreationTime(creationTime: string){
-        this.creationTime = creationTime;
+    get shopId(): number {
+        return this._shopId;
     }
 
+    set shopId(value: number) {
+        this._shopId = value;
+    }
+
+    get products(): Product[] {
+        return this._products;
+    }
+
+    set products(value: Product[]) {
+        this._products = value;
+    }
+
+    get totalPrice(): number {
+        return this._totalPrice;
+    }
+
+    set totalPrice(value: number) {
+        this._totalPrice = value;
+    }
+
+    get creationTime(): string {
+        return this._creationTime;
+    }
+
+    set creationTime(value: string) {
+        this._creationTime = value;
+    }
 }

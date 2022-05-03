@@ -8,7 +8,7 @@ import {logger} from "../../helpers/logger";
 
 export class NotificationController implements NewMessageSubscriber {
 
-    activeMembers: Map<string,(m:Message) => void>
+    private activeMembers: Map<string,(m:Message) => void>
 
 
     constructor() {

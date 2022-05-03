@@ -62,7 +62,7 @@ removeProduct(toRemove: Product, quantity: number): void{
 }    
 
 emptyCart(): void{
-    this._bags.clear;
+    this._bags.clear();
     this._totalPrice=0;
 }
 }
