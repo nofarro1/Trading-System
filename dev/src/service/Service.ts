@@ -210,28 +210,15 @@ export class Service {
 
     //----------------------Order Service methods-------------------------------
 
-    //System - Use-Case 2
-    addConnectionWithExternalService(type: ExternalServiceType, serviceName: string): Result<void> {
+    //System - Use-Case 2.2
+    swapConnectionWithExternalService(type: ExternalServiceType, serviceName: string): Result<void> {
         logger.info(`A connection with the ${type} service ${serviceName} is being initiated`);
-        return this.orderService.addConnectionWithExternalService(type, serviceName);
+        return this.orderService.swapConnectionWithExternalService(type, serviceName);
     }
 
     //System - Use-Case 2.1
     editConnectionWithExternalService(type: ExternalServiceType, serviceName: string, settings: any): Result<void> {
         logger.info(`The connection with the ${type} service ${serviceName} is being modified using the following settings: ${settings}`);
-        return this.orderService.editConnectionWithExternalService(type, serviceName, settings);
-    }
-
-    //System - Use-Case 2.2
-    swapConnectionWithExternalService(type: ExternalServiceType, oldServiceName: string, newServiceName: string): Result<void> {
-        logger.info(`The connection with the ${type} service ${oldServiceName} is being swapped with ${newServiceName}`);
-        return this.orderService.swapConnectionWithExternalService(type, oldServiceName, newServiceName);
-    }
-
-    //System - Use-Case 3
-    //System - Use-Case 4
-    callService(type: ExternalServiceType, serviceDetails?: any): Result<void> {
-        logger.info(`The ${type} service is being called with the following details: ${serviceDetails}`);
-        return this.orderService.callService(type, serviceDetails);
+        return this.orderService.editConnectionWithExternalService(type, settings);
     }
 }
