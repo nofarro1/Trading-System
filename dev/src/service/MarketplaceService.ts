@@ -9,7 +9,7 @@ import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
 import {ShopOrder as DomainShopOrder} from "../domain/purchase/ShopOrder";
 import {Guest} from "./simple_objects/user/Guest";
 import {Guest as DomainGuest} from "../domain/user/Guest";
-import {ProductCategory} from "../utilities/Enums";
+import {ProductCategory, SearchType} from "../utilities/Enums";
 
 
 export class MarketplaceService {
@@ -57,8 +57,8 @@ export class MarketplaceService {
     }
 
     //Guest Payment - Use-Case 2
-    searchProducts(userID: UserID, searchTerm: string, filters?: any): Result<void | Product[]> {
-        const domainResult: Result<void | DomainProduct[]> = this.systemController.searchProducts(userID, searchTerm, filters);
+    searchProducts(userID: UserID, searchType: SearchType, searchTerm: string | ProductCategory, filters?: any): Result<void | Product[]> {
+        const domainResult: Result<void | DomainProduct[]> = this.systemController.searchProducts(userID, searchType, searchTerm, filters);
         const products: Product[] = new Array<Product>();
         const result: Result<void | Product[]> = new Result <void | Product[]>(domainResult.ok, undefined, domainResult.message);
         if(domainResult.ok) {
@@ -117,7 +117,7 @@ export class MarketplaceService {
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
     getShopPurchaseHistory(ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Result<void | ShopOrder[]> {
-        const domainResult: Result<void | DomainShopOrder[]> = this.systemController.getShopPurchases(ownerID, shopID, startDate, endDate);
+        const domainResult: Result<void | DomainShopOrder[]> = this.systemController.getShopPurchases(ownerID, shopID, startDate, endDate, filters);
         const shopOrders: ShopOrder[] = new Array<ShopOrder>();
         const result: Result<void | ShopOrder[]> = new Result <void | ShopOrder[]>(domainResult.ok, undefined, domainResult.message);
         if(domainResult.ok) {
@@ -131,7 +131,7 @@ export class MarketplaceService {
                     products.set(product, quantity);
                 }
 
-                const shopOrder: ShopOrder = new ShopOrder(domainShopOrder.shopId, products, domainShopOrder.totalPrices, domainShopOrder.creationTime);
+                const shopOrder: ShopOrder = new ShopOrder(domainShopOrder.shopId, products, domainShopOrder.totalPrice, domainShopOrder.creationTime);
                 shopOrders.push(shopOrder);
             }
             result.data = shopOrders;

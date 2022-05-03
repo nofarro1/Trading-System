@@ -5,6 +5,7 @@ import {SystemController} from "../domain/controller/SystemController";
 import {Guest} from "./simple_objects/user/Guest";
 import {Member} from "./simple_objects/user/Member";
 import {Member as DomainMember} from "../domain/user/Member";
+import {Role as DomainRole} from "../domain/user/Role";
 
 
 export class MemberService {
@@ -44,12 +45,12 @@ export class MemberService {
     }
 
     //Shop Owner - Use-Case 7.1
-    addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Permissions[]): Result<void> {
+    addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Set<Permissions>): Result<void> {
         return this.systemController.addShopManagerPermission(assigningOwnerID, promotedManagerID, shopID, permissions);
     }
 
     //Shop Owner - Use-Case 7.2
-    removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Permissions[]): Result<void> {
+    removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Set<Permissions>): Result<void> {
         return this.systemController.removeShopManagerPermission(assigningOwnerID, demotedManagerID, shopID, permissions);
     }
 
@@ -60,7 +61,8 @@ export class MemberService {
         const result: Result<void | Member[]> = new Result <void | Member[]>(domainResult.ok, undefined, domainResult.message);
         if(domainResult.ok) {
             for (const domainMember of <DomainMember[]> domainResult.data) {
-                const member: Member = new Member(domainMember.username, domainMember.role.jobType, domainMember.role.permissions, domainMember.role.title); //TODO
+                const role: DomainRole = <DomainRole> domainMember.roles.get(shopID);
+                const member: Member = new Member(domainMember.username, role.jobType, role.permissions, role.title);
                 members.push(member);
             }
             result.data = members;
