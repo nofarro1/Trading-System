@@ -4,7 +4,7 @@ import {Shop} from "./Shop";
 import {Result} from "../../utilities/Result";
 import {Product} from "./Product";
 import {Sale} from "./Sale";
-import {productCategory, productRate, searchType, shopRate, shopStatus, sortType} from "../../utilities/Enums";
+import {ProductCategory, ProductRate, SearchType, ShopRate, ShopStatus, SortType} from "../../utilities/Enums";
 import {logger} from "../../helpers/logger";
 
 export class Range<T>{
@@ -266,7 +266,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     visitPurchaseEvent(msg: ShopPurchaseMessage): void {
         logger.info(`"ShopPurchaseMessage" was received in marketPlaceController.`);
         let shopId= msg.purchase.shopId;
-        let shop: Shop= this.shops.get(shopId);
+        let shop= this.shops.get(shopId);
         if(shop){
             msg.purchase.products.forEach((product, quantity)=>{shop.updateProductQuantity(product.id, quantity)});
         }

@@ -1,30 +1,30 @@
 import {Product} from "./Product";
 import {Sale} from "./Sale";
-import {productCategory, shopRate, shopStatus} from "../../utilities/Enums";
+import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
 
 
 export class Shop {
     private _id: number;
     private _name: string;
-    private _status: shopStatus;
+    private _status: ShopStatus;
     private _shopFounder: string;
     private _shopOwners: Set<string>;
     private _shopManagers: Set<string>;
     private _products: Map<number, [Product, number]>;
     private _shopAndDiscountPolicy?: string;
-    private _rate: shopRate;
+    private _rate: ShopRate;
 
 
     constructor(id: number, name: string, shopFounder: string,shopAndDiscountPolicy?: string){
         this._id= id;
         this._name= name;
-        this._status= shopStatus.open;
+        this._status= ShopStatus.open;
         this._shopFounder= shopFounder;
         this._shopOwners= new Set<string>([shopFounder]);
         this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
         this._shopAndDiscountPolicy= shopAndDiscountPolicy
-        this._rate= shopRate.NotRated
+        this._rate= ShopRate.NotRated
     }
 
 
@@ -44,11 +44,11 @@ export class Shop {
         this._name = value;
     }
 
-    get status(): shopStatus {
+    get status(): ShopStatus {
         return this._status;
     }
 
-    set status(value: shopStatus) {
+    set status(value: ShopStatus) {
         this._status = value;
     }
 
@@ -92,11 +92,11 @@ export class Shop {
         this._shopAndDiscountPolicy = value;
     }
 
-    get rate(): shopRate {
+    get rate(): ShopRate {
         return this._rate;
     }
 
-    set rate(value: shopRate) {
+    set rate(value: ShopRate) {
         this._rate = value;
     }
 
@@ -119,7 +119,7 @@ export class Shop {
         return product[1];
     }
 
-    addProduct(productName: string, shopId: number, category: productCategory, productDesc: string, fullPrice: number, discountPrice: number, relatedSale: Sale, quantity: number): void{
+    addProduct(productName: string, shopId: number, category: ProductCategory, productDesc: string, fullPrice: number, discountPrice: number, relatedSale: Sale, quantity: number): void{
         let toAdd= new Product(productName, shopId, category, productDesc, discountPrice, fullPrice, relatedSale);
         this.products.set(toAdd.id, [toAdd, quantity]);
     }

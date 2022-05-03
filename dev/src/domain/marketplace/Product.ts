@@ -1,5 +1,5 @@
 import {Sale} from "./Sale";
-import {productCategory, productRate} from "../../utilities/Enums";
+import {ProductCategory, ProductRate} from "../../utilities/Enums";
 
 let productsCounter= 0;
 
@@ -7,20 +7,20 @@ export class Product {
     private _id: number;  
     private _name: string;
     private _shopId: number;
-    private _category: productCategory;
-    private _rate: productRate;
+    private _category: ProductCategory;
+    private _rate: ProductRate;
     private _description: string;
     private _discountPrice: number;
     private _relatedSale: Sale;
 
     
-    constructor(name: string, shopId: number, category: productCategory, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
+    constructor(name: string, shopId: number, category: ProductCategory, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
         this._id= productsCounter;
         productsCounter++;
         this._name= name;
         this._shopId= shopId;
         this._category= category; 
-        this._rate= productRate.NotRated
+        this._rate= ProductRate.NotRated
         this._description = description;
         this._fullPrice= fullPrice;
         this._discountPrice= discountPrice;
@@ -48,17 +48,17 @@ export class Product {
         this._shopId = value;
     }
 
-    public get category(): productCategory {
+    public get category(): ProductCategory {
         return this._category;
     }
-    public set category(value: productCategory) {
+    public set category(value: ProductCategory) {
         this._category = value;
     }
 
-    public get rate(): productRate {
+    public get rate(): ProductRate {
         return this._rate;
     }
-    public set rate(value: productRate) {
+    public set rate(value: ProductRate) {
         this._rate = value;
     }
     
