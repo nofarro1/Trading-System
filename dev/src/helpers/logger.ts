@@ -12,6 +12,7 @@ const format = winston.format.combine(
 const transports = [new winston.transports.Console({format: winston.format.colorize({ all: true })}),
     new winston.transports.File({ filename: 'error.log', level: 'error'}),
     new winston.transports.File({ filename: 'event.log', level: 'info'}),
+    new winston.transports.File({ filename: 'warn.log', level: 'warn'}),
 ];
 
 export const logger = winston.createLogger({ format, transports });
