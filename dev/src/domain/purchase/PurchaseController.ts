@@ -9,6 +9,7 @@ import { Member } from "../user/Member";
 import { User } from "../user/User";
 import { BuyerOrder } from "./BuyerOrder";
 import { ShopOrder } from "./ShopOrder";
+import { logger}  from "../../helpers/logger"
 
 
 export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage> {
@@ -103,6 +104,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 orders.add(buyerOrder);
                 this.buyerOrders.set(user.username, orders);
             }
+            logger.info(`member ${user.username} made checkout. order#: ${this.buyerOrderCounter}`);
 
         }
         if (user instanceof Guest){
@@ -120,14 +122,16 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 orders.add(buyerOrder);
                 this.buyerOrders.set(user.id, orders);
             }
+            logger.info(`guest ${user.id} made checkout. order#: ${this.buyerOrderCounter}`);
         }
+        this.buyerOrderCounter = this.buyerOrderCounter +1;
         return new Result(true, undefined);
     }
-    getCurrTime(): string{
-        var today = new Date();
-        var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-        var dateTime = date+' '+time;
-        return dateTime;
-    }
+    // getCurrTime(): string{
+    //     var today = new Date();
+    //     var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    //     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    //     var dateTime = date+' '+time;
+    //     return dateTime;
+    // }
 }
