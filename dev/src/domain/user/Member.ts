@@ -32,13 +32,13 @@ export class Member implements User{
     }
 
     addRole(role: Role) {
-        this.roles.set(role.getShopId(), role);
+        this.roles.set(role.shopId, role);
     }
 
     removeRole(shopId: number) {
         let r;
         this.roles.forEach((role) => {
-            if (role.getShopId() === shopId)
+            if (role.shopId === shopId)
                 r = role;
         });
         if (r)
@@ -47,7 +47,7 @@ export class Member implements User{
 
     hasRole(shopId: number) {
         this.roles.forEach((role) => {
-            if (role.getShopId() === shopId)
+            if (role.shopId === shopId)
                 return true;
         });
         return false;
@@ -55,14 +55,14 @@ export class Member implements User{
 
     addPermission(shopId: number, perm: Permissions) {
         this.roles.forEach((role) => {
-            if (role.getShopId() === shopId)
+            if (role.shopId === shopId)
                 role.addPermission(perm);
         })
     }
 
     removePermission(shopId: number, perm: Permissions) {
         this.roles.forEach((role) => {
-            if (role.getShopId() === shopId)
+            if (role.shopId === shopId)
                 role.removePermission(perm);
         })
     }

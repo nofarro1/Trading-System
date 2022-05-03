@@ -100,7 +100,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
         }
-        shop.addProduct(productName, shopId, productCategory, productDesc, fullPrice, discountPrice, relatedSale, quantity)
+        shop.addProduct(productName, shopId, productCategory, !productDesc ? "" : productDesc, fullPrice, discountPrice, quantity, relatedSale)
         logger.info(`${productName} was added to ${shop.name}.`);
         return new Result(true, undefined,undefined);
     }

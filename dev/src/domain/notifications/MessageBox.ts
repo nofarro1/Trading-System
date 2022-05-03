@@ -1,5 +1,4 @@
 import {Message} from "./Message";
-import {Member} from "../user/Member";
 import {UserID} from "../../utilities/Utils";
 
 

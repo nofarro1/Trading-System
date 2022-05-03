@@ -74,7 +74,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     checkout(user: User): Result<void>{
         let shoppingCart = user._shoppingCart;
         let totalCartPrice = 0;
-        let shopOrders = shoppingCart.bags.forEach((bag: ShoppingBag) => {
+        shoppingCart.bags.forEach((bag: ShoppingBag) => {
             totalCartPrice += bag.totalPrice;
             let shopOrder =  new ShopOrder(this.shopOrderCounter, bag.shopId, bag.products, bag.totalPrice, new Date(Date.now()));
             if (this.shopOrders.has(bag.shopId)){

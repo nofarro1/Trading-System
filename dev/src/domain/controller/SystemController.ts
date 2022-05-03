@@ -13,7 +13,6 @@ import {Result} from "../../utilities/Result";
 import {Shop} from "../marketplace/Shop";
 import {Product} from "../marketplace/Product";
 import {ShoppingCart} from "../marketplace/ShoppingCart";
-import {BuyerOrder} from "../purchase/BuyerOrder";
 import {ShopOrder} from "../purchase/ShopOrder";
 import {UserController} from "../user/UserController";
 import {User} from "../user/User";
@@ -60,7 +59,7 @@ export class SystemController {
         let marketplace = new MarketplaceController();
         let shoppingCart = new ShoppingCartController();
         let user = new UserController()
-        let purchase = new PurchaseController(new PaymentServiceAdaptor("Pservice"), new DeliveryServiceAdaptor("Dservice"));
+        let purchase = new PurchaseController(new PaymentServiceAdaptor("Pservice", undefined), new DeliveryServiceAdaptor("Dservice", undefined));
         let messages = new MessageController();
         let notifications = new NotificationController();
         let security = new SecurityController();
@@ -69,9 +68,9 @@ export class SystemController {
         purchase.subscribe(messages)
         marketplace.subscribe(messages)
 
-        let sys =  new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications);
+        let sys = new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications);
         //adding
-        sys.registerAsAdmin({username:"admin",password:"admin"}, "Edan Rules")
+        sys.registerAsAdmin({username: "admin", password: "admin"}, "Edan Rules")
         return sys;
 
     }
@@ -252,7 +251,7 @@ export class SystemController {
         const authCallback = () => {
             const productRes = this.mpController.getProduct(product);
             if (productRes.ok && productRes.data !== undefined) {
-                return this.scController.editCart(user, productRes.data, quantity)
+                return this.scController.updateProductQuantity(user, productRes.data, quantity)
             } else
                 return new Result(false, undefined, "product not found")
 
@@ -446,7 +445,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(member, callback);
     }
 
-    getShopPurchases(member: string, shop: number, startDate: Date, endDate: Date): Result<ShopOrder[] | void> {
+    getShopPurchases(member: string, shop: number, startDate: Date, endDate: Date, filter?: any): Result<ShopOrder[] | void> {
 
         const callback = () => {
             //check if can preview History
@@ -461,26 +460,13 @@ export class SystemController {
         return this.authenticateMarketVisitor(member, callback);
     }
 
-    getShopPurchasesFiltered(member: string, shop: number, filters?: any): Result<ShopOrder[] | void> {
-        const callback = () => {
-            if (!this.uController.checkPermission(member, shop, Permissions.RequestPersonnelInfo).data) {
-                return new Result(false, undefined, "no permission");
-            }
-            let orders: ShopOrder[] = this.pController.shopOrders.has(shop) ?
-                [...(this.pController.shopOrders.get(shop) as Set<ShopOrder>)].filter(filters) : []
-            return new Result(orders.length !== 0, orders, orders.length !== 0 ? undefined : "no Shop order were found");
-        }
-
-        return this.authenticateMarketVisitor(member, callback);
-    }
-
     //system Admin actions
 
     registerAsAdmin(registrationData: RegisterMemberData, adminSecretKey?: string): Result<void> {
         if (adminSecretKey === null || adminSecretKey !== "Edan Rules") {
             return new Result(false, undefined, "admin key not correct");
         }
-        let admin = this.register({username:registrationData.username, password: registrationData.password});
+        let admin = this.register({username: registrationData.username, password: registrationData.password});
         if (admin.ok) {
             this.uController.addRole(registrationData.username, "system Admin", JobType.admin, -1, new Set())
             return new Result(true, undefined, "new addmin is added")
@@ -488,20 +474,36 @@ export class SystemController {
         return new Result(false, undefined, "admin name cannot be registered");
     }
 
-    //todo: external services.
-    addConnectionWithExternalService(type: ExternalServiceType, serviceName: string): Result<void> {
-        return new Result(false, undefined, "no implementation");
+
+    editConnectionWithExternalService(admin: string, type: ExternalServiceType, settings: any): Result<void> {
+        return this.authenticateMarketVisitor(admin, () => {
+            if (!this.uController.checkPermission(admin, -1, Permissions.AdminControl)) {
+                return new Result(false, undefined, "no admin Privileges");
+            }
+            if(type === ExternalServiceType.Delivery)
+                this.pController.deliveryService.editServiceSettings(settings);
+            else
+                this.pController.paymentService.editServiceSettings(settings)
+
+                return new Result(true, undefined, "services updated");
+
+        })
     }
 
-    editConnectionWithExternalService(type: ExternalServiceType, serviceName: string, settings: any): Result<void> {
-        return new Result(false, undefined, "no implementation");
-    }
+    swapConnectionWithExternalService(admin:string,type: ExternalServiceType, newServiceName: string): Result<void> {
+        return this.authenticateMarketVisitor(admin, () => {
+            if (!this.uController.checkPermission(admin, -1, Permissions.AdminControl)) {
+                return new Result(false, undefined, "no admin Privileges");
+            }
+            if(type === ExternalServiceType.Delivery)
+                this.pController.deliveryService = new DeliveryServiceAdaptor(newServiceName,undefined);
+            else
+                this.pController.paymentService= new PaymentServiceAdaptor(newServiceName,undefined);
 
-    swapConnectionWithExternalService(type: ExternalServiceType, newServiceName: string): Result<void> {
-        return new Result(false, undefined, "no implementation");
-    }
+            return new Result(true, undefined, "services swapped");
 
-    callService(type: ExternalServiceType, serviceDetails: any): Result<void> {
-        return new Result(false, undefined, "no implementation");
+
+        })
+
     }
 }

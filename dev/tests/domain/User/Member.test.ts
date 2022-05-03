@@ -1,11 +1,11 @@
-import { JobType } from "../../utilities/Enums";
-import { Permissions } from "../../utilities/Permissions";
-import { Shop } from "../marketplace/Shop";
-import { ShoppingCart } from "../marketplace/ShoppingCart";
-import {MessageBox, NewMessageSubscriber} from "../notifications/MessageBox";
-import {Member} from "./Member";
-import { Role } from "./Role";
-import { UserController } from "./UserController";
+
+import {JobType} from "../../../src/utilities/Enums";
+import {Permissions} from "../../../src/utilities/Permissions";
+import {Member} from "../../../src/domain/user/Member";
+import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
+import {Shop} from "../../../src/domain/marketplace/Shop";
+import {Role} from "../../../src/domain/user/Role";
+import {MessageBox} from "../../../src/domain/notifications/MessageBox";
 
 class TestMember extends Member {
 
