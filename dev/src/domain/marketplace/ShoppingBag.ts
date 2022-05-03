@@ -73,22 +73,52 @@ export class ShoppingBag {
         return this.totalPrice;
         }
     
-    removeProduct(toRemove: Product, quantity: number):number {
+    removeProduct(toRemove: Product):number {
         if(!this.products.has(toRemove.id))
             throw new Error("Failed to remove product because the product wasn't found in bag.")
-        this.totalPrice-= toRemove.discountPrice;
-        if(toRemove.relatedSale){
-            var queue= this.productsOnSale.get(toRemove.relatedSale);
-            if(queue){
-                var updatedQueue= new PriorityQueue({comparator: compProducts});
-                while(queue.length!=0){
-                    var p=queue.dequeue();
-                    if(p!=toRemove)
-                        updatedQueue.queue(p);
+        let pTuple= this.products.get(toRemove.id);
+        if(pTuple) {
+            let quantity = pTuple[1];
+            this.totalPrice-= toRemove.discountPrice*quantity;
+            // After removing the items check if there is discount to apply.
+            if (toRemove.relatedSale) {
+                var queue = this.productsOnSale.get(toRemove.relatedSale);
+                if (queue) {
+                    var updatedQueue = new PriorityQueue({comparator: compProducts});
+                    while (queue.length != 0) {
+                        var p = queue.dequeue();
+                        if (p != toRemove)
+                            updatedQueue.queue(p);
+                    }
+                    this.totalPrice -= toRemove.relatedSale.applyDiscount(updatedQueue);
                 }
-                this.totalPrice-= toRemove.relatedSale.applyDiscount(updatedQueue)*quantity;
+                throw new Error("Failed to remove product beacause the queue of the assoicated Sale was undifiend")
             }
-            throw new Error("Failed to remove product beacause the queue of the assoicated Sale was undifiend")  
+        }
+        return this.totalPrice;
+    }
+
+    updateProductQuanity(toUpdate: Product, quantity: number): number {
+        if(!this.products.has(toUpdate.id))
+            throw new Error("Failed to remove product because the product wasn't found in bag.")
+        let pTuple= this.products.get(toUpdate.id);
+        if(pTuple) {
+            let oldQuantity = pTuple[1];
+            this.totalPrice= this.totalPrice-toUpdate.discountPrice*oldQuantity+toUpdate.fullPrice*quantity;
+            // After removing the items check if there is discount to apply.
+            if (toUpdate.relatedSale) {
+                var queue = this.productsOnSale.get(toUpdate.relatedSale);
+                if (queue) {
+                    var updatedQueue = new PriorityQueue({comparator: compProducts});
+                    while (queue.length != 0) {
+                        var p = queue.dequeue();
+                        if (p != toUpdate)
+                            updatedQueue.queue(p);
+                    }
+                    this.totalPrice -= toUpdate.relatedSale.applyDiscount(updatedQueue);
+                }
+                throw new Error("Failed to update product because the queue of the associated Sale was undefined")
+            }
         }
         return this.totalPrice;
     }
@@ -98,4 +128,6 @@ export class ShoppingBag {
         this.productsOnSale.clear;
         this.totalPrice= 0;
     }
+
+
 }

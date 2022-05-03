@@ -53,18 +53,26 @@ addProduct(toAdd:Product, quantity: number): void{
     this._bags.set(shopId, newBag);
     }
 
-removeProduct(toRemove: Product, quantity: number): void{
+removeProduct(toRemove: Product): void{
     let shopId= toRemove.shopId;
     let bag= this._bags.get(shopId)
     if(!bag)
-        throw new Error("Failed to remove product because the nedded bag wasn't found");
-    this._totalPrice= this._totalPrice - bag.totalPrice + bag.removeProduct(toRemove, quantity);
+        throw new Error("Failed to remove product because the needed bag wasn't found");
+    this._totalPrice= this._totalPrice - bag.totalPrice + bag.removeProduct(toRemove);
 }    
 
 emptyCart(): void{
     this._bags.clear();
     this._totalPrice=0;
 }
+
+    updateProductQuantity(toUpdate: Product, quantity: number): void {
+        let shopId= toUpdate.shopId;
+        let bag= this._bags.get(shopId)
+        if(!bag)
+            throw new Error("Failed to update product's quantity because the needed bag wasn't found");
+        this._totalPrice= this._totalPrice - bag.totalPrice + bag.updateProductQuanity(toUpdate, quantity);
+    }
 }
 
  
