@@ -87,7 +87,7 @@ export class MarketplaceService {
                 products.set(product, quantity);
             }
 
-            result.data = new Shop(domainShop.id, domainShop.name, domainShop.isActive, products);
+            result.data = new Shop(domainShop.id, domainShop.name, domainShop.status, products);
         }
         return result;
     }
