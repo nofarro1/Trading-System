@@ -89,7 +89,7 @@ export class UserController {
             return new Result(false, undefined, `guest with id ${guestId} not found`);
     }
 
-    addPermission(username: string, shopId: number, jobType: JobType, perm: Permissions): Result<void>{
+    addPermission(username: string, shopId: number, perm: Permissions): Result<void>{
         if (!this.members.has(username))
         return new Result(false, undefined, `user ${username} not found`);
         const member = this.members.get(username);
@@ -98,7 +98,7 @@ export class UserController {
         return new Result(true, undefined);
     }
 
-    removePermission(username: string, shopId: number, jobType:JobType, perm: Permissions): Result<void>{
+    removePermission(username: string, shopId: number, perm: Permissions): Result<void>{
         if (!this.members.has(username))
             return new Result(false, undefined, `user ${username} not found`);
         const member = this.members.get(username);
@@ -107,7 +107,7 @@ export class UserController {
         return new Result(true, undefined);
     }
 
-    checkPermission(username: string, shopId: number, jobType: JobType, perm: Permissions): Result<boolean>{
+    checkPermission(username: string, shopId: number, perm: Permissions): Result<boolean>{
         if (!this.members.has(username))
             return new Result(false, false, `user ${username} not found`);
         let user = this.members.get(username);

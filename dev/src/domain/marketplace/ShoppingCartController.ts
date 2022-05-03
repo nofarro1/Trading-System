@@ -13,7 +13,7 @@ export class ShoppingCartController {
         this.carts= new Map<number, ShoppingCart>();
     }
 
-    //add cart missing
+
 
     //remove cart missing
     addProduct(cartId: string | number, toAdd: Product, quantity: number): Result<void>{
@@ -58,12 +58,22 @@ export class ShoppingCartController {
         return new Result(true, undefined);
     }
 
-    removeCart (userName: UserID): Result <void>{
+    removeCart(userName: UserID): Result <void>{
         if(this.carts.delete(userName)){
             logger.info(`${userName}'s cart was deleted.`)
             return new Result(true, undefined);
         }
         logger.error(`Failed to delete ${userName}'s cart, because the cart was not found.`);
         return new Result(false, undefined, `Failed to delete ${userName}'s cart, because the cart was not found.`);
+    }
+
+    getCart(userName: UserID): Result<ShoppingCart | void>{
+        let toReturn= this.carts.get(userName);
+        if(toReturn){
+            logger.info(`${userName}'s cart was returned successfully.`)
+            return new Result(true, toReturn);
+        }
+        logger.error(`Failed to returned ${userName}'s cart, because the cart was not found.`);
+        return new Result(false, undefined, `Failed to returned ${userName}'s cart, because the cart was not found.`);
     }
 }

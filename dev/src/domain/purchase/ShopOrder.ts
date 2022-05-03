@@ -55,6 +55,4 @@ export class ShopOrder {
         this._creationTime = value;
     }
 
-
-
 }

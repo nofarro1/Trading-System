@@ -33,7 +33,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     private shops: Map<number, Shop>;
     private shopCounter: number;
     private products: Map<number, Product>
-    private subscriber: IMessageListener<ShopStatusChangedMessage> | null;
+    subscriber: IMessageListener<ShopStatusChangedMessage> | null;
 
     constructor(){
         this.shops= new Map<number,Shop>();
@@ -73,7 +73,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     closeShop(founder: string, shopId: number): Result<void>{
         let toClose= this.shops.get(shopId);
         if(toClose){
-            toClose.status= shopStatus.close;
+            toClose.status= ShopStatus.close;
             this.notify(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
             logger.info(`The ${toClose.name} was closed in the market.`);
             return new Result(true, undefined);
@@ -85,7 +85,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     reopenShop(founder: string, shopId: number): Result<void>{
         let toReopen= this.shops.get(shopId);
         if(toReopen){
-            toReopen.status= shopStatus.open;
+            toReopen.status= ShopStatus.open;
             this.notify(new ShopStatusChangedMessage(true, toReopen.shopOwners, toReopen.name));
             logger.info(`The ${toReopen.name} was reopend in the market.`);
             return new Result(true, undefined);
@@ -94,7 +94,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false,undefined, "Failed to reopen shop because the shop does not exist.");
     }
 
-    addProductToShop(shopId: number, productCategory: productCategory, productName: string, quantity: number, fullPrice: number, discountPrice:number, relatedSale: Sale, productDesc: string): Result<void>{
+    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, discountPrice:number, relatedSale: Sale, productDesc: string): Result<void>{
         let shop= this.shops.get(shopId);
         if(!shop) {
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
@@ -190,27 +190,27 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             return new Result(false, undefined, "Failed to show the shop products because the shop wasn't found");
     }
 
-    searchProduct(searchBy: searchType, searchInput: String | productCategory): Result<Product[]>{
+    searchProduct(searchBy: SearchType, searchInput: String | ProductCategory): Result<Product[]>{
         let shopsArray = Array.from(this.shops.values());
         let allProductsMap= shopsArray.map(shop=> Array.from(shop.products.values()));
         let allProductsInMarket= this.extractProducts(allProductsMap);
         switch (searchBy) {
-            case searchType.productName:
+            case SearchType.productName:
                 let searchedByName= allProductsInMarket.filter(p=> p.name==searchInput);
                 logger.info(`Searching for products by name is done successfully.`)
                 return new Result(true,searchedByName);
-            case searchType.category:
+            case SearchType.category:
                 let searchedByCategory= allProductsInMarket.filter(p=> p.category==searchInput);
                 logger.info(`Searching for products by category is done successfully.`)
                 return new Result(true,searchedByCategory);
-            case searchType.keyword:
+            case SearchType.keyword:
                 if(typeof searchInput == "string"){
                     let searchByKeyWord= allProductsInMarket.filter(p=> p.description.includes(searchInput));
                     logger.info(`Searching for products by key word is done successfully.`)
                     return new Result(true,searchByKeyWord);
                 }
         }
-        logger.error(`Searching by ${searchType} is not possible option.`)
+        logger.error(`Searching by ${SearchType} is not possible option.`)
         return new Result(false, [], "Failed to search product");
     }
 
@@ -218,29 +218,29 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return pTuples.map(pTuple=> pTuple[0][0]);
     }
 
-    private sortProducts(sortBy: sortType, sortInput: productCategory| productRate| Range<number> | shopRate, toSort: Product[]): Result<Product[]>{
+    private sortProducts(sortBy: SortType, sortInput: ProductCategory| ProductRate| Range<number> | ShopRate, toSort: Product[]): Result<Product[]>{
         switch(sortBy){
-            case sortType.category:
+            case SortType.category:
                 let sortByCategory= toSort.filter(p=> p.category== sortInput);
                 logger.info(`Sorting products by category is done successfully.`)
                 return new Result(true, sortByCategory);
-            case sortType.price:
+            case SortType.price:
                 if(sortInput instanceof Range){
                     let sortByPrice= toSort.filter(p=> {let price= p.discountPrice;
                                          price>=sortInput.min && price<=sortInput.max})
                     logger.info(`Sorting products by price range is done successfully.`)
                     return new Result(true, sortByPrice);
                 }
-            case sortType.productRate:
+            case SortType.productRate:
                 let sortByProductRate= toSort.filter(p=> p.rate==sortInput);
                 logger.info(`Sorting products by product's rate is done successfully.`)
                 return new Result(true, sortByProductRate);
-            case sortType.shopRate:
+            case SortType.shopRate:
                 let sortByShopRate= toSort.filter(p=> this.shops.get(p.shopId)?.rate == sortInput)
                 logger.info(`Sorting products by shop's rate is done successfully.`)
                 return new Result(true, sortByShopRate);
         }
-        logger.error(`Sorting by ${sortType} is not possible option.`)
+        logger.error(`Sorting by ${SortType} is not possible option.`)
         return new Result(false, [], "Failed to sort product");
     }
 
