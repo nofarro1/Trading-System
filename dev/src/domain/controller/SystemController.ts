@@ -64,7 +64,7 @@ export class SystemController {
         let security = new SecurityController();
 
         //todo: configure dependencies between controllers
-        purchase.subscribe(messages)
+        purchase.subscribe(marketplace)
         marketplace.subscribe(messages)
 
         let sys = new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications);
@@ -498,9 +498,9 @@ export class SystemController {
                 return new Result(false, undefined, "no admin Privileges");
             }
             if(type === ExternalServiceType.Delivery)
-                this.pController.deliveryService = new DeliveryServiceAdaptor(newServiceName,undefined);
+               this.pController.swapDeliveryService(new DeliveryServiceAdaptor(newServiceName,undefined));
             else
-                this.pController.paymentService= new PaymentServiceAdaptor(newServiceName,undefined);
+                this.pController.swapPaymentService(new PaymentServiceAdaptor(newServiceName,undefined))
 
             return new Result(true, undefined, "services swapped");
 
