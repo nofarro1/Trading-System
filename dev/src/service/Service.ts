@@ -13,7 +13,7 @@ import {Shop} from "./simple_objects/marketplace/Shop";
 import {Product} from "./simple_objects/marketplace/Product";
 import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
 import {ShoppingCart} from "./simple_objects/marketplace/ShoppingCart";
-import {productCategory} from "../utilities/Enums";
+import {ProductCategory, SearchType} from "../utilities/Enums";
 import {logger} from "../helpers/logger";
 
 
@@ -49,7 +49,7 @@ export class Service {
     registerAdmin(guestId: number, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Result<void> {
         logger.info(`An admin registration is being performed by ${guestId} using username: ${username} and password: ${password}`);
         logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
-        return this.guestService.registerAdmin(guestId, username, password, firstName, lastName, email, country);
+        return this.guestService.registerAdmin(username, password, firstName, lastName, email, country);
     }
 
     //General Guest - Use-Case 4
@@ -85,13 +85,13 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 7.1
-    addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Permissions[]): Result<void> {
+    addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Set<Permissions>): Result<void> {
         logger.info(`${assigningOwnerID} is promoting ${promotedManagerID} of shop ${shopID} by adding the following permissions: ${permissions}`);
         return this.memberService.addPermissions(assigningOwnerID, promotedManagerID, shopID, permissions);
     }
 
     //Shop Owner - Use-Case 7.2
-    removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Permissions[]): Result<void> {
+    removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Set<Permissions>): Result<void> {
         logger.info(`${assigningOwnerID} is demoting ${demotedManagerID} of shop ${shopID} by removing the following permissions: ${permissions}`);
         return this.memberService.removePermissions(assigningOwnerID, demotedManagerID, shopID, permissions);
     }
@@ -124,11 +124,11 @@ export class Service {
     }
 
     //Guest Payment - Use-Case 2
-    searchProducts(userID: UserID, searchTerm: string, filters?: any): Result<void | Product[]> {
+    searchProducts(userID: UserID, searchBy: SearchType, searchTerm: string, filters?: any): Result<void | Product[]> {
         logger.info(`${userID} has initiated a product search operation using the search term ${searchTerm}`);
         if(filters)
             logger.info(`The search is initiated using the following filter details ${filters}`);
-        return this.marketplaceService.searchProducts(userID, searchTerm, filters);
+        return this.marketplaceService.searchProducts(userID, searchBy, searchTerm, filters);
     }
 
     //Member Payment - Use-Case 2
@@ -138,7 +138,7 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 1.1
-    addProductToShop(username: string, shopID: number, category: productCategory, name: string, price: number,
+    addProductToShop(username: string, shopID: number, category: ProductCategory, name: string, price: number,
                      quantity: number, description?: string): Result<void> {
         logger.info(`The user ${username} wants to add a new product to shop ${shopID}`);
         logger.info(`The product contains the following details - category: ${category}, name: ${name}, price: ${price}, quantity: ${quantity}`);
@@ -231,7 +231,7 @@ export class Service {
     //System - Use-Case 3
     //System - Use-Case 4
     callService(type: ExternalServiceType, serviceDetails?: any): Result<void> {
-        logger.info(`The ${type} service is being called with the following details: ${serviceDetails}`); //TODO add service name parameter
+        logger.info(`The ${type} service is being called with the following details: ${serviceDetails}`);
         return this.orderService.callService(type, serviceDetails);
     }
 }

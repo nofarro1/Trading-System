@@ -17,9 +17,9 @@ export class GuestService {
     }
 
     //General Admin - Use-Case 0
-    registerAdmin(guestID: number, username: string, password: string, firstName?: string, lastName?: string,
+    registerAdmin(username: string, password: string, firstName?: string, lastName?: string,
                   email?: string, country?: string): Result<void> {
-        return this.systemController.registerAsAdmin(guestID, {username: username, password: password,
+        return this.systemController.registerAsAdmin({username: username, password: password,
             firstName: firstName, lastName: lastName, email: email, country: country});
     }
 
