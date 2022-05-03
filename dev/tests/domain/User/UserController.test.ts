@@ -62,7 +62,7 @@ describe('UserController tests - test', function () {
             expect(userController.getMember(m.username).data).toBe(m);
     }
 
-    test("add permission to  member"), () => {
+    test("add permission to member"), () => {
         let p1 = Permissions.ModifyProduct;
         let m = userController.addMember("member", new ShoppingCart()).data;
         if (m){
@@ -72,7 +72,23 @@ describe('UserController tests - test', function () {
             if (r1){
                 userController.addPermission(m.username, r1.shopId, p1);
                 expect(userController.checkPermission(m.username, s1.id, p1).data).toBe(true);
-                expect(userController.checkPermission(m.username, s1.id, Permi).data).toBe(true);
+                expect(userController.checkPermission(m.username, s1.id, Permissions.AddProduct).data).toBe(false);
+            }
+        }
+    }
+
+    test("remove permission from member"), () => {
+        let p1 = Permissions.ModifyProduct;
+        let m = userController.addMember("member", new ShoppingCart()).data;
+        if (m){
+            let s1 = new Shop(12, "myShop", m1.username);
+            let perms = new Set<Permissions>(); 
+            let r1 = userController.addRole(m.username, "Manager of myShop", JobType.Manager, s1.id, perms).data;
+            if (r1){
+                userController.addPermission(m.username, r1.shopId, p1);
+                expect(userController.checkPermission(m.username, s1.id, p1).data).toBe(true);
+                userController.removePermission(m.username, s1.id, p1);
+                expect(userController.checkPermission(m.username, s1.id, p1).data).toBe(false);
             }
         }
     }
