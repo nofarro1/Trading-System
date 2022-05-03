@@ -6,30 +6,44 @@ import {UserID} from "../../utilities/Utils";
 
 
 export class Role {
-    private shopId : number;
-    private title: string;
-    private jobType: JobType;
-    private permissions: Set<Permissions>;
+    private _shopId: number;
+    private _title: string;
+
+    private _jobType: JobType;
+
+    private _permissions: Set<Permissions>;
+
 
     constructor(shopId: number, title: string, type: JobType, permissions: Set<Permissions>){
-        this.shopId = shopId;
-        this.title = title;
-        this.jobType = type;
-        this.permissions = permissions;
+        this._shopId = shopId;
+        this._title = title;
+        this._jobType = type;
+        this._permissions = permissions;
     }
 
-    getJobType(){
-        return this.jobType;
+    public get shopId(): number {
+        return this._shopId;
     }
-
-    getTitle(){
-        return this.title;
+    public get title(): string {
+        return this._title;
     }
-
-    getShopId(){
-        return this.shopId;
+    public set title(value: string) {
+        this._title = value;
     }
     
+    public get jobType(): JobType {
+        return this._jobType;
+    }
+    public set jobType(value: JobType) {
+        this._jobType = value;
+    }
+    public get permissions(): Set<Permissions> {
+        return this._permissions;
+    }
+    public set permissions(value: Set<Permissions>) {
+        this._permissions = value;
+    }
+
     addPermission(perm: Permissions){
         this.permissions.add(perm);
     }

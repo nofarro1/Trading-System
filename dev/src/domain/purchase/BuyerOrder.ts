@@ -9,11 +9,11 @@ export enum OrderStatus {
 export class BuyerOrder {
     private _orderNum: number;
     private _userId: number | string;
-    private _shopOrders: ShopOrder[];
+    private _shopOrders: Set<BuyerOrder>;
     private _totalPrice: number;
     private _creationTime: string;
     
-    constructor(orderNum: number,userId: number | string, shopOrders: ShopOrder[], totalPrice: number, creationTime: string) {
+    constructor(orderNum: number,userId: number | string, shopOrders: Set<BuyerOrder>, totalPrice: number, creationTime: string) {
         this._orderNum = orderNum;
         this._userId = userId;
         this._shopOrders = shopOrders;
@@ -39,10 +39,10 @@ export class BuyerOrder {
         this._totalPrice = value;
     }
     
-    public get shopOrders(): ShopOrder[] {
+    public get shopOrders(): Set<BuyerOrder> {
         return this._shopOrders;
     }
-    public set shopOrders(value: ShopOrder[]) {
+    public set shopOrders(value: Set<BuyerOrder>) {
         this._shopOrders = value;
     }
     

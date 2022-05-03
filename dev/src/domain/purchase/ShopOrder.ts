@@ -3,40 +3,58 @@ import { Product } from "../marketplace/Product";
 
 
 export class ShopOrder {
-    private id: number;
-    private shopId: number;
-    private products: Product[];
-    private totalPrice: number;
-    private creationTime: string;
+    private _id: number;
 
-    constructor(id: number, shopId: number, products: Product[], totalPrices: number, creationTime: string){
-        this.id = id;
-        this.shopId = shopId;
-        this.products = products;
-        this.totalPrice = totalPrices;
-        this.creationTime = creationTime;
+    private _shopId: number;
+
+    private _products: Map<number, [Product, number]>;
+;
+    private _totalPrice: number;
+   
+    private _creationTime: string;
+  
+
+    constructor(id: number, shopId: number, products: Map<number, [Product, number]>, totalPrices: number, creationTime: string){
+        this._id = id;
+        this._shopId = shopId;
+        this._products = products;
+        this._totalPrice = totalPrices;
+        this._creationTime = creationTime;
     }
 
-    getId(): number { return this.id; }
+    public get id(): number {
+        return this._id;
+    }
+    
+    public get shopId(): number {
+        return this._shopId;
+    }
+    // public set shopId(value: number) {
+    //     this._shopId = value;
+    // }
 
-    getShopId(): number { return this.shopId; }
-
-    getProducts(): Product[] { return this.products; }
-
-    setProducts(products: Product[]): void {
-        products = products;
+    public get products(): Map<number, [Product, number]> {
+        return this._products;
     }
 
-    getTotalPrice(): number { return this.totalPrice; }
-
-    setTotalPrice(totalPrice: number): void {
-        this.totalPrice = totalPrice;
+    public set products(value: Map<number, [Product, number]>) {
+        this._products = value;
     }
 
-    getCreationTime(): string { return this.creationTime; }
-
-    setCreationTime(creationTime: string){
-        this.creationTime = creationTime;
+    public get totalPrice(): number {
+        return this._totalPrice;
     }
+    public set totalPrice(value: number) {
+        this._totalPrice = value;
+    }
+
+    public get creationTime(): string {
+        return this._creationTime;
+    }
+    public set creationTime(value: string) {
+        this._creationTime = value;
+    }
+
+
 
 }

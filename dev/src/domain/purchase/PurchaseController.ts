@@ -70,26 +70,10 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         v.visitPurchaseEvent(msg)
     }
 
-    setPaymentService(paymentService: PaymentServiceAdaptor){
-        this.paymentService = paymentService;
-    }
-
-    setDeliveryService(deliveryService: DeliveryServiceAdaptor){
-        this.deliveryService = deliveryService;
-    }
-
-    getPaymentService(){
-        return this.paymentService;
-    }
-
-    getDeliveryService(){
-        return this.deliveryService;
-    }
-
     checkout(user: User): Result<void>{
         let shoppingCart = user._shoppingCart;
         let totalCartPrice = 0;
-        let shopOrders = shoppingCart.bags.map((bag: ShoppingBag) => {
+        let shopOrders = shoppingCart.bags.forEach((bag: ShoppingBag) => {
             totalCartPrice += bag.totalPrice;
             let shopOrder =  new ShopOrder(this.shopOrderCounter, bag.shopId, bag.products, bag.totalPrice, this.getCurrTime());
             if (this.shopOrders.has(bag.shopId)){
@@ -105,32 +89,34 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         // this.paymentService.makePayment(totalCartPrice);
         // this.deliveryService.makeDelivery("details");
         if (user instanceof Member){
-            let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, shopOrders, totalCartPrice, this.getCurrTime());
             if (this.buyerOrders.has(user.username)){
                 let orders = this.buyerOrders.get(user.username);
                 if(orders){
+                    let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, this.getCurrTime());
                     orders?.add(buyerOrder);
                     this.buyerOrders.set(user.username, orders);
                 }
             }
             else{
                 let orders = new Set<BuyerOrder>();
+                let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, this.getCurrTime());
                 orders.add(buyerOrder);
                 this.buyerOrders.set(user.username, orders);
             }
 
         }
         if (user instanceof Guest){
-            let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, shopOrders, totalCartPrice, this.getCurrTime());
             if (this.buyerOrders.has(user.id)){
                 let orders = this.buyerOrders.get(user.id);
                 if(orders){
+                    let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, this.getCurrTime());
                     orders?.add(buyerOrder);
                     this.buyerOrders.set(user.id, orders);
                 }
             }
             else{
                 let orders = new Set<BuyerOrder>();
+                let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, this.getCurrTime());
                 orders.add(buyerOrder);
                 this.buyerOrders.set(user.id, orders);
             }
