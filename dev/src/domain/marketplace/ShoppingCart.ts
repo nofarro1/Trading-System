@@ -1,10 +1,10 @@
-import PriorityQueue from "ts-priority-queue"
+//import PriorityQueue from "ts-priority-queue"
 import { Product } from "./Product"
-import { Sale } from "./Sale"
-import Comparator from "ts-priority-queue/src/PriorityQueue"
-import { Result } from "../../utilities/Result";
+//import { Sale } from "./Sale"
+//import Comparator from "ts-priority-queue/src/PriorityQueue"
+//import { Result } from "../../utilities/Result";
 import { ShoppingBag } from "./ShoppingBag";
-import { exceptions } from "winston";
+//import { exceptions } from "winston";
 
 
 export class ShoppingCart {
@@ -44,12 +44,12 @@ addProduct(toAdd:Product, quantity: number): void{
     this._bags.set(shopId, newBag);
     }
 
-removeProduct(toRemove: Product): void{
+removeProduct(toRemove: Product, quantity: number): void{
     let shopId= toRemove.shopId;
     let bag= this._bags.get(shopId)
     if(!bag)
         throw new Error("Failed to remove product because the nedded bag wasn't found");
-    this.totalPrice= this.totalPrice - bag.totalPrice + bag.removeProduct(toRemove);
+    this.totalPrice= this.totalPrice - bag.totalPrice + bag.removeProduct(toRemove, quantity);
 }    
 
 emptyCart(): void{

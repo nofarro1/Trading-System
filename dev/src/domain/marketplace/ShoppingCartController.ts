@@ -1,4 +1,4 @@
-import { ExceptionHandler } from "winston";
+//import { ExceptionHandler } from "winston";
 import { Result } from "../../utilities/Result";
 import { Product } from "./Product";
 import { ShoppingCart } from "./ShoppingCart";
@@ -37,7 +37,7 @@ export class ShoppingCartController {
         let cart= this.carts.get(cartId);
         if(cart){
             try {
-                cart.removeProduct(toRemove)
+                cart.removeProduct(toRemove, quantity);
                 logger.info(`The product: ${toRemove.name} was removed from cart with id: ${cartId}`);
                 return new Result(true, undefined)
             } 
@@ -51,5 +51,18 @@ export class ShoppingCartController {
             return new Result(false, undefined, "Failed to remove product from cart because the needed cart wasn't found");
     }
 
+    addCart(userName: string): Result<void>{
+        this.carts.set(userName, new ShoppingCart());
+        logger.info(`New cart was created for ${userName}` );
+        return new Result(true, undefined);
+    }
 
+    removeCart (userName: string): Result <void>{
+        if(this.carts.delete(userName)){
+            logger.info(`${userName}'s cart was deleted.`)
+            return new Result(true, undefined);
+        }
+        logger.error(`Failed to delete ${userName}'s cart, because the cart was not found.`);
+        return new Result(false, undefined, `Failed to delete ${userName}'s cart, because the cart was not found.`);
+    }
 }

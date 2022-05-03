@@ -2,7 +2,6 @@ import {Product} from "./Product";
 import {Sale} from "./Sale";
 import {productCategory, shopRate, shopStatus} from "../../utilities/Enums";
 
-let productsCounter= 0;
 
 export class Shop {
     private _id: number;
@@ -14,7 +13,7 @@ export class Shop {
     private _products: Map<number, [Product, number]>;
     private _shopAndDiscountPolicy?: string;
     private _rate: shopRate;
-   
+
 
     constructor(id: number, name: string, shopFounder: string,shopAndDiscountPolicy?: string){
         this._id= id;
@@ -121,7 +120,7 @@ export class Shop {
     }
 
     addProduct(productName: string, shopId: number, category: productCategory, productDesc: string, fullPrice: number, discountPrice: number, relatedSale: Sale, quantity: number): void{
-        let toAdd= new Product(productsCounter, productName, shopId, category, productDesc, discountPrice, fullPrice, relatedSale);
+        let toAdd= new Product(productName, shopId, category, productDesc, discountPrice, fullPrice, relatedSale);
         this.products.set(toAdd.id, [toAdd, quantity]);
     }
 

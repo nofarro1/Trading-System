@@ -1,8 +1,7 @@
 import {Sale} from "./Sale";
-import { Shop } from "./Shop";
 import {productCategory, productRate} from "../../utilities/Enums";
 
-
+let productsCounter= 0;
 
 export class Product {
     private _id: number;  
@@ -15,8 +14,9 @@ export class Product {
     private _relatedSale: Sale;
 
     
-    constructor(id: number, name: string, shopId: number, category: productCategory, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
-        this._id= id;
+    constructor(name: string, shopId: number, category: productCategory, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
+        this._id= productsCounter;
+        productsCounter++;
         this._name= name;
         this._shopId= shopId;
         this._category= category; 

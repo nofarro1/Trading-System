@@ -31,12 +31,14 @@ export class Range<T>{
 
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage>, IMessageListener<ShopPurchaseMessage> {
     private shops: Map<number, Shop>;
-    private idsCounter: number;
+    private shopCounter: number;
+    private products: Map<number, Product>
     private subscriber: IMessageListener<ShopStatusChangedMessage> | null;
 
     constructor(){
         this.shops= new Map<number,Shop>();
-        this.idsCounter= 0;
+        this.shopCounter= 0;
+        this.products= new Map<number, Product>();
         this.subscriber= null;
     }
 
@@ -61,8 +63,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     
 
-    setUpShop(userId: string, shopName: string, purchaseAndDiscountPolicies?: string): Result<void>{
-        let toAdd= new Shop(this.idsCounter, shopName, userId, purchaseAndDiscountPolicies);
+    setUpShop(userId: string, shopName: string, purchaseAndDiscountPolicies?: string): Result<Shop| void>{
+        let toAdd= new Shop(this.shopCounter, shopName, userId, purchaseAndDiscountPolicies);
         this.shops.set(toAdd.id, toAdd);
         logger.info(`The ${shopName} was opened in the market by ${userId}.`);
         return new Result(true, undefined);
@@ -92,7 +94,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false,undefined, "Failed to reopen shop because the shop does not exist.");
     }
 
-    addProductToShop(userId: string, shopId: number, productCategory: productCategory, productName: string, quantity: number, fullPrice: number, discountPrice:number, relatedSale: Sale, productDesc: string): Result<void>{
+    addProductToShop(shopId: number, productCategory: productCategory, productName: string, quantity: number, fullPrice: number, discountPrice:number, relatedSale: Sale, productDesc: string): Result<void>{
         let shop= this.shops.get(shopId);
         if(!shop) {
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
@@ -100,7 +102,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
         shop.addProduct(productName, shopId, productCategory, productDesc, fullPrice, discountPrice, relatedSale, quantity)
         logger.info(`${productName} was added to ${shop.name}.`);
-        return new Result(true, undefined);
+        return new Result(true, undefined,undefined);
     }
 
     removeProductFromShop(shopId: number, productId: number): Result<void>{
@@ -158,8 +160,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     appointShopManager(managerId: string, shopId: number): Result<void>{
         let shop= this.shops.get(shopId);
         if(!shop) {
-            return new Result(false, undefined, "Failed to appoint manager because the shop wasn't found");
             logger.error(`Failed to appoint ${managerId} to shop with id: ${shopId}, because the shop does not exist.`)
+            return new Result(false, undefined, "Failed to appoint manager because the shop wasn't found");
         }
         try{
             shop.appointShopManager(managerId);
@@ -252,12 +254,21 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false, undefined,"Failed to return shop info because the shop wasn't found.");
     }
 
+    getProduct(productId: number): Result<Product | void>{
+        let toReturn= this.products.get(productId);
+        if(toReturn){
+            logger.info(`Product with id: ${productId} was Returned successfully.`)
+            return new Result(true,toReturn);
+        }
+        logger.error(`Product with id: ${productId} was not found.`)
+        return new Result(false,undefined,`Product with id: ${productId} was not found.`);
+    }
     visitPurchaseEvent(msg: ShopPurchaseMessage): void {
         logger.info(`"ShopPurchaseMessage" was received in marketPlaceController.`);
         let shopId= msg.purchase.shopId;
         let shop: Shop= this.shops.get(shopId);
         if(shop){
-            let productTupl= msg.purchase.products.forEach((product, quantity)=>{shop.updateProductQuantity(product.id, quantity)});
+            msg.purchase.products.forEach((product, quantity)=>{shop.updateProductQuantity(product.id, quantity)});
         }
     }
 

@@ -73,7 +73,7 @@ export class ShoppingBag {
         return this.totalPrice;
         }
     
-    removeProduct(toRemove: Product):number {
+    removeProduct(toRemove: Product, quantity: number):number {
         if(!this.products.has(toRemove.id))
             throw new Error("Failed to remove product because the product wasn't found in bag.")
         this.totalPrice-= toRemove.discountPrice;
@@ -86,7 +86,7 @@ export class ShoppingBag {
                     if(p!=toRemove)
                         updatedQueue.queue(p);
                 }
-                this.totalPrice-= toRemove.relatedSale.applyDiscount(updatedQueue); 
+                this.totalPrice-= toRemove.relatedSale.applyDiscount(updatedQueue)*quantity;
             }
             throw new Error("Failed to remove product beacause the queue of the assoicated Sale was undifiend")  
         }
