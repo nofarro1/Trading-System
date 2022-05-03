@@ -1,4 +1,4 @@
-import {productCategory, productRate} from "../../../utilities/Enums";
+import {ProductCategory, ProductRate} from "../../../utilities/Enums";
 
 
 export class Product {
@@ -6,11 +6,11 @@ export class Product {
     private readonly _productName: string;
     private readonly _shopID: number;
     private readonly _price: number;
-    private readonly _category: productCategory;
-    private readonly _rating: productRate;
+    private readonly _category: ProductCategory;
+    private readonly _rating: ProductRate;
     private readonly _description?: string;
 
-    constructor(productID: number, productName: string, shopID: number, price: number, category: productCategory, rating: productRate, description: string) {
+    constructor(productID: number, productName: string, shopID: number, price: number, category: ProductCategory, rating: ProductRate, description: string) {
         this._productID = productID;
         this._productName = productName;
         this._shopID = shopID;
@@ -36,11 +36,11 @@ export class Product {
         return this._price;
     }
 
-    get category(): productCategory {
+    get category(): ProductCategory {
         return this._category;
     }
 
-    get rating(): productRate {
+    get rating(): ProductRate {
         return this._rating;
     }
 
