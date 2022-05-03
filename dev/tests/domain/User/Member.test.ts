@@ -14,6 +14,7 @@ class TestMember extends Member {
     }
 
 }
+
 const m1: Member = new Member("m1", new ShoppingCart());
 const test_m1 = new TestMember(m1);
 const founder = new Member("founder", new ShoppingCart());
@@ -31,10 +32,7 @@ const r4 = new Role(shop1.id, "founder of myShop", JobType.Founder, emptyPerm);
 
 describe('Member - test', function () {
 
-    beforeEach(function () {
-        const m = new MessageBox(test_m1.username);
-    })
-
+    beforeEach(function () {})
 
     test("add role to member", () => {
         m1.addRole(r1);
