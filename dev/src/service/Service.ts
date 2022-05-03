@@ -85,13 +85,13 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 7.1
-    addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Set<Permissions>): Result<void> {
+    addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Permissions): Result<void> {
         logger.info(`${assigningOwnerID} is promoting ${promotedManagerID} of shop ${shopID} by adding the following permissions: ${permissions}`);
         return this.memberService.addPermissions(assigningOwnerID, promotedManagerID, shopID, permissions);
     }
 
     //Shop Owner - Use-Case 7.2
-    removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Set<Permissions>): Result<void> {
+    removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Permissions): Result<void> {
         logger.info(`${assigningOwnerID} is demoting ${demotedManagerID} of shop ${shopID} by removing the following permissions: ${permissions}`);
         return this.memberService.removePermissions(assigningOwnerID, demotedManagerID, shopID, permissions);
     }
@@ -211,14 +211,14 @@ export class Service {
     //----------------------Order Service methods-------------------------------
 
     //System - Use-Case 2.2
-    swapConnectionWithExternalService(type: ExternalServiceType, serviceName: string): Result<void> {
+    swapConnectionWithExternalService(adminUsername: string, type: ExternalServiceType, serviceName: string): Result<void> {
         logger.info(`A connection with the ${type} service ${serviceName} is being initiated`);
-        return this.orderService.swapConnectionWithExternalService(type, serviceName);
+        return this.orderService.swapConnectionWithExternalService(adminUsername, type, serviceName);
     }
 
     //System - Use-Case 2.1
-    editConnectionWithExternalService(type: ExternalServiceType, serviceName: string, settings: any): Result<void> {
+    editConnectionWithExternalService(adminUsername: string, type: ExternalServiceType, serviceName: string, settings: any): Result<void> {
         logger.info(`The connection with the ${type} service ${serviceName} is being modified using the following settings: ${settings}`);
-        return this.orderService.editConnectionWithExternalService(type, settings);
+        return this.orderService.editConnectionWithExternalService(adminUsername, type, settings);
     }
 }
