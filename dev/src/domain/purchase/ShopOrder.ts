@@ -11,10 +11,10 @@ export class ShopOrder {
 ;
     private _totalPrice: number;
    
-    private _creationTime: string;
+    private _creationTime: Date;
   
 
-    constructor(id: number, shopId: number, products: Map<number, [Product, number]>, totalPrices: number, creationTime: string){
+    constructor(id: number, shopId: number, products: Map<number, [Product, number]>, totalPrices: number, creationTime: Date){
         this._id = id;
         this._shopId = shopId;
         this._products = products;
@@ -48,10 +48,10 @@ export class ShopOrder {
         this._totalPrice = value;
     }
 
-    public get creationTime(): string {
+    public get creationTime(): Date {
         return this._creationTime;
     }
-    public set creationTime(value: string) {
+    public set creationTime(value: Date) {
         this._creationTime = value;
     }
 

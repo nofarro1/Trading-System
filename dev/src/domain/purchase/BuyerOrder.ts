@@ -11,9 +11,9 @@ export class BuyerOrder {
     private _userId: number | string;
     private _shopOrders: Set<BuyerOrder>;
     private _totalPrice: number;
-    private _creationTime: string;
+    private _creationTime: Date;
     
-    constructor(orderNum: number,userId: number | string, shopOrders: Set<BuyerOrder>, totalPrice: number, creationTime: string) {
+    constructor(orderNum: number,userId: number | string, shopOrders: Set<BuyerOrder>, totalPrice: number, creationTime: Date) {
         this._orderNum = orderNum;
         this._userId = userId;
         this._shopOrders = shopOrders;
@@ -25,10 +25,10 @@ export class BuyerOrder {
         return this._orderNum;
     }
     
-    public get creationTime(): string {
+    public get creationTime(): Date {
         return this._creationTime;
     }
-    public set creationTime(value: string) {
+    public set creationTime(value: Date) {
         this._creationTime = value;
     }
     

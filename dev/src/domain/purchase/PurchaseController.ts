@@ -75,7 +75,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         let totalCartPrice = 0;
         let shopOrders = shoppingCart.bags.forEach((bag: ShoppingBag) => {
             totalCartPrice += bag.totalPrice;
-            let shopOrder =  new ShopOrder(this.shopOrderCounter, bag.shopId, bag.products, bag.totalPrice, this.getCurrTime());
+            let shopOrder =  new ShopOrder(this.shopOrderCounter, bag.shopId, bag.products, bag.totalPrice, new Date(Date.now()));
             if (this.shopOrders.has(bag.shopId)){
                 let orders = this.shopOrders.get(bag.shopId);
                 orders?.add(shopOrder);
@@ -92,14 +92,14 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             if (this.buyerOrders.has(user.username)){
                 let orders = this.buyerOrders.get(user.username);
                 if(orders){
-                    let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, this.getCurrTime());
+                    let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, new Date(Date.now()));
                     orders?.add(buyerOrder);
                     this.buyerOrders.set(user.username, orders);
                 }
             }
             else{
                 let orders = new Set<BuyerOrder>();
-                let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, this.getCurrTime());
+                let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, new Date(Date.now()));
                 orders.add(buyerOrder);
                 this.buyerOrders.set(user.username, orders);
             }
@@ -109,14 +109,14 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             if (this.buyerOrders.has(user.id)){
                 let orders = this.buyerOrders.get(user.id);
                 if(orders){
-                    let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, this.getCurrTime());
+                    let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, new Date(Date.now()));
                     orders?.add(buyerOrder);
                     this.buyerOrders.set(user.id, orders);
                 }
             }
             else{
                 let orders = new Set<BuyerOrder>();
-                let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, this.getCurrTime());
+                let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, new Date(Date.now()));
                 orders.add(buyerOrder);
                 this.buyerOrders.set(user.id, orders);
             }
