@@ -1,12 +1,6 @@
-import {MessageBox, NewMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
-import {Member} from "../../../src/domain/User/Member";
-import { JobType } from "../../utilities/Enums";
-import { Permissions } from "../../utilities/Permissions";
-import { MarketplaceController } from "../marketplace/MarketplaceController";
-import { Shop } from "../marketplace/Shop";
-import { ShoppingCart } from "../marketplace/ShoppingCart";
-import { Guest } from "./Guest";
+
 import { UserController } from "./UserController";
+import {Member} from "../../../src/domain/user/Member";
 
 class TestUserController extends UserController {
 
@@ -51,10 +45,10 @@ describe('UserController tests - test', function () {
         expect(userController.connectedGuests).not.toContain(g.id);
     })
 
-    test("add member"), () => {
+    test("add member", () => {
         let m = userController.addMember("member", new ShoppingCart()).data;
         expect(userController.members).toContain(m?.username);
-    }
+    })
 
     test("get member"), () => {
         let m = userController.addMember("member", new ShoppingCart()).data;

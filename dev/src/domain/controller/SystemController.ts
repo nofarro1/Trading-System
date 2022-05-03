@@ -17,7 +17,6 @@ import {ShopOrder} from "../purchase/ShopOrder";
 import {UserController} from "../user/UserController";
 import {User} from "../user/User";
 import {logger} from "../../helpers/logger";
-import {MessageBox} from "../notifications/MessageBox";
 import {JobType, ProductCategory, SearchType} from "../../utilities/Enums";
 import {Permissions} from "../../utilities/Permissions";
 import {PaymentServiceAdaptor} from "../external_services/PaymentServiceAdaptor";
@@ -173,7 +172,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(guestId, secCallback);
     }
 
-    private register(newMember: RegisterMemberData) {
+    private register(newMember: RegisterMemberData): Result<void> {
         try {
             this.securityController.register(newMember.username, newMember.password);
         } catch (e: any) {
@@ -184,10 +183,13 @@ export class SystemController {
         let res = this.scController.getCart(newMember.username)
         if (res.ok) {
             let mb = this.mController.addMessageBox(newMember.username)
-            if (mb.ok)
-                return this.uController.addMember(newMember.username, res.data as ShoppingCart, mb.data as MessageBox)
+            if (mb.ok) {
+                if(this.uController.addMember(newMember.username, res.data as ShoppingCart).ok)
+                    return new Result(true,undefined,"register success");
+            }
+            return new Result(false, undefined,"could not Register");
         }
-        return new Result(false, undefined);
+        return new Result(false, undefined,"could not Register");
     }
 
 //buyer actions
@@ -348,7 +350,7 @@ export class SystemController {
                 if (result.ok) {
                     this.mpController.appointShopOwner(r.member, r.shopId)
                 }
-                return result;
+                return new Result(true,undefined,"shop manager appointed");
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
@@ -362,9 +364,9 @@ export class SystemController {
             if (this.uController.checkPermission(r.assigner, r.shopId, Permissions.AddShopManager).data) {
                 const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions))
                 if (result.ok) {
-                    this.mpController.appointShopOwner(r.member, r.shopId)
+                    this.mpController.appointShopManager(r.member, r.shopId)
                 }
-                return result;
+                return new Result(true,undefined,"shop manager appointed");
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
