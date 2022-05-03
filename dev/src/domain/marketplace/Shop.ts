@@ -100,16 +100,10 @@ export class Shop {
         this._rate = value;
     }
 
-    searchProduct(productId: number): Product | boolean{
-        if(!this.products)
-            throw new Error("Failed to search product in shop because the product map of the shop is undefined");
-        let toReturnPair= this.products.get(productId);
-        if(toReturnPair)
-            return toReturnPair[0];
-        else 
-            return false;
-
-        
+    addProduct(productName: string, shopId: number, category: ProductCategory, productDesc: string, fullPrice: number, discountPrice: number,quantity: number, relatedSale?: Sale ): void{
+        let toAdd= new Product(productName, shopId, category, productDesc, discountPrice, fullPrice, relatedSale);
+        if(!this.products.has(toAdd.id))
+            this.products.set(toAdd.id, [toAdd, quantity]);
     }
 
     getProductQuantity(productId: number): number{
@@ -119,14 +113,10 @@ export class Shop {
         return product[1];
     }
 
-    addProduct(productName: string, shopId: number, category: ProductCategory, productDesc: string, fullPrice: number, discountPrice: number, relatedSale: Sale, quantity: number): void{
-        let toAdd= new Product(productName, shopId, category, productDesc, discountPrice, fullPrice, relatedSale);
-        this.products.set(toAdd.id, [toAdd, quantity]);
-    }
-
     //Delete a product from the store catalog
     removeProduct(productId: number): void{
-        this.products.delete(productId);
+        if(!this.products.delete(productId))
+            throw new Error(`Failed to remove product, because product id: ${productId} was not found`);
     }
 
     updateProductQuantity(productId: number, quantity: number): void{
@@ -136,7 +126,16 @@ export class Shop {
         let newQuantity = product[1]-quantity;
         if(newQuantity < 0)
             newQuantity= 0;
-        this.products.set(productId, [product[0],newQuantity]); 
+        this.products.set(productId, [product[0],newQuantity]);
+    }
+
+    getProduct(productId: number): Product{
+        if(!this.products)
+            throw new Error("Failed to search product in shop because the product map of the shop is undefined");
+        let toReturnPair= this.products.get(productId);
+        if(toReturnPair)
+            return toReturnPair[0];
+        throw new Error(`Product with id: ${productId} was not found.`);
     }
 
     appointShopOwner(ownerId: string): void{

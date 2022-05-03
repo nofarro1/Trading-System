@@ -4,6 +4,7 @@ import {ProductCategory, ProductRate} from "../../utilities/Enums";
 let productsCounter= 0;
 
 export class Product {
+
     private _id: number;  
     private _name: string;
     private _shopId: number;
@@ -11,11 +12,11 @@ export class Product {
     private _rate: ProductRate;
     private _description: string;
     private _discountPrice: number;
-    private _relatedSale: Sale;
+    private _relatedSale?: Sale;
 
 
 
-    constructor(name: string, shopId: number, category: ProductCategory, description: string, fullPrice: number, discountPrice: number, relatedSale: Sale){
+    constructor(name: string, shopId: number, category: ProductCategory, description: string, fullPrice: number, discountPrice: number, relatedSale?: Sale){
         this._id= productsCounter;
         productsCounter++;
         this._name= name;
@@ -85,11 +86,13 @@ export class Product {
         this._discountPrice = value;
     }
 
-    public get relatedSale(): Sale {
+    get relatedSale(): Sale | undefined {
         return this._relatedSale;
     }
-    public set relatedSale(value: Sale) {
+
+    set relatedSale(value: Sale | undefined) {
         this._relatedSale = value;
     }
+
 
 }
