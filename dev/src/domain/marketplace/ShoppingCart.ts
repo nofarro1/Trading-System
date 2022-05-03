@@ -4,25 +4,26 @@ import { Product } from "./Product"
 //import Comparator from "ts-priority-queue/src/PriorityQueue"
 //import { Result } from "../../utilities/Result";
 import { ShoppingBag } from "./ShoppingBag";
+import {UserID} from "../../utilities/Utils";
 //import { exceptions } from "winston";
 
 
 export class ShoppingCart {
 
-    private _bags: Map<number, ShoppingBag>;
+    private _bags: Map<UserID, ShoppingBag>;
     private totalPrice: number;
    
 
     constructor(){
-        this._bags= new Map<number, ShoppingBag>();
+        this._bags= new Map<UserID, ShoppingBag>();
         this.totalPrice=0;
     }
 
-    get bags(): Map<number, ShoppingBag> {
+    get bags(): Map<UserID, ShoppingBag> {
         return this._bags;
     }
 
-    set bags(value: Map<number, ShoppingBag>) {
+    set bags(value: Map<UserID, ShoppingBag>) {
         this._bags = value;
     }
 

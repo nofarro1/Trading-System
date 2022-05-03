@@ -3,6 +3,7 @@ import { Result } from "../../utilities/Result";
 import { Product } from "./Product";
 import { ShoppingCart } from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
+import {UserID} from "../../utilities/Utils";
 
 
 export class ShoppingCartController {
@@ -57,7 +58,7 @@ export class ShoppingCartController {
         return new Result(true, undefined);
     }
 
-    removeCart (userName: string): Result <void>{
+    removeCart (userName: UserID): Result <void>{
         if(this.carts.delete(userName)){
             logger.info(`${userName}'s cart was deleted.`)
             return new Result(true, undefined);
