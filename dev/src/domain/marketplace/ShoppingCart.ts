@@ -11,12 +11,12 @@ import {UserID} from "../../utilities/Utils";
 export class ShoppingCart {
 
     private _bags: Map<UserID, ShoppingBag>;
-    private totalPrice: number;
+    private _totalPrice: number;
    
 
     constructor(){
         this._bags= new Map<UserID, ShoppingBag>();
-        this.totalPrice=0;
+        this._totalPrice=0;
     }
 
     get bags(): Map<UserID, ShoppingBag> {
@@ -25,6 +25,14 @@ export class ShoppingCart {
 
     set bags(value: Map<UserID, ShoppingBag>) {
         this._bags = value;
+    }
+
+    get totalPrice(): number {
+        return this._totalPrice;
+    }
+
+    set totalPrice(value: number) {
+        this._totalPrice = value;
     }
 
 //When adding a product to the shopping cart, 
@@ -36,8 +44,8 @@ addProduct(toAdd:Product, quantity: number): void{
     if(!bag){
         let bag= this._bags.get(shopId);
         if (bag){
-            this.totalPrice-= bag.totalPrice; 
-            this.totalPrice+= bag.addProduct(toAdd, quantity);
+            this._totalPrice-= bag.totalPrice;
+            this._totalPrice+= bag.addProduct(toAdd, quantity);
         }
     }
     let newBag= new ShoppingBag(shopId);
@@ -50,12 +58,12 @@ removeProduct(toRemove: Product, quantity: number): void{
     let bag= this._bags.get(shopId)
     if(!bag)
         throw new Error("Failed to remove product because the nedded bag wasn't found");
-    this.totalPrice= this.totalPrice - bag.totalPrice + bag.removeProduct(toRemove, quantity);
+    this._totalPrice= this._totalPrice - bag.totalPrice + bag.removeProduct(toRemove, quantity);
 }    
 
 emptyCart(): void{
     this._bags.clear;
-    this.totalPrice=0;
+    this._totalPrice=0;
 }
 }
 
