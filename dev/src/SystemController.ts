@@ -1,26 +1,26 @@
-import {Guest} from "../user/Guest";
+import {Guest} from "./domain/user/Guest";
 import {SecurityController} from "./SecurityController";
 
-import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../../utilities/DataObjects";
-import {Member} from "../user/Member";
-import {ExternalServiceType, UserID} from "../../utilities/Utils";
-import {MarketplaceController} from "../marketplace/MarketplaceController";
-import {ShoppingCartController} from "../marketplace/ShoppingCartController";
-import {PurchaseController} from "../purchase/PurchaseController";
-import MessageController from "../notifications/MessageController";
-import {NotificationController} from "../notifications/NotificationController";
-import {Result} from "../../utilities/Result";
-import {Shop} from "../marketplace/Shop";
-import {Product} from "../marketplace/Product";
-import {ShoppingCart} from "../marketplace/ShoppingCart";
-import {ShopOrder} from "../purchase/ShopOrder";
-import {UserController} from "../user/UserController";
-import {User} from "../user/User";
-import {logger} from "../../helpers/logger";
-import {JobType, ProductCategory, SearchType} from "../../utilities/Enums";
-import {Permissions} from "../../utilities/Permissions";
-import {PaymentServiceAdaptor} from "../external_services/PaymentServiceAdaptor";
-import {DeliveryServiceAdaptor} from "../external_services/DeliveryServiceAdaptor";
+import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "./utilities/DataObjects";
+import {Member} from "./domain/user/Member";
+import {ExternalServiceType, UserID} from "./utilities/Utils";
+import {MarketplaceController} from "./domain/marketplace/MarketplaceController";
+import {ShoppingCartController} from "./domain/marketplace/ShoppingCartController";
+import {PurchaseController} from "./domain/purchase/PurchaseController";
+import MessageController from "./domain/notifications/MessageController";
+import {NotificationController} from "./domain/notifications/NotificationController";
+import {Result} from "./utilities/Result";
+import {Shop} from "./domain/marketplace/Shop";
+import {Product} from "./domain/marketplace/Product";
+import {ShoppingCart} from "./domain/marketplace/ShoppingCart";
+import {ShopOrder} from "./domain/purchase/ShopOrder";
+import {UserController} from "./domain/user/UserController";
+import {User} from "./domain/user/User";
+import {logger} from "./helpers/logger";
+import {JobType, ProductCategory, SearchType} from "./utilities/Enums";
+import {Permissions} from "./utilities/Permissions";
+import {PaymentServiceAdaptor} from "./domain/external_services/PaymentServiceAdaptor";
+import {DeliveryServiceAdaptor} from "./domain/external_services/DeliveryServiceAdaptor";
 
 
 export class SystemController {
@@ -462,7 +462,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(member, callback);
     }
 
-    //system Admin actions
+    //System Admin actions
 
     registerAsAdmin(registrationData: RegisterMemberData, adminSecretKey?: string): Result<void> {
         if (adminSecretKey === null || adminSecretKey !== "Edan Rules") {
@@ -470,8 +470,8 @@ export class SystemController {
         }
         let admin = this.register({username: registrationData.username, password: registrationData.password});
         if (admin.ok) {
-            this.uController.addRole(registrationData.username, "system Admin", JobType.admin, -1, new Set())
-            return new Result(true, undefined, "new addmin is added")
+            this.uController.addRole(registrationData.username, "System Admin", JobType.admin, -1, new Set())
+            return new Result(true, undefined, "new admin is added")
         }
         return new Result(false, undefined, "admin name cannot be registered");
     }

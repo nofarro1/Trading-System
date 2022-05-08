@@ -3,7 +3,7 @@ import {MemberService} from "./MemberService";
 import {ShoppingCartService} from "./ShoppingCartService";
 import {MarketplaceService} from "./MarketplaceService";
 import {OrderService} from "./OrderService";
-import {SystemController} from "../domain/controller/SystemController";
+import {SystemController} from "../SystemController";
 import {Result} from "../utilities/Result";
 import {Member} from "./simple_objects/user/Member";
 import {Guest} from "./simple_objects/user/Guest";

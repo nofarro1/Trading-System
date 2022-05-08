@@ -1,16 +1,11 @@
 import { JobType } from "../../utilities/Enums";
 import { Permissions } from "../../utilities/Permissions";
-import {UserID} from "../../utilities/Utils";
-
-
 
 
 export class Role {
     private _shopId: number;
     private _title: string;
-
     private _jobType: JobType;
-
     private _permissions: Set<Permissions>;
 
 
@@ -24,9 +19,11 @@ export class Role {
     public get shopId(): number {
         return this._shopId;
     }
+
     public get title(): string {
         return this._title;
     }
+
     public set title(value: string) {
         this._title = value;
     }

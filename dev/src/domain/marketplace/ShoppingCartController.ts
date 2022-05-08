@@ -7,7 +7,7 @@ import {UserID} from "../../utilities/Utils";
 
 
 export class ShoppingCartController {
-    private carts: Map<number | string, ShoppingCart>;
+    private carts: Map<UserID, ShoppingCart>;
 
     constructor(){
         this.carts= new Map<number, ShoppingCart>();
@@ -16,8 +16,9 @@ export class ShoppingCartController {
 
 
     //remove cart missing
-    addProduct(cartId: string | number, toAdd: Product, quantity: number): Result<void>{
-        let cart= this.carts.get(cartId);
+    addProduct(cartId: UserID, toAdd: Product, quantity: number): Result<void>{
+        //Ensure that quantity does not exceed product quantity in shop
+        let cart = this.carts.get(cartId);
         if(cart){
             try {
                 cart.addProduct(toAdd, quantity);

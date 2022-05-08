@@ -1,4 +1,4 @@
-import {SecurityController} from "../../../src/domain/controller/SecurityController";
+import {SecurityController} from "../../../src/SecurityController";
 
 let controller: SecurityController;
 let guestID: number = 1;

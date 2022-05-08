@@ -1,4 +1,4 @@
-import {SystemController} from "../domain/controller/SystemController";
+import {SystemController} from "../SystemController";
 import {Result} from "../utilities/Result";
 
 

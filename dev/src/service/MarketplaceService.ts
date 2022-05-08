@@ -1,5 +1,5 @@
 import {Result} from "../utilities/Result";
-import {SystemController} from "../domain/controller/SystemController";
+import {SystemController} from "../SystemController";
 import {Shop} from "./simple_objects/marketplace/Shop";
 import {Shop as DomainShop} from "../domain/marketplace/Shop"
 import {Product} from "./simple_objects/marketplace/Product";

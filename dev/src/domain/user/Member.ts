@@ -19,6 +19,7 @@ export class Member implements User{
     public get username(): string {
         return this._username;
     }
+
     public set username(value: string) {
         this._username = value;
     }
