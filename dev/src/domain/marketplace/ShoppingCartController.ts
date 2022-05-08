@@ -17,7 +17,7 @@ export class ShoppingCartController {
 
     //remove cart missing
     addProduct(cartId: UserID, toAdd: Product, quantity: number): Result<void>{
-        //Ensure that quantity does not exceed product quantity in shop
+        //TODO - Ensure that quantity does not exceed product quantity in shop
         let cart = this.carts.get(cartId);
         if(cart){
             try {

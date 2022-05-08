@@ -95,7 +95,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
     addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, discountPrice: number, relatedSale?: Sale, productDesc?: string): Result<void> {
-        //Check that quantity is not negative
+        //TODO - Check that quantity is not negative
         let shop = this.shops.get(shopId);
         if (!shop) {
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
