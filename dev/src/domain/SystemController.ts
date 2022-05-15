@@ -81,7 +81,7 @@ export class SystemController {
         return callback();
     }
 
-    //Guest actions
+    //SimpleGuest actions
 
     accessMarketplace(): Result<Guest> {
         let newGuest: Result<Guest> = this.uController.createGuest();
@@ -125,7 +125,7 @@ export class SystemController {
     // disconnectGuest(guestId: UserID): void {
     //     let guest = `this is guest ${guestId}`;
     //     // gController.removeGuest(guest)
-    //     //scController.removeShoppingCart(guest.ShoppingCart.id);
+    //     //scController.removeShoppingCart(guest.SimpleShoppingCart.id);
     //
     //
     // }
@@ -203,7 +203,7 @@ export class SystemController {
     }
 
     // nice to have
-    // getProducts(user: Id, productIds: number[]): Result<Product[]> {
+    // getProducts(user: Id, productIds: number[]): Result<SimpleProduct[]> {
     //     return new Result(false, null, "no implementation");
     // }
 
@@ -214,7 +214,7 @@ export class SystemController {
     }
 
     // nice to have
-    // getShops(user: Id, shopIds: Id[]): Result<Shop[]> {
+    // getShops(user: Id, shopIds: Id[]): Result<SimpleShop[]> {
     //     return this.mpController.getShop(shopid)
     // }
 
@@ -376,11 +376,11 @@ export class SystemController {
     /* not for this version
 
 
-        removeShopManager(toRemove: Id, remover: Id, shop: Shop): Result<void> {
+        removeShopManager(toRemove: Id, remover: Id, shop: SimpleShop): Result<void> {
             return new Result(false, null, "no implementation");
         }
 
-        removeShopOwner(toRemove: Id, remover: Id, shop: Shop): Result<void> {
+        removeShopOwner(toRemove: Id, remover: Id, shop: SimpleShop): Result<void> {
             return new Result(false, null, "no implementation");
         }
     */
@@ -456,7 +456,7 @@ export class SystemController {
             }
             let orders: ShopOrder[] = this.pController.shopOrders.has(shop) ?
                 [...(this.pController.shopOrders.get(shop) as Set<ShopOrder>)].filter((o) => o.creationTime > startDate && o.creationTime < endDate) : []
-            return new Result(orders.length !== 0, orders, orders.length !== 0 ? undefined : "no Shop order were found");
+            return new Result(orders.length !== 0, orders, orders.length !== 0 ? undefined : "no SimpleShop order were found");
         }
 
         return this.authenticateMarketVisitor(member, callback);

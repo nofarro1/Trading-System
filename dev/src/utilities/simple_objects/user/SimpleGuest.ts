@@ -1,6 +1,6 @@
 
 
-export class Guest {
+export class SimpleGuest {
     private readonly _guestID: number;
 
     constructor(guestID: number) {

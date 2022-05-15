@@ -1,8 +1,8 @@
-import { Permissions } from "../../../utilities/Permissions";
-import {JobType} from "../../../utilities/Enums";
+import { Permissions } from "../../Permissions";
+import {JobType} from "../../Enums";
 
 
-export class Member {
+export class SimpleMember {
     private readonly _username: string;
     private readonly _jobType: JobType;
     private readonly _permissions: Set<Permissions>

@@ -101,7 +101,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             }
             if (user instanceof Member)
                 this.notify(new ShopPurchaseMessage(shopOrder, new Set<UserID>(), user.username))
-            // if (user instanceof Guest)
+            // if (user instanceof SimpleGuest)
             //     // TODO: userid in ShopPurchaseMessage string | number
             //     this.notify(new ShopPurchaseMessage(shopOrder, new Set<UserID>(), user.id))
         });

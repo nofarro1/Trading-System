@@ -1,8 +1,8 @@
 import { JobType } from "../../utilities/Enums";
 import { Permissions } from "../../utilities/Permissions";
-import { Shop } from "../marketplace/Shop";
-import { ShoppingCart } from "../marketplace/ShoppingCart";
-import { Member } from "./Member";
+import { Shop } from "../marketplace/SimpleShop";
+import { ShoppingCart } from "../marketplace/SimpleShoppingCart";
+import { Member } from "./SimpleMember";
 import { Role } from "./Role";
 
 class TestRole extends Role {

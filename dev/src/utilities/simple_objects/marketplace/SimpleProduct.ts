@@ -1,7 +1,7 @@
-import {ProductCategory, ProductRate} from "../../../utilities/Enums";
+import {ProductCategory, ProductRate} from "../../Enums";
 
 
-export class Product {
+export class SimpleProduct {
     private readonly _productID: number;
     private readonly _productName: string;
     private readonly _shopID: number;

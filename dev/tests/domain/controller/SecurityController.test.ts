@@ -12,12 +12,12 @@ describe('SecurityController - tests', function () {
         controller = new SecurityController();
     })
 
-    test("Access Marketplace - valid Guest ID", () => {
+    test("Access Marketplace - valid SimpleGuest ID", () => {
         controller.accessMarketplace(guestID);
         expect(controller.activeGuests).toContain(guestID);
     })
 
-   test("Access Marketplace - invalid Guest ID", () => {
+   test("Access Marketplace - invalid SimpleGuest ID", () => {
        controller.accessMarketplace(guestID);
        expect(controller.activeGuests).toContain(guestID);
        expect(function() { controller.accessMarketplace(guestID) }).toThrow(new Error(`There already exists a guest with ${guestID} in the marketplace`));
@@ -96,7 +96,7 @@ describe('SecurityController - tests', function () {
         expect(function() { controller.logout(username) }).toThrow(new Error(`The member ${username} is not currently logged in`));
     })
 
-    test("Exit Marketplace - valid Guest ID", () => {
+    test("Exit Marketplace - valid SimpleGuest ID", () => {
         //valid access marketplace
         controller.accessMarketplace(guestID);
         expect(controller.activeGuests).toContain(guestID);
@@ -105,7 +105,7 @@ describe('SecurityController - tests', function () {
         expect(controller.activeGuests).not.toContain(guestID);
     })
 
-    test("Exit - Invalid Guest ID", () => {
+    test("Exit - Invalid SimpleGuest ID", () => {
         expect(function() { controller.exitMarketplace(guestID) }).toThrow(new Error(`There is no guest with ${guestID} currently in the marketplace`));
     })
 });
