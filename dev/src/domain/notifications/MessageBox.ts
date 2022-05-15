@@ -1,6 +1,5 @@
-import {Message} from "./Messages";
-import {Member} from "../user/Member";
-import {Id} from "../../utilities/Utils";
+import {Message} from "./Message";
+import {UserID} from "../../utilities/Utils";
 
 
 export interface NewMessageSubscriber {
@@ -20,13 +19,13 @@ export interface NewMessagePublisher {
 
 export class MessageBox implements NewMessagePublisher{
 
-    private memberId: Id
+    private memberId: UserID
     messages: Message[]
     unReadMessages: Message[]
     subs: NewMessageSubscriber[]
 
 
-    constructor(member:Id) {
+    constructor(member:UserID) {
         this.messages = [];
         this.unReadMessages = []
         this.subs = []
@@ -38,7 +37,7 @@ export class MessageBox implements NewMessagePublisher{
         this.notifySubscribers(this.unReadMessages);
     }
 
-    removeMessage(messageId:Id): void {
+    removeMessage(messageId:UserID): void {
         let index = this.messages.findIndex(m=> m.id === messageId);
         let indexUnread = this.unReadMessages.findIndex(m=> m.id === messageId);
         index !== -1 ? this.messages.splice(index, 1) : this.messages;
@@ -50,7 +49,7 @@ export class MessageBox implements NewMessagePublisher{
         return this.messages
     }
 
-    getMessage(message:Id): Message {
+    getMessage(message:UserID): Message {
         let from_messages = this.messages.find(m => m.id === message);
         if (from_messages !== undefined) {
             return from_messages

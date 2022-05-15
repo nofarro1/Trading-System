@@ -1,28 +1,30 @@
-import {Id} from "../../utilities/Utils";
+import {UserID} from "../../utilities/Utils";
 import {MessageBox, NewMessageSubscriber} from "./MessageBox";
 
-import {GenericMessage, Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Messages";
+import {GenericMessage, Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message";
 import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
 
 
 export default class MessageController implements IMessageListener<Message> {
 
-    messageBoxes: Map<Id, MessageBox>
+    messageBoxes: Map<UserID, MessageBox>
 
     constructor() {
-        this.messageBoxes = new Map<Id, MessageBox>();
+        this.messageBoxes = new Map<UserID, MessageBox>();
     }
 
 
-    addMessageBox(memberId: Id): void {
+    addMessageBox(memberId: UserID): Result<MessageBox| undefined> {
         if (!this.messageBoxes.has(memberId)) {
             let newMb = new MessageBox(memberId);
             this.messageBoxes.set(memberId, newMb);
+            return new Result(true, newMb);
         }
+        return new Result(false,undefined,"user already has a message box")
     }
 
-    addSubscriberToBox(memberId: Id, subscriber: NewMessageSubscriber): void {
+    addSubscriberToBox(memberId: UserID, subscriber: NewMessageSubscriber): void {
         try {
             let box =  this.getMessageBox(memberId);
             box.subscribe(subscriber);
@@ -31,7 +33,7 @@ export default class MessageController implements IMessageListener<Message> {
         }
     }
 
-    removeSubscriberFromBox(memberId: Id, subscriber: NewMessageSubscriber): void {
+    removeSubscriberFromBox(memberId: UserID, subscriber: NewMessageSubscriber): void {
         try {
             let box =  this.getMessageBox(memberId);
             box.unsubscribe(subscriber);
@@ -40,7 +42,7 @@ export default class MessageController implements IMessageListener<Message> {
         }
     }
 
-    addMessage(memberId: Id, message: Message): void {
+    addMessage(memberId: UserID, message: Message): void {
         try {
             this.getMessageBox(memberId).addMessage(message)
         } catch (e) {
@@ -49,7 +51,7 @@ export default class MessageController implements IMessageListener<Message> {
 
     }
 
-    private getMessageBox(memberId: Id): MessageBox {
+    private getMessageBox(memberId: UserID): MessageBox {
         if (this.messageBoxes.has(memberId)) {
             return this.messageBoxes.get(memberId) as MessageBox
         } else {
@@ -57,7 +59,7 @@ export default class MessageController implements IMessageListener<Message> {
         }
     }
 
-    getMessages(memberId: Id): Message[] {
+    getMessages(memberId: UserID): Message[] {
         try {
             return this.getMessageBox(memberId).getAllMessages()
         } catch (e) {
@@ -66,7 +68,7 @@ export default class MessageController implements IMessageListener<Message> {
         }
     }
 
-    getMessage(memberId: Id, msgId:Id): Message {
+    getMessage(memberId: UserID, msgId:UserID): Message {
         try {
             let box= this.getMessageBox(memberId);
             return box.getMessage(msgId)
@@ -76,7 +78,7 @@ export default class MessageController implements IMessageListener<Message> {
 
     }
 
-    removeMessage(memberId: Id, messageId: Id): void {
+    removeMessage(memberId: UserID, messageId: UserID): void {
         try {
             this.getMessageBox(memberId).removeMessage(messageId)
         } catch (e) {

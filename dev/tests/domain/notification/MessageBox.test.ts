@@ -1,6 +1,8 @@
 import {MessageBox, NewMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
-import {Message} from "../../../src/domain/notifications/Messages";
+import {Message} from "../../../src/domain/notifications/Message";
 import {Member} from "../../../src/domain/user/Member";
+import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
+import MessageController from "../../../src/domain/notifications/MessageController";
 
 class TestMessage extends Message {
 
@@ -17,9 +19,16 @@ class TestMessage extends Message {
 
 }
 
-const tu1: Member = new Member("u1")
-let mb1: MessageBox;
+const id1 = "u1"
+let cart1 = new ShoppingCart();
+const tu1: Member = new Member(id1,cart1)
+let mb1 = new MessageBox(id1);
 
+const id2 = "u2"
+let cart2 = new ShoppingCart();
+const tu2: Member = new Member(id2,cart1)
+let mb2 = new MessageBox(id1);
+let controller: MessageController
 const tm1 = new TestMessage();
 const tm2 = new TestMessage();
 const tm3 = new TestMessage();
@@ -28,7 +37,7 @@ const tm3 = new TestMessage();
 describe('messageBox - test', function () {
 
     beforeEach(function () {
-        mb1 = new MessageBox(tu1.id);
+        mb1 = new MessageBox(id1);
     })
 
     test("added massage to box", () => {
