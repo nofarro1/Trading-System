@@ -10,20 +10,20 @@ import {UserID} from "../../utilities/Utils";
 
 export class ShoppingCart {
 
-    private _bags: Map<UserID, ShoppingBag>;
+    private _bags: Map<number, ShoppingBag>;
     private _totalPrice: number;
    
 
     constructor(){
-        this._bags= new Map<UserID, ShoppingBag>();
+        this._bags= new Map<number, ShoppingBag>();
         this._totalPrice=0;
     }
 
-    get bags(): Map<UserID, ShoppingBag> {
+    get bags(): Map<number, ShoppingBag> {
         return this._bags;
     }
 
-    set bags(value: Map<UserID, ShoppingBag>) {
+    set bags(value: Map<number, ShoppingBag>) {
         this._bags = value;
     }
 
@@ -38,6 +38,7 @@ export class ShoppingCart {
 //When adding a product to the shopping cart, 
 //check if there is a discount to be included on the product.
 //If there is, update the total price accordingly.
+
 addProduct(toAdd:Product, quantity: number): void{
     let shopId= toAdd.shopId;
     let bag= this._bags.get(shopId);
