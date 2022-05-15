@@ -10,7 +10,7 @@ export class ShopOrder {
     private _products: Map<number, [Product, number]>;
 
     private _totalPrice: number;
-   
+    
     private _creationTime: Date;
   
 
