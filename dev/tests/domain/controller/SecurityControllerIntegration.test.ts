@@ -12,30 +12,16 @@ describe('SecurityController - tests', function () {
         controller = new SecurityController();
     })
 
-    test("Access Marketplace - valid Guest ID", () => {
+    test("Access Marketplace - invalid Guest ID", () => {
         controller.accessMarketplace(guestID);
         expect(controller.activeGuests).toContain(guestID);
-    })
-
-   test("Access Marketplace - invalid Guest ID", () => {
-       controller.accessMarketplace(guestID);
-       expect(controller.activeGuests).toContain(guestID);
-       expect(function() { controller.accessMarketplace(guestID) }).toThrow(new Error(`There already exists a guest with ${guestID} in the marketplace`));
-   })
-
-    test("Register - valid input", () => {
-        controller.register(username, password);
-        expect(controller.users.get(username)).toBeDefined()
+        expect(function() { controller.accessMarketplace(guestID) }).toThrow(new Error(`There already exists a guest with ${guestID} in the marketplace`));
     })
 
     test("Register - username already exists", () => {
         controller.register(username, password);
         expect(controller.users.get(username)).toBeDefined()
         expect(function() { controller.register(username, password) }).toThrow(new Error(`A member with the username ${username} already exists`));
-    })
-
-    test("Register - invalid password", () => {
-        expect(function() { controller.register(username, shortPassword) }).toThrow(new RangeError(`Password is too short and must contain at least ${controller.MINIMUM_PASSWORD_LENGTH} characters`));
     })
 
     test("Login - valid input", () => {
@@ -45,10 +31,6 @@ describe('SecurityController - tests', function () {
 
         controller.login(username, password);
         expect(controller.loggedInMembers).toContain(username);
-    })
-
-    test("Login - username does not exist", () => {
-        expect(function() { controller.login(username, password) }).toThrow(new Error(`A member with the username '${username}' does not exist`));
     })
 
     test("Login - member already logged in", () => {
@@ -84,10 +66,6 @@ describe('SecurityController - tests', function () {
         expect(controller.loggedInMembers).not.toContain(username);
     })
 
-    test("Logout - username does not exist", () => {
-        expect(function() { controller.logout(username) }).toThrow(new Error(`A member with the username '${username}' does not exist`));
-    })
-
     test("Logout - member is not logged in", () => {
         //valid register
         controller.register(username, password);
@@ -103,9 +81,5 @@ describe('SecurityController - tests', function () {
 
         controller.exitMarketplace(guestID);
         expect(controller.activeGuests).not.toContain(guestID);
-    })
-
-    test("Exit - Invalid Guest ID", () => {
-        expect(function() { controller.exitMarketplace(guestID) }).toThrow(new Error(`There is no guest with ${guestID} currently in the marketplace`));
     })
 });
