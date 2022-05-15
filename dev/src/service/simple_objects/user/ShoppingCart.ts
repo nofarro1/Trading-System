@@ -1,5 +1,5 @@
 import {UserID} from "../../../utilities/Utils";
-import {Product} from "./Product";
+import {Product} from "../marketplace/Product";
 
 
 export class ShoppingCart {

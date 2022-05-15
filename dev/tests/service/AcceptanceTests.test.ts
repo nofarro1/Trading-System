@@ -5,7 +5,7 @@ import {Shop} from "../../src/service/simple_objects/marketplace/Shop";
 import {Guest} from "../../src/service/simple_objects/user/Guest";
 import {Member} from "../../src/service/simple_objects/user/Member";
 import {Permissions} from "../../src/utilities/Permissions";
-import {ShoppingCart} from "../../src/service/simple_objects/marketplace/ShoppingCart";
+import {ShoppingCart} from "../../src/service/simple_objects/user/ShoppingCart";
 import {ProductCategory, SearchType} from "../../src/utilities/Enums";
 
 

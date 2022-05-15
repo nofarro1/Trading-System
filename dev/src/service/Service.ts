@@ -3,7 +3,7 @@ import {MemberService} from "./MemberService";
 import {ShoppingCartService} from "./ShoppingCartService";
 import {MarketplaceService} from "./MarketplaceService";
 import {OrderService} from "./OrderService";
-import {SystemController} from "../SystemController";
+import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
 import {Member} from "./simple_objects/user/Member";
 import {Guest} from "./simple_objects/user/Guest";
@@ -12,7 +12,7 @@ import {ExternalServiceType, UserID} from "../utilities/Utils";
 import {Shop} from "./simple_objects/marketplace/Shop";
 import {Product} from "./simple_objects/marketplace/Product";
 import {ShopOrder} from "./simple_objects/purchase/ShopOrder";
-import {ShoppingCart} from "./simple_objects/marketplace/ShoppingCart";
+import {ShoppingCart} from "./simple_objects/user/ShoppingCart";
 import {ProductCategory, SearchType} from "../utilities/Enums";
 import {logger} from "../helpers/logger";
 
@@ -40,21 +40,21 @@ export class Service {
 
     //General Guest - Use-Case 3
     register(guestId: number, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Result<void> {
-        logger.info(`A member registration is being performed by ${guestId} using username: ${username} and password: ${password}`);
+        logger.info(`A member registration is being performed by ${guestId} using username: ${username}`);
         logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
         return this.guestService.register(guestId, username, password, firstName, lastName, email, country);
     }
 
     //General Admin - Use-Case 0
     registerAdmin(guestId: number, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Result<void> {
-        logger.info(`An admin registration is being performed by ${guestId} using username: ${username} and password: ${password}`);
+        logger.info(`An admin registration is being performed by ${guestId} using username: ${username}`);
         logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
         return this.guestService.registerAdmin(username, password, firstName, lastName, email, country);
     }
 
     //General Guest - Use-Case 4
     login(guestID: number, username: string, password: string): Result<void | Member> {
-        logger.info(`A login is being performed by ${guestID} using username: ${username} and password: ${password}`);
+        logger.info(`A login is being performed by ${guestID} using username: ${username}.`);
         return this.guestService.login(guestID, username, password);
     }
 

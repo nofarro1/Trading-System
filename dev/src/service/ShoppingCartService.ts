@@ -1,7 +1,7 @@
-import {SystemController} from "../SystemController";
+import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
 import {Product} from "./simple_objects/marketplace/Product";
-import {ShoppingCart} from "./simple_objects/marketplace/ShoppingCart";
+import {ShoppingCart} from "./simple_objects/user/ShoppingCart";
 import {ShoppingCart as DomainShoppingCart} from "../domain/marketplace/ShoppingCart";
 import {UserID} from "../utilities/Utils";
 

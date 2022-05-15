@@ -1,7 +1,7 @@
 import {Permissions} from "../utilities/Permissions";
 import {Result} from "../utilities/Result";
 import {Guest as DomainGuest} from "../domain/user/Guest"
-import {SystemController} from "../SystemController";
+import {SystemController} from "../domain/SystemController";
 import {Guest} from "./simple_objects/user/Guest";
 import {Member} from "./simple_objects/user/Member";
 import {Member as DomainMember} from "../domain/user/Member";

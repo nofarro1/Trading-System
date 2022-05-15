@@ -1,5 +1,5 @@
-import {UserID} from "./utilities/Utils";
-import {logger} from "./helpers/logger";
+import {UserID} from "../utilities/Utils";
+import {logger} from "../helpers/logger";
 
 export class SecurityController {
     private readonly _MINIMUM_PASSWORD_LENGTH = 8;
