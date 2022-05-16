@@ -36,7 +36,7 @@ export class Service {
         this.orderService = new OrderService(this.systemController);
     }
 
-    //----------------------SimpleGuest Service methods-------------------------------
+    //----------------------Guest Service methods-------------------------------
 
     //General Guest - Use-Case 3
     register(guestId: number, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void>> {
@@ -58,7 +58,7 @@ export class Service {
         return this.guestService.login(guestID, username, password);
     }
 
-    //----------------------SimpleMember Service methods-------------------------------
+    //----------------------Member Service methods-------------------------------
 
     //General Member - Use-Case 1
     logout(username: string): Promise<Result<void | SimpleGuest>> {
