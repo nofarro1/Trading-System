@@ -1,10 +1,10 @@
 import {SecurityController} from "../../../src/domain/SecurityController";
 
 let controller: SecurityController;
-let guestID: number = 1;
-let username: string = "username";
-let password: string = "123456789";
-let shortPassword: string = "123";
+const guestID: number = 1;
+const username: string = "username";
+const password: string = "123456789";
+const shortPassword: string = "123";
 
 describe('SecurityController - tests', function () {
 

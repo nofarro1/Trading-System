@@ -3,6 +3,7 @@ import {logger} from "../helpers/logger";
 
 export class SecurityController {
     private readonly _MINIMUM_PASSWORD_LENGTH = 8;
+    private readonly _MAXIMUM_USERNAME_LENGTH = 31;
 
     private readonly _users: Map<string, string>;
     private readonly _activeGuests: Set<number>;
@@ -16,6 +17,10 @@ export class SecurityController {
 
     get MINIMUM_PASSWORD_LENGTH(): number {
         return this._MINIMUM_PASSWORD_LENGTH;
+    }
+
+    get MAXIMUM_USERNAME_LENGTH(): number {
+        return this._MAXIMUM_USERNAME_LENGTH;
     }
 
     get activeGuests(): Set<number> {
@@ -54,6 +59,10 @@ export class SecurityController {
     }
 
     register(username: string, password: string): void {
+        if(username.length > 31 || username.length === 0) {
+            logger.warn(`Username '${username}' cannot be empty or longer than 31 characters`);
+            throw new Error(`Username '${username}' cannot be empty or longer than 31 characters`);
+        }
         if(this._users.has(username)) {
             logger.warn(`A member with the username ${username} already exists`);
             throw new Error(`A member with the username ${username} already exists`);
