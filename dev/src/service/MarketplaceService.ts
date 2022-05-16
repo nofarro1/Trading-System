@@ -19,25 +19,30 @@ export class MarketplaceService {
         this.systemController = systemController;
     }
 
-    //General SimpleGuest - Use-Case 1
-    accessMarketplace(): Result<void | SimpleGuest> {
+    //General Guest - Use-Case 1
+    accessMarketplace(): Promise<Result<void | SimpleGuest>> {
         const domainResult: Result<void | DomainGuest> = this.systemController.accessMarketplace();
         let result: Result<void | SimpleGuest> = new Result <void | SimpleGuest>(domainResult.ok, undefined, domainResult.message);
         if(domainResult.ok) {
             const domainGuest: DomainGuest = <DomainGuest> domainResult.data;
             result.data = new SimpleGuest(domainGuest.id);
         }
-        return result;
+        return new Promise<Result<void | SimpleGuest>> ((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //General SimpleGuest - Use-Case 2
-    //General SimpleMember - Use-Case 1
-    exitMarketplace(userID: UserID): Result<void> {
-        return this.systemController.exitMarketplace(userID);
+    //General Guest - Use-Case 2
+    //General Member - Use-Case 1
+    exitMarketplace(userID: UserID): Promise<Result<void>> {
+        let result = this.systemController.exitMarketplace(userID);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleGuest Payment - Use-Case 1
-    getShopInfo(userID: UserID, shopID: number): Result<void | SimpleShop> {
+    //Guest Payment - Use-Case 1
+    getShopInfo(userID: UserID, shopID: number): Promise<Result<void | SimpleShop>> {
         const domainResult: Result<void | DomainShop> = this.systemController.getShop(userID, shopID);
         let result: Result<void | SimpleShop> = new Result <void | SimpleShop>(domainResult.ok, undefined, domainResult.message);
         if(domainResult.ok) {
@@ -53,11 +58,13 @@ export class MarketplaceService {
 
             result.data = new SimpleShop(domainShop.id, domainShop.name, domainShop.status, products);
         }
-        return result;
+        return new Promise<Result<void | SimpleShop>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleGuest Payment - Use-Case 2
-    searchProducts(userID: UserID, searchType: SearchType, searchTerm: string | ProductCategory, filters?: any): Result<void | SimpleProduct[]> {
+    //Guest Payment - Use-Case 2
+    searchProducts(userID: UserID, searchType: SearchType, searchTerm: string | ProductCategory, filters?: any): Promise<Result<void | SimpleProduct[]>> {
         const domainResult: Result<void | DomainProduct[]> = this.systemController.searchProducts(userID, searchType, searchTerm, filters);
         const products: SimpleProduct[] = new Array<SimpleProduct>();
         const result: Result<void | SimpleProduct[]> = new Result <void | SimpleProduct[]>(domainResult.ok, undefined, domainResult.message);
@@ -69,11 +76,13 @@ export class MarketplaceService {
             }
             result.data = products;
         }
-        return result;
+        return new Promise<Result<void | SimpleProduct[]>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleMember Payment - Use-Case 2
-    setUpShop(username: string, shopName: string): Result<void | SimpleShop> {
+    //Member Payment - Use-Case 2
+    setUpShop(username: string, shopName: string): Promise<Result<void | SimpleShop>> {
         const domainResult: Result<void | DomainShop> = this.systemController.setUpShop(username, shopName);
         let result: Result<void | SimpleShop> = new Result <void | SimpleShop>(domainResult.ok, undefined, domainResult.message);
         if(domainResult.ok) {
@@ -89,34 +98,48 @@ export class MarketplaceService {
 
             result.data = new SimpleShop(domainShop.id, domainShop.name, domainShop.status, products);
         }
-        return result;
+        return new Promise<Result<void | SimpleShop>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 1.1
+    //Shop Owner - Use-Case 1.1
     addProductToShop(username: string, shopID: number, category: ProductCategory, name: string, price: number,
-                     quantity: number, description?: string): Result<void> {
-        return this.systemController.addProduct(username, {shopId: shopID, productCategory: category, productName: name, fullPrice: price,
+                     quantity: number, description?: string): Promise<Result<void>> {
+        let result = this.systemController.addProduct(username, {shopId: shopID, productCategory: category, productName: name, fullPrice: price,
             quantity: quantity, productDesc: description});
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 1.2
-    removeProductFromShop(username: string, shopID: number, productID: number): Result<void> {
-        return this.systemController.deleteProduct(username, shopID, productID);
+    //Shop Owner - Use-Case 1.2
+    removeProductFromShop(username: string, shopID: number, productID: number): Promise<Result<void>> {
+        let result = this.systemController.deleteProduct(username, shopID, productID);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 1.3
-    modifyProductQuantityInShop(username: string, shopID: number, productID: number, productQuantity: number): Result<void> {
-        return this.systemController.updateProduct(username, shopID, productID, productQuantity);
+    //Shop Owner - Use-Case 1.3
+    modifyProductQuantityInShop(username: string, shopID: number, productID: number, productQuantity: number): Promise<Result<void>> {
+        let result = this.systemController.updateProduct(username, shopID, productID, productQuantity);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 9
-    closeShop(founderID: string, shopID: number): Result<void> {
-        return this.systemController.deactivateShop(founderID, shopID);
+    //Shop Owner - Use-Case 9
+    closeShop(founderID: string, shopID: number): Promise<Result<void>> {
+        let result = this.systemController.deactivateShop(founderID, shopID);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 13
+    //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
-    getShopPurchaseHistory(ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Result<void | SimpleShopOrder[]> {
+    getShopPurchaseHistory(ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | SimpleShopOrder[]>> {
         const domainResult: Result<void | DomainShopOrder[]> = this.systemController.getShopPurchases(ownerID, shopID, startDate, endDate, filters);
         const shopOrders: SimpleShopOrder[] = new Array<SimpleShopOrder>();
         const result: Result<void | SimpleShopOrder[]> = new Result <void | SimpleShopOrder[]>(domainResult.ok, undefined, domainResult.message);
@@ -136,6 +159,8 @@ export class MarketplaceService {
             }
             result.data = shopOrders;
         }
-        return result;
+        return new Promise<Result<void | SimpleShopOrder[]>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 }

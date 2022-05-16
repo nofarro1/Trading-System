@@ -15,47 +15,61 @@ export class MemberService {
         this.systemController = systemController;
     }
 
-    //General SimpleMember - Use-Case 1
-    logout(username: string): Result<void | SimpleGuest> {
+    //General Member - Use-Case 1
+    logout(username: string): Promise<Result<void | SimpleGuest>> {
         const domainResult: Result<void | DomainGuest> = this.systemController.logout(username);
         let result: Result<void | SimpleGuest> = new Result <void | SimpleGuest>(domainResult.ok, undefined, domainResult.message);
         if(domainResult.ok) {
             const domainGuest: DomainGuest = <DomainGuest> domainResult.data;
             result.data = new SimpleGuest(domainGuest.id);
         }
-        return result;
+        return new Promise<Result<void | SimpleGuest>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 4
+    //Shop Owner - Use-Case 4
     appointShopOwner(newOwnerID: string, shopID: number, assigningOwnerID: string, title?: string,
-                     permissions?: Permissions[]): Result<void> {
+                     permissions?: Permissions[]): Promise<Result<void>> {
         if(!permissions)
             permissions = new Array<Permissions>();
-        return this.systemController.appointShopOwner({member: newOwnerID, shopId: shopID, assigner: assigningOwnerID,
+        let result = this.systemController.appointShopOwner({member: newOwnerID, shopId: shopID, assigner: assigningOwnerID,
             title: title, permissions: permissions});
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 6
+    //Shop Owner - Use-Case 6
     appointShopManager(newManagerID: string, shopID: number, assigningOwnerID: string, title?: string,
-                       permissions?: Permissions[]): Result<void> {
+                       permissions?: Permissions[]): Promise<Result<void>> {
         if(!permissions)
             permissions = new Array<Permissions>();
-        return this.systemController.appointShopManager({member: newManagerID, shopId: shopID, assigner: assigningOwnerID,
+        let result = this.systemController.appointShopManager({member: newManagerID, shopId: shopID, assigner: assigningOwnerID,
             title: title, permissions: permissions});
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 7.1
-    addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Permissions): Result<void> {
-        return this.systemController.addShopManagerPermission(assigningOwnerID, promotedManagerID, shopID, permissions);
+    //Shop Owner - Use-Case 7.1
+    addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Permissions): Promise<Result<void>> {
+        let result = this.systemController.addShopManagerPermission(assigningOwnerID, promotedManagerID, shopID, permissions);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 7.2
-    removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Permissions): Result<void> {
-        return this.systemController.removeShopManagerPermission(assigningOwnerID, demotedManagerID, shopID, permissions);
+    //Shop Owner - Use-Case 7.2
+    removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Permissions): Promise<Result<void>> {
+        let result = this.systemController.removeShopManagerPermission(assigningOwnerID, demotedManagerID, shopID, permissions);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleShop Owner - Use-Case 11
-    requestShopPersonnelInfo(username: string, shopID: number): Result<void | SimpleMember[]> {
+    //Shop Owner - Use-Case 11
+    requestShopPersonnelInfo(username: string, shopID: number): Promise<Result<void | SimpleMember[]>> {
         const domainResult: Result<void | DomainMember[]> = this.systemController.getPersonnelInfo(username, shopID);
         const members: SimpleMember[] = new Array<SimpleMember>();
         const result: Result<void | SimpleMember[]> = new Result <void | SimpleMember[]>(domainResult.ok, undefined, domainResult.message);
@@ -67,6 +81,8 @@ export class MemberService {
             }
             result.data = members;
         }
-        return result;
+        return new Promise<Result<void | SimpleMember[]>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 }

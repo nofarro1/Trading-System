@@ -13,13 +13,16 @@ export class ShoppingCartService {
         this.systemController = systemController;
     }
 
-    //SimpleGuest Payment - Use-Case 4.1
-    addToCart(userID: UserID, productID: number, productQuantity: number): Result<void> {
-        return this.systemController.addToCart(userID, productID, productQuantity);
+    //Guest Payment - Use-Case 4.1
+    addToCart(userID: UserID, productID: number, productQuantity: number): Promise<Result<void>> {
+        let result = this.systemController.addToCart(userID, productID, productQuantity);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleGuest Payment - Use-Case 4.2
-    checkShoppingCart(userID: UserID): Result<void | SimpleShoppingCart> {
+    //Guest Payment - Use-Case 4.2
+    checkShoppingCart(userID: UserID): Promise<Result<void | SimpleShoppingCart>> {
         const domainResult: Result<void | DomainShoppingCart> = this.systemController.getCart(userID);
         const products: Map<SimpleProduct, number> = new Map<SimpleProduct, number>();
         let result: Result<void | SimpleShoppingCart> = new Result <void | SimpleShoppingCart>(domainResult.ok, undefined, domainResult.message);
@@ -37,21 +40,32 @@ export class ShoppingCartService {
             }
             result.data = new SimpleShoppingCart(userID, products, domainShoppingCart.totalPrice);
         }
-        return result;
+        return new Promise<Result<void | SimpleShoppingCart>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleGuest Payment - Use-Case 4.3
-    removeFromCart(userID: UserID, productID: number): Result<void> {
-        return this.systemController.removeProductFromCart(userID, productID);
+    //Guest Payment - Use-Case 4.3
+    removeFromCart(userID: UserID, productID: number): Promise<Result<void>> {
+        let result = this.systemController.removeProductFromCart(userID, productID);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleGuest Payment - Use-Case 4.4
-    editProductInCart(userID: UserID, productID: number, productQuantity: number, additionalDetails?: any): Result<void> {
-        return this.systemController.editCart(userID, productID, productQuantity, additionalDetails);
+    //Guest Payment - Use-Case 4.4
+    editProductInCart(userID: UserID, productID: number, productQuantity: number, additionalDetails?: any): Promise<Result<void>> {
+        let result = this.systemController.editCart(userID, productID, productQuantity, additionalDetails);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
-    //SimpleGuest Payment - Use-Case 5
-    checkout(userID: UserID, paymentDetails: any, deliveryDetails: any): Result<void> {
-        return this.systemController.checkout(userID, paymentDetails, deliveryDetails);
+    //Guest Payment - Use-Case 5
+    checkout(userID: UserID, paymentDetails: any, deliveryDetails: any): Promise<Result<void>> {
+        let result = this.systemController.checkout(userID, paymentDetails, deliveryDetails);
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 }
