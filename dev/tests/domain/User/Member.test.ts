@@ -30,7 +30,7 @@ const r4 = new Role(shop1.id, "founder of myShop", JobType.Founder, emptyPerm);
 
 
 
-describe('Member - test', function () {
+describe('SimpleMember - test', function () {
 
     beforeEach(function () {})
 

@@ -11,9 +11,9 @@ class TestShop extends Shop{
 }
 let s1:Shop;
 let p1: Product;
-//const p1:Product= new Product("cotage",s1.id, ProductCategory.A, "Yami chees", 5.9, 5.9);
+//const p1:SimpleProduct= new SimpleProduct("cotage",s1.id, ProductCategory.A, "Yami chees", 5.9, 5.9);
 
-describe('Shop- products', function(){
+describe('SimpleShop- products', function(){
     beforeEach(function(){
         s1= new Shop(0, "Mega", "ofir");
     })
@@ -44,7 +44,7 @@ describe('Shop- products', function(){
     })
 })
 
-describe('Shop- Appointed Members', function(){
+describe('SimpleShop- Appointed Members', function(){
     beforeEach(function(){
         s1= new Shop(0, "Mega", "ofir");
     })

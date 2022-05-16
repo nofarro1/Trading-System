@@ -1,13 +1,13 @@
-import {UserID} from "../../../utilities/Utils";
-import {Product} from "../marketplace/Product";
+import {UserID} from "../../Utils";
+import {SimpleProduct} from "../marketplace/SimpleProduct";
 
 
-export class ShoppingCart {
+export class SimpleShoppingCart {
     private readonly _userId: UserID;
-    private readonly _products: Map<Product, number>; //<Product, quantity>
+    private readonly _products: Map<SimpleProduct, number>; //<SimpleProduct, quantity>
     private readonly _totalPrice: number;
 
-    constructor(userId: UserID, products: Map<Product, number>, totalPrice: number) {
+    constructor(userId: UserID, products: Map<SimpleProduct, number>, totalPrice: number) {
         this._userId = userId;
         this._products = products;
         this._totalPrice = totalPrice;
@@ -17,7 +17,7 @@ export class ShoppingCart {
         return this._userId;
     }
 
-    get products(): Map<Product, number> {
+    get products(): Map<SimpleProduct, number> {
         return this._products;
     }
 

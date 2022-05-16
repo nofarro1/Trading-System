@@ -1,13 +1,13 @@
-import {Product} from "../marketplace/Product";
+import {SimpleProduct} from "../marketplace/SimpleProduct";
 
 
-export class ShopOrder {
+export class SimpleShopOrder {
     private readonly _shopId: number;
-    private readonly _products: Map<Product, number>; //<Product, quantity>
+    private readonly _products: Map<SimpleProduct, number>; //<SimpleProduct, quantity>
     private readonly _totalPrice: number;
     private readonly _creationTime: Date;
 
-    constructor(shopId: number, products: Map<Product, number>, totalPrice: number, creationTime: Date) {
+    constructor(shopId: number, products: Map<SimpleProduct, number>, totalPrice: number, creationTime: Date) {
         this._shopId = shopId;
         this._products = products;
         this._totalPrice = totalPrice;
@@ -18,7 +18,7 @@ export class ShopOrder {
         return this._shopId;
     }
 
-    get products(): Map<Product, number> {
+    get products(): Map<SimpleProduct, number> {
         return this._products;
     }
 
