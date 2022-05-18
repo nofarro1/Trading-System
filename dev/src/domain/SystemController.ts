@@ -103,7 +103,7 @@ export class SystemController {
         return new Result(false, undefined, "could not Register");
     }
 
-    private authenticateMarketVisitor<T>(user: UserID, callback: () => Result<T>) {
+    private authenticateMarketVisitor<T>(user: string, callback: () => Result<T>) {
         if (!this.securityController.isLoggedIn(user)) {
             return new Result(false, undefined, "this is not one of our visitors!");
         }
@@ -112,8 +112,8 @@ export class SystemController {
 
     //Guest actions
 
-    accessMarketplace(): Result<Guest> {
-        let newGuest: Result<Guest> = this.uController.createGuest();
+    accessMarketplace(session: string): Result<Guest> {
+        let newGuest: Result<Guest> = this.uController.createGuest(session);
         if (!newGuest.ok) {
             return newGuest;
         }
@@ -122,14 +122,15 @@ export class SystemController {
         return new Result(true, guest);
     }
 
-    exitMarketplace(userId: UserID): Result<void> {
+    //fix according to security controller
+    exitMarketplace(sessionId:string): Result<void> {
 
         const callback = () => {
             try {
-                this.securityController.exitMarketplace(userId);
-                if (typeof userId === 'number') {
-                    const toExit = this.uController.getGuest(userId);
-                    this.scController.removeCart(userId);
+                this.securityController.exitMarketplace(sessionId);
+                if (typeof sessionId === 'number') {
+                    const toExit = this.uController.getGuest(sessionId);
+                    this.scController.removeCart(sessionId);
                     if (toExit.ok) {
                         this.uController.exitGuest(toExit.data as Guest);
                         return new Result(true, undefined, "bye bye!");
@@ -138,7 +139,7 @@ export class SystemController {
                         return new Result(false, undefined, "Some thing fishy in here!");
                     }
                 } else {
-                    this.notifyController.removeActiveUser(userId);
+                    this.notifyController.removeActiveUser(sessionId);
                     return new Result(true, undefined, "bye bye!");
                 }
 
@@ -147,7 +148,7 @@ export class SystemController {
             }
         }
 
-        return this.authenticateMarketVisitor(userId, callback);
+        return this.authenticateMarketVisitor(sessionId, callback);
 
     }
 
@@ -159,7 +160,7 @@ export class SystemController {
     //
     // }
 
-    login(guestId: UserID, d: LoginData): Result<void> {
+    login(sessionID: string, d: LoginData): Result<void> {
         const secCallback = () => {
             //if success get the member_id
             try {
@@ -176,10 +177,10 @@ export class SystemController {
             return new Result(true, undefined)
         }
 
-        return this.authenticateMarketVisitor(guestId, secCallback);
+        return this.authenticateMarketVisitor(sessionID, secCallback);
     }
 
-    logout(memberId: string): Result<Guest | void> {
+    logout(sessionID: string): Result<Guest | void> {
         const secCallback = () => {
             // get conformation of log out
             logger.info(`member ${memberId} logged out`);
@@ -191,7 +192,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(memberId, secCallback);
     }
 
-    registerMember(guestId: UserID, newMember: RegisterMemberData): Result<void> {
+    registerMember(sessionID: string, newMember: RegisterMemberData): Result<void> {
         const secCallback = (): Result<void> => {
             //register process
             const res = this.register(newMember);
@@ -204,7 +205,7 @@ export class SystemController {
 
         }
 
-        return this.authenticateMarketVisitor(guestId, secCallback);
+        return this.authenticateMarketVisitor(sessionID, secCallback);
     }
 
     private register(newMember: RegisterMemberData): Result<Member | undefined> {
@@ -230,10 +231,10 @@ export class SystemController {
 
 //buyer actions
 
-    getProduct(user: UserID, productId: number): Result<Product | void> {
+    getProduct(sessionID: string, productId: number): Result<Product | void> {
         //market visitor authentication
 
-        return this.authenticateMarketVisitor(user, () => {
+        return this.authenticateMarketVisitor(sessionID, () => {
             return this.mpController.getProduct(productId)
         })
     }
@@ -243,7 +244,7 @@ export class SystemController {
     //     return new Result(false, null, "no implementation");
     // }
 
-    getShop(user: UserID, shopId: number): Result<Shop | void> {
+    getShop(user: string, shopId: number): Result<Shop | void> {
         return this.authenticateMarketVisitor(user, () => {
             return this.mpController.getShopInfo(shopId)
         })
@@ -254,14 +255,14 @@ export class SystemController {
     //     return this.mpController.getShop(shopid)
     // }
 
-    searchProducts(user: UserID, searchBy: SearchType, searchTerm: string | ProductCategory, filter?: any): Result<Product[] | void> {
+    searchProducts(user: string, searchBy: SearchType, searchTerm: string | ProductCategory, filter?: any): Result<Product[] | void> {
         //market visitor authentication
         return this.authenticateMarketVisitor(user, () => {
             return this.mpController.searchProduct(searchBy, searchTerm)
         })
     }
 
-    addToCart(user: UserID, productId: number, quantity: number): Result<void> {
+    addToCart(user: string, productId: number, quantity: number): Result<void> {
 
         const authCallback = () => {
             const productRes = this.mpController.getProduct(productId);
@@ -274,7 +275,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    getCart(user: UserID): Result<ShoppingCart | void> {
+    getCart(user: string): Result<ShoppingCart | void> {
 
         const authCallback = (): Result<ShoppingCart | void> => {
             const result = this.scController.getCart(user);
@@ -285,7 +286,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    editCart(user: UserID, product: number, quantity: number, additionalData?: any): Result<void> {
+    editCart(user: string, product: number, quantity: number, additionalData?: any): Result<void> {
         const authCallback = () => {
             const productRes = this.mpController.getProduct(product);
             if (productRes.ok && productRes.data !== undefined) {
@@ -297,7 +298,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    removeProductFromCart(user: UserID, product: number): Result<void> {
+    removeProductFromCart(user: string, product: number): Result<void> {
         const authCallback = () => {
             const productRes = this.mpController.getProduct(product);
             if (productRes.ok && productRes.data !== undefined) {
@@ -308,7 +309,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(user, authCallback);
     }
 
-    checkout(user: UserID, paymentDetails: any, deliveryDetails: any): Result<void> {
+    checkout(user: string, paymentDetails: any, deliveryDetails: any): Result<void> {
         return this.authenticateMarketVisitor(user, () => {
             let result = this.uController.getGuest(user as number);
             let resultMm = this.uController.getMember(user as string);
@@ -371,15 +372,15 @@ export class SystemController {
 
 
     // //todo: missing method in controllers below
-    // addShopPolicy(user: UserID, shopId: UserID, policyDetails): Result<void> {
+    // addShopPolicy(user: string, shopId: UserID, policyDetails): Result<void> {
     //     return new Result(false, undefined, "no implementation");
     // }
     //
-    // addShopSale(user: UserID, shopId: UserID, saleDetails): Result<void> {
+    // addShopSale(user: string, shopId: string, saleDetails): Result<void> {
     //     return new Result(false, undefined, "no implementation");
     // }
 
-    appointShopOwner(r: NewRoleData): Result<void> {
+    appointShopOwner(sessionID: string,r: NewRoleData): Result<void> {
         const authCallback = () => {
             if (this.uController.checkPermission(r.assigner, r.shopId, Permissions.AddShopOwner).data) {
                 const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions))
@@ -395,7 +396,7 @@ export class SystemController {
 
     //shop management and ownership
 
-    appointShopManager(r: NewRoleData): Result<void> {
+    appointShopManager(sessionID: string,r: NewRoleData): Result<void> {
         const authCallback = () => {
             if (this.uController.checkPermission(r.assigner, r.shopId, Permissions.AddShopManager).data) {
                 const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions))

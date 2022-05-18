@@ -30,7 +30,7 @@ export class UserController {
     }
 
 
-    createGuest(): Result<Guest>{
+    createGuest(session: string): Result<Guest>{
         const shoppingCart = new ShoppingCart();
         const msgBox = new MessageBox(this.guestIdCounter);
         const guest = new Guest(this.guestIdCounter, shoppingCart);
