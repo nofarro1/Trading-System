@@ -7,7 +7,7 @@ import {ExternalServiceType, UserID} from "../utilities/Utils";
 import {MarketplaceController} from "./marketplace/MarketplaceController";
 import {ShoppingCartController} from "./marketplace/ShoppingCartController";
 import {PurchaseController} from "./purchase/PurchaseController";
-import MessageController from "./notifications/MessageController";
+import {MessageController} from "./notifications/MessageController";
 import {NotificationController} from "./notifications/NotificationController";
 import {Result} from "../utilities/Result";
 import {Shop} from "./marketplace/Shop";
@@ -21,6 +21,7 @@ import {JobType, ProductCategory, SearchType} from "../utilities/Enums";
 import {Permissions} from "../utilities/Permissions";
 import {PaymentServiceAdaptor} from "./external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "./external_services/DeliveryServiceAdaptor";
+import {MessageBox} from "./notifications/MessageBox";
 
 
 export class SystemController {
@@ -40,7 +41,8 @@ export class SystemController {
                 pController: PurchaseController,
                 msgController: MessageController,
                 sController: SecurityController,
-                notifyController: NotificationController) {
+                notifyController: NotificationController,
+                defaultAdmin: Member | undefined) {
 
         this.mpController = mpController;
         this.scController = scController;
@@ -49,6 +51,12 @@ export class SystemController {
         this.mController = msgController;
         this.securityController = sController;
         this.notifyController = notifyController;
+        if (defaultAdmin === undefined) {
+            logger.error("failed to initialize system. default admin registration failed")
+            throw new Error("failed to register default admin member");
+        } else {
+            logger.info("system controller initialize successfully")
+        }
     }
 
     static initialize(): SystemController {
@@ -66,12 +74,33 @@ export class SystemController {
         //todo: configure dependencies between controllers
         purchase.subscribe(marketplace)
         marketplace.subscribe(messages)
+        const defaultAdmin = this.createDefaultAdmin(security, user, shoppingCart, messages, {
+            username: "admin",
+            password: "admin"
+        })
+        return new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications, defaultAdmin.data);
 
-        let sys = new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications);
-        //adding
-        sys.registerAsAdmin({username: "admin", password: "admin"}, "Edan Rules")
-        return sys;
+    }
 
+    private static createDefaultAdmin(security: SecurityController, user: UserController, cart: ShoppingCartController, box: MessageController, newMember: RegisterMemberData) {
+        try {
+            security.register(newMember.username, newMember.password);
+        } catch (e: any) {
+            return new Result(false, undefined, e.message);
+        }
+
+        cart.addCart(newMember.username)
+        let res = cart.getCart(newMember.username)
+        if (res.ok) {
+            let mb = box.addMessageBox(newMember.username)
+            if (mb.ok) {
+                const memRes = user.addMember(newMember.username, res.data as ShoppingCart)
+                if (memRes.ok)
+                    return new Result(true, memRes.data, "register success");
+            }
+            return new Result(false, undefined, "could not Register");
+        }
+        return new Result(false, undefined, "could not Register");
     }
 
     private authenticateMarketVisitor<T>(user: UserID, callback: () => Result<T>) {
@@ -165,18 +194,24 @@ export class SystemController {
     registerMember(guestId: UserID, newMember: RegisterMemberData): Result<void> {
         const secCallback = (): Result<void> => {
             //register process
-            return this.register(newMember);
+            const res = this.register(newMember);
+            if (res.ok) {
+                return new Result<void>(true, undefined, res.message)
+            } else {
+                return new Result(false, undefined, res.message);
+            }
+
 
         }
 
         return this.authenticateMarketVisitor(guestId, secCallback);
     }
 
-    private register(newMember: RegisterMemberData): Result<void> {
+    private register(newMember: RegisterMemberData): Result<Member | undefined> {
         try {
             this.securityController.register(newMember.username, newMember.password);
         } catch (e: any) {
-            return new Result(false, undefined, e.massage);
+            return new Result(false, undefined, e.message);
         }
 
         this.scController.addCart(newMember.username)
@@ -184,12 +219,13 @@ export class SystemController {
         if (res.ok) {
             let mb = this.mController.addMessageBox(newMember.username)
             if (mb.ok) {
-                if(this.uController.addMember(newMember.username, res.data as ShoppingCart).ok)
-                    return new Result(true,undefined,"register success");
+                const memRes = this.uController.addMember(newMember.username, res.data as ShoppingCart)
+                if (memRes.ok)
+                    return new Result(true, memRes.data, "register success");
             }
-            return new Result(false, undefined,"could not Register");
+            return new Result(false, undefined, "could not Register");
         }
-        return new Result(false, undefined,"could not Register");
+        return new Result(false, undefined, "could not Register");
     }
 
 //buyer actions
@@ -350,7 +386,7 @@ export class SystemController {
                 if (result.ok) {
                     this.mpController.appointShopOwner(r.member, r.shopId)
                 }
-                return new Result(true,undefined,"shop manager appointed");
+                return new Result(true, undefined, "shop manager appointed");
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
@@ -366,7 +402,7 @@ export class SystemController {
                 if (result.ok) {
                     this.mpController.appointShopManager(r.member, r.shopId)
                 }
-                return new Result(true,undefined,"shop manager appointed");
+                return new Result(true, undefined, "shop manager appointed");
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
@@ -482,25 +518,25 @@ export class SystemController {
             if (!this.uController.checkPermission(admin, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
             }
-            if(type === ExternalServiceType.Delivery)
+            if (type === ExternalServiceType.Delivery)
                 this.pController.deliveryService.editServiceSettings(settings);
             else
                 this.pController.paymentService.editServiceSettings(settings)
 
-                return new Result(true, undefined, "services updated");
+            return new Result(true, undefined, "services updated");
 
         })
     }
 
-    swapConnectionWithExternalService(admin:string,type: ExternalServiceType, newServiceName: string): Result<void> {
+    swapConnectionWithExternalService(admin: string, type: ExternalServiceType, newServiceName: string): Result<void> {
         return this.authenticateMarketVisitor(admin, () => {
             if (!this.uController.checkPermission(admin, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
             }
-            if(type === ExternalServiceType.Delivery)
-               this.pController.swapDeliveryService(new DeliveryServiceAdaptor(newServiceName,undefined));
+            if (type === ExternalServiceType.Delivery)
+                this.pController.swapDeliveryService(new DeliveryServiceAdaptor(newServiceName, undefined));
             else
-                this.pController.swapPaymentService(new PaymentServiceAdaptor(newServiceName,undefined))
+                this.pController.swapPaymentService(new PaymentServiceAdaptor(newServiceName, undefined))
 
             return new Result(true, undefined, "services swapped");
 

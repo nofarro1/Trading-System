@@ -6,7 +6,7 @@ import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
 
 
-export default class MessageController implements IMessageListener<Message> {
+export class MessageController implements IMessageListener<Message> {
 
     messageBoxes: Map<UserID, MessageBox>
 

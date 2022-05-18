@@ -1,7 +1,7 @@
 import {MessageBox, NewMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
 import {GenericMessage, Message} from "../../../src/domain/notifications/Message";
 import {Member} from "../../../src/domain/user/Member";
-import MessageController from "../../../src/domain/notifications/MessageController";
+import {MessageController} from "../../../src/domain/notifications/MessageController";
 import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
 
 
