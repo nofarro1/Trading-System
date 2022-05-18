@@ -1,14 +1,14 @@
-import { Permissions } from "../../../utilities/Permissions";
-import {JobType} from "../../../utilities/Enums";
+import { Permissions } from "../../Permissions";
+import {JobType} from "../../Enums";
 
 
-export class Member {
+export class SimpleMember {
     private readonly _username: string;
-    private readonly _jobType: JobType;
-    private readonly _permissions: Set<Permissions>
+    private readonly _jobType?: JobType;
+    private readonly _permissions?: Set<Permissions>
     private readonly _title?: string;
 
-    constructor(username: string, jobType: JobType, permissions: Set<Permissions>, title: string) {
+    constructor(username: string, jobType?: JobType, permissions?: Set<Permissions>, title?: string) {
         this._username = username;
         this._jobType = jobType;
         this._permissions = permissions;
@@ -19,11 +19,11 @@ export class Member {
         return this._username;
     }
 
-    get jobType(): JobType {
+    get jobType(): JobType | undefined {
         return this._jobType;
     }
 
-    get permissions(): Set<Permissions> {
+    get permissions(): Set<Permissions> | undefined {
         return this._permissions;
     }
 

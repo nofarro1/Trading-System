@@ -15,13 +15,13 @@ describe('SecurityController - tests', function () {
         bag = new ShoppingBag(shopID);
     })
 
-    test("Add Product - valid input", () => {
+    test("Add SimpleProduct - valid input", () => {
         bag.addProduct(product, quantity);
         let [theProduct, theQuantity] = <[Product, number]> bag.products.get(product.id);
         expect(theProduct.id).toEqual(product.id);
     })
 
-    test("Remove Product - valid input", () => {
+    test("Remove SimpleProduct - valid input", () => {
         //valid add
         bag.addProduct(product, quantity);
         let [theProduct, theQuantity] = <[Product, number]> bag.products.get(product.id);
@@ -31,11 +31,11 @@ describe('SecurityController - tests', function () {
         expect(bag.products.get(1)).not.toBeDefined();
     })
 
-    test("Remove Product - non-existing product", () => {
+    test("Remove SimpleProduct - non-existing product", () => {
         expect(function() {bag.removeProduct(product)}).toThrow(new Error("Failed to remove product because the product wasn't found in bag."));
     })
 
-    test("Update Product Quantity - valid input", () => {
+    test("Update SimpleProduct Quantity - valid input", () => {
         //valid add
         bag.addProduct(product, quantity);
         let [theProduct, theQuantity] = <[Product, number]> bag.products.get(product.id);
@@ -46,7 +46,7 @@ describe('SecurityController - tests', function () {
         expect(theQuantity).toEqual(newQuantity);
     })
 
-    test("Update Product Quantity - product does not exist", () => {
+    test("Update SimpleProduct Quantity - product does not exist", () => {
         expect(function() {bag.updateProductQuanity(product, newQuantity)}).toThrow(new Error("Failed to update product because the product wasn't found in bag."));
     })
 });

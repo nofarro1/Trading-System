@@ -1,10 +1,12 @@
 import {SecurityController} from "../../../src/domain/SecurityController";
 
 let controller: SecurityController;
-let guestID: number = 1;
-let username: string = "username";
-let password: string = "123456789";
-let shortPassword: string = "123";
+const guestID: number = 1;
+const username: string = "username";
+const longUsername: string = "abcdefghijklmnopqrstuvwxyzABCDEF";
+const emptyUsername: string = "";
+const password: string = "123456789";
+const shortPassword: string = "123";
 
 describe('SecurityController - tests', function () {
 
@@ -36,6 +38,14 @@ describe('SecurityController - tests', function () {
 
     test("Register - invalid password", () => {
         expect(function() { controller.register(username, shortPassword) }).toThrow(new RangeError(`Password is too short and must contain at least ${controller.MINIMUM_PASSWORD_LENGTH} characters`));
+    })
+
+    test("Register - long username", () => {
+        expect(function() { controller.register(longUsername, password) }).toThrow(new Error(`Username '${longUsername}' cannot be empty or longer than 31 characters`));
+    })
+
+    test("Register - empty username", () => {
+        expect(function() { controller.register(emptyUsername, password) }).toThrow(new Error(`Username '${emptyUsername}' cannot be empty or longer than 31 characters`));
     })
 
     test("Login - valid input", () => {
