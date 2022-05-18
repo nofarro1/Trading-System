@@ -6,13 +6,13 @@ export class SecurityController {
     private readonly _MAXIMUM_USERNAME_LENGTH = 31;
 
     private readonly _users: Map<string, string>;
-    private readonly _activeGuests: Set<number>;
-    private readonly _loggedInMembers: Set<string>;
+    private readonly _activeGuests: Set<string>;
+    private readonly _loggedInMembers: Map<string,string>;
 
     constructor() {
         this._users = new Map<string, string>();
-        this._activeGuests = new Set<number>();
-        this._loggedInMembers = new Set<string>();
+        this._activeGuests = new Set<string>();
+        this._loggedInMembers = new Map<string, string>();
     }
 
     get MINIMUM_PASSWORD_LENGTH(): number {
@@ -23,7 +23,7 @@ export class SecurityController {
         return this._MAXIMUM_USERNAME_LENGTH;
     }
 
-    get activeGuests(): Set<number> {
+    get activeGuests(): Set<string> {
         return this._activeGuests;
     }
 
@@ -31,34 +31,34 @@ export class SecurityController {
         return this._users;
     }
 
-    get loggedInMembers(): Set<string> {
+    get loggedInMembers(): Map<string, string> {
         return this._loggedInMembers;
     }
 
-    accessMarketplace(guestID: number): void {
-        if(this._activeGuests.has(guestID)) {
-            logger.error(`There already exists a guest with ${guestID} in the marketplace`);
-            throw new Error(`There already exists a guest with ${guestID} in the marketplace`);
+    accessMarketplace(sessionId: string): void {
+        if(this._activeGuests.has(sessionId)) {
+            logger.error(`There already exists a guest with ${sessionId} in the marketplace`);
+            throw new Error(`There already exists a guest with ${sessionId} in the marketplace`);
         }
-        logger.info(`${guestID} has accessed the marketplace successfully`);
-        this._activeGuests.add(guestID);
+        logger.info(`${sessionId} has accessed the marketplace successfully`);
+        this._activeGuests.add(sessionId);
     }
 
-    exitMarketplace(userID: UserID): void {
-        if(typeof userID === "string")
-            this.logout(userID);
+    exitMarketplace(sessionID: string): void {
+        if(typeof sessionID === "string")
+            this.logout(sessionID);
         else {
-            if (!this._activeGuests.has(userID)) {
-                logger.error(`There is no guest with ${userID} currently in the marketplace`);
-                throw new Error(`There is no guest with ${userID} currently in the marketplace`);
+            if (!this._activeGuests.has(sessionID)) {
+                logger.error(`There is no guest with ${sessionID} currently in the marketplace`);
+                throw new Error(`There is no guest with ${sessionID} currently in the marketplace`);
             }
 
-            logger.info(`Guest: ${userID} has successfully exited the marketplace`);
-            this._activeGuests.delete(userID);
+            logger.info(`Guest: ${sessionID} has successfully exited the marketplace`);
+            this._activeGuests.delete(sessionID);
         }
     }
 
-    register(username: string, password: string): void {
+    register(sessionId:string,username: string, password: string): void {
         if(username.length > 31 || username.length === 0) {
             logger.warn(`Username '${username}' cannot be empty or longer than 31 characters`);
             throw new Error(`Username '${username}' cannot be empty or longer than 31 characters`);
@@ -76,7 +76,7 @@ export class SecurityController {
         this._users.set(username, password);
     }
 
-    login(username: string, password: string): void {
+    login(sessionId:string ,username: string, password: string): void {
         if(!this._users.has(username)) {
             logger.warn(`A member with the username '${username}' does not exist`);
             throw new Error(`A member with the username '${username}' does not exist`);
@@ -91,7 +91,7 @@ export class SecurityController {
         }
 
         logger.info(`${username} has logged in successfully to the system`);
-        this._loggedInMembers.add(username);
+        this._loggedInMembers.set(sessionId,username);
     }
 
     logout(username: string): void {
@@ -108,7 +108,7 @@ export class SecurityController {
         this._loggedInMembers.delete(username);
     }
 
-    isLoggedIn(userID: UserID): boolean {
+    isLoggedIn(userID: string): boolean {
         logger.info(`Checking whether ${userID} is a logged in member or active guest`);
         if(typeof userID === "string")
             return this._loggedInMembers.has(userID);

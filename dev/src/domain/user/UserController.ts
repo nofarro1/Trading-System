@@ -11,17 +11,17 @@ import { User } from "./User";
 
 
 export class UserController {
-    private _connectedGuests: Map<number, Guest>;
+    private _connectedGuests: Map<string, Guest>;
     private _members: Map<string, Member>;
     private guestIdCounter: number = 0;
     private roleIdCounter: number = 0;
     
     constructor(){
-        this._connectedGuests = new Map<number, Guest>();
+        this._connectedGuests = new Map<string, Guest>();
         this._members = new Map<string, Member>();
     }
     
-    public get connectedGuests(): Map<number, Guest> {
+    public get connectedGuests(): Map<string, Guest> {
         return this._connectedGuests;
     }
 
@@ -33,7 +33,7 @@ export class UserController {
     createGuest(session: string): Result<Guest>{
         const shoppingCart = new ShoppingCart();
         const msgBox = new MessageBox(this.guestIdCounter);
-        const guest = new Guest(this.guestIdCounter, shoppingCart);
+        const guest = new Guest(session, shoppingCart);
         this.connectedGuests.set(guest.id, guest);
         logger.info(`Guest ${this.guestIdCounter} connected`);
         this.guestIdCounter++;
@@ -103,7 +103,7 @@ export class UserController {
 
     }
 
-    getGuest(guestId: number): Result<User | undefined>{
+    getGuest(guestId: string): Result<User | undefined>{
         if(this.connectedGuests.has(guestId))
             return new Result(true, this.connectedGuests.get(guestId));
         else
