@@ -22,6 +22,17 @@ import {Permissions} from "../utilities/Permissions";
 import {PaymentServiceAdaptor} from "./external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "./external_services/DeliveryServiceAdaptor";
 import {MessageBox} from "./notifications/MessageBox";
+import {
+    toSimpleMember,
+    toSimpleProduct,
+    toSimpleProducts,
+    toSimpleShop, toSimpleShopOrder, toSimpleShoppingCart
+} from "../utilities/simple_objects/SimpleObjectFactory";
+import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
+import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
+import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
+import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
+import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 
 
 export class SystemController {
@@ -103,11 +114,12 @@ export class SystemController {
         return new Result(false, undefined, "could not Register");
     }
 
-    private authenticateMarketVisitor<T>(user: string, callback: () => Result<T>) {
-        if (!this.securityController.isLoggedIn(user)) {
+    private authenticateMarketVisitor<T>(sessionId: string, callback: (id: string) => Result<T>) {
+        const userId: string = this.securityController.isActiveSession(sessionId);
+        if (userId.length === 0) {
             return new Result(false, undefined, "this is not one of our visitors!");
         }
-        return callback();
+        return callback(userId);
     }
 
     //SimpleGuest actions
@@ -125,27 +137,25 @@ export class SystemController {
     //fix according to security controller
     exitMarketplace(sessionId: string): Result<void> {
 
-        const callback = () => {
+        const callback = (id: string) => {
+            let toLogout = id
+            let res = this.logout(id) // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
+            if (checkRes(res)) {
+                toLogout = res.data.id;
+            }
             try {
-                this.securityController.exitMarketplace(sessionId);
-                if (typeof sessionId === 'number') {
-                    const toExit = this.uController.getGuest(sessionId);
-                    this.scController.removeCart(sessionId);
-                    if (toExit.ok) {
-                        this.uController.exitGuest(toExit.data as Guest);
-                        return new Result(true, undefined, "bye bye!");
-                    } else {
-                        logger.error("for some reason could not delete guest")
-                        return new Result(false, undefined, "Some thing fishy in here!");
-                    }
-                } else {
-                    this.notifyController.removeActiveUser(sessionId);
+                this.securityController.exitMarketplace(toLogout);
+                const toExit = this.uController.getGuest(toLogout);
+                const delCart = this.scController.removeCart(toLogout);
+                if (checkRes(toExit) && checkRes(delCart)) {
+                    this.uController.exitGuest(toExit.data as Guest);
                     return new Result(true, undefined, "bye bye!");
                 }
-
+                return new Result(false, undefined, "for some reason guest was not deleted");
             } catch (error: any) {
                 return new Result(false, undefined, error.message);
             }
+
         }
 
         return this.authenticateMarketVisitor(sessionId, callback);
@@ -160,11 +170,11 @@ export class SystemController {
     //
     // }
 
-    login(sessionID: string, d: LoginData): Result<void> {
-        const secCallback = () => {
+    login(sessionId: string, d: LoginData): Result<void> {
+        const secCallback = (id:string) => {
             //if success get the member_id
             try {
-                this.securityController.login(sessionID, d.username, d.password);
+                this.securityController.login(id, d.username, d.password);
             } catch (e: any) {
                 return new Result(false, undefined, e.message);
             }
@@ -173,32 +183,42 @@ export class SystemController {
             if (checkRes(res)) {
                 const user: Member = res.data
                 this.notifyController.addActiveUser(user.username);
+                //delete the guest
+                const toExit = this.uController.getGuest(sessionId);
+                const delCart = this.scController.removeCart(sessionId);
+                if (checkRes(toExit) && checkRes(delCart)) {
+                    this.uController.exitGuest(toExit.data as Guest);
+                    return new Result(true, undefined, "bye bye!");
+                }
                 return new Result(true, undefined, res.message)
             }
-
             //initiate live notification connection with user
             return new Result(false, undefined, res.message);
         }
 
-        return this.authenticateMarketVisitor(sessionID, secCallback);
+        return this.authenticateMarketVisitor(sessionId, secCallback);
     }
 
     logout(sessionID: string): Result<Guest | void> {
-        const secCallback = () => {
+        const secCallback = (id: string) => {
             // get conformation of log out
             logger.info(`member ${sessionID} logged out`);
             // remove member and live notification
-            this.notifyController.removeActiveUser(sessionID);
-            //update guestController
-            return this.accessMarketplace(sessionID);
+            try {
+                this.securityController.logout(id)
+                this.notifyController.removeActiveUser(sessionID);
+                return this.accessMarketplace(sessionID);
+            } catch (e: any) {
+                return new Result(false, undefined, e.message)
+            }
         }
         return this.authenticateMarketVisitor(sessionID, secCallback);
     }
 
     registerMember(sessionID: string, newMember: RegisterMemberData): Result<void> {
-        const secCallback = (): Result<void> => {
+        const secCallback = (id:string): Result<void> => {
             //register process
-            const res = this.register(sessionID, newMember);
+            const res = this.register(id, newMember);
             if (res.ok) {
                 return new Result<void>(true, undefined, res.message)
             } else {
@@ -211,7 +231,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionID, secCallback);
     }
 
-    private register(sessionId: string, newMember: RegisterMemberData): Result<Member | undefined> {
+    private register(sessionId: string, newMember: RegisterMemberData): Result<SimpleMember | void> {
         try {
             this.securityController.register(sessionId, newMember.username, newMember.password);
         } catch (e: any) {
@@ -224,7 +244,7 @@ export class SystemController {
             if (checkRes(mb)) {
                 const memRes = this.uController.addMember(newMember.username, res.data)
                 if (checkRes(memRes))
-                    return new Result(true, memRes.data, "register success");
+                    return new Result(true, toSimpleMember(memRes.data), "register success");
             }
             return new Result(false, undefined, "could not Register");
         }
@@ -233,11 +253,16 @@ export class SystemController {
 
 //buyer actions
 
-    getProduct(sessionID: string, productId: number): Result<Product | void> {
+    getProduct(sessionID: string, productId: number): Result<SimpleProduct | void> {
         //market visitor authentication
 
         return this.authenticateMarketVisitor(sessionID, () => {
-            return this.mpController.getProduct(productId)
+
+            const res =  this.mpController.getProduct(productId);
+            if(checkRes(res)){
+                return new Result(true, toSimpleProduct(res.data), res.message)
+            }
+            return new Result(false, undefined, "could not get product")
         })
     }
 
@@ -246,9 +271,13 @@ export class SystemController {
     //     return new Result(false, null, "no implementation");
     // }
 
-    getShop(user: string, shopId: number): Result<Shop | void> {
-        return this.authenticateMarketVisitor(user, () => {
-            return this.mpController.getShopInfo(shopId)
+    getShop(sessionId: string, shopId: number): Result<SimpleShop | void> {
+        return this.authenticateMarketVisitor(sessionId, () => {
+            const res =  this.mpController.getShopInfo(shopId);
+            if(checkRes(res)){
+                return new Result(true, toSimpleShop(res.data), res.message)
+            }
+            return new Result(false, undefined, "could not get product")
         })
     }
 
@@ -257,83 +286,89 @@ export class SystemController {
     //     return this.mpController.getShop(shopid)
     // }
 
-    searchProducts(user: string, searchBy: SearchType, searchTerm: string | ProductCategory, filter?: any): Result<Product[] | void> {
+    searchProducts(sessionId: string, searchBy: SearchType, searchTerm: string | ProductCategory, filter?: any): Result<SimpleProduct[] | void> {
         //market visitor authentication
-        return this.authenticateMarketVisitor(user, () => {
-            return this.mpController.searchProduct(searchBy, searchTerm)
+        return this.authenticateMarketVisitor(sessionId, () => {
+
+            const res =  this.mpController.searchProduct(searchBy, searchTerm)
+            if(checkRes(res)){
+                return new Result(true, toSimpleProducts(res.data), res.message)
+            }
+            return new Result(false, undefined, "could not get product")
+
         })
     }
 
-    addToCart(user: string, productId: number, quantity: number): Result<void> {
+    addToCart(sessionId: string, productId: number, quantity: number): Result<void> {
 
-        const authCallback = () => {
+        const authCallback = (id:string) => {
             const productRes = this.mpController.getProduct(productId);
-            if (productRes.ok && productRes.data !== undefined)
-                return this.scController.addProduct(user, productRes.data, quantity)
+            if (checkRes(productRes))
+                return this.scController.addProduct(id, productRes.data, quantity)
             else {
                 return new Result(false, undefined, productRes.message)
             }
         }
-        return this.authenticateMarketVisitor(user, authCallback);
+        return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
-    getCart(user: string): Result<ShoppingCart | void> {
+    getCart(sessionId: string): Result<SimpleShoppingCart | void> {
 
-        const authCallback = (): Result<ShoppingCart | void> => {
-            const result = this.scController.getCart(user);
-            return result.data ? new Result(true, result.data) : new Result(false, undefined, result.message);
+        const authCallback = (id:string): Result<SimpleShoppingCart | void> => {
+            const result = this.scController.getCart(id);
+            return checkRes(result) ? new Result(true, toSimpleShoppingCart(id,result.data)) : new Result(false, undefined, result.message);
 
 
         }
-        return this.authenticateMarketVisitor(user, authCallback);
+        return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
-    editCart(user: string, product: number, quantity: number, additionalData?: any): Result<void> {
-        const authCallback = () => {
+    editCart(sessionId: string, product: number, quantity: number, additionalData?: any): Result<void> {
+        const authCallback = (id:string) => {
             const productRes = this.mpController.getProduct(product);
             if (productRes.ok && productRes.data !== undefined) {
-                return this.scController.updateProductQuantity(user, productRes.data, quantity)
+                return this.scController.updateProductQuantity(id, productRes.data, quantity)
             } else
                 return new Result(false, undefined, "product not found")
 
         }
-        return this.authenticateMarketVisitor(user, authCallback);
+        return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
-    removeProductFromCart(user: string, product: number): Result<void> {
-        const authCallback = () => {
+    removeProductFromCart(sessionId: string, product: number): Result<void> {
+        const authCallback = (id:string) => {
             const productRes = this.mpController.getProduct(product);
             if (checkRes(productRes)) {
-                return this.scController.removeProduct(user, productRes.data)
+                return this.scController.removeProduct(id, productRes.data)
             }
             return new Result(false, undefined, "product not found")
         }
-        return this.authenticateMarketVisitor(user, authCallback);
+        return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
-    checkout(user: string, paymentDetails: any, deliveryDetails: any): Result<void> {
-        return this.authenticateMarketVisitor(user, () => {
-            let result = this.uController.getGuest(user);
-            let resultMm = this.uController.getMember(user);
+    checkout(sessionId: string, paymentDetails: any, deliveryDetails: any): Result<void> {
+        return this.authenticateMarketVisitor(sessionId, (id) => {
+            let result = this.uController.getGuest(id);
+            let resultMm = this.uController.getMember(id);
             let userObj: User;
             if (checkRes(result)) {
                 userObj = result.data;
                 return this.pController.checkout(userObj);
-            } else if(checkRes(resultMm)) {
+            } else if (checkRes(resultMm)) {
                 userObj = resultMm.data;
                 return this.pController.checkout(userObj);
             }
-            return new Result(false, undefined,"Unable to check out this user");
+            return new Result(false, undefined, "Unable to check out this user");
         })
     }
 
-    setUpShop(founder: string, shopName: string): Result<Shop | void> {
-        const authCallback = (): Result<void> => {
-            const result = this.uController.getMember(founder);
+    setUpShop(sessionId: string, shopName: string): Result<void> {
+        const authCallback = (founderId:string): Result<void> => {
+            const result = this.uController.getMember(founderId);
             if (checkRes(result)) {
-                let shop = this.mpController.setUpShop(founder, shopName)
-                if(checkRes(shop)){
-                    this.uController.addRole(founder, "founder", JobType.Founder, shop.data.id, new Set());
+                let shop = this.mpController.setUpShop(founderId, shopName)
+                if (checkRes(shop)) {
+                    this.uController.addRole(founderId, "founder", JobType.Founder, shop.data.id, new Set());
                     return new Result(true, undefined, "shop has opened");
                 }
                 return new Result(false, undefined, "failed to set up shop.")
@@ -344,14 +379,14 @@ export class SystemController {
 
             // insert role
         }
-        return this.authenticateMarketVisitor(founder, authCallback);
+        return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
     //shop owner related
 
-    addProduct(member: string, p: NewProductData): Result<void> {
-        const authCallback = (): Result<void> => {
-            if (this.uController.checkPermission(member, p.shopId, Permissions.AddProduct).data) {
+    addProduct(sessionId: string, p: NewProductData): Result<void> {
+        const authCallback = (id: string): Result<void> => {
+            if (this.uController.checkPermission(id, p.shopId, Permissions.AddProduct).data) {
                 return this.mpController.addProductToShop(
                     p.shopId, p.productCategory, p.productName,
                     p.quantity, p.fullPrice, !p.discountPrice ? p.fullPrice : p.discountPrice,
@@ -359,27 +394,27 @@ export class SystemController {
             }
             return new Result(false, undefined, "member does not have permissions");
         }
-        return this.authenticateMarketVisitor(member, authCallback);
+        return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
-    updateProduct(member: string, shop: number, product: number, quantity: number): Result<void> {
-        const authCallback = (): Result<void> => {
-            if (this.uController.checkPermission(member, shop, Permissions.ModifyProduct).data) {
+    updateProduct(sessionId: string, shop: number, product: number, quantity: number): Result<void> {
+        const authCallback = (id: string): Result<void> => {
+            if (this.uController.checkPermission(id, shop, Permissions.ModifyProduct).data) {
                 return this.mpController.updateProductQuantity(shop, product, quantity)
             }
             return new Result(false, undefined, "member does not have permissions");
         }
-        return this.authenticateMarketVisitor(member, authCallback);
+        return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
-    deleteProduct(member: string, shop: number, product: number): Result<void> {
-        const authCallback = (): Result<void> => {
-            if (this.uController.checkPermission(member, shop, Permissions.RemoveProduct).data) {
+    deleteProduct(sessId: string, shop: number, product: number): Result<void> {
+        const authCallback = (id: string): Result<void> => {
+            if (this.uController.checkPermission(id, shop, Permissions.RemoveProduct).data) {
                 return this.mpController.removeProductFromShop(shop, product);
             }
             return new Result(false, undefined, "member does not have permissions");
         }
-        return this.authenticateMarketVisitor(member, authCallback);
+        return this.authenticateMarketVisitor(sessId, authCallback);
     }
 
 
@@ -394,26 +429,25 @@ export class SystemController {
 
     //shop management and ownership
     //need to check if the tobe owner is not already a owner or manager od the shop
-    appointShopOwner(sessionID: string, r: NewRoleData): Result<void> {
-        const authCallback = () => {
-            if (this.uController.checkPermission(r.assigner, r.shopId, Permissions.AddShopOwner).data) {
+    appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
+        const authCallback = (id: string) => {
+            if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data) {
                 const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions))
                 if (checkRes(result)) {
                     return this.mpController.appointShopOwner(r.member, r.shopId)
                 }
-                return new Result(false,undefined,"failed to add the role to the user")
+                return new Result(false, undefined, "failed to add the role to the user")
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
-        return this.authenticateMarketVisitor(r.assigner, authCallback)
+        return this.authenticateMarketVisitor(sessionId, authCallback)
     }
 
 
-
-    appointShopManager(sessionID: string, r: NewRoleData): Result<void> {
-        const authCallback = () => {
-            if (this.uController.checkPermission(r.assigner, r.shopId, Permissions.AddShopManager).data) {
-                const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions))
+    appointShopManager(sessionId: string, r: NewRoleData): Result<void> {
+        const authCallback = (appointerId: string) => {
+            if (this.uController.checkPermission(appointerId, r.shopId, Permissions.AddShopManager).data) {
+                const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions)) //todo: adding an assigner to the method?
                 if (result.ok) {
                     this.mpController.appointShopManager(r.member, r.shopId)
                 }
@@ -421,7 +455,7 @@ export class SystemController {
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
-        return this.authenticateMarketVisitor(r.assigner, authCallback)
+        return this.authenticateMarketVisitor(sessionId, authCallback)
     }
 
     /* not for this version
@@ -435,49 +469,49 @@ export class SystemController {
             return new Result(false, null, "no implementation");
         }
     */
-    addShopManagerPermission(owner: string, manager: string, shop: number, permission: Permissions): Result<void> {
-        const authCallback = () => {
-            if (this.uController.checkPermission(owner, shop, Permissions.AddPermission).data) {
+    addShopManagerPermission(connectionId: string, manager: string, shop: number, permission: Permissions): Result<void> {
+        const authCallback = (ownerId: string) => {
+            if (this.uController.checkPermission(ownerId, shop, Permissions.AddPermission).data) {
                 return this.uController.addPermission(manager, shop, permission)
             } else {
                 return new Result(false, undefined, "No permission to add permissions");
             }
         }
-        return this.authenticateMarketVisitor(owner, authCallback)
+        return this.authenticateMarketVisitor(connectionId, authCallback)
     }
 
-    removeShopManagerPermission(owner: string, manager: string, shop: number, permission: Permissions): Result<void> {
-        const authCallback = () => {
-            if (this.uController.checkPermission(owner, shop, Permissions.RemovePermission).data) {
+    removeShopManagerPermission(sessionId: string, manager: string, shop: number, permission: Permissions): Result<void> {
+        const authCallback = (id: string) => {
+            if (this.uController.checkPermission(id, shop, Permissions.RemovePermission).data) {
                 return this.uController.removePermission(manager, shop, permission)
             } else {
                 return new Result(false, undefined, "No permission to add permissions");
             }
         }
-        return this.authenticateMarketVisitor(owner, authCallback)
+        return this.authenticateMarketVisitor(sessionId, authCallback)
     }
 
-    deactivateShop(member: string, shop: number): Result<void> {
-        return this.authenticateMarketVisitor(member, () => {
-            if (this.uController.checkPermission(member, shop, Permissions.CloseShop).data) {
-                return this.mpController.closeShop(member, shop)
+    deactivateShop(sessId: string, shop: number): Result<void> {
+        return this.authenticateMarketVisitor(sessId, (id: string) => {
+            if (this.uController.checkPermission(id, shop, Permissions.CloseShop).data) {
+                return this.mpController.closeShop(id, shop)
             }
             return new Result(false, undefined, "no permission")
         })
     }
 
-    reactivateShop(member: string, shop: number): Result<void> {
-        return this.authenticateMarketVisitor(member, () => {
-            if (this.uController.checkPermission(member, shop, Permissions.ReopenShop).data) {
-                return this.mpController.reopenShop(member, shop)
+    reactivateShop(sessId: string, shop: number): Result<void> {
+        return this.authenticateMarketVisitor(sessId, (id: string) => {
+            if (this.uController.checkPermission(id, shop, Permissions.ReopenShop).data) {
+                return this.mpController.reopenShop(id, shop)
             }
             return new Result(false, undefined, "no permission")
         })
     }
 
-    getPersonnelInfo(member: string, shop: number): Result<Member[] | void> {
-        const callback = () => {
-            if (!this.uController.checkPermission(member, shop, Permissions.RequestPersonnelInfo).data) {
+    getPersonnelInfo(sessId: string, shop: number): Result<SimpleMember[] | void> {
+        const callback = (id: string) => {
+            if (!this.uController.checkPermission(id, shop, Permissions.RequestPersonnelInfo).data) {
                 return new Result(false, undefined, "no permission");
             }
             let shopRes = this.mpController.getShopInfo(shop);
@@ -490,27 +524,27 @@ export class SystemController {
                         collectedMembers.push(res.data);
                     }
                 });
-                return new Result(true, collectedMembers,)
+                return new Result(true, collectedMembers.map(toSimpleMember),)
             }
 
             return new Result(false, [], shopRes.message);
         }
-        return this.authenticateMarketVisitor(member, callback);
+        return this.authenticateMarketVisitor(sessId, callback);
     }
 
-    getShopPurchases(member: string, shop: number, startDate: Date, endDate: Date, filter?: any): Result<ShopOrder[] | void> {
+    getShopPurchases(sessId: string, shop: number, startDate: Date, endDate: Date, filter?: any): Result<SimpleShopOrder[] | void> {
 
-        const callback = () => {
+        const callback = (id:string) => {
             //check if can preview History
-            if (!this.uController.checkPermission(member, shop, Permissions.GetPurchaseHistory).data) {
+            if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data) {
                 return new Result(false, undefined, "no permission");
             }
             let orders: ShopOrder[] = this.pController.shopOrders.has(shop) ?
                 [...(this.pController.shopOrders.get(shop) as Set<ShopOrder>)].filter((o) => o.creationTime > startDate && o.creationTime < endDate) : []
-            return new Result(orders.length !== 0, orders, orders.length !== 0 ? undefined : "no SimpleShop order were found");
+            return new Result(orders.length !== 0, orders.map(toSimpleShopOrder), orders.length !== 0 ? undefined : "no SimpleShop order were found");
         }
 
-        return this.authenticateMarketVisitor(member, callback);
+        return this.authenticateMarketVisitor(sessId, callback);
     }
 
     //System Admin actions
@@ -532,8 +566,8 @@ export class SystemController {
 
 
     editConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, settings: any): Result<void> {
-        return this.authenticateMarketVisitor(admin, () => {
-            if (!this.uController.checkPermission(admin, -1, Permissions.AdminControl)) {
+        return this.authenticateMarketVisitor(admin, (id:string) => {
+            if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
             }
             if (type === ExternalServiceType.Delivery)
@@ -547,8 +581,8 @@ export class SystemController {
     }
 
     swapConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, newServiceName: string): Result<void> {
-        return this.authenticateMarketVisitor(admin, () => {
-            if (!this.uController.checkPermission(admin, -1, Permissions.AdminControl)) {
+        return this.authenticateMarketVisitor(admin, (id:string) => {
+            if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
             }
             if (type === ExternalServiceType.Delivery)
