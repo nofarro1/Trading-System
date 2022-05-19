@@ -6,15 +6,15 @@ import {OrderService} from "./OrderService";
 import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
-import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 import {Permissions} from "../utilities/Permissions";
-import {ExternalServiceType, UserID} from "../utilities/Utils";
+import {ExternalServiceType} from "../utilities/Utils";
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
 import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {ProductCategory, SearchType} from "../utilities/Enums";
 import {logger} from "../helpers/logger";
+import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 
 
 export class Service {
@@ -28,7 +28,7 @@ export class Service {
 
     constructor() {
         //System - Use-Case 1
-        this.systemController = SystemController.initialize();
+        this.systemController = SystemController.initialize();//TODO move system controller as a parameter
         this.guestService = new GuestService(this.systemController);
         this.memberService = new MemberService(this.systemController);
         this.marketplaceService = new MarketplaceService(this.systemController);
@@ -36,189 +36,189 @@ export class Service {
         this.orderService = new OrderService(this.systemController);
     }
 
-    //----------------------SimpleGuest Service methods-------------------------------
+    //----------------------Guest Service methods-------------------------------
 
-    //General SimpleGuest - Use-Case 3
-    register(guestId: number, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Result<void> {
-        logger.info(`A member registration is being performed by ${guestId} using username: ${username}`);
+    //General Guest - Use-Case 3
+    register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Result<void> {
+        logger.info(`A member registration is being performed using ${sessionID} for username: ${username}`);
         logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
-        return this.guestService.register(guestId, username, password, firstName, lastName, email, country);
+        return this.guestService.register(sessionID, username, password, firstName, lastName, email, country);
     }
 
     //General Admin - Use-Case 0
-    registerAdmin(guestId: number, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Result<void> {
-        logger.info(`An admin registration is being performed by ${guestId} using username: ${username}`);
+    registerAdmin(username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Result<void> {
+        logger.info(`An admin registration is being performed for username ${username}`);
         logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
         return this.guestService.registerAdmin(username, password, firstName, lastName, email, country);
     }
 
-    //General SimpleGuest - Use-Case 4
-    login(guestID: number, username: string, password: string): Result<void | SimpleMember> {
-        logger.info(`A login is being performed by ${guestID} using username: ${username}.`);
-        return this.guestService.login(guestID, username, password);
+    //General Guest - Use-Case 4
+    login(sessionID: string, username: string, password: string): Result<void | SimpleMember> {
+        logger.info(`A login is being performed using ${sessionID} for username: ${username}.`);
+        return this.guestService.login(sessionID, username, password);
     }
 
-    //----------------------SimpleMember Service methods-------------------------------
+    //----------------------Member Service methods-------------------------------
 
-    //General SimpleMember - Use-Case 1
-    logout(username: string): Result<void | SimpleGuest> {
-        logger.info(`A logout operation is being performed by ${username}`);
-        return this.memberService.logout(username);
+    //General Member - Use-Case 1
+    logout(sessionID: string, username: string): Result<void | SimpleGuest> {
+        logger.info(`A logout operation is being performed by ${username} using ${sessionID}`);
+        return this.memberService.logout(sessionID, username);
     }
 
-    //SimpleShop Owner - Use-Case 4
-    appointShopOwner(newOwnerID: string, shopID: number, assigningOwnerID: string, title?: string): Result<void> {
-        logger.info(`${assigningOwnerID} is appointing ${newOwnerID} to an owner of shop ${shopID}`);
+    //Shop Owner - Use-Case 4
+    appointShopOwner(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string, title?: string): Result<void> {
+        logger.info(`${sessionID}: ${assigningOwnerID} is appointing ${newOwnerID} to an owner of shop ${shopID}`);
         if(title)
             logger.info(`Member is appointed with the title ${title}`);
-        return this.memberService.appointShopOwner(newOwnerID, shopID, assigningOwnerID, title);
+        return this.memberService.appointShopOwner(sessionID, newOwnerID, shopID, assigningOwnerID, title);
     }
 
-    //SimpleShop Owner - Use-Case 6
-    appointShopManager(newManagerID: string, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Result<void> {
-        logger.info(`${assigningOwnerID} is appointing ${newManagerID} to a manager of shop ${shopID}`);
+    //Shop Owner - Use-Case 6
+    appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Result<void> {
+        logger.info(`${sessionID}: ${assigningOwnerID} is appointing ${newManagerID} to a manager of shop ${shopID}`);
         if(title)
             logger.info(`Member is appointed with the title ${title}`);
         if(permissions)
             logger.info(`Member is appointed with the following permissions: ${permissions}`);
-        return this.memberService.appointShopManager(newManagerID, shopID, assigningOwnerID, title, permissions);
+        return this.memberService.appointShopManager(sessionID, newManagerID, shopID, assigningOwnerID, title, permissions);
     }
 
-    //SimpleShop Owner - Use-Case 7.1
-    addPermissions(assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Permissions): Result<void> {
-        logger.info(`${assigningOwnerID} is promoting ${promotedManagerID} of shop ${shopID} by adding the following permissions: ${permissions}`);
-        return this.memberService.addPermissions(assigningOwnerID, promotedManagerID, shopID, permissions);
+    //Shop Owner - Use-Case 7.1
+    addPermissions(sessionID: string, assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Permissions): Result<void> {
+        logger.info(`${sessionID}: ${assigningOwnerID} is promoting ${promotedManagerID} of shop ${shopID} by adding the following permissions: ${permissions}`);
+        return this.memberService.addPermissions(sessionID, assigningOwnerID, promotedManagerID, shopID, permissions);
     }
 
-    //SimpleShop Owner - Use-Case 7.2
-    removePermissions(assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Permissions): Result<void> {
-        logger.info(`${assigningOwnerID} is demoting ${demotedManagerID} of shop ${shopID} by removing the following permissions: ${permissions}`);
-        return this.memberService.removePermissions(assigningOwnerID, demotedManagerID, shopID, permissions);
+    //Shop Owner - Use-Case 7.2
+    removePermissions(sessionID: string, assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Permissions): Result<void> {
+        logger.info(`${sessionID}: ${assigningOwnerID} is demoting ${demotedManagerID} of shop ${shopID} by removing the following permissions: ${permissions}`);
+        return this.memberService.removePermissions(sessionID, assigningOwnerID, demotedManagerID, shopID, permissions);
     }
 
-    //SimpleShop Owner - Use-Case 11
-    requestShopPersonnelInfo(username: string, shopID: number): Result<void | SimpleMember[]> {
-        logger.info(`${username} is requesting the personnel info of shop ${shopID}`);
-        return this.memberService.requestShopPersonnelInfo(username, shopID);
+    //Shop Owner - Use-Case 11
+    requestShopPersonnelInfo(sessionID: string, username: string, shopID: number): Result<void | SimpleMember[]> {
+        logger.info(`${sessionID}: ${username} is requesting the personnel info of shop ${shopID}`);
+        return this.memberService.requestShopPersonnelInfo(sessionID, username, shopID);
     }
 
     //----------------------Marketplace Service methods-------------------------------
 
-    //General SimpleGuest - Use-Case 1
-    accessMarketplace(): Result<void | SimpleGuest> {
-        logger.info(`A new user is accessing the marketplace`);
-        return this.marketplaceService.accessMarketplace();
+    //General Guest - Use-Case 1
+    accessMarketplace(sessionID: string): Result<void> {
+        logger.info(`A new guest is accessing the marketplace`);
+        return this.marketplaceService.accessMarketplace(sessionID);
     }
 
-    //General SimpleGuest - Use-Case 2
-    //General SimpleMember - Use-Case 1
-    exitMarketplace(userID: UserID): Result<void> {
-        logger.info(`${userID} is attempting to exit the marketplace`);
-        return this.marketplaceService.exitMarketplace(userID);
+    //General Guest - Use-Case 2
+    //General Member - Use-Case 1
+    exitMarketplace(sessionID: string): Result<void> {
+        logger.info(`${sessionID} is attempting to exit the marketplace`);
+        return this.marketplaceService.exitMarketplace(sessionID);
     }
 
-    //SimpleGuest Payment - Use-Case 1
-    getShopInfo(userID: UserID, shopID: number): Result<void | SimpleShop> {
-        logger.info(`${userID} is requesting info regarding shop ${shopID}`);
-        return this.marketplaceService.getShopInfo(userID, shopID);
+    //Guest Payment - Use-Case 1
+    getShopInfo(sessionID: string, shopID: number): Result<void | SimpleShop> {
+        logger.info(`${sessionID} is requesting info regarding shop ${shopID}`);
+        return this.marketplaceService.getShopInfo(sessionID, shopID);
     }
 
-    //SimpleGuest Payment - Use-Case 2
-    searchProducts(userID: UserID, searchBy: SearchType, searchTerm: string, filters?: any): Result<void | SimpleProduct[]> {
-        logger.info(`${userID} has initiated a product search operation using the search term ${searchTerm}`);
+    //Guest Payment - Use-Case 2
+    searchProducts(sessionID: string, searchBy: SearchType, searchTerm: string, filters?: any): Result<void | SimpleProduct[]> {
+        logger.info(`${sessionID} has initiated a product search operation using the search term ${searchTerm}`);
         if(filters)
             logger.info(`The search is initiated using the following filter details ${filters}`);
-        return this.marketplaceService.searchProducts(userID, searchBy, searchTerm, filters);
+        return this.marketplaceService.searchProducts(sessionID, searchBy, searchTerm, filters);
     }
 
-    //SimpleMember Payment - Use-Case 2
-    setUpShop(username: string, shopName: string): Result<void | SimpleShop> {
-        logger.info(`${username} wants to create a new shop with the name ${shopName}`);
-        return this.marketplaceService.setUpShop(shopName, username);
+    //Member Payment - Use-Case 2
+    setUpShop(sessionID: string, username: string, shopName: string): Result<void | SimpleShop> {
+        logger.info(`${sessionID}: ${username} wants to create a new shop with the name ${shopName}`);
+        return this.marketplaceService.setUpShop(sessionID, shopName, username);
     }
 
-    //SimpleShop Owner - Use-Case 1.1
-    addProductToShop(username: string, shopID: number, category: ProductCategory, name: string, price: number,
-                     quantity: number, description?: string): Result<void> {
-        logger.info(`The user ${username} wants to add a new product to shop ${shopID}`);
+    //Shop Owner - Use-Case 1.1
+    addProductToShop(sessionID: string, username: string, shopID: number, category: ProductCategory, name: string,
+                     price: number, quantity: number, description?: string): Result<void> {
+        logger.info(`${sessionID}:  user ${username} wants to add a new product to shop ${shopID}`);
         logger.info(`The product contains the following details - category: ${category}, name: ${name}, price: ${price}, quantity: ${quantity}`);
         if(description)
             logger.info(`The product contains the following description: ${description}`);
-        return this.marketplaceService.addProductToShop(username, shopID, category, name, price, quantity, description);
+        return this.marketplaceService.addProductToShop(sessionID, username, shopID, category, name, price, quantity, description);
     }
 
-    //SimpleShop Owner - Use-Case 1.2
-    removeProductFromShop(username: string, shopID: number, productID: number): Result<void> {
-        logger.info(`${username} wants to remove from shop ${shopID} the product ${productID}`);
-        return this.marketplaceService.removeProductFromShop(username, shopID, productID);
+    //Shop Owner - Use-Case 1.2
+    removeProductFromShop(sessionID: string, username: string, shopID: number, productID: number): Result<void> {
+        logger.info(`${sessionID}: ${username} wants to remove from shop ${shopID} the product ${productID}`);
+        return this.marketplaceService.removeProductFromShop(sessionID, username, shopID, productID);
     }
 
-    //SimpleShop Owner - Use-Case 1.3
-    modifyProductQuantityInShop(username: string, shopID: number, productID: number, productQuantity: number): Result<void> {
-        logger.info(`${username} wants to modify the product ${productID} in shop ${shopID} wth quantity ${productQuantity}`);
-        return this.marketplaceService.modifyProductQuantityInShop(username, shopID, productID, productQuantity);
+    //Shop Owner - Use-Case 1.3
+    modifyProductQuantityInShop(sessionID: string, username: string, shopID: number, productID: number, productQuantity: number): Result<void> {
+        logger.info(`${sessionID}: ${username} wants to modify the product ${productID} in shop ${shopID} wth quantity ${productQuantity}`);
+        return this.marketplaceService.modifyProductQuantityInShop(sessionID, username, shopID, productID, productQuantity);
     }
 
-    //SimpleShop Owner - Use-Case 9
-    closeShop(founderID: string, shopID: number): Result<void> {
-        logger.info(`${founderID} wants to close the shop ${shopID}`);
-        return this.marketplaceService.closeShop(founderID, shopID);
+    //Shop Owner - Use-Case 9
+    closeShop(sessionID: string, founderID: string, shopID: number): Result<void> {
+        logger.info(`${sessionID}: ${founderID} wants to close the shop ${shopID}`);
+        return this.marketplaceService.closeShop(sessionID, founderID, shopID);
     }
 
-    //SimpleShop Owner - Use-Case 13
+    //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
-    getShopPurchaseHistory(ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Result<void | SimpleShopOrder[]> {
-        logger.info(`${ownerID} would like to view the purchase history of ${shopID} from ${startDate} to ${endDate}`);
+    getShopPurchaseHistory(sessionID: string, ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Result<void | SimpleShopOrder[]> {
+        logger.info(`${sessionID}: ${ownerID} would like to view the purchase history of ${shopID} from ${startDate} to ${endDate}`);
         if(filters)
             logger.info(`The request is made with the following filters: ${filters}`);
-        return this.marketplaceService.getShopPurchaseHistory(ownerID, shopID, startDate, endDate, filters);
+        return this.marketplaceService.getShopPurchaseHistory(sessionID, ownerID, shopID, startDate, endDate, filters);
     }
 
     //----------------------Shopping Cart Service methods-------------------------------
 
-    //SimpleGuest Payment - Use-Case 4.1
-    addToCart(userID: UserID, productID: number, productQuantity: number): Result<void> {
-        logger.info(`${userID} wants to add the product ${productID} x${productQuantity} to his shopping cart`);
-        return this.shoppingCartService.addToCart(userID, productID, productQuantity);
+    //Guest Payment - Use-Case 4.1
+    addToCart(sessionID: string, productID: number, productQuantity: number): Result<void> {
+        logger.info(`${sessionID} wants to add the product ${productID} x${productQuantity} to his shopping cart`);
+        return this.shoppingCartService.addToCart(sessionID, productID, productQuantity);
     }
 
-    //SimpleGuest Payment - Use-Case 4.2
-    checkShoppingCart(userID: UserID): Result<void | SimpleShoppingCart> {
-        logger.info(`${userID} would like to review the contents of his shopping cart`);
-        return this.shoppingCartService.checkShoppingCart(userID);
+    //Guest Payment - Use-Case 4.2
+    checkShoppingCart(sessionID: string): Result<void | SimpleShoppingCart> {
+        logger.info(`${sessionID} would like to review the contents of his shopping cart`);
+        return this.shoppingCartService.checkShoppingCart(sessionID);
     }
 
-    //SimpleGuest Payment - Use-Case 4.3
-    removeFromCart(userID: UserID, productID: number): Result<void> {
-        logger.info(`${userID} would like to remove the product ${productID} from his shopping cart`);
-        return this.shoppingCartService.removeFromCart(userID, productID);
+    //Guest Payment - Use-Case 4.3
+    removeFromCart(sessionID: string, productID: number): Result<void> {
+        logger.info(`${sessionID} would like to remove the product ${productID} from his shopping cart`);
+        return this.shoppingCartService.removeFromCart(sessionID, productID);
     }
 
-    //SimpleGuest Payment - Use-Case 4.4
-    editProductInCart(userID: UserID, productID: number, productQuantity: number, additionalDetails?: any): Result<void> {
-        logger.info(`${userID} would like to modify product ${productID} with a quantity of ${productQuantity}`);
+    //Guest Payment - Use-Case 4.4
+    editProductInCart(sessionID: string, productID: number, productQuantity: number, additionalDetails?: any): Result<void> {
+        logger.info(`${sessionID} would like to modify product ${productID} with a quantity of ${productQuantity}`);
         if(additionalDetails)
             logger.info(`The modification is requested using the following additional details ${additionalDetails}`);
-        return this.shoppingCartService.editProductInCart(userID, productID, productQuantity, additionalDetails);
+        return this.shoppingCartService.editProductInCart(sessionID, productID, productQuantity, additionalDetails);
     }
 
-    //SimpleGuest Payment - Use-Case 5
-    checkout(userID: UserID, paymentDetails: any, deliveryDetails: any): Result<void> {
-        logger.info(`${userID} would like to perform a checkout operation using the following payment details: ${paymentDetails} and delivery details: ${deliveryDetails}`);
-        return this.shoppingCartService.checkout(userID, paymentDetails, deliveryDetails);
+    //Guest Payment - Use-Case 5
+    checkout(sessionID: string, paymentDetails: any, deliveryDetails: any): Result<void> {
+        logger.info(`${sessionID} would like to perform a checkout operation using the following payment details: ${paymentDetails} and delivery details: ${deliveryDetails}`);
+        return this.shoppingCartService.checkout(sessionID, paymentDetails, deliveryDetails);
     }
 
     //----------------------Order Service methods-------------------------------
 
     //System - Use-Case 2.2
-    swapConnectionWithExternalService(adminUsername: string, type: ExternalServiceType, serviceName: string): Result<void> {
-        logger.info(`A connection with the ${type} service ${serviceName} is being initiated`);
-        return this.orderService.swapConnectionWithExternalService(adminUsername, type, serviceName);
+    swapConnectionWithExternalService(sessionID: string, adminUsername: string, type: ExternalServiceType, serviceName: string): Result<void> {
+        logger.info(`${sessionID}: A connection with the ${type} service ${serviceName} is being initiated`);
+        return this.orderService.swapConnectionWithExternalService(sessionID, adminUsername, type, serviceName);
     }
 
     //System - Use-Case 2.1
-    editConnectionWithExternalService(adminUsername: string, type: ExternalServiceType, settings: any): Result<void> {
-        logger.info(`The connection with the ${type} service is being modified using the following settings: ${settings}`);
-        return this.orderService.editConnectionWithExternalService(adminUsername, type, settings);
+    editConnectionWithExternalService(sessionID: string, adminUsername: string, type: ExternalServiceType, settings: any): Result<void> {
+        logger.info(`${sessionID}: The connection with the ${type} service is being modified using the following settings: ${settings}`);
+        return this.orderService.editConnectionWithExternalService(sessionID, adminUsername, type, settings);
     }
 }

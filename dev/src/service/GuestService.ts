@@ -1,5 +1,6 @@
 import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
+import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 
 
 export class GuestService {
@@ -9,10 +10,10 @@ export class GuestService {
         this.systemController = systemController;
     }
 
-    //General SimpleGuest - Use-Case 3
-    register(guestID: number, username: string, password: string, firstName?: string, lastName?: string,
+    //General Guest - Use-Case 3
+    register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string,
              email?: string, country?: string): Result<void> {
-        return this.systemController.registerMember(guestID, {username: username, password: password,
+        return this.systemController.registerMember(sessionID, {username: username, password: password,
             firstName: firstName, lastName: lastName, email: email, country: country});
     }
 
@@ -23,8 +24,8 @@ export class GuestService {
             firstName: firstName, lastName: lastName, email: email, country: country});
     }
 
-    //General SimpleGuest - Use-Case 4
-    login(guestID: number, username: string, password: string): Result<void> {
-        return this.systemController.login(guestID, { username: username, password: password });
+    //General Guest - Use-Case 4
+    login(sessionID: string, username: string, password: string): Result<void | SimpleMember> {
+        return this.systemController.login(sessionID, { username: username, password: password });
     }
 }

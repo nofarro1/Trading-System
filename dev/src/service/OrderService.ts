@@ -11,12 +11,12 @@ export class OrderService {
     }
 
     //System - Use-Case 2.2
-    swapConnectionWithExternalService(adminUsername: string, type: ExternalServiceType, serviceName: string): Result<void> {
-        return this.systemController.swapConnectionWithExternalService(adminUsername, type, serviceName);
+    swapConnectionWithExternalService(sessionID: string, adminUsername: string, type: ExternalServiceType, serviceName: string): Result<void> {
+        return this.systemController.swapConnectionWithExternalService(sessionID, adminUsername, type, serviceName);
     }
 
     //System - Use-Case 2.1
-    editConnectionWithExternalService(adminUsername: string, type: ExternalServiceType, settings: any): Result<void> {
-        return this.systemController.editConnectionWithExternalService(adminUsername, type, settings);
+    editConnectionWithExternalService(sessionID: string, adminUsername: string, type: ExternalServiceType, settings: any): Result<void> {
+        return this.systemController.editConnectionWithExternalService(sessionID, adminUsername, type, settings);
     }
 }
