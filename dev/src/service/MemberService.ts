@@ -13,8 +13,8 @@ export class MemberService {
     }
 
     //General Member - Use-Case 1
-    logout(sessionID: string, username: string): Promise<Result<void | SimpleGuest>> {
-        let result: Result<void | SimpleGuest> = this.systemController.logout(sessionID, username);
+    logout(sessionID: string): Promise<Result<void | SimpleGuest>> {
+        let result: Result<void | SimpleGuest> = this.systemController.logout(sessionID);
         return new Promise<Result<void | SimpleGuest>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
         });
@@ -45,24 +45,24 @@ export class MemberService {
     }
 
     //Shop Owner - Use-Case 7.1
-    addPermissions(sessionID: string, assigningOwnerID: string, promotedManagerID: string, shopID: number, permissions: Permissions): Promise<Result<void>> {
-        let result: Result<void> = this.systemController.addShopManagerPermission(sessionID, assigningOwnerID, promotedManagerID, shopID, permissions);
+    addPermissions(sessionID: string, promotedManagerID: string, shopID: number, permissions: Permissions): Promise<Result<void>> {
+        let result: Result<void> = this.systemController.addShopManagerPermission(sessionID, promotedManagerID, shopID, permissions);
         return new Promise<Result<void>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     //Shop Owner - Use-Case 7.2
-    removePermissions(sessionID: string, assigningOwnerID: string, demotedManagerID: string, shopID: number, permissions: Permissions): Promise<Result<void>> {
-        let result: Result<void> = this.systemController.removeShopManagerPermission(sessionID, assigningOwnerID, demotedManagerID, shopID, permissions);
+    removePermissions(sessionID: string, demotedManagerID: string, shopID: number, permissions: Permissions): Promise<Result<void>> {
+        let result: Result<void> = this.systemController.removeShopManagerPermission(sessionID, demotedManagerID, shopID, permissions);
         return new Promise<Result<void>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     //Shop Owner - Use-Case 11
-    requestShopPersonnelInfo(sessionID: string, username: string, shopID: number): Promise<Result<void | SimpleMember[]>> {
-        let result: Result<void | SimpleMember[]> = this.systemController.getPersonnelInfo(sessionID, username, shopID);
+    requestShopPersonnelInfo(sessionID: string, shopID: number): Promise<Result<void | SimpleMember[]>> {
+        let result: Result<void | SimpleMember[]> = this.systemController.getPersonnelInfo(sessionID, shopID);
         return new Promise<Result<void | SimpleMember[]>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
         });
