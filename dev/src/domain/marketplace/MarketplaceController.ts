@@ -33,32 +33,40 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     private shops: Map<number, Shop>;
     private shopCounter: number;
     private products: Map<number, Product>
-    subscriber: IMessageListener<ShopStatusChangedMessage> | null;
+    subscribers: IMessageListener<ShopStatusChangedMessage>[];
 
     constructor(){
         this.shops= new Map<number,Shop>();
         this.shopCounter= 0;
         this.products= new Map<number, Product>();
-        this.subscriber= null;
+        this.subscribers= [];
     }
 
     accept(v: IMessageListener<ShopStatusChangedMessage>, msg: ShopStatusChangedMessage) {
         v.visitShopStatusChangedEvent(msg);
     }
 
-    notify(message: ShopStatusChangedMessage) {
-        if(this.subscriber !== null)
-            this.accept(this.subscriber, message);
-        else
-            throw new Error("No one to get the message");
+    notifySubscribers(message: ShopStatusChangedMessage) {
+        for(let sub of this.subscribers) {
+            this.accept(sub, message);
+        }
     }
 
     subscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
-        this.subscriber = sub;
+        if(!this.subscribers.includes(sub)){
+           this.subscribers.push(sub)
+           logger.debug(`subscriber ${sub.constructor.name} sunsctibe to ${this.constructor.name}`)
+        }
+        logger.warn(`subscriber ${sub.constructor.name} already subscribed to ${this.constructor.name}`)
     }
 
-    unsub(sub: IMessageListener<ShopStatusChangedMessage>) {
-        this.subscriber = null;
+    unsubscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
+        if(this.subscribers.includes(sub)){
+            const inx = this.subscribers.findIndex((o) => o === sub)
+            this.subscribers.splice(inx, inx+1)
+            logger.debug(`subscriber ${sub.constructor.name} unsubscribed to ${this.constructor.name}`)
+        }
+        logger.warn(`subscriber ${sub.constructor.name} already subscribed to ${this.constructor.name}`)
     }
 
     
@@ -74,7 +82,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         let toClose= this.shops.get(shopId);
         if(toClose){
             toClose.status= ShopStatus.close;
-            this.notify(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
+            this.notifySubscribers(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
             logger.info(`The ${toClose.name} was closed in the market.`);
             return new Result(true, undefined);
         }
@@ -86,7 +94,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         let toReopen= this.shops.get(shopId);
         if(toReopen){
             toReopen.status= ShopStatus.open;
-            this.notify(new ShopStatusChangedMessage(true, toReopen.shopOwners, toReopen.name));
+            this.notifySubscribers(new ShopStatusChangedMessage(true, toReopen.shopOwners, toReopen.name));
             logger.info(`The ${toReopen.name} was reopend in the market.`);
             return new Result(true, undefined);
         }

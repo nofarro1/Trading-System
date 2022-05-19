@@ -1,4 +1,4 @@
-import {MessageBox, NewMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
+import {MessageBox, IIncomingMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
 import {Message} from "../../../src/domain/notifications/Message";
 import {Member} from "../../../src/domain/user/Member";
 import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
@@ -103,9 +103,9 @@ describe('messageBox - test', function () {
 
     test("subscribe to mailbox and notify", () => {
         const onEvent = jest.fn();
-        let sub: NewMessageSubscriber = {
+        let sub: IIncomingMessageSubscriber = {
             onNewMessages:onEvent
-        } as NewMessageSubscriber;
+        } as IIncomingMessageSubscriber;
 
         mb1.subscribe(sub);
         expect(mb1.subs).toContain(sub);
@@ -117,9 +117,9 @@ describe('messageBox - test', function () {
 
     test("no sub unsub", () => {
         const onEvent = jest.fn();
-        let sub: NewMessageSubscriber = {
+        let sub: IIncomingMessageSubscriber = {
             onNewMessages:onEvent
-        } as NewMessageSubscriber;
+        } as IIncomingMessageSubscriber;
         mb1.subscribe(sub);
         mb1.unsubscribe(sub);
         expect(mb1.subs).toHaveLength(0);

@@ -2,10 +2,10 @@ import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message"
 
 
 export interface IMessagePublisher<T extends Message> {
-    subscriber: IMessageListener<T> | null
+    subscribers: IMessageListener<T>[]
     subscribe(sub:IMessageListener<T>): void
-    unsub(sub:IMessageListener<T>): void
-    notify(message: T): void
+    unsubscribe(sub:IMessageListener<T>): void
+    notifySubscribers(message: T): void
     accept(v: IMessageListener<T>, msg: T): void
 }
 

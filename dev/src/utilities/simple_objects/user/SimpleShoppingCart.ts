@@ -1,19 +1,19 @@
-import {UserID} from "../../Utils";
+import {string} from "../../Utils";
 import {SimpleProduct} from "../marketplace/SimpleProduct";
 
 
 export class SimpleShoppingCart {
-    private readonly _userId: UserID;
+    private readonly _userId: string;
     private readonly _products: Map<SimpleProduct, number>; //<SimpleProduct, quantity>
     private readonly _totalPrice: number;
 
-    constructor(userId: UserID, products: Map<SimpleProduct, number>, totalPrice: number) {
+    constructor(userId: string, products: Map<SimpleProduct, number>, totalPrice: number) {
         this._userId = userId;
         this._products = products;
         this._totalPrice = totalPrice;
     }
 
-    get userId(): UserID {
+    get userId(): string {
         return this._userId;
     }
 

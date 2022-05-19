@@ -12,7 +12,7 @@ import { ShopOrder } from "./ShopOrder";
 import { logger}  from "../../helpers/logger"
 import { ShoppingCart } from "../marketplace/ShoppingCart";
 import { urlToHttpOptions } from "url";
-import { UserID } from "../../utilities/Utils";
+import { string } from "../../utilities/Utils";
 
 
 export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage> {
@@ -43,10 +43,10 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         logger.info(`[swapPaymentService] Swap payment service`)
     }
 
-    public get subscriber(): IMessageListener<ShopPurchaseMessage> | null {
+    public get subscribers(): IMessageListener<ShopPurchaseMessage> | null {
         return this._subscriber;
     }
-    public set subscriber(value: IMessageListener<ShopPurchaseMessage> | null) {
+    public set subscribers(value: IMessageListener<ShopPurchaseMessage> | null) {
         this._subscriber = value;
     }
     public get paymentService(): PaymentServiceAdaptor {
@@ -68,14 +68,14 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         return this._shopOrders;
     }
     subscribe(sub: IMessageListener<ShopPurchaseMessage>) {
-        this.subscriber = sub;
+        this.subscribers = sub;
     }
-    unsub(sub: IMessageListener<ShopPurchaseMessage>) {
-        this.subscriber = null;
+    unsubscribe(sub: IMessageListener<ShopPurchaseMessage>) {
+        this.subscribers = null;
     }
-    notify(message: ShopPurchaseMessage) {
-        if(this.subscriber !== null)
-            this.accept(this.subscriber, message);
+    notifySubscribers(message: ShopPurchaseMessage) {
+        if(this.subscribers !== null)
+            this.accept(this.subscribers, message);
         else
             throw new Error("No one to get the message");
 
@@ -100,7 +100,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 this.shopOrders.set(bag.shopId, order);
             }
             if (user instanceof Member)
-                this.notify(new ShopPurchaseMessage(shopOrder, new Set<UserID>(), user.username))
+                this.notifySubscribers(new ShopPurchaseMessage(shopOrder, new Set<string>(), user.username))
             // if (user instanceof SimpleGuest)
             //     // TODO: userid in ShopPurchaseMessage string | number
             //     this.notify(new ShopPurchaseMessage(shopOrder, new Set<UserID>(), user.id))
