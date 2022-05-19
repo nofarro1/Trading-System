@@ -65,7 +65,7 @@ export function toSimpleGuest(guest: Guest): SimpleGuest{
     return new SimpleGuest(guest.id);
 }
 
-export function toSimpleMember(member: Member, role: Role): SimpleMember{
+export function toSimpleMember(member: Member): SimpleMember{
     return new SimpleMember(member.username);
 }
 

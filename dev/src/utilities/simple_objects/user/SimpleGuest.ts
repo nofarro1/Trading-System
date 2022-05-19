@@ -1,14 +1,14 @@
 
 
 export class SimpleGuest {
-    private readonly _guestID: number;
+    private readonly _guestID: string;
 
-    constructor(guestID: number) {
+    constructor(guestID: string) {
         this._guestID = guestID;
     }
 
 
-    get guestID(): number {
+    get guestID(): string {
         return this._guestID;
     }
 }
