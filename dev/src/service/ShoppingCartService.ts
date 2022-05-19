@@ -1,8 +1,6 @@
 import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
-import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
-import {ShoppingCart as DomainShoppingCart} from "../domain/marketplace/ShoppingCart";
 
 
 export class ShoppingCartService {
