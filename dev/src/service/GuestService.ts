@@ -12,20 +12,29 @@ export class GuestService {
 
     //General Guest - Use-Case 3
     register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string,
-             email?: string, country?: string): Result<void> {
-        return this.systemController.registerMember(sessionID, {username: username, password: password,
+             email?: string, country?: string): Promise<Result<void>> {
+        let result = this.systemController.registerMember(sessionID, {username: username, password: password,
             firstName: firstName, lastName: lastName, email: email, country: country});
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
     //General Admin - Use-Case 0
     registerAdmin(username: string, password: string, firstName?: string, lastName?: string,
-                  email?: string, country?: string): Result<void> {
-        return this.systemController.registerAsAdmin({username: username, password: password,
-            firstName: firstName, lastName: lastName, email: email, country: country});
+                  email?: string, country?: string): Promise<Result<void>> {
+        let result = this.systemController.registerAsAdmin({
+            username: username, password: password, firstName: firstName, lastName: lastName, email: email, country: country});
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
     //General Guest - Use-Case 4
-    login(sessionID: string, username: string, password: string): Result<void | SimpleMember> {
-        return this.systemController.login(sessionID, { username: username, password: password });
+    login(sessionID: string, username: string, password: string): Promise<Result<void | SimpleMember>> {
+        let result = this.systemController.login(sessionID, { username: username, password: password });
+        return new Promise<Result<void>>((resolve, reject) => {
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 }
