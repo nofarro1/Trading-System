@@ -48,17 +48,17 @@ export class MarketplaceService {
     }
 
     //Member Payment - Use-Case 2
-    setUpShop(sessionID: string, username: string, shopName: string): Promise<Result<void | SimpleShop>> {
-        let result: Result<void | SimpleShop> = this.systemController.setUpShop(sessionID, username, shopName);
+    setUpShop(sessionID: string, shopName: string): Promise<Result<void | SimpleShop>> {
+        let result: Result<void | SimpleShop> = this.systemController.setUpShop(sessionID, shopName);
         return new Promise<Result<void | SimpleShop>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     //Shop Owner - Use-Case 1.1
-    addProductToShop(sessionID: string, username: string, shopID: number, category: ProductCategory, name: string, price: number,
+    addProductToShop(sessionID: string, shopID: number, category: ProductCategory, name: string, price: number,
                      quantity: number, description?: string): Promise<Result<void>> {
-        let result: Result<void> = this.systemController.addProduct(sessionID, username, {shopId: shopID, productCategory: category, productName: name, fullPrice: price,
+        let result: Result<void> = this.systemController.addProduct(sessionID, {shopId: shopID, productCategory: category, productName: name, fullPrice: price,
             quantity: quantity, productDesc: description});
         return new Promise<Result<void>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
@@ -66,24 +66,24 @@ export class MarketplaceService {
     }
 
     //Shop Owner - Use-Case 1.2
-    removeProductFromShop(sessionID: string, username: string, shopID: number, productID: number): Promise<Result<void>> {
-        let result: Result<void> = this.systemController.deleteProduct(sessionID, username, shopID, productID);
+    removeProductFromShop(sessionID: string, shopID: number, productID: number): Promise<Result<void>> {
+        let result: Result<void> = this.systemController.deleteProduct(sessionID, shopID, productID);
         return new Promise<Result<void>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     //Shop Owner - Use-Case 1.3
-    modifyProductQuantityInShop(sessionID: string, username: string, shopID: number, productID: number, productQuantity: number): Promise<Result<void>> {
-        let result: Result<void> = this.systemController.updateProduct(sessionID, username, shopID, productID, productQuantity);
+    modifyProductQuantityInShop(sessionID: string, shopID: number, productID: number, productQuantity: number): Promise<Result<void>> {
+        let result: Result<void> = this.systemController.updateProduct(sessionID, shopID, productID, productQuantity);
         return new Promise<Result<void>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     //Shop Owner - Use-Case 9
-    closeShop(sessionID: string, founderID: string, shopID: number): Promise<Result<void>> {
-        let result: Result<void> = this.systemController.deactivateShop(sessionID, founderID, shopID);
+    closeShop(sessionID: string, shopID: number): Promise<Result<void>> {
+        let result: Result<void> = this.systemController.deactivateShop(sessionID, shopID);
         return new Promise<Result<void>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
         });
@@ -91,8 +91,8 @@ export class MarketplaceService {
 
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
-    getShopPurchaseHistory(sessionID: string, ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | SimpleShopOrder[]>> {
-        let result: Result<void | SimpleShopOrder[]> = this.systemController.getShopPurchases(sessionID, ownerID, shopID, startDate, endDate, filters);
+    getShopPurchaseHistory(sessionID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | SimpleShopOrder[]>> {
+        let result: Result<void | SimpleShopOrder[]> = this.systemController.getShopPurchases(sessionID, shopID, startDate, endDate, filters);
         return new Promise<Result<void | SimpleShopOrder[]>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);
         });
