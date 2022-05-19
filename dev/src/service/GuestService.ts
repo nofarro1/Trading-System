@@ -21,9 +21,9 @@ export class GuestService {
     }
 
     //General Admin - Use-Case 0
-    registerAdmin(username: string, password: string, firstName?: string, lastName?: string,
+    registerAdmin(sessionID: string, username: string, password: string, firstName?: string, lastName?: string,
                   email?: string, country?: string): Promise<Result<void>> {
-        let result: Result<void> = this.systemController.registerAsAdmin({
+        let result: Result<void> = this.systemController.registerAsAdmin(sessionID, {
             username: username, password: password, firstName: firstName, lastName: lastName, email: email, country: country});
         return new Promise<Result<void>>((resolve, reject) => {
             result.ok ? resolve(result) : reject(result.message);

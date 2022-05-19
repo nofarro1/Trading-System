@@ -46,10 +46,10 @@ export class Service {
     }
 
     //General Admin - Use-Case 0
-    registerAdmin(username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void>> {
+    registerAdmin(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void>> {
         logger.info(`An admin registration is being performed for username ${username}`);
         logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
-        return this.guestService.registerAdmin(username, password, firstName, lastName, email, country);
+        return this.guestService.registerAdmin(sessionID, username, password, firstName, lastName, email, country);
     }
 
     //General Guest - Use-Case 4
