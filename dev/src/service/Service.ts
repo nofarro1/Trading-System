@@ -105,7 +105,7 @@ export class Service {
     //----------------------Marketplace Service methods-------------------------------
 
     //General Guest - Use-Case 1
-    accessMarketplace(sessionID: string): Promise<Result<void>> {
+    accessMarketplace(sessionID: string): Promise<Result<void | SimpleGuest>> {
         logger.info(`A new guest is accessing the marketplace`);
         return this.marketplaceService.accessMarketplace(sessionID);
     }
