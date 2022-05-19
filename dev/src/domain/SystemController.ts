@@ -115,7 +115,7 @@ export class SystemController {
     }
 
     private authenticateMarketVisitor<T>(sessionId: string, callback: (id: string) => Result<T>) {
-        const userId: string = this.securityController.isActiveSession(sessionId);
+        const userId: string = this.securityController.hasActiveSession(sessionId);
         if (userId.length === 0) {
             return new Result(false, undefined, "this is not one of our visitors!");
         }
@@ -124,7 +124,7 @@ export class SystemController {
 
     //SimpleGuest actions
 
-    accessMarketplace(session: string): Result<Guest> {
+    accessMarketplace(session: string): Result<void | Guest> {
         let newGuest: Result<Guest> = this.uController.createGuest(session);
         if (!newGuest.ok) {
             return newGuest;
