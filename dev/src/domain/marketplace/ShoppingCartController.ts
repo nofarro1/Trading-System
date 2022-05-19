@@ -3,11 +3,11 @@ import { Result } from "../../utilities/Result";
 import { Product } from "./Product";
 import { ShoppingCart } from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
-import {UserID} from "../../utilities/Utils";
+import {string} from "../../utilities/Utils";
 
 
 export class ShoppingCartController {
-    private carts: Map<UserID, ShoppingCart>;
+    private carts: Map<string, ShoppingCart>;
 
     constructor(){
         this.carts= new Map<number, ShoppingCart>();
@@ -16,7 +16,7 @@ export class ShoppingCartController {
 
 
     //remove cart missing
-    addProduct(cartId: UserID, toAdd: Product, quantity: number): Result<void>{
+    addProduct(cartId: string, toAdd: Product, quantity: number): Result<void>{
         //TODO - Ensure that quantity does not exceed product quantity in shop
         let cart = this.carts.get(cartId);
         if(cart){
@@ -35,7 +35,7 @@ export class ShoppingCartController {
         return new Result(false, undefined, "Failed to addProduct to cart because the needed cart wasn't found")
     }
 
-    removeProduct(cartId: UserID, toRemove: Product): Result<void>{
+    removeProduct(cartId: string, toRemove: Product): Result<void>{
         let cart= this.carts.get(cartId);
         if(cart){
             try {
@@ -54,7 +54,7 @@ export class ShoppingCartController {
         }
     }
 
-    updateProductQuantity(cartId: UserID, toUpdate: Product, quantity: number): Result<void>{
+    updateProductQuantity(cartId: string, toUpdate: Product, quantity: number): Result<void>{
         let cart= this.carts.get(cartId);
         if(cart){
             try{
@@ -79,7 +79,7 @@ export class ShoppingCartController {
         return new Result(true, undefined);
     }
 
-    removeCart(userName: UserID): Result <void>{
+    removeCart(userName: string): Result <void>{
         if(this.carts.delete(userName)){
             logger.info(`${userName}'s cart was deleted.`)
             return new Result(true, undefined);
@@ -88,7 +88,7 @@ export class ShoppingCartController {
         return new Result(false, undefined, `Failed to delete ${userName}'s cart, because the cart was not found.`);
     }
 
-    getCart(userName: UserID): Result<ShoppingCart | void>{
+    getCart(userName: string): Result<ShoppingCart | void>{
         let toReturn= this.carts.get(userName);
         if(toReturn){
             logger.info(`${userName}'s cart was returned successfully.`)

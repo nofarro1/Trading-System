@@ -4,7 +4,6 @@ import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {Shop as DomainShop} from "../domain/marketplace/Shop"
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
 import {Product as DomainProduct} from "../domain/marketplace/Product";
-import {UserID} from "../utilities/Utils";
 import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {ShopOrder as DomainShopOrder} from "../domain/purchase/ShopOrder";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
@@ -32,12 +31,12 @@ export class MarketplaceService {
 
     //General SimpleGuest - Use-Case 2
     //General SimpleMember - Use-Case 1
-    exitMarketplace(userID: UserID): Result<void> {
+    exitMarketplace(userID: string): Result<void> {
         return this.systemController.exitMarketplace(userID);
     }
 
     //SimpleGuest Payment - Use-Case 1
-    getShopInfo(userID: UserID, shopID: number): Result<void | SimpleShop> {
+    getShopInfo(userID: string, shopID: number): Result<void | SimpleShop> {
         const domainResult: Result<void | DomainShop> = this.systemController.getShop(userID, shopID);
         let result: Result<void | SimpleShop> = new Result <void | SimpleShop>(domainResult.ok, undefined, domainResult.message);
         if(domainResult.ok) {
@@ -57,7 +56,7 @@ export class MarketplaceService {
     }
 
     //SimpleGuest Payment - Use-Case 2
-    searchProducts(userID: UserID, searchType: SearchType, searchTerm: string | ProductCategory, filters?: any): Result<void | SimpleProduct[]> {
+    searchProducts(userID: string, searchType: SearchType, searchTerm: string | ProductCategory, filters?: any): Result<void | SimpleProduct[]> {
         const domainResult: Result<void | DomainProduct[]> = this.systemController.searchProducts(userID, searchType, searchTerm, filters);
         const products: SimpleProduct[] = new Array<SimpleProduct>();
         const result: Result<void | SimpleProduct[]> = new Result <void | SimpleProduct[]>(domainResult.ok, undefined, domainResult.message);

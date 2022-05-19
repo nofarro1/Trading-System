@@ -8,7 +8,7 @@ import {Result} from "../utilities/Result";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 import {Permissions} from "../utilities/Permissions";
-import {ExternalServiceType, UserID} from "../utilities/Utils";
+import {ExternalServiceType, string} from "../utilities/Utils";
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
 import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
@@ -112,19 +112,19 @@ export class Service {
 
     //General SimpleGuest - Use-Case 2
     //General SimpleMember - Use-Case 1
-    exitMarketplace(userID: UserID): Result<void> {
+    exitMarketplace(userID: string): Result<void> {
         logger.info(`${userID} is attempting to exit the marketplace`);
         return this.marketplaceService.exitMarketplace(userID);
     }
 
     //SimpleGuest Payment - Use-Case 1
-    getShopInfo(userID: UserID, shopID: number): Result<void | SimpleShop> {
+    getShopInfo(userID: string, shopID: number): Result<void | SimpleShop> {
         logger.info(`${userID} is requesting info regarding shop ${shopID}`);
         return this.marketplaceService.getShopInfo(userID, shopID);
     }
 
     //SimpleGuest Payment - Use-Case 2
-    searchProducts(userID: UserID, searchBy: SearchType, searchTerm: string, filters?: any): Result<void | SimpleProduct[]> {
+    searchProducts(userID: string, searchBy: SearchType, searchTerm: string, filters?: any): Result<void | SimpleProduct[]> {
         logger.info(`${userID} has initiated a product search operation using the search term ${searchTerm}`);
         if(filters)
             logger.info(`The search is initiated using the following filter details ${filters}`);
@@ -177,25 +177,25 @@ export class Service {
     //----------------------Shopping Cart Service methods-------------------------------
 
     //SimpleGuest Payment - Use-Case 4.1
-    addToCart(userID: UserID, productID: number, productQuantity: number): Result<void> {
+    addToCart(userID: string, productID: number, productQuantity: number): Result<void> {
         logger.info(`${userID} wants to add the product ${productID} x${productQuantity} to his shopping cart`);
         return this.shoppingCartService.addToCart(userID, productID, productQuantity);
     }
 
     //SimpleGuest Payment - Use-Case 4.2
-    checkShoppingCart(userID: UserID): Result<void | SimpleShoppingCart> {
+    checkShoppingCart(userID: string): Result<void | SimpleShoppingCart> {
         logger.info(`${userID} would like to review the contents of his shopping cart`);
         return this.shoppingCartService.checkShoppingCart(userID);
     }
 
     //SimpleGuest Payment - Use-Case 4.3
-    removeFromCart(userID: UserID, productID: number): Result<void> {
+    removeFromCart(userID: string, productID: number): Result<void> {
         logger.info(`${userID} would like to remove the product ${productID} from his shopping cart`);
         return this.shoppingCartService.removeFromCart(userID, productID);
     }
 
     //SimpleGuest Payment - Use-Case 4.4
-    editProductInCart(userID: UserID, productID: number, productQuantity: number, additionalDetails?: any): Result<void> {
+    editProductInCart(userID: string, productID: number, productQuantity: number, additionalDetails?: any): Result<void> {
         logger.info(`${userID} would like to modify product ${productID} with a quantity of ${productQuantity}`);
         if(additionalDetails)
             logger.info(`The modification is requested using the following additional details ${additionalDetails}`);
@@ -203,7 +203,7 @@ export class Service {
     }
 
     //SimpleGuest Payment - Use-Case 5
-    checkout(userID: UserID, paymentDetails: any, deliveryDetails: any): Result<void> {
+    checkout(userID: string, paymentDetails: any, deliveryDetails: any): Result<void> {
         logger.info(`${userID} would like to perform a checkout operation using the following payment details: ${paymentDetails} and delivery details: ${deliveryDetails}`);
         return this.shoppingCartService.checkout(userID, paymentDetails, deliveryDetails);
     }

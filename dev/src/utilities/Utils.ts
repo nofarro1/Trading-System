@@ -1,9 +1,9 @@
 import {Result} from "./Result";
 
 
-export type UserID = string | number
+export type string = string | number
 
-export const UUIDGenerator = (): UserID => {
+export const UUIDGenerator = (): string => {
     const head:string = Date.now().toString();
     const tail:string = Math.random().toString().substring(2);
 

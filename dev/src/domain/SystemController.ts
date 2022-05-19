@@ -3,7 +3,7 @@ import {SecurityController} from "./SecurityController";
 
 import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
 import {Member} from "./user/Member";
-import {ExternalServiceType, UserID} from "../utilities/Utils";
+import {ExternalServiceType, string} from "../utilities/Utils";
 import {MarketplaceController} from "./marketplace/MarketplaceController";
 import {ShoppingCartController} from "./marketplace/ShoppingCartController";
 import {PurchaseController} from "./purchase/PurchaseController";

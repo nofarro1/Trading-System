@@ -1,4 +1,4 @@
-import {UserID} from "../utilities/Utils";
+import {string} from "../utilities/Utils";
 import {logger} from "../helpers/logger";
 
 export class SecurityController {
@@ -7,7 +7,7 @@ export class SecurityController {
 
     private readonly _users: Map<string, string>;
     private readonly _activeGuests: Set<string>;
-    private readonly _loggedInMembers: Map<string,string>;
+    private readonly _loggedInMembers: Map<string, string>;
 
     constructor() {
         this._users = new Map<string, string>();
@@ -36,7 +36,7 @@ export class SecurityController {
     }
 
     accessMarketplace(sessionId: string): void {
-        if(this._activeGuests.has(sessionId)) {
+        if (this._activeGuests.has(sessionId)) {
             logger.error(`There already exists a guest with ${sessionId} in the marketplace`);
             throw new Error(`There already exists a guest with ${sessionId} in the marketplace`);
         }
@@ -45,7 +45,7 @@ export class SecurityController {
     }
 
     exitMarketplace(sessionID: string): void {
-        if(typeof sessionID === "string")
+        if (typeof sessionID === "string")
             this.logout(sessionID);
         else {
             if (!this._activeGuests.has(sessionID)) {
@@ -58,16 +58,16 @@ export class SecurityController {
         }
     }
 
-    register(sessionId:string,username: string, password: string): void {
-        if(username.length > 31 || username.length === 0) {
+    register(sessionId: string, username: string, password: string): void {
+        if (username.length > 31 || username.length === 0) {
             logger.warn(`Username '${username}' cannot be empty or longer than 31 characters`);
             throw new Error(`Username '${username}' cannot be empty or longer than 31 characters`);
         }
-        if(this._users.has(username)) {
+        if (this._users.has(username)) {
             logger.warn(`A member with the username ${username} already exists`);
             throw new Error(`A member with the username ${username} already exists`);
         }
-        if(password.length < this._MINIMUM_PASSWORD_LENGTH) {
+        if (password.length < this._MINIMUM_PASSWORD_LENGTH) {
             logger.warn(`Password is too short and must contain at least ${this._MINIMUM_PASSWORD_LENGTH} characters`);
             throw new RangeError(`Password is too short and must contain at least ${this._MINIMUM_PASSWORD_LENGTH} characters`);
         }
@@ -76,30 +76,30 @@ export class SecurityController {
         this._users.set(username, password);
     }
 
-    login(sessionId:string ,username: string, password: string): void {
-        if(!this._users.has(username)) {
+    login(sessionId: string, username: string, password: string): void {
+        if (!this._users.has(username)) {
             logger.warn(`A member with the username '${username}' does not exist`);
             throw new Error(`A member with the username '${username}' does not exist`);
         }
-        if(this._loggedInMembers.has(username)) {
+        if (this._loggedInMembers.has(username)) {
             logger.error(`The member ${username} is already logged into the system`);
             throw new Error(`The member ${username} is already logged into the system`)
         }
-        if(this._users.get(username) != password) {
+        if (this._users.get(username) != password) {
             logger.warn(`The password is invalid, please try again`);
             throw new Error(`The password is invalid, please try again`);
         }
 
         logger.info(`${username} has logged in successfully to the system`);
-        this._loggedInMembers.set(sessionId,username);
+        this._loggedInMembers.set(sessionId, username);
     }
 
     logout(username: string): void {
-        if(!this._users.has(username)) {
+        if (!this._users.has(username)) {
             logger.error(`A member with the username '${username}' does not exist`);
             throw new Error(`A member with the username '${username}' does not exist`);
         }
-        if(!this._loggedInMembers.has(username)) {
+        if (!this._loggedInMembers.has(username)) {
             logger.error(`The member ${username} is not currently logged in`);
             throw new Error(`The member ${username} is not currently logged in`);
         }
@@ -108,11 +108,11 @@ export class SecurityController {
         this._loggedInMembers.delete(username);
     }
 
-    isLoggedIn(userID: string): boolean {
+    isActiveSession(userID: string): string {
         logger.info(`Checking whether ${userID} is a logged in member or active guest`);
-        if(typeof userID === "string")
-            return this._loggedInMembers.has(userID);
-        else
-            return this._activeGuests.has(userID);
+        return ""
+        //if(typeof userID === "string")
+        //return this._loggedInMembers.has(userID);
+        //    return this._activeGuests.has(userID);
     }
 }

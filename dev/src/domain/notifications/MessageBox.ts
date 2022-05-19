@@ -1,31 +1,31 @@
 import {Message} from "./Message";
-import {UserID} from "../../utilities/Utils";
+import {string} from "../../utilities/Utils";
 
 
-export interface NewMessageSubscriber {
+export interface IIncomingMessageSubscriber {
     onNewMessages(msgs: Message[]):void
 
 }
 
-export interface NewMessagePublisher {
-    subs:NewMessageSubscriber[]
-    subscribe(l:NewMessageSubscriber):void
-    unsubscribe(l:NewMessageSubscriber):void
+export interface IIncomingMessagePublisher {
+    subs:IIncomingMessageSubscriber[]
+    subscribe(l:IIncomingMessageSubscriber):void
+    unsubscribe(l:IIncomingMessageSubscriber):void
     notifySubscribers(messages: Message[]):void
 }
 
 
 
 
-export class MessageBox implements NewMessagePublisher{
+export class MessageBox implements IIncomingMessagePublisher{
 
-    private memberId: UserID
+    private memberId: string
     messages: Message[]
     unReadMessages: Message[]
-    subs: NewMessageSubscriber[]
+    subs: IIncomingMessageSubscriber[]
 
 
-    constructor(member:UserID) {
+    constructor(member:string) {
         this.messages = [];
         this.unReadMessages = []
         this.subs = []
@@ -37,7 +37,7 @@ export class MessageBox implements NewMessagePublisher{
         this.notifySubscribers(this.unReadMessages);
     }
 
-    removeMessage(messageId:UserID): void {
+    removeMessage(messageId:string): void {
         let index = this.messages.findIndex(m=> m.id === messageId);
         let indexUnread = this.unReadMessages.findIndex(m=> m.id === messageId);
         index !== -1 ? this.messages.splice(index, 1) : this.messages;
@@ -49,7 +49,7 @@ export class MessageBox implements NewMessagePublisher{
         return this.messages
     }
 
-    getMessage(message:UserID): Message {
+    getMessage(message:string): Message {
         let from_messages = this.messages.find(m => m.id === message);
         if (from_messages !== undefined) {
             return from_messages
@@ -79,13 +79,13 @@ export class MessageBox implements NewMessagePublisher{
         }
     }
 
-    subscribe(l: NewMessageSubscriber): void {
+    subscribe(l: IIncomingMessageSubscriber): void {
         if(!this.subs.includes(l)){
             this.subs.push(l);
         }
     }
 
-    unsubscribe(sub: NewMessageSubscriber): void {
+    unsubscribe(sub: IIncomingMessageSubscriber): void {
         let index = this.subs.findIndex((l) => sub === l);
         index !== -1 ? this.subs.splice(index, 1) : this.subs;
 
