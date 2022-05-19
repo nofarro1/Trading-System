@@ -4,7 +4,6 @@ import { Product } from "./Product"
 //import Comparator from "ts-priority-queue/src/PriorityQueue"
 //import { Result } from "../../utilities/Result";
 import { ShoppingBag } from "./ShoppingBag";
-import {string} from "../../utilities/Utils";
 //import { exceptions } from "winston";
 
 
