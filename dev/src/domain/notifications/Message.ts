@@ -1,4 +1,4 @@
-import {string, UUIDGenerator} from "../../utilities/Utils";
+import {UUIDGenerator} from "../../utilities/Utils";
 import {ShopOrder} from "../purchase/ShopOrder";
 import {logger} from "../../helpers/logger"
 

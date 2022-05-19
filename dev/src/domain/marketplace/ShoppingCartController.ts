@@ -10,7 +10,7 @@ export class ShoppingCartController {
     private carts: Map<string, ShoppingCart>;
 
     constructor(){
-        this.carts= new Map<number, ShoppingCart>();
+        this.carts= new Map<string, ShoppingCart>();
     }
 
 

@@ -23,6 +23,7 @@ import {PaymentServiceAdaptor} from "./external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "./external_services/DeliveryServiceAdaptor";
 import {MessageBox} from "./notifications/MessageBox";
 import {
+    toSimpleGuest,
     toSimpleMember,
     toSimpleProduct,
     toSimpleProducts,
@@ -33,6 +34,7 @@ import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProdu
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
+import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 
 
 export class SystemController {
@@ -124,14 +126,14 @@ export class SystemController {
 
     //SimpleGuest actions
 
-    accessMarketplace(session: string): Result<void | Guest> {
+    accessMarketplace(session: string): Result<void | SimpleGuest> {
         let newGuest: Result<Guest> = this.uController.createGuest(session);
         if (!newGuest.ok) {
-            return newGuest;
+            return new Result(false,undefined);
         }
         const guest = newGuest.data
         this.securityController.accessMarketplace(guest.id);
-        return new Result(true, guest);
+        return new Result(true, toSimpleGuest(guest));
     }
 
     //fix according to security controller
@@ -141,7 +143,7 @@ export class SystemController {
             let toLogout = id
             let res = this.logout(id) // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
             if (checkRes(res)) {
-                toLogout = res.data.id;
+                toLogout = res.data.guestID;
             }
             try {
                 this.securityController.exitMarketplace(toLogout);
@@ -199,13 +201,11 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, secCallback);
     }
 
-    logout(sessionID: string): Result<Guest | void> {
+    logout(sessionID: string): Result<SimpleGuest | void> {
         const secCallback = (id: string) => {
-            // get conformation of log out
-            logger.info(`member ${sessionID} logged out`);
             // remove member and live notification
             try {
-                this.securityController.logout(id)
+                this.securityController.logout(sessionID,id);
                 this.notifyController.removeActiveUser(sessionID);
                 return this.accessMarketplace(sessionID);
             } catch (e: any) {

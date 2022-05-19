@@ -3,20 +3,19 @@ import { DeliveryServiceAdaptor } from "../external_services/DeliveryServiceAdap
 import { PaymentServiceAdaptor } from "../external_services/PaymentServiceAdaptor";
 import { ShoppingBag } from "../marketplace/ShoppingBag";
 import {IMessagePublisher, IMessageListener} from "../notifications/IEventPublishers";
-import { ShopPurchaseMessage } from "../notifications/Message";
+import {ShopPurchaseMessage, ShopStatusChangedMessage} from "../notifications/Message";
 import { Guest } from "../user/Guest";
 import { Member } from "../user/Member";
 import { User } from "../user/User";
 import { BuyerOrder } from "./BuyerOrder";
 import { ShopOrder } from "./ShopOrder";
 import { logger}  from "../../helpers/logger"
-import { ShoppingCart } from "../marketplace/ShoppingCart";
-import { urlToHttpOptions } from "url";
-import { string } from "../../utilities/Utils";
+;
+
 
 
 export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage> {
-    private _subscriber: IMessageListener<ShopPurchaseMessage> | null;
+    protected subscribers: IMessageListener<ShopPurchaseMessage>[];
     private _paymentService: PaymentServiceAdaptor;
     private _deliveryService: DeliveryServiceAdaptor;
     private buyerOrderCounter: number = 0;
@@ -26,7 +25,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     
     
     constructor(paymentService: PaymentServiceAdaptor, deliveryService: DeliveryServiceAdaptor) {
-        this._subscriber = null;
+        this.subscribers = [];
         this._buyerOrders = new Map<string | number, Set<BuyerOrder>>();
         this._shopOrders = new Map<number, Set<ShopOrder>>();
         this._paymentService = paymentService;
@@ -43,12 +42,6 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         logger.info(`[swapPaymentService] Swap payment service`)
     }
 
-    public get subscribers(): IMessageListener<ShopPurchaseMessage> | null {
-        return this._subscriber;
-    }
-    public set subscribers(value: IMessageListener<ShopPurchaseMessage> | null) {
-        this._subscriber = value;
-    }
     public get paymentService(): PaymentServiceAdaptor {
         return this._paymentService;
     }
@@ -68,16 +61,26 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         return this._shopOrders;
     }
     subscribe(sub: IMessageListener<ShopPurchaseMessage>) {
-        this.subscribers = sub;
+        if(!this.subscribers.includes(sub)){
+            this.subscribers.push(sub)
+            logger.debug(`subscriber ${sub.constructor.name} sunsctibe to ${this.constructor.name}`)
+        }
+        logger.warn(`subscriber ${sub.constructor.name} already subscribed to ${this.constructor.name}`)
     }
-    unsubscribe(sub: IMessageListener<ShopPurchaseMessage>) {
-        this.subscribers = null;
+    unsubscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
+        if(this.subscribers.includes(sub)){
+            const inx = this.subscribers.findIndex((o) => o === sub)
+            this.subscribers.splice(inx, inx+1)
+            logger.debug(`subscriber ${sub.constructor.name} unsubscribed to ${this.constructor.name}`)
+        }
+        logger.warn(`subscriber ${sub.constructor.name} already subscribed to ${this.constructor.name}`)
     }
     notifySubscribers(message: ShopPurchaseMessage) {
         if(this.subscribers !== null)
-            this.accept(this.subscribers, message);
-        else
-            throw new Error("No one to get the message");
+            for(let sub of this.subscribers){
+                this.accept(sub, message);
+            } else
+        throw new Error("No one to get the message");
 
     }
     accept(v: IMessageListener<ShopPurchaseMessage>, msg:ShopPurchaseMessage) {
