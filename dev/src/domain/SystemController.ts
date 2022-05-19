@@ -392,21 +392,23 @@ export class SystemController {
     //     return new Result(false, undefined, "no implementation");
     // }
 
+    //shop management and ownership
+    //need to check if the tobe owner is not already a owner or manager od the shop
     appointShopOwner(sessionID: string, r: NewRoleData): Result<void> {
         const authCallback = () => {
             if (this.uController.checkPermission(r.assigner, r.shopId, Permissions.AddShopOwner).data) {
                 const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions))
-                if (result.ok) {
-                    this.mpController.appointShopOwner(r.member, r.shopId)
+                if (checkRes(result)) {
+                    return this.mpController.appointShopOwner(r.member, r.shopId)
                 }
-                return new Result(true, undefined, "shop manager appointed");
+                return new Result(false,undefined,"failed to add the role to the user")
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
         return this.authenticateMarketVisitor(r.assigner, authCallback)
     }
 
-    //shop management and ownership
+
 
     appointShopManager(sessionID: string, r: NewRoleData): Result<void> {
         const authCallback = () => {
@@ -479,12 +481,12 @@ export class SystemController {
                 return new Result(false, undefined, "no permission");
             }
             let shopRes = this.mpController.getShopInfo(shop);
-            if (shopRes.ok) {
-                let data = shopRes.data!!;
+            if (checkRes(shopRes)) {
+                let data = shopRes.data;
                 let collectedMembers: Member[] = [];
                 [...data.shopManagers, ...data.shopOwners].forEach((id) => {
                     let res = this.uController.getMember(id);
-                    if (res.ok && res.data !== undefined) {
+                    if (checkRes(res)) {
                         collectedMembers.push(res.data);
                     }
                 });
@@ -500,7 +502,7 @@ export class SystemController {
 
         const callback = () => {
             //check if can preview History
-            if (!this.uController.checkPermission(member, shop, Permissions.RequestPersonnelInfo).data) {
+            if (!this.uController.checkPermission(member, shop, Permissions.GetPurchaseHistory).data) {
                 return new Result(false, undefined, "no permission");
             }
             let orders: ShopOrder[] = this.pController.shopOrders.has(shop) ?

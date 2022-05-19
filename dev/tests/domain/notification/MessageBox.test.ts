@@ -2,7 +2,7 @@ import {MessageBox, NewMessageSubscriber} from "../../../src/domain/notification
 import {Message} from "../../../src/domain/notifications/Message";
 import {Member} from "../../../src/domain/user/Member";
 import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
-import MessageController from "../../../src/domain/notifications/MessageController";
+import {MessageController} from "../../../src/domain/notifications/MessageController";
 
 class TestMessage extends Message {
 
