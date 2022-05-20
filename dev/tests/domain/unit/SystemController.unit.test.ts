@@ -442,7 +442,7 @@ describe('system controller - unit', () => {
                 clearMocks(...mocks)
             })
 
-            test("register member - failure from User", () => {
+            test("register member - failure from user", () => {
                 //prepare
                 let registerMockMethod = mockMethod(SecurityController.prototype, 'register',
                     (_: any) => {

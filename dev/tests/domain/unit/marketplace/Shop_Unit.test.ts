@@ -1,7 +1,7 @@
-import {Shop} from "../../../src/domain/marketplace/Shop";
-import {Product} from "../../../src/domain/marketplace/Product";
-import {ProductCategory} from "../../../src/utilities/Enums";
-import {MarketplaceController} from "../../../src/domain/marketplace/MarketplaceController";
+import {Shop} from "../../../../src/domain/marketplace/Shop";
+import {Product} from "../../../../src/domain/marketplace/Product";
+import {ProductCategory} from "../../../../src/utilities/Enums";
+import {MarketplaceController} from "../../../../src/domain/marketplace/MarketplaceController";
 
 
 

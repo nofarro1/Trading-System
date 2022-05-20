@@ -1,7 +1,7 @@
 import { JobType } from "../../utilities/Enums";
 import { Permissions } from "../../utilities/Permissions";
-import { Shop } from "../IntegrationTest/marketplace/SimpleShop";
-import { ShoppingCart } from "../IntegrationTest/marketplace/SimpleShoppingCart";
+import { Shop } from "../integration/marketplace/SimpleShop";
+import { ShoppingCart } from "../integration/marketplace/SimpleShoppingCart";
 import { Member } from "./SimpleMember";
 import { Role } from "./Role";
 
