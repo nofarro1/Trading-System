@@ -1,7 +1,7 @@
-import {MessageBox, NewMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
+import {MessageBox, IIncomingMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
 import {GenericMessage, Message} from "../../../src/domain/notifications/Message";
 import {Member} from "../../../src/domain/user/Member";
-import MessageController from "../../../src/domain/notifications/MessageController";
+import {MessageController} from "../../../src/domain/notifications/MessageController";
 import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
 
 
@@ -102,9 +102,9 @@ describe('messageBox - test', function () {
             }
         )
         const onEvent = jest.fn();
-        let sub: NewMessageSubscriber = {
+        let sub: IIncomingMessageSubscriber = {
             onNewMessages:onEvent
-        } as NewMessageSubscriber;
+        } as IIncomingMessageSubscriber;
         controller.addSubscriberToBox(id1,sub);
         expect(subscribeMock).toBeCalledWith(sub);
     })
@@ -118,9 +118,9 @@ describe('messageBox - test', function () {
             }
         )
         const onEvent = jest.fn();
-        let sub: NewMessageSubscriber = {
+        let sub: IIncomingMessageSubscriber = {
             onNewMessages:onEvent
-        } as NewMessageSubscriber;
+        } as IIncomingMessageSubscriber;
         controller.addSubscriberToBox(id1,sub);
         expect(mb1.subs).toContain(sub);
         //act

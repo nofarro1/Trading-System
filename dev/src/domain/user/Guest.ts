@@ -4,14 +4,14 @@ import { User } from "./User";
 
 
 export class Guest implements User{
-    private _id: number;
+    private readonly _id: string;
     _shoppingCart: ShoppingCart;
 
-    constructor(id: number, shoppingCart: ShoppingCart){
+    constructor(id: string, shoppingCart: ShoppingCart){
         this._id = id;
         this._shoppingCart = shoppingCart;
     }
-    public get id(): number {
+    public get id(): string {
             return this._id;
     }
 

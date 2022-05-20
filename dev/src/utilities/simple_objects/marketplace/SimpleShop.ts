@@ -1,14 +1,14 @@
-import { ShopStatus } from "../../../utilities/Enums";
-import {Product} from "./Product";
+import { ShopStatus } from "../../Enums";
+import {SimpleProduct} from "./SimpleProduct";
 
 
-export class Shop {
+export class SimpleShop {
     private readonly _ID: number;
     private readonly _name: string;
     private readonly _status: ShopStatus;
-    private readonly _products: Map<Product, number>; //<Product, quantity>
+    private readonly _products: Map<SimpleProduct, number>; //<SimpleProduct, quantity>
 
-    constructor(ID: number, name: string, status: ShopStatus, products: Map<Product, number>) {
+    constructor(ID: number, name: string, status: ShopStatus, products: Map<SimpleProduct, number>) {
         this._ID = ID;
         this._name = name;
         this._status = status;
@@ -27,7 +27,7 @@ export class Shop {
         return this._status;
     }
 
-    get products(): Map<Product, number> {
+    get products(): Map<SimpleProduct, number> {
         return this._products;
     }
 }

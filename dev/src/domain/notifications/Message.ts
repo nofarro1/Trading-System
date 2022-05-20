@@ -1,16 +1,18 @@
-import {UserID, UUIDGenerator} from "../../utilities/Utils";
+import {UUIDGenerator} from "../../utilities/Utils";
 import {ShopOrder} from "../purchase/ShopOrder";
 import {logger} from "../../helpers/logger"
 
 export abstract class Message {
-    id: UserID
+    id: string
     timestamp: number
     isRead: boolean
+    recipients: Set<string>
 
-    protected constructor() {
+    protected constructor(recpt:Set<string>) {
         this.id = UUIDGenerator();
         this.timestamp = Date.now();
         this.isRead = false;
+        this.recipients = recpt;
     }
 
     setIsRead(state: boolean): void {
@@ -21,35 +23,19 @@ export abstract class Message {
 
 }
 
-export class GenericMessage extends Message {
-    content: any
-
-
-    constructor(content: any) {
-        super();
-        this.content = content;
-    }
-
-    getContent(): string {
-        return "";
-    }
-
-}
-
 
 export class ShopPurchaseMessage extends Message {
 
 
     content: string;
-    shopOwnersIds: Set<UserID>
     purchase: ShopOrder
 
-    constructor(shopOrder: ShopOrder, shopOwners: Set<UserID>, buyer: string) {
-        super()
+    //todo: format content;
+    constructor(shopOrder: ShopOrder, shopOwners: Set<string>, buyer: string) {
+        super(shopOwners)
         this.purchase = shopOrder;
-        this.shopOwnersIds = shopOwners;
-        this.content = `hello Owner, member ${buyer}, has placed and order at your shop ${this.purchase}.\n
-        order details: ${shopOrder}`
+        this.content = `hello Owner, member ${buyer}, has placed an order at your shop ${this.purchase}.\n
+        order details: ...`
     }
 
     getContent(): string {
@@ -61,12 +47,12 @@ export class ShopPurchaseMessage extends Message {
 export class ShopStatusChangedMessage extends Message {
 
     content: string;
-    shopOwnersIds: Set<UserID>
+    recipients: Set<string>
 
 
-    constructor(status: boolean, shopOwners:Set<UserID>, shopName: string) {
-        super()
-        this.shopOwnersIds = shopOwners;
+    constructor(status: boolean, shopOwners:Set<string>, shopName: string) {
+        super(shopOwners)
+        this.recipients = shopOwners;
         this.content = `hello Owner, We would like to notify you that the shop founder of '${shopName} ${status === true ? `opened the shop for business` : `closed the shop temporarily`}`
     }
 
