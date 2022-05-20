@@ -1,6 +1,7 @@
 import {Product} from "./Product";
 import {Sale} from "./Sale";
 import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
+import {ShoppingBag} from "./ShoppingBag";
 
 
 export class Shop {
@@ -11,7 +12,6 @@ export class Shop {
     private _shopOwners: Set<string>;
     private _shopManagers: Set<string>;
     private _products: Map<number, [Product, number]>;
-    private _shopAndDiscountPolicy?: string;
     private _rate: ShopRate;
 
 
@@ -23,7 +23,6 @@ export class Shop {
         this._shopOwners= new Set<string>([shopFounder]);
         this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
-        this._shopAndDiscountPolicy= shopAndDiscountPolicy
         this._rate= ShopRate.NotRated
     }
 
@@ -82,14 +81,6 @@ export class Shop {
 
     set products(value: Map<number, [Product, number]>) {
         this._products = value;
-    }
-
-    get shopAndDiscountPolicy(): string | undefined {
-        return this._shopAndDiscountPolicy;
-    }
-
-    set shopAndDiscountPolicy(value: string | undefined) {
-        this._shopAndDiscountPolicy = value;
     }
 
     get rate(): ShopRate {
@@ -152,5 +143,12 @@ export class Shop {
         this.shopManagers?.add(managerId);
     }
 
+    checkDiscountPolicies (bag: ShoppingBag): boolean{
+        return true;
+    }
+
+    checkPutrchasePolicies (bag: ShoppingBag): boolean {
+        return true;
+    }
 
 }
