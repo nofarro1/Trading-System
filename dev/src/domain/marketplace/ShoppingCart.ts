@@ -10,12 +10,12 @@ import { ShoppingBag } from "./ShoppingBag";
 export class ShoppingCart {
 
     private _bags: Map<number, ShoppingBag>;
-    private _totalPrice: number;
+  //  private _totalPrice: number;
    
 
     constructor(){
         this._bags= new Map<number, ShoppingBag>();
-        this._totalPrice=0;
+     //   this._totalPrice=0;
     }
 
     get bags(): Map<number, ShoppingBag> {
@@ -26,13 +26,13 @@ export class ShoppingCart {
         this._bags = value;
     }
 
-    get totalPrice(): number {
-        return this._totalPrice;
-    }
-
-    set totalPrice(value: number) {
-        this._totalPrice = value;
-    }
+    // get totalPrice(): number {
+    //     return this._totalPrice;
+    // }
+    //
+    // set totalPrice(value: number) {
+    //     this._totalPrice = value;
+    // }
 
 //When adding a product to the shopping cart, 
 //check if there is a discount to be included on the product.
@@ -41,12 +41,12 @@ export class ShoppingCart {
 addProduct(toAdd:Product, quantity: number): void{
     let shopId= toAdd.shopId;
     let bag= this._bags.get(shopId);
-    if(!bag){
-        let bag= this._bags.get(shopId);
-        if (bag){
-            this._totalPrice-= bag.totalPrice;
-            this._totalPrice+= bag.addProduct(toAdd, quantity);
-        }
+    if(bag){
+        bag.addProduct(toAdd, quantity);
+        // if (bag){
+        //     this._totalPrice-= bag.totalPrice;
+        //     this._totalPrice+= bag.addProduct(toAdd, quantity);
+        // }
     }
     let newBag= new ShoppingBag(shopId);
     newBag.addProduct(toAdd, quantity); 
@@ -58,12 +58,19 @@ removeProduct(toRemove: Product): void{
     let bag= this._bags.get(shopId)
     if(!bag)
         throw new Error("Failed to remove product because the needed bag wasn't found");
-    this._totalPrice= this._totalPrice - bag.totalPrice + bag.removeProduct(toRemove);
+   // this._totalPrice= this._totalPrice - bag.totalPrice + bag.removeProduct(toRemove);
 }    
+
+emptyBag(shopId: number){
+  let bag= this._bags.get(shopId);
+  if(bag){
+      bag.emptyBag();
+  }
+}
 
 emptyCart(): void{
     this._bags.clear();
-    this._totalPrice=0;
+  //  this._totalPrice=0;
 }
 
     updateProductQuantity(toUpdate: Product, quantity: number): void {
@@ -71,7 +78,8 @@ emptyCart(): void{
         let bag= this._bags.get(shopId)
         if(!bag)
             throw new Error("Failed to update product's quantity because the needed bag wasn't found");
-        this._totalPrice= this._totalPrice - bag.totalPrice + bag.updateProductQuanity(toUpdate, quantity);
+       // this._totalPrice= this._totalPrice - bag.totalPrice + bag.updateProductQuanity(toUpdate, quantity);
+        bag.updateProductQuanity(toUpdate, quantity);
     }
 }
 

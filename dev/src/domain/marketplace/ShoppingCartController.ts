@@ -3,7 +3,7 @@ import { Result } from "../../utilities/Result";
 import { Product } from "./Product";
 import { ShoppingCart } from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
-import {string} from "../../utilities/Utils";
+
 
 
 export class ShoppingCartController {
@@ -22,7 +22,7 @@ export class ShoppingCartController {
         if(cart){
             try {
                 cart.addProduct(toAdd, quantity);
-                logger.info(`The product: ${toAdd.name} was added to cart with id: ${cartId}`);
+                logger.info(`The product: ${toAdd.name} was added to ${cartId}'s cart.`);
                 return new Result(true, undefined);
             }
 
@@ -40,14 +40,14 @@ export class ShoppingCartController {
         if(cart){
             try {
                 cart.removeProduct(toRemove);
-                logger.info(`The product: ${toRemove.name} was removed from cart with id: ${cartId}`);
+                logger.info(`The product: ${toRemove.name} was removed from ${cartId}'s cart`);
                 return new Result(true, undefined)
-            } 
+            }
             catch (error: any) {
                 logger.error(`In ShoppingCartController-> removeProduct(${cartId}, ${toRemove.name}): ${error.message}.`)
                 return new Result(false, undefined, error.message)
-            } 
-        }     
+            }
+        }
         else {
             logger.error(`Failed removing ${toRemove.name} to cart because the needed cart wasn't found.`)
             return new Result(false, undefined, "Failed to remove product from cart because the needed cart wasn't found");
@@ -91,10 +91,32 @@ export class ShoppingCartController {
     getCart(userName: string): Result<ShoppingCart | void>{
         let toReturn= this.carts.get(userName);
         if(toReturn){
-            logger.info(`${userName}'s cart was returned successfully.`)
+            logger.info(`${userName}'s cart was successfully returned.`)
             return new Result(true, toReturn);
         }
         logger.error(`Failed to returned ${userName}'s cart, because the cart was not found.`);
         return new Result(false, undefined, `Failed to returned ${userName}'s cart, because the cart was not found.`);
+    }
+
+    emptyCart(userName: string): Result<void>{
+        let toEmpty= this.carts.get(userName);
+        if(toEmpty){
+            toEmpty.emptyCart();
+            logger.info(`${userName}'s cart was successfully emptied.`);
+            return new Result(true,  undefined);
+        }
+        logger.error(`Failed to empty ${userName}'s cart, because the cart wasn't found`);
+        return new Result(false, undefined, `Failed to empty ${userName}'s cart, because the cart wasn't found`);
+    }
+
+    emptyBag(userName: string, shopId: number): Result<void>{
+        let cart= this.carts.get(userName);
+        if(cart){
+            cart.emptyBag(shopId);
+            logger.info(`${userName}'s bag in shop with id: ${shopId} was successfully emptied.`);
+            return new Result(true,  undefined);
+        }
+        logger.info(`Tried to empty ${userName}'s bag in shop with id: ${shopId}, but the bag wasn't found.`);
+        return new Result(true, undefined);
     }
 }
