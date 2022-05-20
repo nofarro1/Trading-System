@@ -1,8 +1,13 @@
 
 import { UserController } from "./UserController";
 import {Member} from "../../../src/domain/user/Member";
+<<<<<<< Updated upstream:dev/tests/domain/user/UserController.test.ts
 import { Guest } from "./SimpleGuest";
 import { ShoppingCart } from "../marketplace/SimpleShoppingCart";
+=======
+import { Guest } from "./User";
+import { ShoppingCart } from "../marketplace/ShoppingCart";
+>>>>>>> Stashed changes:dev/tests/domain/User/UserController.test.ts
 import { Permissions } from "../../utilities/Permissions";
 import { Shop } from "../marketplace/SimpleShop";
 import { JobType } from "../../utilities/Enums";

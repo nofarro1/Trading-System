@@ -4,7 +4,7 @@ import { Permissions } from "../../utilities/Permissions";
 import { Result } from "../../utilities/Result";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
 import { MessageBox } from "../notifications/MessageBox";
-import { Guest } from "./Guest";
+import { Guest } from "./User";
 import { Member } from "./Member";
 import { Role } from "./Role";
 import { User } from "./User";

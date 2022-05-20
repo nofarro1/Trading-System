@@ -3,15 +3,25 @@ import { DeliveryServiceAdaptor } from "../external_services/DeliveryServiceAdap
 import { PaymentServiceAdaptor } from "../external_services/PaymentServiceAdaptor";
 import { ShoppingBag } from "../marketplace/ShoppingBag";
 import {IMessagePublisher, IMessageListener} from "../notifications/IEventPublishers";
+<<<<<<< Updated upstream
 import {ShopPurchaseMessage, ShopStatusChangedMessage} from "../notifications/Message";
 import { Guest } from "../user/Guest";
+=======
+import { ShopPurchaseMessage } from "../notifications/Message";
+>>>>>>> Stashed changes
 import { Member } from "../user/Member";
-import { User } from "../user/User";
 import { BuyerOrder } from "./BuyerOrder";
 import { ShopOrder } from "./ShopOrder";
 import { logger}  from "../../helpers/logger"
+<<<<<<< Updated upstream
 ;
 
+=======
+import { ShoppingCart } from "../marketplace/ShoppingCart";
+import { urlToHttpOptions } from "url";
+import { UserID } from "../../utilities/Utils";
+import { User } from "../user/User";
+>>>>>>> Stashed changes
 
 
 export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage> {
@@ -20,13 +30,18 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     private _deliveryService: DeliveryServiceAdaptor;
     private buyerOrderCounter: number = 0;
     private shopOrderCounter: number = 0;
-    private _buyerOrders: Map<string | number, Set<BuyerOrder>>;
+    private _buyerOrders: Map<number, string>;
     private _shopOrders: Map<number, Set<ShopOrder>>;
     
     
     constructor(paymentService: PaymentServiceAdaptor, deliveryService: DeliveryServiceAdaptor) {
+<<<<<<< Updated upstream
         this.subscribers = [];
         this._buyerOrders = new Map<string | number, Set<BuyerOrder>>();
+=======
+        this._subscriber = null;
+        this._buyerOrders = new Map<number, string>();
+>>>>>>> Stashed changes
         this._shopOrders = new Map<number, Set<ShopOrder>>();
         this._paymentService = paymentService;
         this._deliveryService = deliveryService;
@@ -54,7 +69,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     public set deliveryService(value: DeliveryServiceAdaptor) {
         this._deliveryService = value;
     }
-    public get buyerOrders(): Map<string | number, Set<BuyerOrder>> {
+    public get buyerOrders(): Map<number, string> {
         return this._buyerOrders;
     }
     public get shopOrders(): Map<number, Set<ShopOrder>> {
@@ -110,13 +125,13 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         });
         // this.paymentService.makePayment(totalCartPrice);
         // this.deliveryService.makeDelivery("details");
-        if (user instanceof Member){
-            if (this.buyerOrders.has(user.username)){
-                let orders = this.buyerOrders.get(user.username);
+        if( user instanceof Member){
+            if (this.buyerOrders.has(user.id)){
+                let orders = this.buyerOrders.get(user.id);
                 if(orders){
-                    let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, new Date(Date.now()));
+                    let buyerOrder = "";
                     orders.add(buyerOrder);
-                    this.buyerOrders.set(user.username, orders);
+                    this.buyerOrders.set(user.id, orders);
                     this.buyerOrderCounter = this.buyerOrderCounter +1;
                     logger.info(`guest ${user.username} made checkout. order#: ${this.buyerOrderCounter}`);
                     // return new Result(true, buyerOrder);
@@ -126,35 +141,13 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 let orders = new Set<BuyerOrder>();
                 let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.username, orders, totalCartPrice, new Date(Date.now()));
                 orders.add(buyerOrder);
-                this.buyerOrders.set(user.username, orders);
+                this.buyerOrders.set(user.id, orders);
                 this.buyerOrderCounter = this.buyerOrderCounter +1;
                 // return new Result(true, buyerOrder);
             }
             logger.info(`member ${user.username} made checkout. order#: ${this.buyerOrderCounter}`);
         }
-        if (user instanceof Guest){
-            if (this.buyerOrders.has(user.id)){
-                let orders = this.buyerOrders.get(user.id);
-                if(orders){
-                    let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, new Date(Date.now()));
-                    orders?.add(buyerOrder);
-                    this.buyerOrders.set(user.id, orders);
-                    this.buyerOrderCounter = this.buyerOrderCounter +1;
-                    logger.info(`guest ${user.id} made checkout. order#: ${this.buyerOrderCounter}`);
-                    // return new Result(true, buyerOrder);
-                }
-            }
-            else{
-                let orders = new Set<BuyerOrder>();
-                let buyerOrder = new BuyerOrder(this.buyerOrderCounter,user.id, orders, totalCartPrice, new Date(Date.now()));
-                orders.add(buyerOrder);
-                this.buyerOrders.set(user.id, orders);
-                this.buyerOrderCounter = this.buyerOrderCounter +1;
-                logger.info(`guest ${user.id} made checkout. order#: ${this.buyerOrderCounter}`);
-                // return new Result(true, buyerOrder);
-            }
-        }
-        return new Result(false, undefined);
+    
     }
     // getCurrTime(): string{
     //     var today = new Date();
