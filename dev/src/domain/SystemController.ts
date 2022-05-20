@@ -3,15 +3,13 @@ import {SecurityController} from "./SecurityController";
 
 import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
 import {Member} from "./user/Member";
-import {ExternalServiceType, string} from "../utilities/Utils";
+import {ExternalServiceType} from "../utilities/Utils";
 import {MarketplaceController} from "./marketplace/MarketplaceController";
 import {ShoppingCartController} from "./marketplace/ShoppingCartController";
 import {PurchaseController} from "./purchase/PurchaseController";
 import {MessageController} from "./notifications/MessageController";
 import {NotificationController} from "./notifications/NotificationController";
-import {checkRes, Result, safe} from "../utilities/Result";
-import {Shop} from "./marketplace/Shop";
-import {Product} from "./marketplace/Product";
+import {checkRes, Result} from "../utilities/Result";
 import {ShoppingCart} from "./marketplace/ShoppingCart";
 import {ShopOrder} from "./purchase/ShopOrder";
 import {UserController} from "./user/UserController";
@@ -21,7 +19,6 @@ import {JobType, ProductCategory, SearchType} from "../utilities/Enums";
 import {Permissions} from "../utilities/Permissions";
 import {PaymentServiceAdaptor} from "./external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "./external_services/DeliveryServiceAdaptor";
-import {MessageBox} from "./notifications/MessageBox";
 import {
     toSimpleGuest,
     toSimpleMember,
@@ -163,14 +160,6 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, callback);
 
     }
-
-    // disconnectGuest(guestId: UserID): void {
-    //     let guest = `this is guest ${guestId}`;
-    //     // gController.removeGuest(guest)
-    //     //scController.removeShoppingCart(guest.SimpleShoppingCart.id);
-    //
-    //
-    // }
 
     login(sessionId: string, d: LoginData): Result<void> {
         const secCallback = (id:string) => {

@@ -1,10 +1,10 @@
 
 import { UserController } from "./UserController";
 import {Member} from "../../../src/domain/user/Member";
-import { Guest } from "./SimpleGuest";
-import { ShoppingCart } from "../marketplace/SimpleShoppingCart";
+import { Guest } from "./Guest";
+import { ShoppingCart } from "../marketplace/ShoppingCart";
 import { Permissions } from "../../utilities/Permissions";
-import { Shop } from "../marketplace/SimpleShop";
+import { Shop } from "../marketplace/Shop";
 import { JobType } from "../../utilities/Enums";
 
 class TestUserController extends UserController {
@@ -18,8 +18,8 @@ const userController = new UserController();
 const m1: Member = new Member("member1", new ShoppingCart());
 const m2: Member = new Member("member2", new ShoppingCart());
 
-const g1: Guest = new Guest(1, new ShoppingCart());
-const g2: Guest = new Guest(2, new ShoppingCart());
+const g1: Guest = new Guest("1", new ShoppingCart());
+const g2: Guest = new Guest("2", new ShoppingCart());
 
 
 describe('UserController tests - test', function () {

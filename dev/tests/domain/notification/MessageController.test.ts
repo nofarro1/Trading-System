@@ -1,5 +1,5 @@
 import {MessageBox, IIncomingMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
-import {GenericMessage, Message} from "../../../src/domain/notifications/Message";
+import {Message} from "../../../src/domain/notifications/Message";
 import {Member} from "../../../src/domain/user/Member";
 import {MessageController} from "../../../src/domain/notifications/MessageController";
 import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
@@ -11,7 +11,7 @@ class TestMessage extends Message {
     content
 
     constructor() {
-        super();
+        super(new Set());
         this.content = "i'm A test message"
     }
 
@@ -33,7 +33,6 @@ let controller: MessageController
 const tm1 = new TestMessage();
 const tm2 = new TestMessage();
 const tm3 = new TestMessage();
-const gm1 = new GenericMessage("gm1 - hello");
 
 describe('messageBox - test', function () {
 
@@ -60,12 +59,12 @@ describe('messageBox - test', function () {
         )
         mb1.addMessage(tm1);
         const mockCont = "i'm a mock";
-        expect(controller.getMessage(id1, tm1.id)).toBe(tm1);
+        expect(controller.getMessages(id1)).toContain(tm1);
         expect(addMessageMock).lastReturnedWith(tm1);
     })
 
     test("get Box from non-exist", () => {
-        expect(controller.getMessage(id2, tm1.id)).toBeInstanceOf(GenericMessage);
+        expect(controller.getMessages(id2)).toContain(tm1);
     })
 
     test("get messages - existing box ", () => {

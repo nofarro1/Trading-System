@@ -1,4 +1,4 @@
-import {string} from "../../Utils";
+
 import {SimpleProduct} from "../marketplace/SimpleProduct";
 
 

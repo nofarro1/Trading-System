@@ -8,7 +8,7 @@ import {Result} from "../utilities/Result";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 import {Permissions} from "../utilities/Permissions";
-import {ExternalServiceType, UserID} from "../utilities/Utils";
+import {ExternalServiceType} from "../utilities/Utils";
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
 import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
