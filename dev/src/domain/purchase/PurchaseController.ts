@@ -90,7 +90,6 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         let shoppingCart = user._shoppingCart;
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
-        this.buyerOrderCounter++;
         shoppingCart.bags.forEach((bag: ShoppingBag) => {
             let totalBagPrice = 0;
             let shopOrder = `Shop Order Number: ${this.shopOrderCounter} \nProduct: \nProduct Id,  Product Name, Full Price, Final Price `;
@@ -102,8 +101,10 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 // TODO: check quantity somehow
                 totalBagPrice += product[0].discountPrice;
                 shopOrder += `${product[0].id}, ${product[0].name}, ${product[0].fullPrice}, ${product[0].discountPrice}\n`;
-                });
+            });
             shopOrder += `Total Shop Order Price: ${totalBagPrice} \n`;
+            buyerOrder += shopOrder;
+            shopOrder += `Purchase Date: ${new Date().toLocaleString()} \n`;
             totalCartPrice += totalBagPrice;
             let orders = this.shopOrders.get(bag.shopId);
             if (!orders){
@@ -111,30 +112,26 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             }
             orders.add(shopOrder);
             this.shopOrders.set(bag.shopId, orders);
-            buyerOrder += shopOrder;
         });
         buyerOrder += `Total Cart Price: ${totalCartPrice}\n`;
+        buyerOrder += `Purchase Date: ${new Date().toLocaleString()}\n`;
         // this.paymentService.makePayment(totalCartPrice);
         // this.deliveryService.makeDelivery("details");
         if( user instanceof Member){
-            let orders = this.buyerOrders.get(user.session);
+            let orders = this.buyerOrders.get(user.username);
             if (!orders){
                 orders = new Set<string>();
             }
             orders.add(buyerOrder);
-            this.buyerOrders.set(user.session, orders);
-            logger.info(`guest ${user.username} made checkout. order#: ${this.buyerOrderCounter-1}`);
+            this.buyerOrders.set(user.username, orders);
+            logger.info(`User ${user.username} made purchase. order#: ${this.buyerOrderCounter}`);
+            this.buyerOrderCounter++;
             //check purchase And Discount Policies
         }
+        else
+            logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
         return new Result(true, undefined);
         
     
     }
-    // getCurrTime(): string{
-    //     var today = new Date();
-    //     var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-    //     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    //     var dateTime = date+' '+time;
-    //     return dateTime;
-    // }
 }
