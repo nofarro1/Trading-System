@@ -26,9 +26,9 @@ export class Service {
     private shoppingCartService: ShoppingCartService;
     private orderService: OrderService;
 
-    constructor() {
+    constructor(systemController: SystemController) {
         //System - Use-Case 1
-        this.systemController = SystemController.initialize();//TODO move system controller as a parameter
+        this.systemController = systemController
         this.guestService = new GuestService(this.systemController);
         this.memberService = new MemberService(this.systemController);
         this.marketplaceService = new MarketplaceService(this.systemController);

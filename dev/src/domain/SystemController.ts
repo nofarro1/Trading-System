@@ -136,7 +136,6 @@ export class SystemController {
         return new Result(true, toSimpleGuest(guest));
     }
 
-    //fix according to security controller
     exitMarketplace(sessionId: string): Result<void> {
 
         const callback = (id: string) => {
@@ -192,10 +191,11 @@ export class SystemController {
                     this.uController.exitGuest(toExit.data as Guest);
                     return new Result(true, undefined, "bye bye!");
                 }
+                //todo: initiate live notification connection with user
                 return new Result(true, undefined, res.message)
+            } else {
+                return new Result(false, undefined, "member does not exist");
             }
-            //initiate live notification connection with user
-            return new Result(false, undefined, res.message);
         }
 
         return this.authenticateMarketVisitor(sessionId, secCallback);
@@ -326,7 +326,7 @@ export class SystemController {
     editCart(sessionId: string, product: number, quantity: number, additionalData?: any): Result<void> {
         const authCallback = (id:string) => {
             const productRes = this.mpController.getProduct(product);
-            if (productRes.ok && productRes.data !== undefined) {
+            if (checkRes(productRes)) {
                 return this.scController.updateProductQuantity(id, productRes.data, quantity)
             } else
                 return new Result(false, undefined, "product not found")
@@ -527,7 +527,7 @@ export class SystemController {
                 return new Result(true, collectedMembers.map(toSimpleMember),)
             }
 
-            return new Result(false, [], shopRes.message);
+            return new Result(false, [],"not shop with that Id exists");
         }
         return this.authenticateMarketVisitor(sessId, callback);
     }
