@@ -2,6 +2,7 @@ import {Product} from "./Product";
 import {Sale} from "./Sale";
 import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
 import {ShoppingBag} from "./ShoppingBag";
+import {DiscountComponent} from "./CompositePattern/Components/DiscountComponent";
 
 
 export class Shop {
@@ -13,9 +14,10 @@ export class Shop {
     private _shopManagers: Set<string>;
     private _products: Map<number, [Product, number]>;
     private _rate: ShopRate;
+    private _discounts: DiscountComponent[];
 
 
-    constructor(id: number, name: string, shopFounder: string,shopAndDiscountPolicy?: string){
+    constructor(id: number, name: string, shopFounder: string){
         this._id= id;
         this._name= name;
         this._status= ShopStatus.open;
@@ -23,7 +25,8 @@ export class Shop {
         this._shopOwners= new Set<string>([shopFounder]);
         this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
-        this._rate= ShopRate.NotRated
+        this._rate= ShopRate.NotRated;
+        this._discounts= [];
     }
 
 
@@ -91,8 +94,8 @@ export class Shop {
         this._rate = value;
     }
 
-    addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number, discountPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
-        let toAdd= new Product(productName, shopId, category, discountPrice, fullPrice, relatedSale, productDesc);
+    addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
+        let toAdd= new Product(productName, shopId, category, fullPrice, relatedSale, productDesc);
         if(!this.products.has(toAdd.id)){
             this.products.set(toAdd.id, [toAdd, quantity]);
             return toAdd;
@@ -143,6 +146,29 @@ export class Shop {
         this.shopManagers?.add(managerId);
     }
 
+    calculateBagPrice(bag: ShoppingBag): number{
+        let productsList = this.extractProducts(bag.products);
+        let productPrices: [Product, number][] = [][productsList.length];
+        for (let i=0 ; i < productsList.length ; i++){
+            let p =productsList[i];
+            productPrices[i] = [p, p.fullPrice];
+        }
+        for( let disc of this._discounts){
+            productPrices = disc.calculateProductsPrice(productPrices);
+        }
+
+        let totalPrice=0;
+        for( let productPrice of productPrices){
+            totalPrice += productPrice[1];
+        }
+        return totalPrice;
+    }
+
+    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
+        let productsList = [];
+        for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
+        return productsList;
+    }
     checkDiscountPolicies (bag: ShoppingBag): boolean{
         return true;
     }
