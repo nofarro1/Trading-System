@@ -64,8 +64,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
 
 
-    setUpShop(userId: string, shopName: string, purchaseAndDiscountPolicies?: string): Result<Shop| void>{
-        let toAdd= new Shop(this.shopCounter, shopName, userId, purchaseAndDiscountPolicies);
+    setUpShop(userId: string, shopName: string): Result<Shop| void>{
+        let toAdd= new Shop(this.shopCounter, shopName, userId);
         this.shopCounter++;
         this._shops.set(toAdd.id, toAdd);
         logger.info(`The ${shopName} was opened in the market by ${userId}.`);
@@ -96,7 +96,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false,undefined, "Failed to reopen shop because the shop does not exist.");
     }
 
-    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, discountPrice: number, relatedSale?: Sale, productDesc?: string): Result<void | Product> {
+    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, relatedSale?: Sale, productDesc?: string): Result<void | Product> {
         if(quantity<0)
             return new Result<void>(false, undefined, "Cannot add negative amount of product to a shop ");
         let shop = this._shops.get(shopId);
@@ -104,7 +104,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
         }
-        let product = shop.addProduct(productName, shopId, productCategory, fullPrice, discountPrice, quantity, relatedSale, productDesc);
+        let product = shop.addProduct(productName, shopId, productCategory, fullPrice, quantity, relatedSale, productDesc);
         logger.info(`${productName} was added to ${shop.name}.`);
         return new Result(true, product,undefined);
     }
@@ -237,7 +237,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             case FilterType.price:
                 if(filterInput instanceof Range){
                     let filterByPrice= toFilter.filter(p=> {
-                        let price= p.discountPrice;
+                        let price= p.fullPrice;
                         return price>=filterInput.min && price<=filterInput.max}, )
                     logger.info(`Filtering products by price range is done successfully.`)
                     return new Result(true, filterByPrice);

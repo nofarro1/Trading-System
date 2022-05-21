@@ -1,5 +1,6 @@
 import {ShoppingBag} from "../../ShoppingBag";
+import {Product} from "../../Product";
 
 export interface DiscountComponent {
-    CalculateBagPrice(bag: ShoppingBag): number;
+    calculateProductsPrice(productsPrice: [Product, number][]): [Product, number][];
 }

@@ -91,8 +91,8 @@ export class Shop {
         this._rate = value;
     }
 
-    addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number, discountPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
-        let toAdd= new Product(productName, shopId, category, discountPrice, fullPrice, relatedSale, productDesc);
+    addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
+        let toAdd= new Product(productName, shopId, category, fullPrice, relatedSale, productDesc);
         if(!this.products.has(toAdd.id)){
             this.products.set(toAdd.id, [toAdd, quantity]);
             return toAdd;
