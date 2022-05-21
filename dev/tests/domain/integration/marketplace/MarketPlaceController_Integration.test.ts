@@ -1,7 +1,7 @@
-import {Product} from "../../../../../src/domain/marketplace/Product";
-import {FilterType, ProductCategory, SearchType, ShopStatus} from "../../../../../src/utilities/Enums";
-import {MarketplaceController} from "../../../../../src/domain/marketplace/MarketplaceController";
-import {Range} from "../../../../../src/utilities/Range";
+import {Product} from "../../../../src/domain/marketplace/Product";
+import {FilterType, ProductCategory, SearchType, ShopStatus} from "../../../../src/utilities/Enums";
+import {MarketplaceController} from "../../../../src/domain/marketplace/MarketplaceController";
+import {Range} from "../../../../src/utilities/Range";
 
 let controller: MarketplaceController;
 const p1: Product = new Product("Ski", 0, ProductCategory.A, 5.9, 5.9);

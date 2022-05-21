@@ -1,6 +1,6 @@
-import {Shop} from "../../../../../src/domain/marketplace/Shop";
-import {Product} from "../../../../../src/domain/marketplace/Product";
-import {ProductCategory} from "../../../../../src/utilities/Enums";
+import {Shop} from "../../../../src/domain/marketplace/Shop";
+import {Product} from "../../../../src/domain/marketplace/Product";
+import {ProductCategory} from "../../../../src/utilities/Enums";
 
 const mockInstance = (dependency: string) => {
     jest.mock(dependency)
