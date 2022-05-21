@@ -1,8 +1,6 @@
-import {Shop} from "../../../../src/domain/marketplace/Shop";
-import {Product} from "../../../../src/domain/marketplace/Product";
-import {ProductCategory} from "../../../../src/utilities/Enums";
-import exp from "constants";
-import {MarketplaceController} from "../../../../src/domain/marketplace/MarketplaceController";
+import {Shop} from "../../../../../src/domain/marketplace/Shop";
+import {Product} from "../../../../../src/domain/marketplace/Product";
+import {ProductCategory} from "../../../../../src/utilities/Enums";
 
 const mockInstance = (dependency: string) => {
     jest.mock(dependency)

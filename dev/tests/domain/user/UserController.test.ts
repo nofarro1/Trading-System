@@ -1,11 +1,11 @@
 
 import { UserController } from "./UserController";
 import {Member} from "../../../src/domain/user/Member";
-import { Guest } from "./SimpleGuest";
-import { ShoppingCart } from "../integration/marketplace/SimpleShoppingCart";
 import { Permissions } from "../../utilities/Permissions";
-import { Shop } from "../integration/marketplace/SimpleShop";
 import { JobType } from "../../utilities/Enums";
+import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
+import {Guest} from "../../../src/domain/user/Guest";
+import {Shop} from "../../../src/domain/marketplace/Shop";
 
 class TestUserController extends UserController {
 

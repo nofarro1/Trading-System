@@ -5,7 +5,7 @@ import {ProductCategory} from "../../../src/utilities/Enums";
 
 let bag: ShoppingBag;
 const shopID: number = 1;
-const product: Product = new Product("product", 1, ProductCategory.A, "", 10, 10);
+const product: Product = new Product("product", 1, ProductCategory.A, 10, 10);
 const quantity: number = 5;
 const newQuantity: number = 10;
 
@@ -41,12 +41,12 @@ describe('SecurityController - tests', function () {
         let [theProduct, theQuantity] = <[Product, number]> bag.products.get(product.id);
         expect(theProduct.id).toEqual(product.id);
 
-        bag.updateProductQuanity(product, newQuantity);
+        bag.updateProductQuantity(product, newQuantity);
         [theProduct, theQuantity] = <[Product, number]> bag.products.get(product.id);
         expect(theQuantity).toEqual(newQuantity);
     })
 
     test("Update SimpleProduct Quantity - product does not exist", () => {
-        expect(function() {bag.updateProductQuanity(product, newQuantity)}).toThrow(new Error("Failed to update product because the product wasn't found in bag."));
+        expect(function() {bag.updateProductQuantity(product, newQuantity)}).toThrow(new Error("Failed to update product because the product wasn't found in bag."));
     })
 });

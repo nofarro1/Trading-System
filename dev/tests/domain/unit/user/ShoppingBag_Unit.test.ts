@@ -33,12 +33,12 @@ describe('SecurityController - tests', function () {
 
     test("Update SimpleProduct Quantity - valid input", () => {
         bag.products= new Map<number, [Product, number]>().set(product.id, [product,1]);
-        bag.updateProductQuanity(product, newQuantity);
+        bag.updateProductQuantity(product, newQuantity);
         // @ts-ignore
         expect(bag.products.get(product.id)[1]).toEqual(newQuantity);
     })
 
     test("Update SimpleProduct Quantity - product does not exist", () => {
-        expect(function() {bag.updateProductQuanity(product, newQuantity)}).toThrow(new Error("Failed to update product because the product wasn't found in bag."));
+        expect(function() {bag.updateProductQuantity(product, newQuantity)}).toThrow(new Error("Failed to update product because the product wasn't found in bag."));
     })
 });
