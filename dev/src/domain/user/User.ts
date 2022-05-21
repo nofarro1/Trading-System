@@ -3,15 +3,15 @@ import { ShoppingCart } from "../marketplace/ShoppingCart";
 
 
 export class User{
-    private _id: number;
+    private _session: string;
     _shoppingCart: ShoppingCart;
 
-    constructor(id: number, shoppingCart: ShoppingCart){
-        this._id = id;
+    constructor(id: string, shoppingCart: ShoppingCart){
+        this._session = id;
         this._shoppingCart = shoppingCart;
     }
-    public get id(): number {
-            return this._id;
+    public get session(): string {
+            return this._session;
     }
 
     public get shoppingCart(): ShoppingCart {

@@ -1,16 +1,15 @@
 import { Permissions } from "../../utilities/Permissions";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
-import { MessageBox } from "../notifications/MessageBox";
-import { Guest } from "./User";
 import {  Role } from "./Role";
+import { User } from "./User";
 
 
-export class Member extends Guest{
+export class Member extends User{
     private _username: string;
     private _roles: Map<number, Role>;
     
-    constructor(id: number, username: string, shoppingCart: ShoppingCart){
-        super(id, shoppingCart);
+    constructor(session: string, username: string, shoppingCart: ShoppingCart){
+        super(session, shoppingCart);
         this._username = username;
         this._roles = new Map<number, Role>();
     }

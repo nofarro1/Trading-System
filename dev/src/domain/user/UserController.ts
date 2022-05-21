@@ -4,22 +4,21 @@ import { Permissions } from "../../utilities/Permissions";
 import { Result } from "../../utilities/Result";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
 import { MessageBox } from "../notifications/MessageBox";
-import { Guest } from "./User";
+import { User } from "./User";
 import { Member } from "./Member";
 import { Role } from "./Role";
-import { User } from "./User";
 
 
 export class UserController {
-    private _connectedGuests: Map<string, Guest>;
+    private _connectedGuests: Map<string, User>;
     private _members: Map<string, Member>;
     
     constructor(){
-        this._connectedGuests = new Map<string, Guest>();
+        this._connectedGuests = new Map<string, User>();
         this._members = new Map<string, Member>();
     }
     
-    public get connectedGuests(): Map<string, Guest> {
+    public get connectedGuests(): Map<string, User> {
         return this._connectedGuests;
     }
 
@@ -28,17 +27,17 @@ export class UserController {
     }
 
 
-    createGuest(session: string): Result<Guest>{
+    createGuest(session: string): Result<User>{
         const shoppingCart = new ShoppingCart();
-        const guest = new Guest(session, shoppingCart);
-        this.connectedGuests.set(guest.id, guest);
+        const guest = new User(session, shoppingCart);
+        this.connectedGuests.set(guest.session, guest);
         logger.info(`Guest ${session} connected`);
         return new Result(true, guest);
     }
 
-    exitGuest(guest: Guest): Result<void> {
-        this.connectedGuests.delete(guest.id);
-        logger.info(`Guest ${guest.id} exit`);
+    exitGuest(guest: User): Result<void> {
+        this.connectedGuests.delete(guest.session);
+        logger.info(`Guest ${guest.session} exit`);
         return new Result(true, undefined);
     }
 
@@ -76,13 +75,13 @@ export class UserController {
         return new Result(false, undefined);
     }
 
-    addMember(username: string, shoppingCart: ShoppingCart): Result<Member| undefined>{
+    addMember(session: string, username: string, shoppingCart: ShoppingCart): Result<Member| undefined>{
         if(this.members.has(username)){
             logger.info(`[addMember] Member with username:  ${username}, already exist in the marketplace`);
             return new Result(false, undefined , `User ${username} already exist`);
         }
         else{
-            let member = new Member(username, shoppingCart);
+            let member = new Member(session, username, shoppingCart);
             this.members.set(username, member);
             logger.info(`[addMember] Member ${username} added to the marketPlace`); 
             return new Result(true, member);
