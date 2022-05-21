@@ -1,5 +1,4 @@
 import {DiscountComponent} from "../Components/DiscountComponent";
-import {ShoppingBag} from "../../ShoppingBag";
 import {DiscountType, ProductCategory} from "../../../../utilities/Enums";
 import {Product} from "../../Product";
 
@@ -12,12 +11,10 @@ export class Discount implements DiscountComponent{
 
     private info: discountInf;
     private discountPercent: number;
-    private _applyDisc: boolean;
 
-    constructor(discountInf: discountInf, discountPrecent: number) {
+    constructor(discountInf: discountInf, discountPercent: number) {
         this.info = discountInf;
-        this.discountPercent = discountPrecent;
-        this._applyDisc = true;
+        this.discountPercent = discountPercent;
     }
 
     calculateProductsPrice(productsPrice: [Product, number][]): [Product, number][] {
@@ -32,7 +29,7 @@ export class Discount implements DiscountComponent{
                         discProductsPrice.concat([p, price]);
                 }
             }
-            else if (this.info.type = DiscountType.Category) {
+            else if (this.info.type == DiscountType.Category) {
                 let cInDisc = this.info.object;
                 for (let [p, price] of productsPrice) {
                     if (p.category == cInDisc) {
