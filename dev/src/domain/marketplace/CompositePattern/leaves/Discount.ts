@@ -24,7 +24,7 @@ export class Discount implements DiscountComponent{
                 let pInDisc = this.info.object;
                 for (let [p, price] of productsPrice) {
                     if (p.id == pInDisc) {
-                        discProductsPrice.concat([p, price * 0.01 * (100-this.discountPercent)]);
+                        discProductsPrice.concat([p, price-(p.fullPrice* 0.01 * this.discountPercent)]);
                     } else
                         discProductsPrice.concat([p, price]);
                 }
@@ -33,23 +33,17 @@ export class Discount implements DiscountComponent{
                 let cInDisc = this.info.object;
                 for (let [p, price] of productsPrice) {
                     if (p.category == cInDisc) {
-                        discProductsPrice.concat([p, price * 0.01 * (100-this.discountPercent)]);
+                        discProductsPrice.concat([p, price-(p.fullPrice* 0.01 * this.discountPercent)]);
                     } else
                         discProductsPrice.concat([p, price]);
                 }
             }
             else
                 for (let [p, price] of productsPrice) {
-                    discProductsPrice.concat([p, price * 0.01 * (100-this.discountPercent)]);
+                    discProductsPrice.concat([p, price-(p.fullPrice* 0.01 * this.discountPercent)]);
 
 
         }
         return discProductsPrice;
     }
-
-    // private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
-    //     let productsList = [];
-    //     for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
-    //     return productsList;
-    // }
 }
