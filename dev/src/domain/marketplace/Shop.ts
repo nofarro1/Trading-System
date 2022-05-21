@@ -148,18 +148,19 @@ export class Shop {
 
     calculateBagPrice(bag: ShoppingBag): number{
         let productsList = this.extractProducts(bag.products);
-        let productPrices: [Product, number][] = [][productsList.length];
+        let productPrices: [Product, number][] = [];
         for (let i=0 ; i < productsList.length ; i++){
             let p =productsList[i];
-            productPrices[i] = [p, p.fullPrice];
+            productPrices.push( [p, p.fullPrice]);
         }
         for( let disc of this._discounts){
             productPrices = disc.calculateProductsPrice(productPrices);
         }
 
         let totalPrice=0;
-        for( let productPrice of productPrices){
-            totalPrice += productPrice[1];
+        let productsQuantity = Array.from(bag.products.values());
+        for( let i=0 ; i < productsList.length ; i++){
+            totalPrice += productPrices[i][1] * productsQuantity[i][1];
         }
         return totalPrice;
     }
@@ -169,6 +170,16 @@ export class Shop {
         for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
         return productsList;
     }
+
+    addDiscount(disc: DiscountComponent): void{
+        this._discounts.push(disc);
+    }
+
+    removvDiscount(disc: DiscountComponent): void{
+        let ind = this._discounts.indexOf(disc);
+        this._discounts.splice(ind, 1);
+    }
+
     checkDiscountPolicies (bag: ShoppingBag): boolean{
         return true;
     }

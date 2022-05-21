@@ -1,14 +1,15 @@
 import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Product} from "../../../../src/domain/marketplace/Product";
-import {ProductCategory} from "../../../../src/utilities/Enums";
+import {DiscountType, ProductCategory} from "../../../../src/utilities/Enums";
 import {MarketplaceController} from "../../../../src/domain/marketplace/MarketplaceController";
-
-
+import {mockDependencies, mockInstance, mockMethod} from "../../../mockHelper";
+import {ShoppingBag} from "../../../../src/domain/marketplace/ShoppingBag";
+import {Discount, discountInf} from "../../../../src/domain/marketplace/CompositePattern/leaves/Discount";
 
 describe('SimpleShop- products', function() {
 
-    let p1: Product = new Product("Ski", 0, ProductCategory.A, 5.9, 5.9, undefined, "Yami chees");
-    let p2: Product = new Product("Cottage", 0, ProductCategory.A, 6, 6, undefined, "Yami chees");
+    let p1: Product = new Product("Ski", 0, ProductCategory.A, 5.9,undefined, "Yami chees");
+    let p2: Product = new Product("Cottage", 0, ProductCategory.A, 6, undefined, "Yami chees");
     let s1: Shop;
     let s2: Shop;
 
@@ -23,7 +24,7 @@ describe('SimpleShop- products', function() {
 
 
     test('add product', () => {
-        let p3 = s1.addProduct("cottage", s1.id, ProductCategory.A, 5.9, 5.9, 1, undefined, "Yami chees");
+        let p3 = s1.addProduct("cottage", s1.id, ProductCategory.A, 5.9, 5.9, undefined, "Yami chees");
         expect(s1.products.keys()).toContain(p3.id);
         expect(s1.products.get(2)).toEqual([p3, 1]);
     })
@@ -54,6 +55,18 @@ describe('SimpleShop- products', function() {
         s1.appointShopOwner("Idan");
         expect(s1.shopOwners.values()).toContain("Idan");
     })
+
+    test('calculateBagPrice- simple test', ()=>{
+        let bag = new ShoppingBag(0);
+        bag.products.set(0,[p1, 2]);
+        bag.products.set(1, [p2, 1]);
+        let discountInf: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
+        let disc1 = new Discount(discountInf, 20);
+        s1.addDiscount(disc1);
+        let totalPrice = s1.calculateBagPrice(bag);
+        expect(totalPrice).toBeCloseTo(15.44, 4);
+    })
+
 })
 
 
