@@ -1,7 +1,4 @@
-import {Result} from "./Result";
 
-
-export type string = string | number
 
 export const UUIDGenerator = (): string => {
     const head:string = Date.now().toString();
