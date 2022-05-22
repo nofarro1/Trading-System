@@ -2,21 +2,43 @@ import express from "express";
 import session from 'express-session';
 import {SystemController} from "../domain/SystemController";
 import {Service} from "../service/Service";
+import {Socket} from "net";
 
 
 const systemController = SystemController.initialize();
 const service = new Service(systemController)
 export const router = express.Router();
 
-router.use()
 
 
-router.get('/', (req, res) => {
+
+router.get('/check', (req, res) => {
     let sessId = req.session.id;
+    console.log(sessId + " have been activated");
+    res.status(200);
     res.send("hello, your id is " + sessId);
 
 })
+router.get('/', async (req, res) => {
+    let sessId = req.session.id;
+    try {
+        console.log("guest " + sessId + " accessed marketplace");
+        let guest = await service.accessMarketplace(sessId);
 
+        req.socket.on("disconnect", async () => {
+            await service.exitMarketplace(sessId)
+        })
+
+        res.status(200);
+        res.send(guest)
+
+    } catch (e) {
+        res.status(403)
+        res.send("could not access marketplace")
+    }
+   console.log("hello, your id is " + sessId);
+
+})
 
 /**
  *
@@ -517,3 +539,7 @@ router.post('/admin/services/edit', (req, res) => {
 })
 
 
+export const app = express();
+const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
+app.use(sessionMiddleware);
+app.use(router);
