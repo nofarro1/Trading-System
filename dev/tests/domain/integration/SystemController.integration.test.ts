@@ -15,10 +15,14 @@ import {Shop} from "../../../src/domain/marketplace/Shop";
 import {Role} from "../../../src/domain/user/Role";
 import {Permissions} from "../../../src/utilities/Permissions";
 import {
-    toSimpleGuest, toSimpleMember,
+    toSimpleGuest,
+    toSimpleMember,
     toSimpleProduct,
-    toSimpleShop, toSimpleShoppingCart
+    toSimpleShop,
+    toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
+import {ExternalServiceType} from "../../../src/utilities/Utils";
+import {Result} from "../../../src/utilities/Result";
 
 
 describe('system controller - integration', () => {
@@ -61,9 +65,6 @@ describe('system controller - integration', () => {
     const p1 = new Product("ps1", 0, ProductCategory.A, 10, 10, undefined,"description");
     const p2 = new Product("ps2", 0, ProductCategory.A, 10, 10, undefined,"description");
     const p3 = new Product("ps3", 0, ProductCategory.A, 10, 10, undefined,"description");
-    // const p4 = new Product("ps4", 0, ProductCategory.A, "description", 10, 10)
-    // const p5 = new Product("ps5", 0, ProductCategory.A, "description", 10, 10)
-    // const p6 = new Product("ps6", 0, ProductCategory.A, "description", 10, 10)
 
     const role1 = new Role(0, "title", JobType.Owner, new Set())
     const role2 = new Role(0, "title", JobType.Manager, new Set())
@@ -173,8 +174,18 @@ describe('system controller - integration', () => {
         })
     })
 
-    test("logout test", () => {
+    test("logout test - success", () => {
+        //prepare
+        sys.accessMarketplace(sess4);
+        sys.registerMember(sess4, {username: username1, password: pass1});
+        sys.login(sess4, {username: username1, password: pass1});
 
+        //act
+        let res = sys.logout(username1);
+
+        //assert
+        expect(res.ok).toBe(true);
+        expect(res.data).not.toBeDefined()
     })
 
     describe("register tests", () => {
@@ -199,16 +210,6 @@ describe('system controller - integration', () => {
             expect(res.data).not.toBeDefined();
         })
     })
-
-        // test("get product - success", () => {
-        //     //prepare
-        //
-        //
-        //     //act
-        //     let res = sys.getProduct(sess1, 0);
-        //     expect(res.ok).toBe(true);
-        //     expect(res.data).toEqual(toSimpleProduct(p1));
-        // })
 
         test("get shop", () => {
             //prepare
@@ -942,14 +943,42 @@ describe('system controller - integration', () => {
     })
 
     test("register admin", () => {
+        //prepare
+        sys.accessMarketplace(sess4);
 
+        //act
+        let res = sys.registerAsAdmin(sess4, {username: username1, password: pass1});
+
+        //assert
+        expect(res.ok).toBe(true);
+        expect(res.data).not.toBeDefined();
     })
 
     test("edit external connection service", () => {
+        //prepare
+        sys.accessMarketplace(sess4);
+        sys.registerAsAdmin(sess4, {username: username1, password: pass1});
 
+        //act
+        let res = sys.editConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment, "settings");
+
+        //assert
+        expect(res.ok).toBeTruthy();
+        expect(res.data).not.toBeDefined();
+        expect(res.message).toBe("services updated");
     })
 
     test("swap external connection service", () => {
+        //prepare
+        sys.accessMarketplace(sess4);
+        sys.registerAsAdmin(sess4, {username: username1, password: pass1});
 
+        //act
+        let res = sys.swapConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment, "settings");
+
+        //assert
+        expect(res.ok).toBeTruthy();
+        expect(res.data).not.toBeDefined();
+        expect(res.message).toBe("services swapped");
     })
 })
