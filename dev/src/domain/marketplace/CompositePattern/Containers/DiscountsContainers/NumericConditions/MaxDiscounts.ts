@@ -8,21 +8,21 @@ export class MaxDiscounts implements DiscountComponent{
     constructor() {
         this.discounts= [];
     }
-    calculateProductsPrice(productsPrice: [Product, number][]): [Product, number][] {
-        let callBack = (disc: DiscountComponent) => disc.calculateProductsPrice(productsPrice);
+    calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
+        let callBack = (disc: DiscountComponent) => disc.calculateProductsPrice(products);
         let tempProductsPrices = this.discounts.map(callBack);
-        let tempTotalPrices = tempProductsPrices.map(this.calculateTotalBagPrice);
+        let tempBagTotalPrices = tempProductsPrices.map(this.calculateTotalBagPrice);
         // After calculating all the possible prices for the bag, find the maximum price and return the respective products' prices.
-        let max =0, ind=0;
-        for (let i=0 ; i< tempTotalPrices.length ; i++){
-            if (tempTotalPrices[i] > max){
-                max = tempTotalPrices[i];
+        let min= tempBagTotalPrices[0], ind=0;
+        for (let i=1 ; i< tempBagTotalPrices.length ; i++){
+            if (tempBagTotalPrices[i] < min){
+                min = tempBagTotalPrices[i];
                 ind = i;
             }
         }
         return tempProductsPrices[ind];
     }
-    private calculateTotalBagPrice(productsPrice: [Product, number][]): number {
+    private calculateTotalBagPrice(productsPrice: [Product, number, number][]): number {
         let totalPrice = 0;
         for (let productPrice of productsPrice){
             totalPrice+= productPrice[1];
@@ -30,7 +30,12 @@ export class MaxDiscounts implements DiscountComponent{
         return totalPrice;
     }
 
-    addDiscountElement(toAdd: DiscountComponent){}
-    removeDiscountElement(toRemove: DiscountComponent){}
+    addDiscountElement(toAdd: DiscountComponent){
+        this.discounts.push(toAdd);
+    }
+    removeDiscountElement(toRemove: DiscountComponent){
+        let i = this.discounts.indexOf(toRemove);
+        this.discounts.splice(i, 1);
+    }
 
 }

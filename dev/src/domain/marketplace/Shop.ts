@@ -14,7 +14,8 @@ export class Shop {
     private _shopManagers: Set<string>;
     private _products: Map<number, [Product, number]>;
     private _rate: ShopRate;
-    private _discounts: DiscountComponent[];
+    private _discounts: Map<number, DiscountComponent>;
+    private _discountCounter: number;
 
 
     constructor(id: number, name: string, shopFounder: string){
@@ -26,7 +27,8 @@ export class Shop {
         this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
         this._rate= ShopRate.NotRated;
-        this._discounts= [];
+        this._discounts= new Map<number, DiscountComponent>();
+        this._discountCounter= 0;
     }
 
 
@@ -146,23 +148,20 @@ export class Shop {
         this.shopManagers?.add(managerId);
     }
 
-    calculateBagPrice(bag: ShoppingBag): number{
+    calculateBagPrice(bag: ShoppingBag): [Product, number, number][]{
+
         let productsList = this.extractProducts(bag.products);
-        let productPrices: [Product, number][] = [];
-        for (let i=0 ; i < productsList.length ; i++){
-            let p =productsList[i];
-            productPrices.push( [p, p.fullPrice]);
+        let productsInfo: [Product, number, number][] = [];
+        for(let [p, quantity] of bag.products.values()){
+            productsInfo.push([p, p.fullPrice, quantity]);
         }
-        for( let disc of this._discounts){
-            productPrices = disc.calculateProductsPrice(productPrices);
+        if(this._discounts.size>0){
+            for( let disc of this._discounts.values()){
+                productsInfo = disc.calculateProductsPrice(productsInfo);
+            }
         }
 
-        let totalPrice=0;
-        let productsQuantity = Array.from(bag.products.values());
-        for( let i=0 ; i < productsList.length ; i++){
-            totalPrice += productPrices[i][1] * productsQuantity[i][1];
-        }
-        return totalPrice;
+        return productsInfo;
     }
 
     private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
@@ -171,21 +170,22 @@ export class Shop {
         return productsList;
     }
 
-    addDiscount(disc: DiscountComponent): void{
-        this._discounts.push(disc);
+    addDiscount(disc: DiscountComponent): number{
+        this._discounts.set(this._discountCounter,disc);
+        this._discountCounter++;
+        return this._discountCounter-1;
     }
 
-    removvDiscount(disc: DiscountComponent): void{
-        let ind = this._discounts.indexOf(disc);
-        this._discounts.splice(ind, 1);
+    removeDiscount(idDisc: number): void{
+        this._discounts.delete(idDisc);
     }
 
-    checkDiscountPolicies (bag: ShoppingBag): boolean{
-        return true;
-    }
-
-    checkPutrchasePolicies (bag: ShoppingBag): boolean {
-        return true;
-    }
+    // checkDiscountPolicies (bag: ShoppingBag): boolean{
+    //     return true;
+    // }
+    //
+    // checkPurchasePolicies (bag: ShoppingBag): boolean {
+    //     return true;
+    // }
 
 }

@@ -17,30 +17,30 @@ export class Discount implements DiscountComponent{
         this.discountPercent = discountPercent;
     }
 
-    calculateProductsPrice(productsPrice: [Product, number][]): [Product, number][] {
-        let discProductsPrice: [Product, number][] = [];
+    calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
+        let discProductsPrice: [Product, number, number][] = [];
 
             if (this.info.type === DiscountType.Product) {
                 let pInDisc = this.info.object;
-                for (let [p, price] of productsPrice) {
+                for (let [p, price, quantity] of products) {
                     if (p === pInDisc) {
-                        discProductsPrice.push([p, price-(p.fullPrice* 0.01 * this.discountPercent)]);
+                        discProductsPrice.push([p, price-(p.fullPrice* 0.01 * this.discountPercent), quantity]);
                     } else
-                        discProductsPrice.push([p, price]);
+                        discProductsPrice.push([p, price, quantity]);
                 }
             }
             else if (this.info.type === DiscountType.Category) {
                 let cInDisc = this.info.object;
-                for (let [p, price] of productsPrice) {
+                for (let [p, price, quantity] of products) {
                     if (p.category == cInDisc) {
-                        discProductsPrice.concat([p, price-(p.fullPrice* 0.01 * this.discountPercent)]);
+                        discProductsPrice.push([p, price-(p.fullPrice* 0.01 * this.discountPercent), quantity]);
                     } else
-                        discProductsPrice.concat([p, price]);
+                        discProductsPrice.push([p, price, quantity]);
                 }
             }
             else
-                for (let [p, price] of productsPrice) {
-                    discProductsPrice.concat([p, price-(p.fullPrice* 0.01 * this.discountPercent)]);
+                for (let [p, price, quantity] of products) {
+                    discProductsPrice.push([p, price-(p.fullPrice* 0.01 * this.discountPercent), quantity]);
 
 
         }
