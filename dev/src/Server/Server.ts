@@ -1,10 +1,25 @@
-import {app} from './expressApp'
 import https from 'https'
 import fs from 'fs'
-import {Server} from 'socket.io'
+import {Server, Socket} from 'socket.io'
+import express from "express";
+import {router} from './expressApp'
+import session, {Session} from "express-session";
+import {Response, Request, NextFunction} from "express"
 
-const keyPath = "./security/key.pam"
-const certPath = "./security/cert.pam"
+declare module "http" {
+    interface IncomingMessage {
+        session: Session
+    }
+}
+
+
+export const app = express();
+
+const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
+app.use(sessionMiddleware);
+
+const keyPath = "./security/local.key"
+const certPath = "./security/cert.crt"
 const port = process.env.PORT || 3000;
 
 const httpsServer = https.createServer({
@@ -14,12 +29,34 @@ const httpsServer = https.createServer({
 const io: Server = new Server(httpsServer, {});
 
 
-io.on('connection', (socket)=>{
-    socket.id
+const wrap = (middleware: express.RequestHandler) =>
+    (socket: Socket, next: NextFunction): void => middleware(socket.request as Request, {} as Response, next as NextFunction);
+
+
+io.use(wrap(sessionMiddleware));
+
+
+io.use((socket,next) => {
+    const sess = socket.request.session
+    if(sess){
+        next();
+    } else {
+        next(new Error("cannot get session"))
+    }
 })
 
-httpsServer.listen(port, () => {
-    console.log(`listening to localhost:${port}`);
+io.on("connection", (socket) => {
+    let session = socket.request.session
+    console.log(`session ${session} has connected`);
 })
+
+io.on('disconnect', (socket) => {
+    let session = socket.request.session
+    console.log(`session ${session} has disconnected`);
+})
+
+app.use('/api', router)
+
+httpsServer.listen(port);
 
 

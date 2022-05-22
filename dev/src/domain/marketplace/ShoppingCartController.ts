@@ -3,7 +3,6 @@ import { Result } from "../../utilities/Result";
 import { Product } from "./Product";
 import { ShoppingCart } from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
-import {string} from "../../utilities/Utils";
 
 
 export class ShoppingCartController {

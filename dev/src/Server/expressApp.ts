@@ -3,15 +3,15 @@ import session from 'express-session';
 import {SystemController} from "../domain/SystemController";
 import {Service} from "../service/Service";
 
-export const app = express();
-
 
 const systemController = SystemController.initialize();
 const service = new Service(systemController)
+export const router = express.Router();
 
-app.use(session({secret: "this is a secret", saveUninitialized: true}));
+router.use()
 
-app.get('/', (req, res) => {
+
+router.get('/', (req, res) => {
     let sessId = req.session.id;
     res.send("hello, your id is " + sessId);
 
@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
  *     country?: string
  * }
  */
-app.post('/api/guest/register', async (req, res) => {
+router.post('/guest/register', async (req, res) => {
 
 
     try {
@@ -64,7 +64,7 @@ app.post('/api/guest/register', async (req, res) => {
  * }
  */
 
-app.post('/api/admin/register', async (req, res) => {
+router.post('/admin/register', async (req, res) => {
 
 
     try {
@@ -94,7 +94,7 @@ app.post('/api/admin/register', async (req, res) => {
  *     password: string,
  * }
  */
-app.post('/api/guest/login', async (req, res) => {
+router.post('/guest/login', async (req, res) => {
 
 
     try {
@@ -112,7 +112,7 @@ app.post('/api/guest/login', async (req, res) => {
 /**
  * logout
  */
-app.get('/api/member/logout/:username', async (req, res) => {
+router.get('/member/logout/:username', async (req, res) => {
 
 
     try {
@@ -134,7 +134,7 @@ app.get('/api/member/logout/:username', async (req, res) => {
  * assigningOwnerID: string,
  * title?: string}
  */
-app.post('/api/member/shopManagement/assignOwner', (req, res) => {
+router.post('/member/shopManagement/assignOwner', (req, res) => {
 
     try {
         let sessId = req.session.id
@@ -160,7 +160,7 @@ app.post('/api/member/shopManagement/assignOwner', (req, res) => {
  * title?: string
  * }
  */
-app.post('/api/member/shopManagement/assignManager', (req, res) => {
+router.post('/member/shopManagement/assignManager', (req, res) => {
 
     try {
         let sessId = req.session.id
@@ -185,7 +185,7 @@ app.post('/api/member/shopManagement/assignManager', (req, res) => {
  *      permissions: Permissions
  * }
  */
-app.post('/api/member/shopManagement/Permissions', (req, res) => {
+router.post('/member/shopManagement/Permissions', (req, res) => {
 
 
     try {
@@ -205,7 +205,7 @@ app.post('/api/member/shopManagement/Permissions', (req, res) => {
 /**
  * remove manager permissions
  */
-app.delete('/api/member/shopManagement/Permissions', (req, res) => {
+router.delete('/member/shopManagement/Permissions', (req, res) => {
 
     try {
         let sessId = req.session.id
@@ -226,7 +226,7 @@ app.delete('/api/member/shopManagement/Permissions', (req, res) => {
 /**
  * get shop personnel info
  */
-app.get('api/member/shopManagement/Personnel/:username/:shop', (req, res) => {
+router.get('api/member/shopManagement/Personnel/:username/:shop', (req, res) => {
     let sessId = req.session.id
 
     try {
@@ -245,7 +245,7 @@ app.get('api/member/shopManagement/Personnel/:username/:shop', (req, res) => {
 /**
  * access marketplace
  */
-app.get('/api/guest', (req, res) => {
+router.get('/guest', (req, res) => {
     let sessId = req.session.id
     try {
         let ans = service.accessMarketplace(sessId)
@@ -261,7 +261,7 @@ app.get('/api/guest', (req, res) => {
 /**
  * exit marketplace
  */
-app.get('/api/exit', (req, res) => {
+router.get('/exit', (req, res) => {
     let sessId = req.session.id
     try {
         let ans = service.exitMarketplace(sessId)
@@ -275,7 +275,7 @@ app.get('/api/exit', (req, res) => {
 /*
 query params - searchTerm, searchType, filters (i.e. price range, rating, ...)
  */
-app.post('api/product/', (req, res) => {
+router.post('api/product/', (req, res) => {
 
     try {
         let sessId = req.session.id
@@ -292,7 +292,7 @@ app.post('api/product/', (req, res) => {
 })
 
 // add product to shop
-app.post('/api/product/:shopId', (req, res) => {
+router.post('/product/:shopId', (req, res) => {
 
     try {
         let sessId = req.session.id;
@@ -312,7 +312,7 @@ app.post('/api/product/:shopId', (req, res) => {
 
 
 })
-app.delete('/api/product/:shopId/:productId', (req, res) => {
+router.delete('/product/:shopId/:productId', (req, res) => {
 
 
     try {
@@ -327,7 +327,7 @@ app.delete('/api/product/:shopId/:productId', (req, res) => {
         res.send(e.message)
     }
 })
-app.patch('/api/product/:shopId/:productId', (req, res) => {
+router.patch('/product/:shopId/:productId', (req, res) => {
 
 
     try {
@@ -345,7 +345,7 @@ app.patch('/api/product/:shopId/:productId', (req, res) => {
 })
 
 //setup shop
-app.post('api/shop/', (req, res) => {
+router.post('api/shop/', (req, res) => {
 
 
     try {
@@ -360,7 +360,7 @@ app.post('api/shop/', (req, res) => {
     }
 })
 
-app.get('api/shop/:shopId', (req, res) => {
+router.get('api/shop/:shopId', (req, res) => {
 
     try {
         let sessId = req.session.id;
@@ -374,7 +374,7 @@ app.get('api/shop/:shopId', (req, res) => {
     }
 })
 
-app.patch('/api/shop/close/:shopId/:founder', (req, res) => {
+router.patch('/shop/close/:shopId/:founder', (req, res) => {
 
 
     try {
@@ -390,7 +390,7 @@ app.patch('/api/shop/close/:shopId/:founder', (req, res) => {
 })
 
 
-app.get('/api/shop/orders/:shopId/:ownerUsername/:from/:to', (req, res) => {
+router.get('/shop/orders/:shopId/:ownerUsername/:from/:to', (req, res) => {
     try {
         let sessId = req.session.id;
         let shopId = Number(req.params.shopId);
@@ -409,7 +409,7 @@ app.get('/api/shop/orders/:shopId/:ownerUsername/:from/:to', (req, res) => {
 })
 
 
-app.get('/api/cart', (req, res) => {
+router.get('/cart', (req, res) => {
     let sess = req.session.id
     try{
         let ans = service.checkShoppingCart(sess)
@@ -423,7 +423,7 @@ app.get('/api/cart', (req, res) => {
 
 
 //addToCart
-app.post('/api/cart/:productId/:quantity', (req, res) => {
+router.post('/cart/:productId/:quantity', (req, res) => {
     let sess = req.session.id
     try{
         let product = req.body.product
@@ -438,7 +438,7 @@ app.post('/api/cart/:productId/:quantity', (req, res) => {
 })
 
 //modifyCart
-app.patch('/api/cart/:productId/:quantity', (req, res) => {
+router.patch('/cart/:productId/:quantity', (req, res) => {
     let sess = req.session.id
     try{
         let product = req.body.product
@@ -458,7 +458,7 @@ app.patch('/api/cart/:productId/:quantity', (req, res) => {
  *     deliveryDetails
  * }
  **/
-app.post('/api/cart/checkout', (req, res) => {
+router.post('/cart/checkout', (req, res) => {
     let sess = req.session.id
     try{
         let payment = req.body.paymentDetails
@@ -481,7 +481,7 @@ app.post('/api/cart/checkout', (req, res) => {
  * serviceName,
  * settings
  */
-app.post('/api/admin/services/swap', (req, res) => {
+router.post('/admin/services/swap', (req, res) => {
     let sess = req.session.id
     try{
         let admin_name = req.body.admin
@@ -502,7 +502,7 @@ app.post('/api/admin/services/swap', (req, res) => {
  * serviceType,
  * settings
  */
-app.post('/api/admin/services/edit', (req, res) => {
+router.post('/admin/services/edit', (req, res) => {
     let sess = req.session.id
     try{
         let admin_name = req.body.admin
