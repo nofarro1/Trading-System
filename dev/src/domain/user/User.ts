@@ -1,8 +1,21 @@
+import {UUIDGenerator} from "../../utilities/Utils";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
-import { MessageBox } from "../notifications/MessageBox";
 
-export interface User{
+
+export class User{
+    private _session: string;
     _shoppingCart: ShoppingCart;
 
-    get shoppingCart(): ShoppingCart;
+    constructor(id: string, shoppingCart: ShoppingCart){
+        this._session = id;
+        this._shoppingCart = shoppingCart;
+    }
+    public get session(): string {
+            return this._session;
+    }
+
+    public get shoppingCart(): ShoppingCart {
+        return this._shoppingCart;
+    }
+
 }

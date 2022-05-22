@@ -1,6 +1,7 @@
 import {Product} from "./Product";
 import {Sale} from "./Sale";
 import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
+import {ShoppingBag} from "./ShoppingBag";
 
 
 export class Shop {
@@ -11,7 +12,6 @@ export class Shop {
     private _shopOwners: Set<string>;
     private _shopManagers: Set<string>;
     private _products: Map<number, [Product, number]>;
-    private _shopAndDiscountPolicy?: string;
     private _rate: ShopRate;
 
 
@@ -23,7 +23,6 @@ export class Shop {
         this._shopOwners= new Set<string>([shopFounder]);
         this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
-        this._shopAndDiscountPolicy= shopAndDiscountPolicy
         this._rate= ShopRate.NotRated
     }
 
@@ -84,14 +83,6 @@ export class Shop {
         this._products = value;
     }
 
-    get shopAndDiscountPolicy(): string | undefined {
-        return this._shopAndDiscountPolicy;
-    }
-
-    set shopAndDiscountPolicy(value: string | undefined) {
-        this._shopAndDiscountPolicy = value;
-    }
-
     get rate(): ShopRate {
         return this._rate;
     }
@@ -100,11 +91,13 @@ export class Shop {
         this._rate = value;
     }
 
-    addProduct(productName: string, shopId: number, category: ProductCategory, productDesc: string, fullPrice: number, discountPrice: number,quantity: number, relatedSale?: Sale ): void{
-        let toAdd= new Product(productName, shopId, category, productDesc, discountPrice, fullPrice, relatedSale);
-        if(!this.products.has(toAdd.id))
+    addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number, discountPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
+        let toAdd= new Product(productName, shopId, category, discountPrice, fullPrice, relatedSale, productDesc);
+        if(!this.products.has(toAdd.id)){
             this.products.set(toAdd.id, [toAdd, quantity]);
-
+            return toAdd;
+        }
+        return toAdd;
     }
 
     getProductQuantity(productId: number): number{
@@ -150,5 +143,12 @@ export class Shop {
         this.shopManagers?.add(managerId);
     }
 
+    checkDiscountPolicies (bag: ShoppingBag): boolean{
+        return true;
+    }
+
+    checkPutrchasePolicies (bag: ShoppingBag): boolean {
+        return true;
+    }
 
 }

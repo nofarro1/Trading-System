@@ -4,97 +4,91 @@ import {Shop} from "./Shop";
 import {Result} from "../../utilities/Result";
 import {Product} from "./Product";
 import {Sale} from "./Sale";
-import {ProductCategory, ProductRate, SearchType, ShopRate, ShopStatus, SortType} from "../../utilities/Enums";
+import {FilterType, ProductCategory, ProductRate, SearchType, ShopRate, ShopStatus,} from "../../utilities/Enums";
+import {Range} from "../../utilities/Range";
 import {logger} from "../../helpers/logger";
 
-export class Range<T>{
-    private _min: T;
-    private _max: T;
 
-    constructor(min: T, max: T){
-        this._min= min;
-        this._max= max;
-    }
-    public get min(): T {
-        return this._min;
-    }
-    public set min(value: T) {
-        this._min = value;
-    }
-    public get max(): T {
-        return this._max;
-    }
-    public set max(value: T) {
-        this._max = value;
-    }
-}
 
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage>, IMessageListener<ShopPurchaseMessage> {
-    private shops: Map<number, Shop>;
+
+    private _shops: Map<number, Shop>;
     private shopCounter: number;
-    private products: Map<number, Product>
-    subscribers: IMessageListener<ShopStatusChangedMessage>[];
+    private _products: Map<number, Product>
+    subscriber: IMessageListener<ShopStatusChangedMessage> | null;
 
     constructor(){
-        this.shops= new Map<number,Shop>();
+        this._shops= new Map<number,Shop>();
         this.shopCounter= 0;
-        this.products= new Map<number, Product>();
-        this.subscribers= [];
+        this._products= new Map<number, Product>();
+        this.subscriber= null;
     }
+
+
+    get shops(): Map<number, Shop> {
+        return this._shops;
+    }
+
+    set shops(value: Map<number, Shop>) {
+        this._shops = value;
+    }
+
+    get products(): Map<number, Product> {
+        return this._products;
+    }
+
+    set products(value: Map<number, Product>) {
+        this._products = value;
+    }
+
+
 
     accept(v: IMessageListener<ShopStatusChangedMessage>, msg: ShopStatusChangedMessage) {
         v.visitShopStatusChangedEvent(msg);
     }
 
-    notifySubscribers(message: ShopStatusChangedMessage) {
-        for(let sub of this.subscribers) {
-            this.accept(sub, message);
-        }
+    notify(message: ShopStatusChangedMessage) {
+        if(this.subscriber !== null)
+            this.accept(this.subscriber, message);
+        else
+            throw new Error("No one to get the message");
     }
 
     subscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
-        if(!this.subscribers.includes(sub)){
-           this.subscribers.push(sub)
-           logger.debug(`subscriber ${sub.constructor.name} sunsctibe to ${this.constructor.name}`)
-        }
-        logger.warn(`subscriber ${sub.constructor.name} already subscribed to ${this.constructor.name}`)
+        this.subscriber = sub;
     }
 
-    unsubscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
-        if(this.subscribers.includes(sub)){
-            const inx = this.subscribers.findIndex((o) => o === sub)
-            this.subscribers.splice(inx, inx+1)
-            logger.debug(`subscriber ${sub.constructor.name} unsubscribed to ${this.constructor.name}`)
-        }
-        logger.warn(`subscriber ${sub.constructor.name} already subscribed to ${this.constructor.name}`)
+    unsub(sub: IMessageListener<ShopStatusChangedMessage>) {
+        this.subscriber = null;
     }
 
-    
+
 
     setUpShop(userId: string, shopName: string, purchaseAndDiscountPolicies?: string): Result<Shop| void>{
         let toAdd= new Shop(this.shopCounter, shopName, userId, purchaseAndDiscountPolicies);
-        this.shops.set(toAdd.id, toAdd);
+        this.shopCounter++;
+        this._shops.set(toAdd.id, toAdd);
         logger.info(`The ${shopName} was opened in the market by ${userId}.`);
-        return new Result(true, undefined);
+        return new Result(true, toAdd);
     }
 
     closeShop(founder: string, shopId: number): Result<void>{
-        let toClose= this.shops.get(shopId);
+        let toClose= this._shops.get(shopId);
         if(toClose){
             toClose.status= ShopStatus.close;
-            this.notifySubscribers(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
+            // this.notify(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
             logger.info(`The ${toClose.name} was closed in the market.`);
             return new Result(true, undefined);
         }
         logger.error(`${founder} tried to close his shop, but the shop with id:${shopId}  does not exist`);
         return new Result(false,undefined, "Failed to close shop because the shop isn't exist.");
     }
-    
+
     reopenShop(founder: string, shopId: number): Result<void>{
-        let toReopen= this.shops.get(shopId);
+        let toReopen= this._shops.get(shopId);
         if(toReopen){
             toReopen.status= ShopStatus.open;
-            this.notifySubscribers(new ShopStatusChangedMessage(true, toReopen.shopOwners, toReopen.name));
+            // this.notify(new ShopStatusChangedMessage(true, toReopen.shopOwners, toReopen.name));
             logger.info(`The ${toReopen.name} was reopend in the market.`);
             return new Result(true, undefined);
         }
@@ -102,20 +96,21 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false,undefined, "Failed to reopen shop because the shop does not exist.");
     }
 
-    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, discountPrice: number, relatedSale?: Sale, productDesc?: string): Result<void> {
-        //TODO - Check that quantity is not negative
-        let shop = this.shops.get(shopId);
+    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, discountPrice: number, relatedSale?: Sale, productDesc?: string): Result<void | Product> {
+        if(quantity<0)
+            return new Result<void>(false, undefined, "Cannot add negative amount of product to a shop ");
+        let shop = this._shops.get(shopId);
         if (!shop) {
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
         }
-        shop.addProduct(productName, shopId, productCategory, !productDesc ? "" : productDesc, fullPrice, discountPrice, quantity, relatedSale)
+        let product = shop.addProduct(productName, shopId, productCategory, fullPrice, discountPrice, quantity, relatedSale, productDesc);
         logger.info(`${productName} was added to ${shop.name}.`);
-        return new Result(true, undefined,undefined);
+        return new Result(true, product,undefined);
     }
 
     removeProductFromShop(shopId: number, productId: number): Result<void>{
-        let shop= this.shops.get(shopId);
+        let shop= this._shops.get(shopId);
         if(!shop) {
             logger.error(`Failed to remove ${productId} from shop with id: ${shopId}, because the shop wasn't found.`)
             return new Result(false, undefined, "Failed to remove product from the shop because the shop wasn't found");
@@ -132,7 +127,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
     updateProductQuantity(shopId: number, productId: number, quantity: number): Result<void>{
-        let shop= this.shops.get(shopId);
+        let shop= this._shops.get(shopId);
         if(!shop) {
             logger.error(`Failed to update the quantity of ${productId}, because the shop with id: ${shopId} wasn't found.`)
             return new Result(false, undefined, "Failed to update product quantity because the shop wasn't found");
@@ -145,11 +140,11 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         catch(error: any){
             logger.error(`In marketPlaceController-> updateProductQuantity(${shopId}, ${productId}, ${quantity}): ${error.message}.`)
             return new Result(false, undefined, error.message);
-         }
+        }
     }
 
     appointShopOwner(ownerId: string, shopId: number): Result<void>{
-        let shop= this.shops.get(shopId);
+        let shop= this._shops.get(shopId);
         if(!shop) {
             logger.error(`Failed to appoint ${ownerId} to shop with id: ${shopId}, because the shop does not exist.`)
             return new Result(false, undefined, "Failed to appoint owner because the shop wasn't found");
@@ -163,11 +158,11 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             logger.error(`In marketPlaceController-> appointShopOwner(${ownerId}, ${shopId}): ${error.any}`)
             return new Result(false, undefined, error.message);
         }
-                 
+
     }
 
     appointShopManager(managerId: string, shopId: number): Result<void>{
-        let shop= this.shops.get(shopId);
+        let shop= this._shops.get(shopId);
         if(!shop) {
             logger.error(`Failed to appoint ${managerId} to shop with id: ${shopId}, because the shop does not exist.`)
             return new Result(false, undefined, "Failed to appoint manager because the shop wasn't found");
@@ -184,7 +179,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
     showShopProducts(shopId: number): Result<Map<number, [Product, number]> | undefined> {
-        let shop = this.shops.get(shopId);
+        let shop = this._shops.get(shopId);
         if (shop) {
             let products = shop.products;
             if (products.size == 0) {
@@ -192,20 +187,24 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
                 return new Result(true, products, "No products to show");
             }
             logger.info(`The products of ${shop.name} was shown.`)
-            return new Result(true, products, "No products to show");    
+            return new Result(true, products, "No products to show");
         }
         else
             logger.error(`In marketPlaceController-> showShopProducts(${shopId}).`)
-            return new Result(false, undefined, "Failed to show the shop products because the shop wasn't found");
+        return new Result(false, undefined, "Failed to show the shop products because the shop wasn't found");
     }
 
     searchProduct(searchBy: SearchType, searchInput: String | ProductCategory): Result<Product[]>{
-        let shopsArray = Array.from(this.shops.values());
-        let allProductsMap= shopsArray.map(shop=> Array.from(shop.products.values()));
-        let allProductsInMarket= this.extractProducts(allProductsMap);
+        let shopsArray: Shop[] = Array.from(this._shops.values());
+        let allProductsInMarket: Product[] = [];
+        for (let shop of shopsArray) {
+            allProductsInMarket = allProductsInMarket.concat(this.extractProducts(shop.products));
+        }
         switch (searchBy) {
             case SearchType.productName:
-                let searchedByName= allProductsInMarket.filter(p=> p.name==searchInput);
+                let searchedByName=
+                    allProductsInMarket.filter(
+                        p=> p.name==searchInput);
                 logger.info(`Searching for products by name is done successfully.`)
                 return new Result(true,searchedByName);
             case SearchType.category:
@@ -223,38 +222,41 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false, [], "Failed to search product");
     }
 
-    private extractProducts(pTuples: [Product, number][][]): Product[]{
-        return pTuples.map(pTuple=> pTuple[0][0]);
+    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
+        let productsList = [];
+        for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
+        return productsList;
     }
 
-    private sortProducts(sortBy: SortType, sortInput: ProductCategory| ProductRate| Range<number> | ShopRate, toSort: Product[]): Result<Product[]>{
-        switch(sortBy){
-            case SortType.category:
-                let sortByCategory= toSort.filter(p=> p.category== sortInput);
-                logger.info(`Sorting products by category is done successfully.`)
-                return new Result(true, sortByCategory);
-            case SortType.price:
-                if(sortInput instanceof Range){
-                    let sortByPrice= toSort.filter(p=> {let price= p.discountPrice;
-                                         price>=sortInput.min && price<=sortInput.max})
-                    logger.info(`Sorting products by price range is done successfully.`)
-                    return new Result(true, sortByPrice);
+    public filterProducts(filterBy: FilterType, filterInput: ProductCategory| ProductRate| Range<number> | ShopRate, toFilter: Product[]): Result<Product[]>{
+        switch(filterBy){
+            case FilterType.category:
+                let filterByCategory= toFilter.filter(p=> p.category== filterInput);
+                logger.info(`Filtering products by category is done successfully.`)
+                return new Result(true, filterByCategory);
+            case FilterType.price:
+                if(filterInput instanceof Range){
+                    let filterByPrice= toFilter.filter(p=> {
+                        let price= p.discountPrice;
+                        return price>=filterInput.min && price<=filterInput.max}, )
+                    logger.info(`Filtering products by price range is done successfully.`)
+                    return new Result(true, filterByPrice);
                 }
-            case SortType.productRate:
-                let sortByProductRate= toSort.filter(p=> p.rate==sortInput);
-                logger.info(`Sorting products by product's rate is done successfully.`)
-                return new Result(true, sortByProductRate);
-            case SortType.shopRate:
-                let sortByShopRate= toSort.filter(p=> this.shops.get(p.shopId)?.rate == sortInput)
-                logger.info(`Sorting products by shop's rate is done successfully.`)
-                return new Result(true, sortByShopRate);
+            case FilterType.productRate:
+                let filterByProductRate= toFilter.filter(p=> p.rate==filterInput);
+                logger.info(`Filtering products by product's rate is done successfully.`)
+                return new Result(true, filterByProductRate);
+            case FilterType.shopRate:
+                let filterByShopRate= toFilter.filter(p=> this._shops.get(p.shopId)?.rate == filterInput)
+                logger.info(`Filtering products by shop's rate is done successfully.`)
+                return new Result(true, filterByShopRate);
         }
-        logger.error(`Sorting by ${SortType} is not possible option.`)
-        return new Result(false, [], "Failed to sort product");
+        logger.error(`Filtering by ${FilterType} is not possible option.`)
+        return new Result(false, [], "Failed to filter product");
     }
 
     getShopInfo(shopId: number): Result<Shop | undefined>{
-        let shop = this.shops.get(shopId);
+        let shop = this._shops.get(shopId);
         if (shop){
             logger.info(`${shop.name}'s info was returned successfully.`);
             return new Result(true, shop);
@@ -264,7 +266,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
     getProduct(productId: number): Result<Product | void>{
-        let toReturn= this.products.get(productId);
+        let toReturn= this._products.get(productId);
         if(toReturn){
             logger.info(`Product with id: ${productId} was Returned successfully.`)
             return new Result(true,toReturn);
@@ -275,7 +277,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     visitPurchaseEvent(msg: ShopPurchaseMessage): void {
         logger.info(`"ShopPurchaseMessage" was received in marketPlaceController.`);
         let shopId = msg.purchase.shopId;
-        let shop = this.shops.get(shopId);
+        let shop = this._shops.get(shopId);
         if (shop !== undefined) {
             msg.purchase.products.forEach(([product, quantity]) => {
                 shop?.updateProductQuantity(product.id, quantity)
@@ -285,5 +287,11 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     visitShopStatusChangedEvent(msg: ShopStatusChangedMessage): void {
         console.log("Not interested in that event");
+    }
+
+    notifySubscribers(message: ShopStatusChangedMessage): void {
+    }
+
+    unsubscribe(sub: IMessageListener<ShopStatusChangedMessage>): void {
     }
 } 

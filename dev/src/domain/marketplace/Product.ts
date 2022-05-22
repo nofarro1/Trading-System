@@ -5,7 +5,7 @@ let productsCounter= 0;
 
 export class Product {
 
-    private _id: number;  
+    private _id: number;
     private _name: string;
     private _shopId: number;
     private _category: ProductCategory;
@@ -16,14 +16,18 @@ export class Product {
 
 
 
-    constructor(name: string, shopId: number, category: ProductCategory, description: string, fullPrice: number, discountPrice: number, relatedSale?: Sale){
+    constructor(name: string, shopId: number, category: ProductCategory, fullPrice: number, discountPrice: number, relatedSale?: Sale, description?: string){
         this._id= productsCounter;
         productsCounter++;
         this._name= name;
         this._shopId= shopId;
-        this._category= category; 
+        this._category= category;
         this._rate= ProductRate.NotRated
-        this._description = description;
+        if(description){
+            this._description = description;
+        }
+        else
+            this._description="";
         this._fullPrice= fullPrice;
         this._discountPrice= discountPrice;
         this._relatedSale = relatedSale;
@@ -63,9 +67,9 @@ export class Product {
     public set rate(value: ProductRate) {
         this._rate = value;
     }
-    
+
     public get description(): string {
-        return this._description;
+        return <string>this._description;
     }
     public set description(value: string) {
         this._description = value;
@@ -78,7 +82,7 @@ export class Product {
     public set fullPrice(value: number) {
         this._fullPrice = value;
     }
-    
+
     public get discountPrice(): number {
         return this._discountPrice;
     }
