@@ -1,4 +1,3 @@
-import {Guest} from "./user/Guest";
 import {SecurityController} from "./SecurityController";
 
 import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
@@ -32,6 +31,7 @@ import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
+import session from "express-session";
 
 
 export class SystemController {
@@ -104,7 +104,7 @@ export class SystemController {
         if (res.ok) {
             let mb = box.addMessageBox(newMember.username)
             if (mb.ok) {
-                const memRes = user.addMember(newMember.username, res.data as ShoppingCart)
+                const memRes = user.addMember("-1",newMember.username, res.data as ShoppingCart)
                 if (memRes.ok)
                     return new Result(true, memRes.data, "register success");
             }
@@ -124,12 +124,12 @@ export class SystemController {
     //SimpleGuest actions
 
     accessMarketplace(session: string): Result<void | SimpleGuest> {
-        let newGuest: Result<Guest> = this.uController.createGuest(session);
+        let newGuest: Result<User> = this.uController.createGuest(session);
         if (!newGuest.ok) {
             return new Result(false,undefined);
         }
         const guest = newGuest.data
-        this.securityController.accessMarketplace(guest.id);
+        this.securityController.accessMarketplace(guest.session);
         return new Result(true, toSimpleGuest(guest));
     }
 
@@ -147,7 +147,7 @@ export class SystemController {
                 const toExit = this.uController.getGuest(toLogout);
                 const delCart = this.scController.removeCart(toLogout);
                 if (checkRes(toExit) && checkRes(delCart)) {
-                    this.uController.exitGuest(toExit.data as Guest);
+                    this.uController.exitGuest(toExit.data);
                     return new Result(true, undefined, "bye bye!");
                 }
                 return new Result(false, undefined, "for some reason guest was not deleted");
@@ -178,7 +178,7 @@ export class SystemController {
                 const toExit = this.uController.getGuest(sessionId);
                 const delCart = this.scController.removeCart(sessionId);
                 if (checkRes(toExit) && checkRes(delCart)) {
-                    this.uController.exitGuest(toExit.data as Guest);
+                    this.uController.exitGuest(toExit.data);
                     return new Result(true, undefined, "bye bye!");
                 }
                 return new Result(true, undefined, res.message)
@@ -231,7 +231,7 @@ export class SystemController {
         if (checkRes(res)) {
             let mb = this.mController.addMessageBox(newMember.username)
             if (checkRes(mb)) {
-                const memRes = this.uController.addMember(newMember.username, res.data)
+                const memRes = this.uController.addMember(sessionId,newMember.username, res.data)
                 if (checkRes(memRes))
                     return new Result(true, toSimpleMember(memRes.data), "register success");
             }
@@ -373,13 +373,16 @@ export class SystemController {
 
     //shop owner related
 
-    addProduct(sessionId: string, p: NewProductData): Result<void> {
-        const authCallback = (id: string): Result<void> => {
+    addProduct(sessionId: string, p: NewProductData): Result<SimpleProduct | void> {
+        const authCallback = (id: string): Result<SimpleProduct | void> => {
             if (this.uController.checkPermission(id, p.shopId, Permissions.AddProduct).data) {
-                return this.mpController.addProductToShop(
+                let product = this.mpController.addProductToShop(
                     p.shopId, p.productCategory, p.productName,
                     p.quantity, p.fullPrice, !p.discountPrice ? p.fullPrice : p.discountPrice,
                     p.relatedSale, p.productDesc);
+                if(checkRes(product)){
+                    return new Result(true,toSimpleProduct(product.data))
+                }
             }
             return new Result(false, undefined, "member does not have permissions");
         }
@@ -528,8 +531,8 @@ export class SystemController {
             if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data) {
                 return new Result(false, undefined, "no permission");
             }
-            let orders: ShopOrder[] = this.pController.shopOrders.has(shop) ?
-                [...(this.pController.shopOrders.get(shop) as Set<ShopOrder>)].filter((o) => o.creationTime > startDate && o.creationTime < endDate) : []
+            let orders = this.pController.shopOrders.has(shop) ?
+                [...(this.pController.shopOrders.get(shop) as Map<string,Set<string>>).entries()].filter((o) => o.creationTime > startDate && o.creationTime < endDate) : []
             return new Result(orders.length !== 0, orders.map(toSimpleShopOrder), orders.length !== 0 ? undefined : "no SimpleShop order were found");
         }
 
