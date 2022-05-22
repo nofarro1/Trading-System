@@ -9,7 +9,7 @@ class TestMessage extends Message {
     content
 
     constructor() {
-        super();
+        super(new Set());
         this.content = "i'm A test message"
     }
 

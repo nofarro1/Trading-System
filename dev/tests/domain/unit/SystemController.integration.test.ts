@@ -22,11 +22,19 @@ import {
     toSimpleProducts,
     toSimpleShop, toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
-import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../../mockHalpers";
-import exp from "constants";
+import {clearMocks, mockInstance, mockMethod} from "../../mockHalpers";
 
+const mockDependencies = {
+    SecurityController: "../../../src/domain/SecurityController",
+    MessageController: "../../../src/domain/notifications/MessageController",
+    MarketplaceController: "../../../src/domain/marketplace/MarketplaceController",
+    PurchaseController: "../../../src/domain/purchase/PurchaseController",
+    UserController: "../../../src/domain/user/UserController",
+    NotificationController: "../../../src/domain/notifications/NotificationController",
+    SystemController: "../../../src/domain/SystemController"
+}
 
-describe('system controller - unit', () => {
+describe('system controller - full integration', function () {
     let sys: SystemController;
     let mpController: MarketplaceController;
     let mController: MessageController;
@@ -35,12 +43,6 @@ describe('system controller - unit', () => {
     let uController: UserController;
     let notificationsController: NotificationController;
 
-    let mpControllerMockMethod: jest.SpyInstance<any, unknown[]>
-    let mControllerMockMethod: jest.SpyInstance<any, unknown[]>
-    let pControllerMockMethod: jest.SpyInstance<any, unknown[]>
-    let scControllerMockMethod: jest.SpyInstance<any, unknown[]>
-    let uControllerMockMethod: jest.SpyInstance<any, unknown[]>
-    let notificationsControllerMockMethod: jest.SpyInstance<any, unknown[]>
 
     const sess1 = "1";
     let user1: Guest;
@@ -61,7 +63,7 @@ describe('system controller - unit', () => {
     let cart4: ShoppingCart;
     let box1: MessageBox;
 
-    const sess5 = "5";
+    const sess5: string = "5";
     const username2 = "member2";
     const pass2 = "123456789"
     let member2: Member;
@@ -70,9 +72,9 @@ describe('system controller - unit', () => {
 
     const shop1 = new Shop(0, "_name", username1, "this is my shop");
 
-    const p1 = new Product("ps1", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p2 = new Product("ps2", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p3 = new Product("ps3", 0, ProductCategory.A, 10, 10, undefined,"description");
+    const p1 = new Product("ps1", 0, ProductCategory.A, "description", 10, 10)
+    const p2 = new Product("ps2", 0, ProductCategory.A, "description", 10, 10)
+    const p3 = new Product("ps3", 0, ProductCategory.A, "description", 10, 10)
     // const p4 = new Product("ps4", 0, ProductCategory.A, "description", 10, 10)
     // const p5 = new Product("ps5", 0, ProductCategory.A, "description", 10, 10)
     // const p6 = new Product("ps6", 0, ProductCategory.A, "description", 10, 10)
@@ -82,32 +84,6 @@ describe('system controller - unit', () => {
 
 
     beforeAll(() => {
-
-
-        //marketplace
-        mockInstance(mockDependencies.MarketplaceController)
-        //security
-        mockInstance(mockDependencies.SecurityController)
-        //message
-        mockInstance(mockDependencies.MessageController)
-        //purchase
-        mockInstance(mockDependencies.PurchaseController)
-        //user
-        mockInstance(mockDependencies.UserController)
-        //notification
-        mockInstance(mockDependencies.NotificationController)
-
-        pControllerMockMethod = mockMethod(MarketplaceController.prototype, 'subscribe', () => {
-            console.log(`subscribe has been called for marketplace`);
-        })
-
-        mpControllerMockMethod = mockMethod(PurchaseController.prototype, 'subscribe', () => {
-            console.log(`subscribe has been called for PurchaseController`);
-        })
-
-        scControllerMockMethod = mockMethod(SecurityController.prototype, 'isLoggedIn', (id) => {
-            return id;
-        })
 
         sys = SystemController.initialize();
         mpController = sys.mpController
@@ -138,7 +114,1023 @@ describe('system controller - unit', () => {
 
     })
 
-    afterEach(() => {
+    test("initialize the system", () => {
+        expect(sys.mpController).toBeDefined();
+        expect(sys.pController).toBeDefined();
+        expect(sys.scController).toBeDefined();
+        expect(sys.uController).toBeDefined();
+        expect(sys.mController).toBeDefined();
+        expect(sys.securityController).toBeDefined();
+        expect(sys.notifyController).toBeDefined();
+    })
+
+    test("access marketplace test", () => {
+
+        const res = sys.accessMarketplace(sess1);
+
+        //assert
+        expect(res.ok).toBeTruthy();
+        expect(res.data).toBeDefined()
+        expect(res.data).toEqual(toSimpleGuest(user1))
+    })
+
+    test("exit marketplace - guest", () => {
+
+
+        let res = sys.exitMarketplace("1");
+
+        expect(res.ok).toBe(true)
+        expect(res.data).toEqual(undefined)
+        expect(res.message).toEqual("bye bye!")
+
+    })
+
+    test("exit marketplace - member", () => {
+
+
+        let res = sys.exitMarketplace("1");
+
+        expect(res.ok).toBe(true)
+        expect(res.data).toEqual(undefined)
+        expect(res.message).toEqual("bye bye!")
+    })
+
+
+    describe("login tests", () => {
+        test("login test - success", () => {
+            //prepare
+            //act
+            let res = sys.login(sess4, {username: username1, password: pass1});
+            //assert
+            expect(res.ok).toBe(true);
+            expect(res.data).not.toBeDefined()
+
+
+        })
+
+        test("login test - failure - recover from security failure", () => {
+
+            let res = sys.login(sess4, {username: username1, password: pass1});
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined()
+
+        })
+
+        test("login test - failure - recover from Member Controller failure", () => {
+            let res = sys.login(sess4, {username: username1, password: pass1});
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined()
+        })
+    })
+
+
+    describe('logout member', function () {
+
+
+        test("logout test - success", () => {
+
+
+            let res = sys.logout(sess1)
+
+            expect(res.ok).toBe(true);
+            expect(res.data).toEqual(user1)
+
+        })
+
+        test("logout test - logout failed", () => {
+            let res = sys.logout(sess1)
+            expect(res.ok).toBe(false);
+            expect(res.data).toEqual(user1)
+
+        })
+
+    });
+
+
+    describe("register tests", () => {
+            test("register member - success", () => {
+                //prepare
+
+                //act
+                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+
+                //assert
+                expect(res.ok).toBe(true);
+                expect(res.data).not.toBeDefined();
+            })
+
+            test("register member - failure from security", () => {
+                //prepare
+
+
+                //act
+                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+
+            })
+
+            test("register member - failure from shoppingCart", () => {
+                //prepare
+
+                //act
+                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+
+                //tairDown
+            })
+
+            test("register member - failure from MessageBox", () => {
+                //prepare
+
+
+                //act
+                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+            })
+
+            test("register member - failure from User", () => {
+
+
+                //act
+                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+            })
+        }
+    )
+
+
+    test("get product - success", () => {
+        //prepare
+
+        //act
+        let res = sys.getProduct(sess1, 0);
+        expect(res.ok).toBe(true);
+        expect(res.data).toEqual(toSimpleProduct(p1));
+
+
+    })
+
+    test("get shop", () => {
+
+        //act
+        let res = sys.getShop(sess1, 0);
+        expect(res.ok).toBe(true);
+        expect(res.data).toEqual(toSimpleShop(shop1));
+
+    })
+
+    test("search product", () => {
+
+        let res = sys.searchProducts(username1, SearchType.productName, "some Search");
+        expect(res.ok).toBe(true);
+        expect(res.data).toEqual(toSimpleProducts([p1, p2, p3]));
+    })
+    test("add to cart - success", () => {
+
+        let res = sys.addToCart(username1, 0, 2);
+        expect(res.ok).toBe(true);
+        expect(res.data).not.toBeDefined();
+    })
+
+    test("add to cart - failure - getting the product", () => {
+
+        let res = sys.addToCart(username1, 0, 2);
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+
+    })
+
+    test("get cart", () => {
+
+        let res = sys.getCart(username1)
+        expect(res.ok).toBe(true);
+        expect(res.data).toBeDefined();
+        expect(res.data).toEqual(toSimpleShoppingCart(username1, cart1));
+    })
+
+    test("remove product from cart", () => {
+        let removeProdMM = mockMethod(ShoppingCartController.prototype, 'removeProduct', () => {
+            return new Result(true, undefined);
+        });
+
+        let ProdMM = mockMethod(MarketplaceController.prototype, 'getProduct', () => {
+            return new Result(true, p1);
+        });
+
+        let res = sys.removeProductFromCart(username1, 0);
+        expect(res.ok).toBe(true);
+        expect(res.data).not.toBeDefined();
+
+    })
+
+    test("checkout - success", () => {
+        let perchMM = mockMethod(PurchaseController.prototype, "checkout", () => {
+            return new Result(true, undefined);
+        })
+
+        let res = sys.checkout(username1, "Pure gold", "please give me products")
+        expect(res.ok).toBe(true);
+        expect(res.data).not.toBeDefined();
+        expect(perchMM).toBeCalled()
+
+        clearMocks(perchMM);
+
+    })
+
+    test("checkout - failure", () => {
+        let perchMM = mockMethod(PurchaseController.prototype, "checkout", () => {
+            return new Result(false, undefined);
+        })
+
+        let res = sys.checkout(username1, "Pure gold", "please give me products")
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+        expect(perchMM).toBeCalled()
+        clearMocks(perchMM);
+
+    })
+
+    test("setup shop", () => {
+        let getMemberMockMethod = mockMethod(UserController.prototype, 'getMember',
+            () => {
+                return new Result(true, member1, "mock success")
+            })
+
+        let getShopMM = mockMethod(MarketplaceController.prototype, 'setUpShop', () => {
+            return new Result(true, shop1);
+        });
+
+        //act
+        let res = sys.setUpShop(username1, "shop1");
+        expect(res.ok).toBe(true);
+        expect(res.data).not.toBeDefined();
+        expect(getMemberMockMethod).toBeCalled()
+        expect(getShopMM).toBeCalled()
+
+        clearMocks(getMemberMockMethod, getShopMM);
+    })
+
+    test("setup shop - failed", () => {
+        let getMemberMockMethod = mockMethod(UserController.prototype, 'getMember',
+            () => {
+                return new Result(false, undefined, "mock success")
+            })
+        //act
+        let res = sys.setUpShop(username1, "shop1");
+
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+        expect(getMemberMockMethod).toBeCalled();
+
+        clearMocks(getMemberMockMethod);
+    })
+
+    test("add product to shop - success", () => {
+        let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
+            () => {
+                return new Result(true, true, "mock success")
+            })
+
+        let addProductToShopMM = mockMethod(MarketplaceController.prototype, 'addProductToShop',
+            () => {
+                return new Result(true, undefined, "mock success")
+            })
+        let res = sys.addProduct(username1, {
+            shopId: p1.shopId,
+            productCategory: p1.category,
+            productName: p1.name,
+            quantity: 5,
+            fullPrice: p1.fullPrice
+        })
+
+        expect(res.ok).toBe(true);
+        expect(res.data).not.toBeDefined();
+        expect(checkPermissionMM).toBeCalled();
+        expect(addProductToShopMM).toBeCalled();
+
+        clearMocks(addProductToShopMM);
+    })
+
+    test("add product to shop - failure - permissions", () => {
+        let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
+            () => {
+                return new Result(false, false, "mock fail")
+            })
+
+        let addProductToShopMM = mockMethod(MarketplaceController.prototype, 'addProductToShop',
+            () => {
+                return new Result(true, undefined, "mock fail")
+            })
+        let res = sys.addProduct(username1, {
+            shopId: p1.shopId,
+            productCategory: p1.category,
+            productName: p1.name,
+            quantity: 5,
+            fullPrice: p1.fullPrice
+        })
+
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+        expect(checkPermissionMM).toBeCalled();
+        expect(addProductToShopMM).not.toBeCalled();
+
+        clearMocks(addProductToShopMM);
+    })
+
+    test("add product to shop - failure - addProduct", () => {
+        let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
+            () => {
+                return new Result(true, true, "mock fail")
+            })
+
+        let addProductToShopMM = mockMethod(MarketplaceController.prototype, 'addProductToShop',
+            () => {
+                return new Result(false, undefined, "mock fail")
+            })
+        let res = sys.addProduct(username1, {
+            shopId: p1.shopId,
+            productCategory: p1.category,
+            productName: p1.name,
+            quantity: 5,
+            fullPrice: p1.fullPrice
+        })
+
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+        expect(checkPermissionMM).toBeCalled();
+        expect(addProductToShopMM).toBeCalled();
+
+        clearMocks(addProductToShopMM);
+    })
+
+    test("delete product - successes", () => {
+        let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
+            () => {
+                return new Result(true, true, "mock success")
+            })
+
+        let addProductToShopMM = mockMethod(MarketplaceController.prototype, 'removeProductFromShop',
+            () => {
+                return new Result(true, undefined, "mock success")
+            })
+        let res = sys.deleteProduct(username1, 0, 0);
+
+        expect(res.ok).toBe(true);
+        expect(res.data).not.toBeDefined();
+        expect(checkPermissionMM).toBeCalled();
+        expect(addProductToShopMM).toBeCalled();
+
+        clearMocks(addProductToShopMM);
+    })
+
+    test("delete product - failure - permissions", () => {
+        let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
+            () => {
+                return new Result(false, false, "mock fail")
+            })
+
+        let removeProductFromShopMM = mockMethod(MarketplaceController.prototype, 'removeProductFromShop',
+            () => {
+                return new Result(true, undefined, "mock success")
+            })
+        let res = sys.deleteProduct(username1, 0, 0);
+
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+        expect(checkPermissionMM).toBeCalled();
+        expect(removeProductFromShopMM).not.toBeCalled();
+
+        clearMocks(removeProductFromShopMM);
+    })
+
+    test("delete product - failure - remove", () => {
+        let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
+            () => {
+                return new Result(true, true, "mock success")
+            })
+
+        let removeProductFromShopMM = mockMethod(MarketplaceController.prototype, 'removeProductFromShop',
+            () => {
+                return new Result(false, undefined, "mock success")
+            })
+        let res = sys.deleteProduct(username1, 0, 0);
+
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+        expect(checkPermissionMM).toBeCalled();
+        expect(removeProductFromShopMM).toBeCalled();
+
+        clearMocks(removeProductFromShopMM);
+    })
+
+    test("update product - success", () => {
+        let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
+            () => {
+                return new Result(true, true, "mock success")
+            })
+
+        let updateProductToShopMM = mockMethod(MarketplaceController.prototype, 'updateProductQuantity',
+            () => {
+                return new Result(true, undefined, "mock success")
+            })
+        let res = sys.updateProduct(username1, 0, 0, 5);
+
+        expect(res.ok).toBe(true);
+        expect(res.data).not.toBeDefined();
+        expect(checkPermissionMM).toBeCalled();
+        expect(updateProductToShopMM).toBeCalled();
+
+        clearMocks(updateProductToShopMM);
+
+
+    })
+    test("update product - failure - permissions", () => {
+        let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
+            () => {
+                return new Result(false, false, "mock fail")
+            })
+
+        let updateProductToShopMM = mockMethod(MarketplaceController.prototype, 'updateProductQuantity',
+            () => {
+                return new Result(true, undefined, "mock success")
+            })
+        let res = sys.updateProduct(username1, 0, 0, 5);
+
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+        expect(checkPermissionMM).toBeCalled();
+        expect(updateProductToShopMM).not.toBeCalled();
+
+        clearMocks(updateProductToShopMM);
+    })
+    test("update product - failure - update", () => {
+        let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
+            () => {
+                return new Result(true, true, "mock success")
+            })
+
+        let updateProductToShopMM = mockMethod(MarketplaceController.prototype, 'updateProductQuantity',
+            () => {
+                return new Result(false, undefined, "mock success")
+            })
+        let res = sys.updateProduct(username1, 0, 0, 5);
+
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+        expect(checkPermissionMM).toBeCalled();
+        expect(updateProductToShopMM).toBeCalled();
+
+        clearMocks(updateProductToShopMM);
+    })
+
+    describe("appoint Owner", () => {
+
+        test("appoint owner - success", () => {
+            //prep
+            let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                return new Result(true, true, "mock success")
+            })
+
+            let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
+                return new Result(true, role1)
+            })
+
+            let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
+                return new Result(true, undefined, "mock appoint message")
+            })
+
+            //act
+            let res = sys.appointShopOwner(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: [],
+                title: "title"
+            })
+
+            //assert
+            expect(res.ok).toBe(true);
+            expect(res.data).not.toBeDefined();
+            expect(checkPermissionMM).toBeCalled()
+            expect(addRoleMM).toBeCalled()
+            expect(appointOwnerMM).toBeCalled()
+
+            clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
+
+        })
+        test("appoint owner - failure - permissions", () => {
+            //prep
+            let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                return new Result(false, false, "mock success")
+            })
+
+            let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
+                return new Result(true, role1)
+            })
+
+            let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
+                return new Result(true, undefined, "mock appoint message")
+            })
+
+            //act
+            let res = sys.appointShopOwner(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: [],
+                title: "title"
+            })
+
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined();
+            expect(checkPermissionMM).toBeCalled()
+            expect(addRoleMM).not.toBeCalled()
+            expect(appointOwnerMM).not.toBeCalled()
+
+            clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
+
+        })
+        test("appoint owner - failure - addRole", () => {
+            //prep
+            let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                return new Result(true, true, "mock success")
+            })
+
+            let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
+                return new Result(false, undefined)
+            })
+
+            let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
+                return new Result(true, undefined, "mock appoint message")
+            })
+
+            //act
+            let res = sys.appointShopOwner(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: [],
+                title: "title"
+            })
+
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined();
+            expect(checkPermissionMM).toBeCalled()
+            expect(addRoleMM).toBeCalled()
+            expect(appointOwnerMM).not.toBeCalled()
+
+            clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
+
+        })
+        test("appoint owner  - failure - appointShopOwner", () => {
+            //prep
+            //act
+            let res = sys.appointShopOwner(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: [],
+                title: "title"
+            })
+
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined();
+
+        })
+
+    })
+
+    describe("appoint Shop Manager", () => {
+
+        test("appoint Manager - success", () => {
+            //prep
+
+            //act
+            let res = sys.appointShopManager(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: [],
+                title: "title"
+            })
+
+            //assert
+            expect(res.ok).toBe(true);
+            expect(res.data).not.toBeDefined();
+
+        })
+        test("appoint manager - failure - permissions", () => {
+            //prep
+
+            //act
+            let res = sys.appointShopManager(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: [],
+                title: "title"
+            })
+
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined();
+        })
+        test("appoint manager - failure - addRole", () => {
+            //prep
+
+            //act
+            let res = sys.appointShopManager(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: [],
+                title: "title"
+            })
+
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined();
+
+
+        })
+        test("appoint manager  - failure - appointShopOwner", () => {
+
+            //act
+            let res = sys.appointShopManager(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: [],
+                title: "title"
+            })
+
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined();
+
+        })
+
+        describe('add permissions to shop manager', () => {
+            test("add permissions to shop Manager - success", () => {
+                //prep
+
+                //act
+                let res = sys.addShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+
+                //assert
+                expect(res.ok).toBe(true);
+                expect(res.data).not.toBeDefined();
+            })
+
+            test("add permissions to shop Manager - failure - permissions", () => {
+                //prep
+
+
+                //act
+                let res = sys.addShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+
+                //assert
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+
+            })
+
+            test("add permissions to shop Manager - failure - add", () => {
+                //prep
+
+                //act
+                let res = sys.addShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+
+                //assert
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+            })
+        });
+
+
+        describe('add permmissions to shop manager', () => {
+            test("remove shop manager permissions - success", () => {
+                //prep
+
+                //act
+                let res = sys.removeShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+
+                //assert
+                expect(res.ok).toBe(true);
+                expect(res.data).not.toBeDefined();
+            })
+
+            test("remove shop manager permissions - failure - checkPermission", () => {
+                //prep
+                let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                    return new Result(false, false, "mock success")
+                })
+
+                let removePermissionMM = mockMethod(UserController.prototype, 'removePermission', () => {
+                    return new Result(true, undefined, "mock success")
+                })
+
+                //act
+                let res = sys.removeShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+
+                //assert
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+                expect(checkPermissionMM).toBeCalled()
+                expect(removePermissionMM).not.toBeCalled()
+
+                clearMocks(checkPermissionMM, removePermissionMM)
+            })
+
+            test("remove shop manager permissions - failure - remove", () => {
+                //prep
+
+                //act
+                let res = sys.removeShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+
+                //assert
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+
+            })
+        });
+
+
+        describe('deactivate shop manager', () => {
+
+            test("deactivate shop - success", () => {
+                //prep
+                let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                    return new Result(true, true, "mock success")
+                })
+
+                let close = mockMethod(MarketplaceController.prototype, 'closeShop', () => {
+                    return new Result(true, undefined, "mock");
+                })
+
+                let res = sys.reactivateShop(username1, 0);
+
+                expect(res.ok).toBe(true);
+                expect(res.data).not.toBeDefined();
+                expect(checkPermissionMM).toBeCalled()
+                expect(close).toBeCalled()
+
+                clearMocks(close, checkPermissionMM)
+            })
+
+            test("deactivate shop - failure - permissions", () => {
+                //prep
+                let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                    return new Result(false, false, "mock success")
+                })
+
+                let close = mockMethod(MarketplaceController.prototype, 'closeShop', () => {
+                    return new Result(true, undefined, "mock");
+                })
+
+                let res = sys.reactivateShop(username1, 0);
+
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+                expect(checkPermissionMM).toBeCalled()
+                expect(close).not.toBeCalled()
+
+                clearMocks(close, checkPermissionMM)
+            })
+
+            test("deactivate shop - failure to deactivate", () => {
+                //prep
+                let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                    return new Result(true, true, "mock success")
+                })
+
+                let close = mockMethod(MarketplaceController.prototype, 'closeShop', () => {
+                    return new Result(false, undefined, "mock");
+                })
+
+                let res = sys.reactivateShop(username1, 0);
+
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+                expect(checkPermissionMM).toBeCalled()
+                expect(close).toBeCalled()
+
+                clearMocks(close, checkPermissionMM)
+            })
+        });
+
+        describe('reactivate shop manager', () => {
+
+            test("reactivate shop - success", () => {
+                //prep
+                let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                    return new Result(true, true, "mock success")
+                })
+
+                let open = mockMethod(MarketplaceController.prototype, 'reopenShop', () => {
+                    return new Result(true, undefined, "mock");
+                })
+
+                let res = sys.reactivateShop(username1, 0);
+
+                expect(res.ok).toBe(true);
+                expect(res.data).not.toBeDefined();
+                expect(checkPermissionMM).toBeCalled()
+                expect(open).toBeCalled()
+
+                clearMocks(open, checkPermissionMM)
+            })
+
+            test("reactivate shop - failure - permissions", () => {
+                //prep
+                let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                    return new Result(false, false, "mock success")
+                })
+
+                let open = mockMethod(MarketplaceController.prototype, 'reopenShop', () => {
+                    return new Result(true, undefined, "mock");
+                })
+
+                let res = sys.reactivateShop(username1, 0);
+
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+                expect(checkPermissionMM).toBeCalled()
+                expect(open).not.toBeCalled()
+
+                clearMocks(open, checkPermissionMM)
+            })
+
+            test("reactivate shop - failure to deactivate", () => {
+                //prep
+                let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                    return new Result(true, true, "mock success")
+                })
+
+                let open = mockMethod(MarketplaceController.prototype, 'reopenShop', () => {
+                    return new Result(false, undefined, "mock");
+                })
+
+                let res = sys.reactivateShop(username1, 0);
+
+                expect(res.ok).toBe(false);
+                expect(res.data).not.toBeDefined();
+                expect(checkPermissionMM).toBeCalled()
+                expect(open).toBeCalled()
+
+                clearMocks(open, checkPermissionMM)
+            })
+        });
+
+
+        test("get personnel info - success", () => {
+            let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                return new Result(true, true, "mock success")
+            })
+
+            let getShop = mockMethod(MarketplaceController.prototype, 'getShopInfo', () => {
+                return new Result(true, shop1);
+            })
+
+            let getMember = mockMethod(UserController.prototype, 'getMember', () => {
+                return new Result(true, member1)
+            })
+
+            let res = sys.getPersonnelInfo(username1, 0);
+
+            expect(res.ok).toBe(true);
+            expect(res.data).toBeDefined()
+            expect(res.data).toContain(toSimpleMember(member1));
+
+            expect(checkPermissionMM).toHaveBeenCalled()
+            expect(getShop).toHaveBeenCalled()
+            expect(getMember).toHaveBeenCalled()
+
+            clearMocks(checkPermissionMM, getShop, getMember)
+
+        })
+
+        test("get shop purchases - success", () => {
+            let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                return new Result(true, true, "mock success")
+            })
+
+            let shopOrders = mockMethod(PurchaseController.prototype, 'shopOrders', () => {
+                return new Result(true, [])
+            })
+
+            let res = sys.getShopPurchases(username1, 0, new Date(), new Date())
+
+            expect(res.ok).toBe(true)
+            expect(res.data).toEqual([]);
+            expect(checkPermissionMM).toHaveBeenCalled()
+            expect(shopOrders).toHaveBeenCalled()
+
+        })
+
+        test("register admin", () => {
+
+        })
+
+        test("edit external connection service", () => {
+
+        })
+
+        test("swap external connection service", () => {
+
+        })
+
+    });
+});
+
+
+describe('system controller - unit', () => {
+    let sys: SystemController;
+    let mpController: MarketplaceController;
+    let mController: MessageController;
+    let pController: PurchaseController;
+    let scController: SecurityController;
+    let uController: UserController;
+    let notificationsController: NotificationController;
+
+
+    const sess1 = "1";
+    let user1: Guest;
+    let cart1: ShoppingCart;
+
+    const sess2 = "2";
+    let user2: Guest
+    let cart2: ShoppingCart;
+
+    const sess3 = "3";
+    let user3: Guest;
+    let cart3: ShoppingCart;
+
+    const sess4 = "4";
+    const username1 = "member1";
+    const pass1 = "123456789"
+    let member1: Member;
+    let cart4: ShoppingCart;
+    let box1: MessageBox;
+
+    const sess5: string = "5";
+    const username2 = "member2";
+    const pass2 = "123456789"
+    let member2: Member;
+    let cart5: ShoppingCart;
+    let box2: MessageBox;
+
+    const shop1 = new Shop(0, "_name", username1, "this is my shop");
+
+    const p1 = new Product("ps1", 0, ProductCategory.A, "description", 10, 10)
+    const p2 = new Product("ps2", 0, ProductCategory.A, "description", 10, 10)
+    const p3 = new Product("ps3", 0, ProductCategory.A, "description", 10, 10)
+    // const p4 = new Product("ps4", 0, ProductCategory.A, "description", 10, 10)
+    // const p5 = new Product("ps5", 0, ProductCategory.A, "description", 10, 10)
+    // const p6 = new Product("ps6", 0, ProductCategory.A, "description", 10, 10)
+
+    const role1 = new Role(0, "title", JobType.Owner, new Set())
+    const role2 = new Role(0, "title", JobType.Manager, new Set())
+
+
+    beforeAll(() => {
+
+        sys = SystemController.initialize();
+        mpController = sys.mpController
+        mController = sys.mController
+        pController = sys.pController
+        scController = sys.securityController
+        uController = sys.uController
+        notificationsController = sys.notifyController
+    })
+
+    beforeEach(() => {
+        cart1 = new ShoppingCart()
+        user1 = new Guest(sess1, cart1)
+
+        cart2 = new ShoppingCart()
+        user2 = new Guest(sess2, cart2)
+
+        cart2 = new ShoppingCart()
+        user2 = new Guest(sess3, cart3)
+
+        cart4 = new ShoppingCart()
+        member1 = new Member(username1, cart4)
+        box1 = new MessageBox(username1);
+
+        cart5 = new ShoppingCart()
+        member2 = new Member(username2, cart5)
+        box2 = new MessageBox(username1);
+
     })
 
     test("initialize the system", () => {
@@ -149,32 +1141,16 @@ describe('system controller - unit', () => {
         expect(sys.mController).toBeDefined();
         expect(sys.securityController).toBeDefined();
         expect(sys.notifyController).toBeDefined();
-        expect(mpControllerMockMethod).toBeCalledWith(mpController);
-        expect(mpControllerMockMethod).toBeCalledTimes(1);
     })
 
     test("access marketplace test", () => {
-        //prepare
 
-        scControllerMockMethod = mockMethod(SecurityController.prototype, "accessMarketplace", (id) => {
-            expect(id).toBe(sess1)
-            console.log("used accessMarketplace in security controller")
-        })
-
-        uControllerMockMethod = mockMethod(UserController.prototype, "createGuest", () => {
-            return new Result<Guest>(true, user1);
-        })
-        //act
         const res = sys.accessMarketplace(sess1);
 
         //assert
         expect(res.ok).toBeTruthy();
         expect(res.data).toBeDefined()
         expect(res.data).toEqual(toSimpleGuest(user1))
-        expect(scControllerMockMethod).toBeCalledWith(sess1);
-        expect(uControllerMockMethod).toReturnWith(new Result(true, user1));
-
-        clearMocks(scControllerMockMethod, uControllerMockMethod);
     })
 
     test("exit marketplace - guest", () => {
@@ -292,56 +1268,10 @@ describe('system controller - unit', () => {
         })
     })
 
-    describe('logout member', function () {
 
-        mockInstance(mockDependencies.SystemController);
-        let accessMock = mockMethod(SystemController.prototype,'accessMarketplace',()=>{
-            return new Result(true,user1)
-        })
-        let logoutMock = mockMethod(SecurityController.prototype, 'logout', () => {
-            console.log("not throwing")
-        })
+    test("logout test", () => {
 
-        test("logout test - success", () => {
-            mockInstance(mockDependencies.SystemController);
-            let accessMock = mockMethod(SystemController.prototype,'accessMarketplace',()=>{
-                return new Result(true,user1)
-            })
-            let logoutMock = mockMethod(SecurityController.prototype, 'logout', () => {
-                console.log("not throwing")
-            })
-
-            let res = sys.logout(sess1)
-
-            expect(res.ok).toBe(true);
-            expect(res.data).toEqual(user1)
-            expect(accessMock).toBeCalled();
-            expect(logoutMock).toBeCalled();
-
-            clearMocks(logoutMock,accessMock)
-        })
-
-        test("logout test - logout failed", () => {
-            mockInstance(mockDependencies.SystemController);
-            let accessMock = mockMethod(SystemController.prototype,'accessMarketplace',()=>{
-                return new Result(true,user1)
-            })
-            let logoutMock = mockMethod(SecurityController.prototype, 'logout', () => {
-                throw new Error("mock throw")
-            })
-
-            let res = sys.logout(sess1)
-
-            expect(res.ok).toBe(false);
-            expect(res.data).toEqual(user1)
-            expect(accessMock).toThrow();
-            expect(logoutMock).toBeCalled();
-
-            clearMocks(logoutMock,accessMock)
-        })
-
-    });
-
+    })
 
     describe("register tests", () => {
             test("register member - success", () => {
@@ -467,7 +1397,7 @@ describe('system controller - unit', () => {
                 clearMocks(...mocks)
             })
 
-            test("register member - failure from user", () => {
+            test("register member - failure from User", () => {
                 //prepare
                 let registerMockMethod = mockMethod(SecurityController.prototype, 'register',
                     (_: any) => {
@@ -495,7 +1425,8 @@ describe('system controller - unit', () => {
                     })
                 clearMocks(...mocks)
             })
-        })
+        }
+    )
 
 
     test("get product - success", () => {
