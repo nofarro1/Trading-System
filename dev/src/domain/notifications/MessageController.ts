@@ -1,28 +1,29 @@
-import {Id} from "../../utilities/Utils";
-import {MessageBox, NewMessageSubscriber} from "./MessageBox";
-
-import {GenericMessage, Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Messages";
+import {MessageBox, IIncomingMessageSubscriber} from "./MessageBox";
+import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message";
 import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
+import { injectable } from "inversify";
 
+@injectable()
+export class MessageController implements IMessageListener<Message> {
 
-export default class MessageController implements IMessageListener<Message> {
-
-    messageBoxes: Map<Id, MessageBox>
+    messageBoxes: Map<string, MessageBox>
 
     constructor() {
-        this.messageBoxes = new Map<Id, MessageBox>();
+        this.messageBoxes = new Map<string, MessageBox>();
     }
 
 
-    addMessageBox(memberId: Id): void {
+    addMessageBox(memberId: string): Result<MessageBox| undefined> {
         if (!this.messageBoxes.has(memberId)) {
             let newMb = new MessageBox(memberId);
             this.messageBoxes.set(memberId, newMb);
+            return new Result(true, newMb);
         }
+        return new Result(false,undefined,"user already has a message box")
     }
 
-    addSubscriberToBox(memberId: Id, subscriber: NewMessageSubscriber): void {
+    addSubscriberToBox(memberId: string, subscriber: IIncomingMessageSubscriber): void {
         try {
             let box =  this.getMessageBox(memberId);
             box.subscribe(subscriber);
@@ -31,7 +32,7 @@ export default class MessageController implements IMessageListener<Message> {
         }
     }
 
-    removeSubscriberFromBox(memberId: Id, subscriber: NewMessageSubscriber): void {
+    removeSubscriberFromBox(memberId: string, subscriber: IIncomingMessageSubscriber): void {
         try {
             let box =  this.getMessageBox(memberId);
             box.unsubscribe(subscriber);
@@ -40,7 +41,7 @@ export default class MessageController implements IMessageListener<Message> {
         }
     }
 
-    addMessage(memberId: Id, message: Message): void {
+    addMessage(memberId: string, message: Message): void {
         try {
             this.getMessageBox(memberId).addMessage(message)
         } catch (e) {
@@ -49,7 +50,7 @@ export default class MessageController implements IMessageListener<Message> {
 
     }
 
-    private getMessageBox(memberId: Id): MessageBox {
+    private getMessageBox(memberId: string): MessageBox {
         if (this.messageBoxes.has(memberId)) {
             return this.messageBoxes.get(memberId) as MessageBox
         } else {
@@ -57,7 +58,7 @@ export default class MessageController implements IMessageListener<Message> {
         }
     }
 
-    getMessages(memberId: Id): Message[] {
+    getMessages(memberId: string): Message[] {
         try {
             return this.getMessageBox(memberId).getAllMessages()
         } catch (e) {
@@ -66,17 +67,7 @@ export default class MessageController implements IMessageListener<Message> {
         }
     }
 
-    getMessage(memberId: Id, msgId:Id): Message {
-        try {
-            let box= this.getMessageBox(memberId);
-            return box.getMessage(msgId)
-        } catch(e) {
-            return new GenericMessage(e)
-        }
-
-    }
-
-    removeMessage(memberId: Id, messageId: Id): void {
+    removeMessage(memberId: string, messageId: string): void {
         try {
             this.getMessageBox(memberId).removeMessage(messageId)
         } catch (e) {
@@ -85,7 +76,7 @@ export default class MessageController implements IMessageListener<Message> {
     }
 
     visitPurchaseEvent(msg: ShopPurchaseMessage): void {
-        let recipients = msg.shopOwnersIds;
+        let recipients = msg.recipients;
         for (let key of recipients) {
             this.messageBoxes.get(key)?.addMessage(msg)
         }
@@ -93,7 +84,7 @@ export default class MessageController implements IMessageListener<Message> {
     }
 
     visitShopStatusChangedEvent(msg: ShopStatusChangedMessage): void {
-        let recipients = msg.shopOwnersIds;
+        let recipients = msg.recipients;
         for (let key of recipients) {
             this.messageBoxes.get(key)?.addMessage(msg)
         }

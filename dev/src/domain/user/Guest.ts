@@ -1,17 +1,23 @@
-import {Id, UUIDGenerator} from "../../utilities/Utils";
+import {UUIDGenerator} from "../../utilities/Utils";
+import { ShoppingCart } from "../marketplace/ShoppingCart";
 
 
 export class Guest {
-    id: Id
+    private _session: string;
+    _shoppingCart: ShoppingCart;
 
-
-    constructor(id: Id) {
-        this.id = id;
+    constructor(id: string, shoppingCart: ShoppingCart){
+        this._session = id;
+        this._shoppingCart = shoppingCart;
     }
-
-    static createNewGuest(){
-        return new Guest(UUIDGenerator())
+    public get session(): string {
+            return this._session;
     }
-
+    public set session(value) {
+        this._session = value;
+    }
+    public get shoppingCart(): ShoppingCart {
+        return this._shoppingCart;
+    }
 
 }
