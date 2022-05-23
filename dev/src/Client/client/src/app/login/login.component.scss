@@ -1,0 +1,32 @@
+.login{
+  display:grid;
+  grid-auto-flow: column;
+  height: 100px;
+  justify-content: left;
+  align-content: space-evenly;
+  border: 1px solid green;
+  grid-gap: 20px;
+}
+button {
+  width:130px;
+  background-color: #04AA6D; /* Green background */
+  border: 1px solid green; /* Green border */
+  color: white; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: right; /* Float the buttons side by side */
+}
+
+
+/* Clear floats (clearfix hack) */
+button:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Add a background color on hover */
+button:hover {
+  background-color: #3e8e41;
+}
+
