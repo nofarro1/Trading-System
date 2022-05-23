@@ -1,4 +1,3 @@
-
 export const mockDependencies = {
     SecurityController: "../../../src/domain/SecurityController",
     MessageController: "../../../src/domain/notifications/MessageController",
@@ -6,17 +5,13 @@ export const mockDependencies = {
     PurchaseController: "../../../src/domain/purchase/PurchaseController",
     UserController: "../../../src/domain/user/UserController",
     NotificationController: "../../../src/domain/notifications/NotificationController",
-    SystemController: "../../../src/domain/SystemController",
-    Shop: "../../src/domain/marketplace/Shop",
-    ShoppingBag: "../../src/domain/marketplace/ShoppingBag",
-    ShoppingCart: "../../src/domain/marketplace/ShoppingCart",
-    Product: "../../src/domain/marketplace/Product",
+    SystemController: "../../../src/domain/SystemController"
 }
 export const mockInstance = (dependency: string) => {
     jest.mock(dependency)
 }
 
-export const mockMethod = <T extends {}, E>(obj: T, method: any, todoInstead: ((...args: jest.ArgsType<E>) => ReturnType<any>) | undefined) => {
+export const mockMethod = <T extends {}>(obj: T, method: any, todoInstead: ((...args: jest.ArgsType<any>) => ReturnType<any>) | undefined) => {
     return jest.spyOn(obj, method).mockImplementation(todoInstead)
 }
 
