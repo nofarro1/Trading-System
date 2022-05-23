@@ -1,13 +1,12 @@
 import express from "express";
 import session from 'express-session';
 import {Service} from "../service/Service";
-import {systemContainer} from "../../inversify.config";
-import {TYPES} from "../../types";
+import {systemContainer} from "../helpers/inversify.config";
+import {TYPES} from "../helpers/types";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
 export const router = express.Router();
-
 
 
 router.get('/check', (req, res) => {
@@ -18,7 +17,7 @@ router.get('/check', (req, res) => {
 
 })
 
-//access marketpalce
+//access marketpalce - return the index.html
 router.get('/', async (req, res) => {
     let sessId = req.session.id;
     try {
@@ -540,7 +539,7 @@ router.post('/admin/services/edit', (req, res) => {
 
 
 export const app = express();
-const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
+export const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
 app.use(sessionMiddleware);
 app.use(router);
 

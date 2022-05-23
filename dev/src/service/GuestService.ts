@@ -2,7 +2,7 @@ import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {inject, injectable} from "inversify";
-import {TYPES} from "../../types";
+import {TYPES} from "../helpers/types";
 import "reflect-metadata";
 
 @injectable()

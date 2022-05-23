@@ -8,7 +8,7 @@ import {Member} from "../user/Member";
 import {logger} from "../../helpers/logger";
 import {Guest} from "../user/Guest";
 import {inject, injectable} from "inversify";
-import {TYPES} from "../../../types";
+import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
 
 

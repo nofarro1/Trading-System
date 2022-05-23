@@ -5,7 +5,7 @@ import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProdu
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 import {ProductCategory, SearchType} from "../utilities/Enums";
 import {inject, injectable} from "inversify";
-import {TYPES} from "../../types";
+import {TYPES} from "../helpers/types";
 import "reflect-metadata";
 
 @injectable()

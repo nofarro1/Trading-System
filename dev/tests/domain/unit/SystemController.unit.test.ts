@@ -22,8 +22,8 @@ import {
     toSimpleProducts,
     toSimpleShop, toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
-import {systemContainer} from "../../../inversify.config";
-import {TYPES} from "../../../types";
+import {systemContainer} from "../../../src/helpers/inversify.config";
+import {TYPES} from "../../../src/helpers/types";
 
 const mockDependencies = {
     SecurityController: "../../../src/domain/SecurityController",
