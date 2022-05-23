@@ -1,42 +1,40 @@
-import {Guest} from "./user/Guest";
 import {SecurityController} from "./SecurityController";
 
 import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
 import {Member} from "./user/Member";
-import {ExternalServiceType, string} from "../utilities/Utils";
+import {ExternalServiceType} from "../utilities/Utils";
 import {MarketplaceController} from "./marketplace/MarketplaceController";
 import {ShoppingCartController} from "./marketplace/ShoppingCartController";
 import {PurchaseController} from "./purchase/PurchaseController";
 import {MessageController} from "./notifications/MessageController";
 import {NotificationController} from "./notifications/NotificationController";
-import {checkRes, Result, safe} from "../utilities/Result";
-import {Shop} from "./marketplace/Shop";
-import {Product} from "./marketplace/Product";
+import {checkRes, Result} from "../utilities/Result";
 import {ShoppingCart} from "./marketplace/ShoppingCart";
-import {ShopOrder} from "./purchase/ShopOrder";
 import {UserController} from "./user/UserController";
-import {User} from "./user/User";
+import {Guest} from "./user/Guest";
 import {logger} from "../helpers/logger";
 import {JobType, ProductCategory, SearchType} from "../utilities/Enums";
 import {Permissions} from "../utilities/Permissions";
 import {PaymentServiceAdaptor} from "./external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "./external_services/DeliveryServiceAdaptor";
-import {MessageBox} from "./notifications/MessageBox";
+
 import {
     toSimpleGuest,
     toSimpleMember,
     toSimpleProduct,
     toSimpleProducts,
-    toSimpleShop, toSimpleShopOrder, toSimpleShoppingCart
+    toSimpleShop, toSimpleShoppingCart
 } from "../utilities/simple_objects/SimpleObjectFactory";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
-import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../helpers/types";
+import "reflect-metadata";
 
-
+@injectable()
 export class SystemController {
 
     mpController: MarketplaceController
@@ -48,14 +46,13 @@ export class SystemController {
     notifyController: NotificationController
 
 
-    constructor(mpController: MarketplaceController,
-                scController: ShoppingCartController,
-                uController: UserController,
-                pController: PurchaseController,
-                msgController: MessageController,
-                sController: SecurityController,
-                notifyController: NotificationController,
-                defaultAdmin: Member | undefined) {
+    constructor(@inject(TYPES.MarketplaceController) mpController: MarketplaceController,
+                @inject(TYPES.ShoppingCartController) scController: ShoppingCartController,
+                @inject(TYPES.UserController) uController: UserController,
+                @inject(TYPES.PurchaseController) pController: PurchaseController,
+                @inject(TYPES.MessageController) msgController: MessageController,
+                @inject(TYPES.SecurityController) sController: SecurityController,
+                @inject(TYPES.NotificationController) notifyController: NotificationController) {
 
         this.mpController = mpController;
         this.scController = scController;
@@ -64,12 +61,22 @@ export class SystemController {
         this.mController = msgController;
         this.securityController = sController;
         this.notifyController = notifyController;
-        if (defaultAdmin === undefined) {
+
+        const defaultAdmin = SystemController.createDefaultAdmin(this.securityController,this.uController,this.scController,this.mController,{
+            username: "admin",
+            password: "adminadmin"
+        })
+        if (defaultAdmin.data === undefined) {
             logger.error("failed to initialize system. default admin registration failed")
             throw new Error("failed to register default admin member");
         } else {
             logger.info("system controller initialize successfully")
         }
+
+        //todo: configure dependencies between controllers
+        this.pController.subscribe(this.mpController)
+        this.pController.subscribe(this.mController)
+        this.mpController.subscribe(this.mController)
     }
 
     static initialize(): SystemController {
@@ -84,19 +91,18 @@ export class SystemController {
         let notifications = new NotificationController();
         let security = new SecurityController();
 
-        //todo: configure dependencies between controllers
-        purchase.subscribe(marketplace)
-        marketplace.subscribe(messages)
+
         const defaultAdmin = this.createDefaultAdmin(security, user, shoppingCart, messages, {
             username: "admin",
             password: "adminadmin"
         })
-        return new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications, defaultAdmin.data);
+        return new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications);
 
     }
 
     private static createDefaultAdmin(security: SecurityController, user: UserController, cart: ShoppingCartController, box: MessageController, newMember: RegisterMemberData) {
         try {
+            security.accessMarketplace("-1")
             security.register("-1", newMember.username, newMember.password);
         } catch (e: any) {
             return new Result(false, undefined, e.message);
@@ -107,7 +113,7 @@ export class SystemController {
         if (res.ok) {
             let mb = box.addMessageBox(newMember.username)
             if (mb.ok) {
-                const memRes = user.addMember(newMember.username, res.data as ShoppingCart)
+                const memRes = user.addMember("-1",newMember.username, res.data as ShoppingCart)
                 if (memRes.ok)
                     return new Result(true, memRes.data, "register success");
             }
@@ -132,11 +138,10 @@ export class SystemController {
             return new Result(false,undefined);
         }
         const guest = newGuest.data
-        this.securityController.accessMarketplace(guest.id);
+        this.securityController.accessMarketplace(guest.session);
         return new Result(true, toSimpleGuest(guest));
     }
 
-    //fix according to security controller
     exitMarketplace(sessionId: string): Result<void> {
 
         const callback = (id: string) => {
@@ -150,7 +155,7 @@ export class SystemController {
                 const toExit = this.uController.getGuest(toLogout);
                 const delCart = this.scController.removeCart(toLogout);
                 if (checkRes(toExit) && checkRes(delCart)) {
-                    this.uController.exitGuest(toExit.data as Guest);
+                    this.uController.exitGuest(toExit.data);
                     return new Result(true, undefined, "bye bye!");
                 }
                 return new Result(false, undefined, "for some reason guest was not deleted");
@@ -184,18 +189,20 @@ export class SystemController {
             const res = this.uController.getMember(d.username)
             if (checkRes(res)) {
                 const user: Member = res.data
+                user.session = sessionId;
                 this.notifyController.addActiveUser(user.username);
                 //delete the guest
                 const toExit = this.uController.getGuest(sessionId);
                 const delCart = this.scController.removeCart(sessionId);
                 if (checkRes(toExit) && checkRes(delCart)) {
-                    this.uController.exitGuest(toExit.data as Guest);
+                    this.uController.exitGuest(toExit.data);
                     return new Result(true, undefined, "bye bye!");
                 }
+                //todo: initiate live notification connection with user
                 return new Result(true, undefined, res.message)
+            } else {
+                return new Result(false, undefined, "member does not exist");
             }
-            //initiate live notification connection with user
-            return new Result(false, undefined, res.message);
         }
 
         return this.authenticateMarketVisitor(sessionId, secCallback);
@@ -242,7 +249,7 @@ export class SystemController {
         if (checkRes(res)) {
             let mb = this.mController.addMessageBox(newMember.username)
             if (checkRes(mb)) {
-                const memRes = this.uController.addMember(newMember.username, res.data)
+                const memRes = this.uController.addMember(sessionId,newMember.username, res.data)
                 if (checkRes(memRes))
                     return new Result(true, toSimpleMember(memRes.data), "register success");
             }
@@ -326,7 +333,7 @@ export class SystemController {
     editCart(sessionId: string, product: number, quantity: number, additionalData?: any): Result<void> {
         const authCallback = (id:string) => {
             const productRes = this.mpController.getProduct(product);
-            if (productRes.ok && productRes.data !== undefined) {
+            if (checkRes(productRes)) {
                 return this.scController.updateProductQuantity(id, productRes.data, quantity)
             } else
                 return new Result(false, undefined, "product not found")
@@ -350,7 +357,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, (id) => {
             let result = this.uController.getGuest(id);
             let resultMm = this.uController.getMember(id);
-            let userObj: User;
+            let userObj: Guest;
             if (checkRes(result)) {
                 userObj = result.data;
                 return this.pController.checkout(userObj);
@@ -384,13 +391,18 @@ export class SystemController {
 
     //shop owner related
 
-    addProduct(sessionId: string, p: NewProductData): Result<void> {
-        const authCallback = (id: string): Result<void> => {
+    addProduct(sessionId: string, p: NewProductData): Result<SimpleProduct | void> {
+        const authCallback = (id: string) => {
             if (this.uController.checkPermission(id, p.shopId, Permissions.AddProduct).data) {
-                return this.mpController.addProductToShop(
+
+                let res = this.mpController.addProductToShop(
                     p.shopId, p.productCategory, p.productName,
                     p.quantity, p.fullPrice, !p.discountPrice ? p.fullPrice : p.discountPrice,
                     p.relatedSale, p.productDesc);
+
+                if(checkRes(res)){
+                    return new Result(true, toSimpleProduct(res.data), res.message)
+                }
             }
             return new Result(false, undefined, "member does not have permissions");
         }
@@ -527,21 +539,21 @@ export class SystemController {
                 return new Result(true, collectedMembers.map(toSimpleMember),)
             }
 
-            return new Result(false, [], shopRes.message);
+            return new Result(false, [],"not shop with that Id exists");
         }
         return this.authenticateMarketVisitor(sessId, callback);
     }
 
-    getShopPurchases(sessId: string, shop: number, startDate: Date, endDate: Date, filter?: any): Result<SimpleShopOrder[] | void> {
+    getShopPurchases(sessId: string, shop: number, startDate: Date, endDate: Date, filter?: any): Result<string[] | void> {
 
         const callback = (id:string) => {
             //check if can preview History
             if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data) {
                 return new Result(false, undefined, "no permission");
             }
-            let orders: ShopOrder[] = this.pController.shopOrders.has(shop) ?
-                [...(this.pController.shopOrders.get(shop) as Set<ShopOrder>)].filter((o) => o.creationTime > startDate && o.creationTime < endDate) : []
-            return new Result(orders.length !== 0, orders.map(toSimpleShopOrder), orders.length !== 0 ? undefined : "no SimpleShop order were found");
+            let orders: string[] = this.pController.shopOrders.has(shop) ?
+                [...(this.pController.shopOrders.get(shop))] : []
+            return new Result(orders.length !== 0, orders, orders.length !== 0 ? undefined : "no SimpleShop order were found");
         }
 
         return this.authenticateMarketVisitor(sessId, callback);

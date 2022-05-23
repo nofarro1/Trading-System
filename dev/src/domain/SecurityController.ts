@@ -1,5 +1,8 @@
 import {logger} from "../helpers/logger";
+import {injectable} from "inversify";
+import "reflect-metadata";
 
+@injectable()
 export class SecurityController {
     private readonly _MINIMUM_PASSWORD_LENGTH = 8;
     private readonly _MAXIMUM_USERNAME_LENGTH = 31;
