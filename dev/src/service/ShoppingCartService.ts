@@ -3,6 +3,7 @@ import {Result} from "../utilities/Result";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../types";
+import "reflect-metadata";
 
 @injectable()
 export class ShoppingCartService {

@@ -3,7 +3,7 @@ import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message"
 import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
 import { injectable } from "inversify";
-
+import "reflect-metadata";
 @injectable()
 export class MessageController implements IMessageListener<Message> {
 

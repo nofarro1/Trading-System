@@ -1,6 +1,6 @@
 export const TYPES = {
     SystemController: Symbol.for("SystemController"),
-    Service: Symbol.for("SystemController"),
+    Service: Symbol.for("Service"),
     GuestService: Symbol.for("GuestService"),
     MarketplaceService: Symbol.for("MarketplaceService"),
     MemberService: Symbol.for("MemberService"),
@@ -14,5 +14,5 @@ export const TYPES = {
     PurchaseController: Symbol.for("PurchaseController"),
     SecurityController: Symbol.for("SecurityController"),
     PaymentServiceAdaptor: Symbol.for("PaymentServiceAdaptor"),
-    DeliveryServiceAdaptor: Symbol.for("DeliveryServiceAdaptorAdaptor")
+    DeliveryServiceAdaptor: Symbol.for("DeliveryServiceAdaptor")
 }

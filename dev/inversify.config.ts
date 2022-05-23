@@ -19,14 +19,15 @@ import {DeliveryServiceAdaptor} from "./src/domain/external_services/DeliverySer
 
 
 const systemContainer = new Container();
-
-systemContainer.bind<SystemController>(TYPES.SystemController).to(SystemController)
+//services
 systemContainer.bind<Service>(TYPES.Service).to(Service)
-systemContainer.bind<GuestService>(TYPES.Service).to(GuestService)
+systemContainer.bind<GuestService>(TYPES.GuestService).to(GuestService)
 systemContainer.bind<MarketplaceService>(TYPES.MarketplaceService).to(MarketplaceService)
 systemContainer.bind<MemberService>(TYPES.MemberService).to(MemberService)
 systemContainer.bind<OrderService>(TYPES.OrderService).to(OrderService)
 systemContainer.bind<ShoppingCartService>(TYPES.ShoppingCartService).to(ShoppingCartService)
+//controllers
+systemContainer.bind<SystemController>(TYPES.SystemController).to(SystemController).inSingletonScope()
 systemContainer.bind<ShoppingCartController>(TYPES.ShoppingCartController).to(ShoppingCartController)
 systemContainer.bind<MessageController>(TYPES.MessageController).to(MessageController)
 systemContainer.bind<UserController>(TYPES.UserController).to(UserController)
@@ -34,8 +35,11 @@ systemContainer.bind<NotificationController>(TYPES.NotificationController).to(No
 systemContainer.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController)
 systemContainer.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController)
 systemContainer.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)
-systemContainer.bind<PaymentServiceAdaptor>(TYPES.MemberService).to(PaymentServiceAdaptor)
-systemContainer.bind<DeliveryServiceAdaptor>(TYPES.MemberService).to(DeliveryServiceAdaptor)
+//external services
+systemContainer.bind<PaymentServiceAdaptor>(TYPES.PaymentServiceAdaptor).to(PaymentServiceAdaptor)
+systemContainer.bind<DeliveryServiceAdaptor>(TYPES.DeliveryServiceAdaptor).to(DeliveryServiceAdaptor)
+systemContainer.bind<string>("PaymentServiceName").toConstantValue("default payment service")
+systemContainer.bind<string>("DeliveryServiceName").toConstantValue("default delivery service")
 
 
 export  {systemContainer}

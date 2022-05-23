@@ -1,15 +1,12 @@
 import express from "express";
 import session from 'express-session';
-import {SystemController} from "../domain/SystemController";
 import {Service} from "../service/Service";
-import {Socket} from "net";
 import {systemContainer} from "../../inversify.config";
 import {TYPES} from "../../types";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
 export const router = express.Router();
-
 
 
 
@@ -546,3 +543,4 @@ export const app = express();
 const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
 app.use(sessionMiddleware);
 app.use(router);
+

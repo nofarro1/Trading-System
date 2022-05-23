@@ -8,7 +8,7 @@ import {FilterType, ProductCategory, ProductRate, SearchType, ShopRate, ShopStat
 import {Range} from "../../utilities/Range";
 import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
-
+import "reflect-metadata";
 
 @injectable()
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage>, IMessageListener<ShopPurchaseMessage> {

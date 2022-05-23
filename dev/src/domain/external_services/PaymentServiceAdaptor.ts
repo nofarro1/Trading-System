@@ -1,6 +1,6 @@
 import {logger} from "../../helpers/logger";
 import {Result} from "../../utilities/Result";
-import {injectable} from "inversify";
+import {inject, injectable} from "inversify";
 
 @injectable()
 export class PaymentServiceAdaptor {
@@ -8,7 +8,7 @@ export class PaymentServiceAdaptor {
 
     private _settings: any;
 
-    constructor(name: string, settings: any) {
+    constructor(@inject("PaymentServiceName") name: string, settings: any = {}) {
         this._name = name;
         this._settings = settings;
     }
