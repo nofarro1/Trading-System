@@ -5,7 +5,7 @@ import {PurchaseController} from "../../../src/domain/purchase/PurchaseControlle
 import {SecurityController} from "../../../src/domain/SecurityController";
 import {UserController} from "../../../src/domain/user/UserController";
 import {NotificationController} from "../../../src/domain/notifications/NotificationController";
-import {User} from "../../../src/domain/user/User";
+import {Guest} from "../../../src/domain/user/Guest";
 import {Member} from "../../../src/domain/user/Member";
 import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
 import {MessageBox} from "../../../src/domain/notifications/MessageBox";
@@ -34,15 +34,15 @@ describe('system controller - integration', () => {
     let notificationsController: NotificationController;
 
     const sess1 = "1";
-    let guest1: User;
+    let guest1: Guest;
     let cart1: ShoppingCart;
 
     const sess2 = "2";
-    let guest2: User
+    let guest2: Guest
     let cart2: ShoppingCart;
 
     const sess3 = "3";
-    let guest3: User;
+    let guest3: Guest;
     let cart3: ShoppingCart;
 
     const sess4 = "4";
@@ -80,13 +80,13 @@ describe('system controller - integration', () => {
 
     beforeEach(() => {
         cart1 = new ShoppingCart();
-        guest1 = new User(sess1, cart1);
+        guest1 = new Guest(sess1, cart1);
 
         cart2 = new ShoppingCart();
-        guest2 = new User(sess2, cart2);
+        guest2 = new Guest(sess2, cart2);
 
         cart3 = new ShoppingCart();
-        guest3 = new User(sess3, cart3);
+        guest3 = new Guest(sess3, cart3);
 
         cart4 = new ShoppingCart();
         member1 = new Member(sess4, username1, cart4)

@@ -3,10 +3,11 @@ import session from 'express-session';
 import {SystemController} from "../domain/SystemController";
 import {Service} from "../service/Service";
 import {Socket} from "net";
+import {systemContainer} from "../../inversify.config";
+import {TYPES} from "../../types";
 
 
-const systemController = SystemController.initialize();
-const service = new Service(systemController)
+const service = systemContainer.get<Service>(TYPES.Service)
 export const router = express.Router();
 
 

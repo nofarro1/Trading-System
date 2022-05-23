@@ -4,22 +4,22 @@ import { Permissions } from "../../utilities/Permissions";
 import { Result } from "../../utilities/Result";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
 import { MessageBox } from "../notifications/MessageBox";
-import { User } from "./User";
+import { Guest } from "./Guest";
 import { Member } from "./Member";
 import { Role } from "./Role";
 import {injectable} from "inversify";
 
 @injectable()
 export class UserController {
-    private _connectedGuests: Map<string, User>;
+    private _connectedGuests: Map<string, Guest>;
     private _members: Map<string, Member>;
     
     constructor(){
-        this._connectedGuests = new Map<string, User>();
+        this._connectedGuests = new Map<string, Guest>();
         this._members = new Map<string, Member>();
     }
     
-    public get connectedGuests(): Map<string, User> {
+    public get connectedGuests(): Map<string, Guest> {
         return this._connectedGuests;
     }
 
@@ -28,15 +28,15 @@ export class UserController {
     }
 
 
-    createGuest(session: string): Result<User>{
+    createGuest(session: string): Result<Guest>{
         const shoppingCart = new ShoppingCart();
-        const guest = new User(session, shoppingCart);
+        const guest = new Guest(session, shoppingCart);
         this.connectedGuests.set(guest.session, guest);
         logger.info(`Guest ${session} connected`);
         return new Result(true, guest);
     }
 
-    exitGuest(guest: User): Result<void> {
+    exitGuest(guest: Guest): Result<void> {
         this.connectedGuests.delete(guest.session);
         logger.info(`Guest ${guest.session} exit`);
         return new Result(true, undefined);
@@ -99,7 +99,7 @@ export class UserController {
 
     }
 
-    getGuest(guestId: string): Result<User | undefined>{
+    getGuest(guestId: string): Result<Guest | undefined>{
         if(this.connectedGuests.has(guestId))
             return new Result(true, this.connectedGuests.get(guestId));
         else

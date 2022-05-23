@@ -1,10 +1,10 @@
 import { Permissions } from "../../utilities/Permissions";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
 import {  Role } from "./Role";
-import { User } from "./User";
+import { Guest } from "./Guest";
 
 
-export class Member extends User{
+export class Member extends Guest{
     private _username: string;
     private _roles: Map<number, Role>;
     
