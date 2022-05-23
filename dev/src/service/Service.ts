@@ -15,25 +15,29 @@ import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOr
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {ProductCategory, SearchType} from "../utilities/Enums";
 import {logger} from "../helpers/logger";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../../types";
 
-
+@injectable()
 export class Service {
-    private readonly systemController: SystemController;
-
     private guestService: GuestService;
     private memberService: MemberService;
     private marketplaceService: MarketplaceService;
     private shoppingCartService: ShoppingCartService;
     private orderService: OrderService;
 
-    constructor(systemController: SystemController) {
+    constructor(@inject(TYPES.GuestService) guestService: GuestService,
+                @inject(TYPES.MemberService) memberService: MemberService,
+                @inject(TYPES.MarketplaceService) marketplaceService: MarketplaceService,
+                @inject(TYPES.ShoppingCartService) shoppingCartService: ShoppingCartService,
+                @inject(TYPES.OrderService) orderService: OrderService) {
         //System - Use-Case 1
-        this.systemController = systemController
-        this.guestService = new GuestService(this.systemController);
-        this.memberService = new MemberService(this.systemController);
-        this.marketplaceService = new MarketplaceService(this.systemController);
-        this.shoppingCartService = new ShoppingCartService(this.systemController);
-        this.orderService = new OrderService(this.systemController);
+
+        this.guestService = guestService
+        this.memberService = memberService
+        this.marketplaceService = marketplaceService
+        this.shoppingCartService = shoppingCartService
+        this.orderService = orderService
     }
 
     //----------------------Guest Service methods-------------------------------

@@ -2,8 +2,9 @@ import { Result } from "../../utilities/Result";
 import { Product } from "./Product";
 import { ShoppingCart } from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
+import {injectable} from "inversify";
 
-
+@injectable()
 export class ShoppingCartController {
     private readonly _carts: Map<string, ShoppingCart>;
 

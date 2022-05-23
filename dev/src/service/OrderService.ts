@@ -1,12 +1,14 @@
 import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
 import {ExternalServiceType} from "../utilities/Utils";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../../types";
 
-
+@injectable()
 export class OrderService {
     private systemController: SystemController;
 
-    constructor(systemController: SystemController) {
+    constructor(@inject(TYPES.SystemController)systemController: SystemController) {
         this.systemController = systemController;
     }
 

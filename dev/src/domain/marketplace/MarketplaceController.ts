@@ -7,9 +7,10 @@ import {Sale} from "./Sale";
 import {FilterType, ProductCategory, ProductRate, SearchType, ShopRate, ShopStatus,} from "../../utilities/Enums";
 import {Range} from "../../utilities/Range";
 import {logger} from "../../helpers/logger";
+import {injectable} from "inversify";
 
 
-
+@injectable()
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage>, IMessageListener<ShopPurchaseMessage> {
 
     private _shops: Map<number, Shop>;

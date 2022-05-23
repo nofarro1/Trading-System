@@ -7,8 +7,9 @@ import { MessageBox } from "../notifications/MessageBox";
 import { User } from "./User";
 import { Member } from "./Member";
 import { Role } from "./Role";
+import {injectable} from "inversify";
 
-
+@injectable()
 export class UserController {
     private _connectedGuests: Map<string, User>;
     private _members: Map<string, Member>;

@@ -1,4 +1,3 @@
-import {Guest} from "./user/Guest";
 import {SecurityController} from "./SecurityController";
 
 import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
@@ -35,8 +34,10 @@ import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../../types";
 
-
+@injectable()
 export class SystemController {
 
     mpController: MarketplaceController
@@ -48,14 +49,13 @@ export class SystemController {
     notifyController: NotificationController
 
 
-    constructor(mpController: MarketplaceController,
-                scController: ShoppingCartController,
-                uController: UserController,
-                pController: PurchaseController,
-                msgController: MessageController,
-                sController: SecurityController,
-                notifyController: NotificationController,
-                defaultAdmin: Member | undefined) {
+    constructor(@inject(TYPES.MarketplaceController) mpController: MarketplaceController,
+                @inject(TYPES.ShoppingCartController) scController: ShoppingCartController,
+                @inject(TYPES.UserController) uController: UserController,
+                @inject(TYPES.PurchaseController) pController: PurchaseController,
+                @inject(TYPES.MessageController) msgController: MessageController,
+                @inject(TYPES.SecurityController) sController: SecurityController,
+                @inject(TYPES.NotificationController) notifyController: NotificationController) {
 
         this.mpController = mpController;
         this.scController = scController;
@@ -64,6 +64,11 @@ export class SystemController {
         this.mController = msgController;
         this.securityController = sController;
         this.notifyController = notifyController;
+
+        SystemController.createDefaultAdmin(this.securityController,this.uController,this.scController,this.mController,{
+            username: "admin",
+            password: "adminadmin"
+        })
         if (defaultAdmin === undefined) {
             logger.error("failed to initialize system. default admin registration failed")
             throw new Error("failed to register default admin member");
@@ -91,7 +96,7 @@ export class SystemController {
             username: "admin",
             password: "adminadmin"
         })
-        return new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications, defaultAdmin.data);
+        return new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications);
 
     }
 

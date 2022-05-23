@@ -5,12 +5,14 @@ import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProdu
 import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 import {ProductCategory, SearchType} from "../utilities/Enums";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../../types";
 
-
+@injectable()
 export class MarketplaceService {
     private systemController: SystemController;
 
-    constructor(systemController: SystemController) {
+    constructor(@inject(TYPES.SystemController)systemController: SystemController) {
         this.systemController = systemController;
     }
 
