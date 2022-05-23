@@ -2,7 +2,7 @@ import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
 import {ExternalServiceType} from "../utilities/Utils";
 import {inject, injectable} from "inversify";
-import {TYPES} from "../../types";
+import {TYPES} from "../helpers/types";
 import "reflect-metadata";
 
 @injectable()

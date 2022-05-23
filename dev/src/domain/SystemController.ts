@@ -31,7 +31,7 @@ import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 import {inject, injectable} from "inversify";
-import {TYPES} from "../../types";
+import {TYPES} from "../helpers/types";
 import "reflect-metadata";
 
 @injectable()

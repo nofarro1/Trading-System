@@ -1,21 +1,21 @@
 import {Container} from "inversify";
 import {TYPES} from "./types";
-import {SystemController} from "./src/domain/SystemController";
-import {Service} from "./src/service/Service";
-import {GuestService} from "./src/service/GuestService";
-import {MarketplaceService} from "./src/service/MarketplaceService";
-import {MemberService} from "./src/service/MemberService";
-import {OrderService} from "./src/service/OrderService";
-import {ShoppingCartService} from "./src/service/ShoppingCartService";
-import {ShoppingCartController} from "./src/domain/marketplace/ShoppingCartController";
-import {MessageController} from "./src/domain/notifications/MessageController";
-import {UserController} from "./src/domain/user/UserController";
-import {NotificationController} from "./src/domain/notifications/NotificationController";
-import {MarketplaceController} from "./src/domain/marketplace/MarketplaceController";
-import {PurchaseController} from "./src/domain/purchase/PurchaseController";
-import {SecurityController} from "./src/domain/SecurityController";
-import {PaymentServiceAdaptor} from "./src/domain/external_services/PaymentServiceAdaptor";
-import {DeliveryServiceAdaptor} from "./src/domain/external_services/DeliveryServiceAdaptor";
+import {SystemController} from "../domain/SystemController";
+import {Service} from "../service/Service";
+import {GuestService} from "../service/GuestService";
+import {MarketplaceService} from "../service/MarketplaceService";
+import {MemberService} from "../service/MemberService";
+import {OrderService} from "../service/OrderService";
+import {ShoppingCartService} from "../service/ShoppingCartService";
+import {ShoppingCartController} from "../domain/marketplace/ShoppingCartController";
+import {MessageController} from "../domain/notifications/MessageController";
+import {UserController} from "../domain/user/UserController";
+import {NotificationController} from "../domain/notifications/NotificationController";
+import {MarketplaceController} from "../domain/marketplace/MarketplaceController";
+import {PurchaseController} from "../domain/purchase/PurchaseController";
+import {SecurityController} from "../domain/SecurityController";
+import {PaymentServiceAdaptor} from "../domain/external_services/PaymentServiceAdaptor";
+import {DeliveryServiceAdaptor} from "../domain/external_services/DeliveryServiceAdaptor";
 
 
 const systemContainer = new Container();

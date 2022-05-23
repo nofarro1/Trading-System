@@ -14,7 +14,7 @@ import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppin
 import {ProductCategory, SearchType} from "../utilities/Enums";
 import {logger} from "../helpers/logger";
 import {inject, injectable} from "inversify";
-import {TYPES} from "../../types";
+import {TYPES} from "../helpers/types";
 import "reflect-metadata";
 
 @injectable()
