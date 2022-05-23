@@ -1,11 +1,9 @@
 import {DiscountComponent} from "../Components/DiscountComponent";
 import {DiscountType, ProductCategory} from "../../../../utilities/Enums";
 import {Product} from "../../Product";
+import {discountInf} from "../../../../utilities/Types";
 
-export type discountInf = {
-    type: DiscountType;
-    object: Product | ProductCategory | undefined;
-};
+
 
 export class SimpleDiscount implements DiscountComponent{
 

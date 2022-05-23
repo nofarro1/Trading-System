@@ -89,7 +89,7 @@ describe('SimpleShop- products', function() {
         let discountInf1: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
         let disc1 = new SimpleDiscount(discountInf1, 20);
         s1.addDiscount(disc1);
-        let discountInf2: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
+        let discountInf2: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
         let disc2 = new SimpleDiscount(discountInf2, 10);
         s1.addDiscount(disc2);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
@@ -104,7 +104,7 @@ describe('SimpleShop- products', function() {
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 2]);
         bag.products.set(1, [p2, 1]);
-        let discountInf1: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
+        let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
         let disc1 = new SimpleDiscount(discountInf1, 5);
         let discountInf2: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
         let disc2 = new SimpleDiscount(discountInf2, 5);
@@ -128,7 +128,7 @@ describe('SimpleShop- products', function() {
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 1]);
-        let discountInf1: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
+        let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
         let disc1 = new SimpleDiscount(discountInf1, 5);
         let discountInf2: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
         let disc2 = new SimpleDiscount(discountInf2, 5);
@@ -152,7 +152,7 @@ describe('SimpleShop- products', function() {
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 1]);
-        let discountInf1: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
+        let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
         let disc1 = new SimpleDiscount(discountInf1, 5);
         let pred1 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 0 && quantity >= 2);
             return p!=undefined;}
@@ -176,7 +176,7 @@ describe('SimpleShop- products', function() {
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 0]);
-        let discountInf1: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
+        let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
         let disc1 = new SimpleDiscount(discountInf1, 5);
         let pred1 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 0 && quantity >= 2);
            return p!=undefined;}
@@ -222,7 +222,7 @@ describe('SimpleShop- products', function() {
         bag.products.set(1, [p2, 1]);
         let discountInf1: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
         let disc1 = new SimpleDiscount(discountInf1, 5);
-        let discountInf2: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
+        let discountInf2: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
         let disc2 = new SimpleDiscount(discountInf2, 10);
         let additionDisc = new AdditionDiscounts();
         additionDisc.addDiscountElement(disc1);

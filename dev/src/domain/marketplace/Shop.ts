@@ -3,6 +3,8 @@ import {Sale} from "./Sale";
 import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
 import {ShoppingBag} from "./ShoppingBag";
 import {DiscountComponent} from "./CompositePattern/Components/DiscountComponent";
+import {User} from "../user/User";
+import {ImmediatePurchasePolicyComponent} from "./CompositePattern/Components/ImmediatePurchasePolicyComponent";
 
 
 export class Shop {
@@ -16,7 +18,8 @@ export class Shop {
     private _rate: ShopRate;
     private _discounts: Map<number, DiscountComponent>;
     private _discountCounter: number;
-
+    private _purchasePolicies: Map <number, ImmediatePurchasePolicyComponent>;
+    private _purchaseCounter: number;
 
     constructor(id: number, name: string, shopFounder: string){
         this._id= id;
@@ -29,6 +32,8 @@ export class Shop {
         this._rate= ShopRate.NotRated;
         this._discounts= new Map<number, DiscountComponent>();
         this._discountCounter= 0;
+        this._purchasePolicies = new Map <number, ImmediatePurchasePolicyComponent>();
+        this._purchaseCounter = 0;
     }
 
 
@@ -164,6 +169,10 @@ export class Shop {
         return productsInfo;
     }
 
+    canMakePurchase(bag: ShoppingBag, user: User){
+
+    }
+
     private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
         let productsList = [];
         for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
@@ -178,6 +187,16 @@ export class Shop {
 
     removeDiscount(idDisc: number): void{
         this._discounts.delete(idDisc);
+    }
+
+    addPurchasePolicy(puPolicy: ImmediatePurchasePolicyComponent): number{
+        this._purchasePolicies.set(this._purchaseCounter,puPolicy);
+        this._purchaseCounter++;
+        return this._purchaseCounter--;
+    }
+
+    removePurchasePolicy(idPuPolicy: number){
+        this._purchasePolicies.delete(idPuPolicy);
     }
 
     // checkDiscountPolicies (bag: ShoppingBag): boolean{
