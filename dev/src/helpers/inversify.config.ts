@@ -20,7 +20,7 @@ import {DeliveryServiceAdaptor} from "../domain/external_services/DeliveryServic
 
 const systemContainer = new Container();
 //services
-systemContainer.bind<Service>(TYPES.Service).to(Service)
+systemContainer.bind<Service>(TYPES.Service).to(Service).inSingletonScope()
 systemContainer.bind<GuestService>(TYPES.GuestService).to(GuestService)
 systemContainer.bind<MarketplaceService>(TYPES.MarketplaceService).to(MarketplaceService)
 systemContainer.bind<MemberService>(TYPES.MemberService).to(MemberService)

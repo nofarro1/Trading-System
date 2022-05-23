@@ -50,6 +50,10 @@ export class Server {
         });
     }
 
+    shutdown(){
+        this.httpsServer.close(() => console.log("server is down"));
+    }
+
 }
 
 

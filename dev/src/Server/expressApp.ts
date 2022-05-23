@@ -13,7 +13,7 @@ router.get('/check', (req, res) => {
     let sessId = req.session.id;
     console.log(sessId + " have been activated");
     res.status(200);
-    res.send("hello, your id is " + sessId);
+    res.send({message:"hello, your id is " +sessId});
 
 })
 
@@ -155,7 +155,7 @@ router.get('/member/logout/:username', async (req, res) => {
  * assigningOwnerID: string,
  * title?: string}
  */
-router.post('/member/shopManagement/assignOwner', (req, res) => {
+router.post('/member/shopManagement/assignOwner', async (req, res) => {
 
     try {
         let sessId = req.session.id
@@ -163,9 +163,9 @@ router.post('/member/shopManagement/assignOwner', (req, res) => {
         let shopId = req.body.shopId
         let newOwner = req.body.shopId
         let title = req.body.title
-        let ans = service.appointShopOwner(sessId, newOwner, shopId, owner, title)
+        let ans = await service.appointShopOwner(sessId, newOwner, shopId, owner, title)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -181,7 +181,7 @@ router.post('/member/shopManagement/assignOwner', (req, res) => {
  * title?: string
  * }
  */
-router.post('/member/shopManagement/assignManager', (req, res) => {
+router.post('/member/shopManagement/assignManager', async (req, res) => {
 
     try {
         let sessId = req.session.id
@@ -189,9 +189,9 @@ router.post('/member/shopManagement/assignManager', (req, res) => {
         let shopId = req.body.shopId
         let newManager = req.body.shopId
         let title = req.body.title
-        let ans = service.appointShopManager(sessId, newManager, shopId, owner, title)
+        let ans = await service.appointShopManager(sessId, newManager, shopId, owner, title)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -206,7 +206,7 @@ router.post('/member/shopManagement/assignManager', (req, res) => {
  *      permissions: Permissions
  * }
  */
-router.post('/member/shopManagement/Permissions', (req, res) => {
+router.post('/member/shopManagement/Permissions', async (req, res) => {
 
 
     try {
@@ -215,9 +215,9 @@ router.post('/member/shopManagement/Permissions', (req, res) => {
         let shopId = req.body.shopId
         let permissions = req.body.permissions
         let managerId = req.body.manager
-        let ans = service.addPermissions(sessId, owner, managerId, shopId, permissions)
+        let ans = await service.addPermissions(sessId, owner, managerId, shopId, permissions)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -226,7 +226,7 @@ router.post('/member/shopManagement/Permissions', (req, res) => {
 /**
  * remove manager permissions
  */
-router.delete('/member/shopManagement/Permissions', (req, res) => {
+router.delete('/member/shopManagement/Permissions', async (req, res) => {
 
     try {
         let sessId = req.session.id
@@ -235,9 +235,9 @@ router.delete('/member/shopManagement/Permissions', (req, res) => {
         let permissions = req.body.permissions
         let managerId = req.body.manager
 
-        let ans = service.removePermissions(sessId, owner, managerId, shopId, permissions)
+        let ans = await service.removePermissions(sessId, owner, managerId, shopId, permissions)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -247,16 +247,16 @@ router.delete('/member/shopManagement/Permissions', (req, res) => {
 /**
  * get shop personnel info
  */
-router.get('api/member/shopManagement/Personnel/:username/:shop', (req, res) => {
+router.get('api/member/shopManagement/Personnel/:username/:shop', async (req, res) => {
     let sessId = req.session.id
 
     try {
         let username = req.params.username
         let shop: number = Number(req.params.shop);
 
-        let ans = service.requestShopPersonnelInfo(sessId, username, shop)
+        let ans = await service.requestShopPersonnelInfo(sessId, username, shop)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -266,12 +266,12 @@ router.get('api/member/shopManagement/Personnel/:username/:shop', (req, res) => 
 /**
  * access marketplace
  */
-router.get('/guest', (req, res) => {
+router.get('/guest', async (req, res) => {
     let sessId = req.session.id
     try {
-        let ans = service.accessMarketplace(sessId)
+        let ans = await service.accessMarketplace(sessId)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -282,12 +282,12 @@ router.get('/guest', (req, res) => {
 /**
  * exit marketplace
  */
-router.get('/exit', (req, res) => {
+router.get('/exit', async (req, res) => {
     let sessId = req.session.id
     try {
-        let ans = service.exitMarketplace(sessId)
+        let ans = await service.exitMarketplace(sessId)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -296,16 +296,16 @@ router.get('/exit', (req, res) => {
 /*
 query params - searchTerm, searchType, filters (i.e. price range, rating, ...)
  */
-router.post('/product', (req, res) => {
+router.post('/product', async (req, res) => {
 
     try {
         let sessId = req.session.id
         let searchTerm = req.body.term;
         let searchType = req.body.type;
         let filter = req.body.filter;
-        let ans = service.searchProducts(sessId, searchType, searchTerm, filter);
+        let ans = await service.searchProducts(sessId, searchType, searchTerm, filter);
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -313,7 +313,7 @@ router.post('/product', (req, res) => {
 })
 
 // add product to shop
-router.post('/product/:shopId', (req, res) => {
+router.post('/product/:shopId', async (req, res) => {
 
     try {
         let sessId = req.session.id;
@@ -324,16 +324,16 @@ router.post('/product/:shopId', (req, res) => {
         let price = req.body.price;
         let quantity = req.body.quantity;
         let description = req.body.description
-        let ans = service.addProductToShop(sessId, username, shopId, category, name, price, quantity, description)
+        let ans = await service.addProductToShop(sessId, username, shopId, category, name, price, quantity, description)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
 
 
 })
-router.delete('/product/:shopId/:productId', (req, res) => {
+router.delete('/product/:shopId/:productId', async (req, res) => {
 
 
     try {
@@ -341,14 +341,14 @@ router.delete('/product/:shopId/:productId', (req, res) => {
         let username = req.body.username;
         let shopId = Number(req.params.shopId)
         let productId = Number(req.params.productId)
-        let ans = service.removeProductFromShop(sessId, username, shopId, productId)
+        let ans = await service.removeProductFromShop(sessId, username, shopId, productId)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
 })
-router.patch('/product/:shopId/:productId', (req, res) => {
+router.patch('/product/:shopId/:productId', async (req, res) => {
 
 
     try {
@@ -357,61 +357,61 @@ router.patch('/product/:shopId/:productId', (req, res) => {
         let shopId = Number(req.params.shopId)
         let productId = Number(req.params.productId)
         let quantity = Number(req.body.quantity)
-        let ans = service.modifyProductQuantityInShop(sessId, username, shopId, productId, quantity)
+        let ans = await service.modifyProductQuantityInShop(sessId, username, shopId, productId, quantity)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
 })
 
 //setup shop
-router.post('api/shop/', (req, res) => {
+router.post('api/shop/', async (req, res) => {
 
 
     try {
         let sessId = req.session.id;
         let username = req.body.username;
         let shopName = req.body.shopName;
-        let ans = service.setUpShop(sessId, username, shopName)
+        let ans = await service.setUpShop(sessId, username, shopName)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
 })
 
-router.get('api/shop/:shopId', (req, res) => {
+router.get('api/shop/:shopId', async (req, res) => {
 
     try {
         let sessId = req.session.id;
         let shopId = Number(req.params.shopId);
 
-        let ans = service.getShopInfo(sessId, shopId)
+        let ans = await service.getShopInfo(sessId, shopId)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
 })
 
-router.patch('/shop/close/:shopId/:founder', (req, res) => {
+router.patch('/shop/close/:shopId/:founder', async (req, res) => {
 
 
     try {
         let sessId = req.session.id;
         let shopId = Number(req.params.shopId);
         let founder = req.params.founder;
-        let ans = service.closeShop(sessId, founder, shopId)
+        let ans = await service.closeShop(sessId, founder, shopId)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
 })
 
 
-router.get('/shop/orders/:shopId/:ownerUsername/:from/:to', (req, res) => {
+router.get('/shop/orders/:shopId/:ownerUsername/:from/:to', async (req, res) => {
     try {
         let sessId = req.session.id;
         let shopId = Number(req.params.shopId);
@@ -421,21 +421,21 @@ router.get('/shop/orders/:shopId/:ownerUsername/:from/:to', (req, res) => {
         let filters = req.query.filter
 
 
-        let ans = service.getShopPurchaseHistory(sessId, founder, shopId, from, to, filters)
+        let ans = await service.getShopPurchaseHistory(sessId, founder, shopId, from, to, filters)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
 })
 
 
-router.get('/cart', (req, res) => {
+router.get('/cart', async (req, res) => {
     let sess = req.session.id
-    try{
-        let ans = service.checkShoppingCart(sess)
+    try {
+        let ans = await service.checkShoppingCart(sess)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -444,14 +444,14 @@ router.get('/cart', (req, res) => {
 
 
 //addToCart
-router.post('/cart/:productId/:quantity', (req, res) => {
+router.post('/cart/:productId/:quantity', async (req, res) => {
     let sess = req.session.id
-    try{
+    try {
         let product = req.body.product
         let quantity = req.body.quantity
-        let ans = service.addToCart(sess,product, quantity)
+        let ans = await service.addToCart(sess, product, quantity)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -459,14 +459,14 @@ router.post('/cart/:productId/:quantity', (req, res) => {
 })
 
 //modifyCart
-router.patch('/cart/:productId/:quantity', (req, res) => {
+router.patch('/cart/:productId/:quantity', async (req, res) => {
     let sess = req.session.id
-    try{
+    try {
         let product = req.body.product
         let quantity = req.body.quantity
-        let ans = service.editProductInCart(sess,product, quantity)
+        let ans = await service.editProductInCart(sess, product, quantity)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -479,14 +479,14 @@ router.patch('/cart/:productId/:quantity', (req, res) => {
  *     deliveryDetails
  * }
  **/
-router.post('/cart/checkout', (req, res) => {
+router.post('/cart/checkout', async (req, res) => {
     let sess = req.session.id
-    try{
+    try {
         let payment = req.body.paymentDetails
         let delivery = req.body.deliveryDetails
-        let ans = service.checkout(sess,payment, delivery)
+        let ans = await service.checkout(sess, payment, delivery)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -502,15 +502,15 @@ router.post('/cart/checkout', (req, res) => {
  * serviceName,
  * settings
  */
-router.post('/admin/services/swap', (req, res) => {
+router.post('/admin/services/swap', async (req, res) => {
     let sess = req.session.id
-    try{
+    try {
         let admin_name = req.body.admin
         let type = req.body.serviceType
         let serviceName = req.body.name
-        let ans = service.swapConnectionWithExternalService(sess,admin_name,type,serviceName)
+        let ans = await service.swapConnectionWithExternalService(sess, admin_name, type, serviceName)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -523,15 +523,15 @@ router.post('/admin/services/swap', (req, res) => {
  * serviceType,
  * settings
  */
-router.post('/admin/services/edit', (req, res) => {
+router.post('/admin/services/edit', async (req, res) => {
     let sess = req.session.id
-    try{
+    try {
         let admin_name = req.body.admin
         let type = req.body.serviceType
         let settings = req.body.settings
-        let ans = service.swapConnectionWithExternalService(sess,admin_name,type,settings)
+        let ans = await service.swapConnectionWithExternalService(sess, admin_name, type, settings)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
