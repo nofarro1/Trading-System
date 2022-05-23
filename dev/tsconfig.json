@@ -8,7 +8,7 @@
     "strict": false,
     "noImplicitAny": true,
     "esModuleInterop": true,
-    "types": ["reflect-metadata"],
+    "types": ["reflect-metadata","jest"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "rootDirs": ["./src","./tests"],

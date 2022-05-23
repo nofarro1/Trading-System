@@ -2,7 +2,7 @@ import {UUIDGenerator} from "../../utilities/Utils";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
 
 
-export class User{
+export class Guest {
     private _session: string;
     _shoppingCart: ShoppingCart;
 
@@ -13,7 +13,9 @@ export class User{
     public get session(): string {
             return this._session;
     }
-
+    public set session(value) {
+        this._session = value;
+    }
     public get shoppingCart(): ShoppingCart {
         return this._shoppingCart;
     }

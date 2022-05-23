@@ -9,7 +9,7 @@ import { BuyerOrder } from "./BuyerOrder";
 import { ShopOrder } from "./ShopOrder";
 import { logger}  from "../../helpers/logger"
 ;
-import { User } from "../user/User";
+import { Guest } from "../user/Guest";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../../types";
 
@@ -88,7 +88,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         v.visitPurchaseEvent(msg)
     }
 
-    checkout(user: User): Result<void>{
+    checkout(user: Guest): Result<void>{
         let shoppingCart = user._shoppingCart;
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;

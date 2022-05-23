@@ -3,10 +3,11 @@ import session from 'express-session';
 import {SystemController} from "../domain/SystemController";
 import {Service} from "../service/Service";
 import {Socket} from "net";
+import {systemContainer} from "../../inversify.config";
+import {TYPES} from "../../types";
 
 
-const systemController = SystemController.initialize();
-const service = new Service(systemController)
+const service = systemContainer.get<Service>(TYPES.Service)
 export const router = express.Router();
 
 
@@ -19,6 +20,8 @@ router.get('/check', (req, res) => {
     res.send("hello, your id is " + sessId);
 
 })
+
+//access marketpalce
 router.get('/', async (req, res) => {
     let sessId = req.session.id;
     try {
@@ -32,7 +35,7 @@ router.get('/', async (req, res) => {
         res.status(200);
         res.send(guest)
 
-    } catch (e) {
+    } catch (e:any) {
         res.status(403)
         res.send("could not access marketplace")
     }
@@ -66,7 +69,7 @@ router.post('/guest/register', async (req, res) => {
         let country = req.body.country;
         let ans = await service.register(sessId, username, password, firstName, lastName, email, country)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.send(e.message)
     }
 
@@ -100,7 +103,7 @@ router.post('/admin/register', async (req, res) => {
         let ans = await service.registerAdmin(sessId, username, password, firstName, lastName, email, country)
         res.status(201)
         res.send(ans)
-    } catch (e) {
+    } catch (e: any) {
         res.status(401)
         res.send(e.message)
     }
@@ -125,7 +128,7 @@ router.post('/guest/login', async (req, res) => {
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -142,7 +145,7 @@ router.get('/member/logout/:username', async (req, res) => {
         let username = req.params.username
         let ans = await service.logout(sessId, username)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -166,7 +169,7 @@ router.post('/member/shopManagement/assignOwner', (req, res) => {
         let title = req.body.title
         let ans = service.appointShopOwner(sessId, newOwner, shopId, owner, title)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -192,7 +195,7 @@ router.post('/member/shopManagement/assignManager', (req, res) => {
         let title = req.body.title
         let ans = service.appointShopManager(sessId, newManager, shopId, owner, title)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -218,7 +221,7 @@ router.post('/member/shopManagement/Permissions', (req, res) => {
         let managerId = req.body.manager
         let ans = service.addPermissions(sessId, owner, managerId, shopId, permissions)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -238,7 +241,7 @@ router.delete('/member/shopManagement/Permissions', (req, res) => {
 
         let ans = service.removePermissions(sessId, owner, managerId, shopId, permissions)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -257,7 +260,7 @@ router.get('api/member/shopManagement/Personnel/:username/:shop', (req, res) => 
 
         let ans = service.requestShopPersonnelInfo(sessId, username, shop)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -272,7 +275,7 @@ router.get('/guest', (req, res) => {
     try {
         let ans = service.accessMarketplace(sessId)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -288,7 +291,7 @@ router.get('/exit', (req, res) => {
     try {
         let ans = service.exitMarketplace(sessId)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -297,7 +300,7 @@ router.get('/exit', (req, res) => {
 /*
 query params - searchTerm, searchType, filters (i.e. price range, rating, ...)
  */
-router.post('api/product/', (req, res) => {
+router.post('/product', (req, res) => {
 
     try {
         let sessId = req.session.id
@@ -306,7 +309,7 @@ router.post('api/product/', (req, res) => {
         let filter = req.body.filter;
         let ans = service.searchProducts(sessId, searchType, searchTerm, filter);
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -327,7 +330,7 @@ router.post('/product/:shopId', (req, res) => {
         let description = req.body.description
         let ans = service.addProductToShop(sessId, username, shopId, category, name, price, quantity, description)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -344,7 +347,7 @@ router.delete('/product/:shopId/:productId', (req, res) => {
         let productId = Number(req.params.productId)
         let ans = service.removeProductFromShop(sessId, username, shopId, productId)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -360,7 +363,7 @@ router.patch('/product/:shopId/:productId', (req, res) => {
         let quantity = Number(req.body.quantity)
         let ans = service.modifyProductQuantityInShop(sessId, username, shopId, productId, quantity)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -376,7 +379,7 @@ router.post('api/shop/', (req, res) => {
         let shopName = req.body.shopName;
         let ans = service.setUpShop(sessId, username, shopName)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -390,7 +393,7 @@ router.get('api/shop/:shopId', (req, res) => {
 
         let ans = service.getShopInfo(sessId, shopId)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -405,7 +408,7 @@ router.patch('/shop/close/:shopId/:founder', (req, res) => {
         let founder = req.params.founder;
         let ans = service.closeShop(sessId, founder, shopId)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -424,7 +427,7 @@ router.get('/shop/orders/:shopId/:ownerUsername/:from/:to', (req, res) => {
 
         let ans = service.getShopPurchaseHistory(sessId, founder, shopId, from, to, filters)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -436,7 +439,7 @@ router.get('/cart', (req, res) => {
     try{
         let ans = service.checkShoppingCart(sess)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -452,7 +455,7 @@ router.post('/cart/:productId/:quantity', (req, res) => {
         let quantity = req.body.quantity
         let ans = service.addToCart(sess,product, quantity)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -467,7 +470,7 @@ router.patch('/cart/:productId/:quantity', (req, res) => {
         let quantity = req.body.quantity
         let ans = service.editProductInCart(sess,product, quantity)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -487,7 +490,7 @@ router.post('/cart/checkout', (req, res) => {
         let delivery = req.body.deliveryDetails
         let ans = service.checkout(sess,payment, delivery)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -511,7 +514,7 @@ router.post('/admin/services/swap', (req, res) => {
         let serviceName = req.body.name
         let ans = service.swapConnectionWithExternalService(sess,admin_name,type,serviceName)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
@@ -532,7 +535,7 @@ router.post('/admin/services/edit', (req, res) => {
         let settings = req.body.settings
         let ans = service.swapConnectionWithExternalService(sess,admin_name,type,settings)
         res.send(ans)
-    } catch (e) {
+    } catch (e:any) {
         res.status(404)
         res.send(e.message)
     }
