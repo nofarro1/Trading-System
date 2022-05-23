@@ -2,7 +2,7 @@ import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {DiscountType, ProductCategory} from "../../../../src/utilities/Enums";
 import {ShoppingBag} from "../../../../src/domain/marketplace/ShoppingBag";
-import {Discount, discountInf} from "../../../../src/domain/marketplace/CompositePattern/leaves/Discount";
+import {discountInf, SimpleDiscount} from "../../../../src/domain/marketplace/CompositePattern/leaves/SimpleDiscount";
 import {
     AndDiscounts
 } from "../../../../src/domain/marketplace/CompositePattern/Containers/DiscountsContainers/LogicComposiotions/AndDiscounts";
@@ -15,6 +15,7 @@ import {
 import {
     AdditionDiscounts
 } from "../../../../src/domain/marketplace/CompositePattern/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts";
+import {ConditionalDiscount} from "../../../../src/domain/marketplace/CompositePattern/leaves/ConditionalDiscount";
 
 describe('SimpleShop- products', function() {
 
@@ -71,7 +72,7 @@ describe('SimpleShop- products', function() {
         bag.products.set(0,[p1, 2]);
         bag.products.set(1, [p2, 1]);
         let discountInf: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
-        let disc1 = new Discount(discountInf, 20);
+        let disc1 = new SimpleDiscount(discountInf, 20);
         s1.addDiscount(disc1);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -86,10 +87,10 @@ describe('SimpleShop- products', function() {
         bag.products.set(0,[p1, 2]);
         bag.products.set(1, [p2, 1]);
         let discountInf1: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
-        let disc1 = new Discount(discountInf1, 20);
+        let disc1 = new SimpleDiscount(discountInf1, 20);
         s1.addDiscount(disc1);
         let discountInf2: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
-        let disc2 = new Discount(discountInf2, 10);
+        let disc2 = new SimpleDiscount(discountInf2, 10);
         s1.addDiscount(disc2);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -104,19 +105,23 @@ describe('SimpleShop- products', function() {
         bag.products.set(0,[p1, 2]);
         bag.products.set(1, [p2, 1]);
         let discountInf1: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
-        let disc1 = new Discount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(discountInf1, 5);
+        let discountInf2: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
+        let disc2 = new SimpleDiscount(discountInf2, 5);
         let pred1 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 0 && quantity >= 2);
-                                                               return p!=undefined;}
+            return p!=undefined;}
         let pred2 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 1 && quantity >= 1);
-                                                               return p!=undefined;}
-        let andDisc = new AndDiscounts([disc1], pred1, pred2);
+            return p!=undefined;}
+        let cond1 = new ConditionalDiscount(disc1, pred1);
+        let cond2 = new ConditionalDiscount(disc2, pred2);
+        let andDisc = new AndDiscounts([cond1, cond2]);
         s1.addDiscount(andDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
         for( let [p, price, quantity] of productsUpdatePrices){
             totalPrice += price* quantity;
         }
-        expect(totalPrice).toBeCloseTo(16.91);
+        expect(totalPrice).toBeCloseTo(16.32);
     })
 
     test('calculateBagPrice- AndDiscount, does not need to apply', ()=>{
@@ -124,12 +129,16 @@ describe('SimpleShop- products', function() {
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 1]);
         let discountInf1: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
-        let disc1 = new Discount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(discountInf1, 5);
+        let discountInf2: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
+        let disc2 = new SimpleDiscount(discountInf2, 5);
         let pred1 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 0 && quantity >= 2);
             return p!=undefined;}
         let pred2 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 1 && quantity >= 1);
             return p!=undefined;}
-        let andDisc = new AndDiscounts([disc1], pred1, pred2);
+        let cond1 = new ConditionalDiscount(disc1, pred1);
+        let cond2 = new ConditionalDiscount(disc2, pred2);
+        let andDisc = new AndDiscounts([cond1, cond2]);
         s1.addDiscount(andDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -144,19 +153,23 @@ describe('SimpleShop- products', function() {
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 1]);
         let discountInf1: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
-        let disc1 = new Discount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(discountInf1, 5);
         let pred1 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 0 && quantity >= 2);
             return p!=undefined;}
+        let discountInf2: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
+        let cond1 = new ConditionalDiscount(disc1, pred1);
+        let disc2 = new SimpleDiscount(discountInf2, 5);
         let pred2 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 1 && quantity >= 1);
             return p!=undefined;}
-        let OrDisc = new OrDiscounts([disc1], pred1, pred2);
+        let cond2 = new ConditionalDiscount(disc2, pred2);
+        let OrDisc = new OrDiscounts([cond1, cond2]);
         s1.addDiscount(OrDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
         for( let [p, price, quantity] of productsUpdatePrices){
             totalPrice += price* quantity;
         }
-        expect(totalPrice).toBeCloseTo(11.305);
+        expect(totalPrice).toBeCloseTo(11.605);
     })
 
     test('calculateBagPrice- OrDiscount, does not need to apply', ()=>{
@@ -164,12 +177,16 @@ describe('SimpleShop- products', function() {
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 0]);
         let discountInf1: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
-        let disc1 = new Discount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(discountInf1, 5);
         let pred1 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 0 && quantity >= 2);
-            return p!=undefined;}
+           return p!=undefined;}
+        let discountInf2: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
+        let cond1 = new ConditionalDiscount(disc1, pred1);
+        let disc2 = new SimpleDiscount(discountInf2, 5);
         let pred2 = (products: [Product, number, number][])=> {let p= products.find(([p, price, quantity]:[Product, number, number]) =>  p.id === 1 && quantity >= 1);
             return p!=undefined;}
-        let OrDisc = new OrDiscounts([disc1], pred1, pred2);
+        let cond2 = new ConditionalDiscount(disc2, pred2);
+        let OrDisc = new OrDiscounts([cond1, cond2]);
         s1.addDiscount(OrDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -184,9 +201,9 @@ describe('SimpleShop- products', function() {
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 1]);
         let discountInf1: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
-        let disc1 = new Discount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(discountInf1, 5);
         let discountInf2: discountInf = {type:DiscountType.Category, object:ProductCategory.B} as discountInf;
-        let disc2 = new Discount(discountInf1, 10);
+        let disc2 = new SimpleDiscount(discountInf2, 10);
         let maxDisc = new MaxDiscounts();
         maxDisc.addDiscountElement(disc1);
         maxDisc.addDiscountElement(disc2);
@@ -204,9 +221,9 @@ describe('SimpleShop- products', function() {
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 1]);
         let discountInf1: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
-        let disc1 = new Discount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(discountInf1, 5);
         let discountInf2: discountInf = {type:DiscountType.AllShop, object:undefined} as discountInf;
-        let disc2 = new Discount(discountInf2, 10);
+        let disc2 = new SimpleDiscount(discountInf2, 10);
         let additionDisc = new AdditionDiscounts();
         additionDisc.addDiscountElement(disc1);
         additionDisc.addDiscountElement(disc2);

@@ -7,7 +7,7 @@ export type discountInf = {
     object: Product | ProductCategory | undefined;
 };
 
-export class Discount implements DiscountComponent{
+export class SimpleDiscount implements DiscountComponent{
 
     private info: discountInf;
     private discountPercent: number;
@@ -16,6 +16,8 @@ export class Discount implements DiscountComponent{
         this.info = discountInf;
         this.discountPercent = discountPercent;
     }
+
+
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
         let discProductsPrice: [Product, number, number][] = [];
@@ -45,5 +47,9 @@ export class Discount implements DiscountComponent{
 
         }
         return discProductsPrice;
+    }
+
+    predicate(products: [Product, number, number][]): boolean {
+        return true;
     }
 }

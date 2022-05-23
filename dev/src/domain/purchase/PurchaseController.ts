@@ -126,7 +126,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             this.buyerOrders.set(user.username, orders);
             logger.info(`User ${user.username} made purchase. order#: ${this.buyerOrderCounter}`);
             this.buyerOrderCounter++;
-            //check purchase And Discount Policies
+            //check purchase And SimpleDiscount Policies
         }
         else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);

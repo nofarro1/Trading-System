@@ -38,4 +38,8 @@ export class MaxDiscounts implements DiscountComponent{
         this.discounts.splice(i, 1);
     }
 
+    predicate(products: [Product, number, number][]): boolean {
+        return true;
+    }
+
 }

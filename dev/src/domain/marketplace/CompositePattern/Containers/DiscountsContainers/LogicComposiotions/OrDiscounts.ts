@@ -4,23 +4,18 @@ import {Product} from "../../../../Product";
 
 export class OrDiscounts implements DiscountComponent{
     private discounts: DiscountComponent[];
-    private predicate_1: (Products: [Product, number, number][]) => boolean;
-    private predicate_2: (Products: [Product, number, number][]) => boolean;
 
-    constructor(discount: DiscountComponent[], pred1: (Products: [Product, number, number][])=> boolean, pred2: (Products: [Product, number, number][])=> boolean) {
+    constructor(discount: DiscountComponent[]) {
         this.discounts= discount;
-        this.predicate_1 = pred1;
-        this.predicate_2= pred2;
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
-        if(this.predicate_1(products) || this.predicate_2(products)){
-            let callBack = (acc:[Product, number, number][], dcCurr: DiscountComponent)=> dcCurr.calculateProductsPrice(acc);
-            return this.discounts.reduce(callBack,products);
-        }
-        else{
+        let predCallbak = (acc:boolean, dc:DiscountComponent) => acc || dc.predicate(products);
+        let discCallBack = (acc:[Product, number, number][], dcCurr: DiscountComponent)=> dcCurr.calculateProductsPrice(acc);
+        if(this.discounts.reduce(predCallbak, true))
+            return this.discounts.reduce(discCallBack,products);
+        else
             return products;
-        }
     }
 
 
@@ -32,5 +27,9 @@ export class OrDiscounts implements DiscountComponent{
         this.discounts.splice(i, 1);
     }
 
+    predicate(products: [Product, number, number][]): boolean {
+        let predCallbak = (acc:boolean, dc:DiscountComponent) => acc || dc.predicate(products);
+        return this.discounts.reduce(predCallbak, true);
+    }
 
 }

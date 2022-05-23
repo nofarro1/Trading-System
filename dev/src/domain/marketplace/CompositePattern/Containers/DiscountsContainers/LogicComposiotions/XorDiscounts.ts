@@ -9,23 +9,18 @@ export function xor(a: boolean, b: boolean) {
 
 export class XorDiscounts implements DiscountComponent{
     private discounts: DiscountComponent[];
-    private predicate_1: (Products: [Product, number, number][]) => boolean;
-    private predicate_2: (Products: [Product, number, number][]) => boolean;
 
     constructor(discount: DiscountComponent[], pred1: (Products: [Product, number, number][])=> boolean, pred2: (Products: [Product, number, number][])=> boolean) {
         this.discounts= discount;
-        this.predicate_1 = pred1;
-        this.predicate_2= pred2;
     }
 
-    calculateProductsPrice(Products: [Product, number, number][]): [Product, number, number][] {
-        if( xor(this.predicate_1(Products), this.predicate_2(Products))){
-            let callBack = (acc:[Product, number, number][], dcCurr: DiscountComponent)=> dcCurr.calculateProductsPrice(acc);
-            return this.discounts.reduce(callBack,Products);
-        }
-        else{
-            return Products;
-        }
+    calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
+        let predCallbak = (acc:boolean, dc:DiscountComponent) => xor(acc, dc.predicate(products));
+        let discCallBack = (acc:[Product, number, number][], dcCurr: DiscountComponent)=> dcCurr.calculateProductsPrice(acc);
+        if(this.discounts.reduce(predCallbak, true))
+            return this.discounts.reduce(discCallBack,products);
+        else
+            return products;
     }
 
 
@@ -35,5 +30,10 @@ export class XorDiscounts implements DiscountComponent{
     removeDiscountElement(toRemove: DiscountComponent){
         let i = this.discounts.indexOf(toRemove);
         this.discounts.splice(i, 1);
+    }
+
+    predicate(products: [Product, number, number][]): boolean {
+        let predCallbak = (acc:boolean, dc:DiscountComponent) =>  xor(acc, dc.predicate(products));
+        return this.discounts.reduce(predCallbak, true);
     }
 }
