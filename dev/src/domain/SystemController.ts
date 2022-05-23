@@ -15,7 +15,7 @@ import {Product} from "./marketplace/Product";
 import {ShoppingCart} from "./marketplace/ShoppingCart";
 import {ShopOrder} from "./purchase/ShopOrder";
 import {UserController} from "./user/UserController";
-import {User} from "./user/User";
+import {User} from "./user/Guest";
 import {logger} from "../helpers/logger";
 import {JobType, ProductCategory, SearchType} from "../utilities/Enums";
 import {Permissions} from "../utilities/Permissions";

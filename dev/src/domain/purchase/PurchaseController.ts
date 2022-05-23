@@ -4,12 +4,9 @@ import { PaymentServiceAdaptor } from "../external_services/PaymentServiceAdapto
 import { ShoppingBag } from "../marketplace/ShoppingBag";
 import {IMessagePublisher, IMessageListener} from "../notifications/IEventPublishers";
 import {ShopPurchaseMessage, ShopStatusChangedMessage} from "../notifications/Message";
-import { Member } from "../user/Member";
-import { BuyerOrder } from "./BuyerOrder";
-import { ShopOrder } from "./ShopOrder";
-import { logger}  from "../../helpers/logger"
-;
-import { User } from "../user/User";
+import { Member } from "../User/Member";
+import { logger}  from "../../helpers/logger";
+import { Guest } from "../user/Guest";
 
 
 
@@ -86,7 +83,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         v.visitPurchaseEvent(msg)
     }
 
-    checkout(user: User): Result<void>{
+    checkout(user: Guest): Result<void>{
         let shoppingCart = user._shoppingCart;
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
@@ -124,14 +121,18 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             }
             orders.add(buyerOrder);
             this.buyerOrders.set(user.username, orders);
-            logger.info(`User ${user.username} made purchase. order#: ${this.buyerOrderCounter}`);
+            logger.info(`Guest ${user.username} made purchase. order#: ${this.buyerOrderCounter}`);
             this.buyerOrderCounter++;
             //check purchase And Discount Policies
         }
         else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
         return new Result(true, undefined);
-        
-    
+    }
+
+    getShopOrder(shopId: number){
+        if (!this.shopOrders.has(shopId))
+            logger.warn(`Shop with id: ${shopId} has no orders yet or does not exist`);
+        return this.shopOrders.get(shopId) // return null if the shop not exist or not in the map
     }
 }

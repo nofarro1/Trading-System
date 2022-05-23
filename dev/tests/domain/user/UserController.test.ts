@@ -5,7 +5,7 @@ import { ShoppingCart } from "../integration/marketplace/SimpleShoppingCart";
 import { Permissions } from "../../utilities/Permissions";
 import { Shop } from "../integration/marketplace/SimpleShop";
 import { JobType } from "../../utilities/Enums";
-import { User } from "../../../src/domain/user/User";
+import { Guest } from "./Guest";
 
 class TestUserController extends UserController {
 
@@ -18,8 +18,8 @@ const userController = new UserController();
 const m1: Member = new Member("session1", "member1", new ShoppingCart());
 const m2: Member = new Member("session1", "member2", new ShoppingCart());
 
-const g1: User = new User("session1", new ShoppingCart());
-const g2: User = new User("session", new ShoppingCart());
+const g1: Guest = new Guest("session1", new ShoppingCart());
+const g2: Guest = new Guest("session", new ShoppingCart());
 
 
 describe('UserController tests - test', function () {

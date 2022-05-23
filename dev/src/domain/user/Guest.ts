@@ -2,7 +2,7 @@ import {UUIDGenerator} from "../../utilities/Utils";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
 
 
-export class User{
+export class Guest{
     private _session: string;
     _shoppingCart: ShoppingCart;
 
