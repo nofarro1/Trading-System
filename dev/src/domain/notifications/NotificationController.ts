@@ -1,11 +1,11 @@
 import {IIncomingMessageSubscriber} from "./MessageBox";
 import {Message} from "./Message";
-import {Member} from "../user/Member";
 import {Result} from "../../utilities/Result";
 import {logger} from "../../helpers/logger";
+import {injectable} from "inversify";
 
 
-
+@injectable()
 export class NotificationController implements IIncomingMessageSubscriber {
 
     private activeMembers: Map<string,(m:Message) => void>
