@@ -1,7 +1,8 @@
 import {logger} from "../../helpers/logger";
 import {Result} from "../../utilities/Result";
+import {injectable} from "inversify";
 
-
+@injectable()
 export class PaymentServiceAdaptor {
     private readonly _name: string;
 

@@ -1,7 +1,8 @@
 import {Result} from "../../utilities/Result";
 import {logger} from "../../helpers/logger";
+import {injectable} from "inversify";
 
-
+@injectable()
 export class DeliveryServiceAdaptor {
     private readonly _name: string;
     private _settings: any;

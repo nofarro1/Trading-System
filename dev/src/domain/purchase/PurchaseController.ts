@@ -10,9 +10,11 @@ import { ShopOrder } from "./ShopOrder";
 import { logger}  from "../../helpers/logger"
 ;
 import { User } from "../user/User";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../../../types";
 
 
-
+@injectable()
 export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage> {
     protected subscribers: IMessageListener<ShopPurchaseMessage>[];
     private _paymentService: PaymentServiceAdaptor;
@@ -23,7 +25,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     private _shopOrders: Map<number, Set<string>>;
     
     
-    constructor(paymentService: PaymentServiceAdaptor, deliveryService: DeliveryServiceAdaptor) {
+    constructor(@inject(TYPES.PaymentServiceAdaptor) paymentService: PaymentServiceAdaptor,@inject(TYPES.DeliveryServiceAdaptor) deliveryService: DeliveryServiceAdaptor) {
         this.subscribers = [];
         this._buyerOrders = new Map<string, Set<string>>();
         this._shopOrders = new Map<number, Set<string>>();

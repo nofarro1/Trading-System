@@ -2,8 +2,9 @@ import {MessageBox, IIncomingMessageSubscriber} from "./MessageBox";
 import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message";
 import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
+import { injectable } from "inversify";
 
-
+@injectable()
 export class MessageController implements IMessageListener<Message> {
 
     messageBoxes: Map<string, MessageBox>

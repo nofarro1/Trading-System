@@ -1,12 +1,14 @@
 import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../../types";
 
-
+@injectable()
 export class ShoppingCartService {
     private systemController: SystemController;
 
-    constructor(systemController: SystemController) {
+    constructor(@inject(TYPES.SystemController)systemController: SystemController) {
         this.systemController = systemController;
     }
 
