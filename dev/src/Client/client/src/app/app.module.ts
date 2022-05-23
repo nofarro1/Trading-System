@@ -10,6 +10,8 @@ import { ShopsComponent } from './shops/shops.component';
 import { MainComponent } from './main/main.component';
 import { ShopComponent } from './shop/shop.component';
 import { CartComponent } from './cart/cart.component';
+import { TableModule } from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
 
 @NgModule({
   declarations: [
@@ -20,11 +22,12 @@ import { CartComponent } from './cart/cart.component';
     ShopsComponent,
     MainComponent,
     ShopComponent,
-    CartComponent
-  ],
+    CartComponent,  ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    TableModule,
+    ButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

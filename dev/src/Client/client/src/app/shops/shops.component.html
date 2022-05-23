@@ -1,1 +1,16 @@
-
+<p-table [value]="shops">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>name</th>
+            <th>status</th>
+            <th style="color: white;">Go To</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-shop class="body-line !important">
+        <tr>
+            <td class="font-bold ml-2 !important">{{shop.name}}</td>
+            <td>{{shop.status}}</td>
+            <button pButton type="button" label="Go To" ></button>
+        </tr>
+    </ng-template>
+</p-table>
