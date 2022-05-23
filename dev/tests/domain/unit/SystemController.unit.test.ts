@@ -22,6 +22,8 @@ import {
     toSimpleProducts,
     toSimpleShop, toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
+import {systemContainer} from "../../../inversify.config";
+import {TYPES} from "../../../types";
 
 const mockDependencies = {
     SecurityController: "../../../src/domain/SecurityController",
@@ -130,7 +132,7 @@ describe('system controller - unit', () => {
             return id;
         })
 
-        sys = SystemController.initialize();
+        sys = systemContainer.get<SystemController>(TYPES.SystemController)
         mpController = sys.mpController
         mController = sys.mController
         pController = sys.pController
@@ -150,11 +152,11 @@ describe('system controller - unit', () => {
         user2 = new Guest(sess3, cart3)
 
         cart4 = new ShoppingCart()
-        member1 = new Member(username1, cart4)
+        member1 = new Member(sess4,username1, cart4)
         box1 = new MessageBox(username1);
 
         cart5 = new ShoppingCart()
-        member2 = new Member(username2, cart5)
+        member2 = new Member(sess5,username2, cart5)
         box2 = new MessageBox(username1);
 
     })

@@ -3,6 +3,7 @@ import { Product } from "./Product";
 import { ShoppingCart } from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
+import "reflect-metadata";
 
 @injectable()
 export class ShoppingCartController {

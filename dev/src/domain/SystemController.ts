@@ -8,11 +8,8 @@ import {ShoppingCartController} from "./marketplace/ShoppingCartController";
 import {PurchaseController} from "./purchase/PurchaseController";
 import {MessageController} from "./notifications/MessageController";
 import {NotificationController} from "./notifications/NotificationController";
-import {checkRes, Result, safe} from "../utilities/Result";
-import {Shop} from "./marketplace/Shop";
-import {Product} from "./marketplace/Product";
+import {checkRes, Result} from "../utilities/Result";
 import {ShoppingCart} from "./marketplace/ShoppingCart";
-import {ShopOrder} from "./purchase/ShopOrder";
 import {UserController} from "./user/UserController";
 import {Guest} from "./user/Guest";
 import {logger} from "../helpers/logger";
@@ -20,22 +17,22 @@ import {JobType, ProductCategory, SearchType} from "../utilities/Enums";
 import {Permissions} from "../utilities/Permissions";
 import {PaymentServiceAdaptor} from "./external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "./external_services/DeliveryServiceAdaptor";
-import {MessageBox} from "./notifications/MessageBox";
+
 import {
     toSimpleGuest,
     toSimpleMember,
     toSimpleProduct,
     toSimpleProducts,
-    toSimpleShop, toSimpleShopOrder, toSimpleShoppingCart
+    toSimpleShop, toSimpleShoppingCart
 } from "../utilities/simple_objects/SimpleObjectFactory";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
-import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../types";
+import "reflect-metadata";
 
 @injectable()
 export class SystemController {

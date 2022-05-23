@@ -62,7 +62,7 @@ export function toSimpleShopOrders(shopOrders: ShopOrder[]): SimpleShopOrder[]{
 }
 
 export function toSimpleGuest(guest: Guest): SimpleGuest{
-    return new SimpleGuest(guest.id);
+    return new SimpleGuest(guest.session);
 }
 
 export function toSimpleMember(member: Member): SimpleMember{
@@ -81,5 +81,5 @@ export function toSimpleShoppingCart(userID: string, shoppingCart: ShoppingCart)
         }
 
     }
-    return new SimpleShoppingCart(userID, simpleProducts, shoppingCart.totalPrice);
+    return new SimpleShoppingCart(userID, simpleProducts, 0);
 }

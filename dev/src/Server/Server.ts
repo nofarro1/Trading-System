@@ -1,9 +1,8 @@
 import https from 'https'
 import fs from 'fs'
-import io, {Socket} from 'socket.io'
-import {router, app} from './expressApp'
-import session, {Session} from "express-session";
-import {Response, Request, NextFunction} from "express"
+import io from 'socket.io'
+import {app} from './expressApp'
+import {Session} from "express-session";
 
 declare module "http" {
     interface IncomingMessage {
@@ -47,7 +46,9 @@ ioServer.listen(httpsServer)
 //     console.log(`session  has connected`);
 // })
 
-
+httpsServer.on('connect', (req)=>{
+    console.log(req.session.id);
+})
 
 
 httpsServer.listen(port, () => {

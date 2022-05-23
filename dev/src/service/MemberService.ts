@@ -5,6 +5,7 @@ import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../types";
+import "reflect-metadata";
 
 @injectable()
 export class MemberService {

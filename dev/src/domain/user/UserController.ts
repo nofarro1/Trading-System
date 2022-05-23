@@ -8,6 +8,8 @@ import { Guest } from "./Guest";
 import { Member } from "./Member";
 import { Role } from "./Role";
 import {injectable} from "inversify";
+import "reflect-metadata";
+
 
 @injectable()
 export class UserController {
