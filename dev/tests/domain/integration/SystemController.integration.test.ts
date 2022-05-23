@@ -22,7 +22,6 @@ import {
     toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
 import {ExternalServiceType} from "../../../src/utilities/Utils";
-import {Result} from "../../../src/utilities/Result";
 
 
 describe('system controller - integration', () => {
