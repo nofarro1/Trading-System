@@ -4,12 +4,12 @@ import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../uti
 import {Member} from "./user/Member";
 import {ExternalServiceType} from "../utilities/Utils";
 import {MarketplaceController} from "./marketplace/MarketplaceController";
-import {ShoppingCartController} from "./marketplace/ShoppingCartController";
+import {ShoppingCartController} from "./user/ShoppingCartController";
 import {PurchaseController} from "./purchase/PurchaseController";
 import {MessageController} from "./notifications/MessageController";
 import {NotificationController} from "./notifications/NotificationController";
 import {checkRes, Result} from "../utilities/Result";
-import {ShoppingCart} from "./marketplace/ShoppingCart";
+import {ShoppingCart} from "./user/ShoppingCart";
 import {UserController} from "./user/UserController";
 import {Guest} from "./user/Guest";
 import {logger} from "../helpers/logger";

@@ -1,5 +1,7 @@
-import {ShoppingBag} from "../../ShoppingBag";
+import {Product} from "../../Product";
 
 export interface DiscountComponent {
-    CalculateBagPrice(bag: ShoppingBag): number;
+    calculateProductsPrice(Products: [Product, number, number][]): [Product, number, number][];
+    predicate: (products: [Product, number, number][]) => boolean;
+
 }

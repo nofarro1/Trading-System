@@ -1,5 +1,5 @@
 import { Permissions } from "../../utilities/Permissions";
-import { ShoppingCart } from "../marketplace/ShoppingCart";
+import { ShoppingCart } from "./ShoppingCart";
 import {  Role } from "./Role";
 import { Guest } from "./Guest";
 

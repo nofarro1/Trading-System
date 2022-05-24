@@ -1,7 +1,7 @@
 import {Result} from "../../utilities/Result";
 import {DeliveryServiceAdaptor} from "../external_services/DeliveryServiceAdaptor";
 import {PaymentServiceAdaptor} from "../external_services/PaymentServiceAdaptor";
-import {ShoppingBag} from "../marketplace/ShoppingBag";
+import {ShoppingBag} from "../user/ShoppingBag";
 import {IMessagePublisher, IMessageListener} from "../notifications/IEventPublishers";
 import {ShopPurchaseMessage, ShopStatusChangedMessage} from "../notifications/Message";
 import {Member} from "../user/Member";
@@ -109,12 +109,19 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             let shopOrder = `Shop Order Number: ${this.shopOrderCounter} \nProduct: \nProduct Id,  Product Name, Full Price, Final Price `;
             this.shopOrderCounter++;
             let shop = this._marketPlaceController.shops.get(bag.shopId);
-
-            bag.products.forEach((product) => {
-                // TODO: check quantity somehow
-                totalBagPrice += product[0].discountPrice;
-                shopOrder += `${product[0].id}, ${product[0].name}, ${product[0].fullPrice}, ${product[0].discountPrice}\n`;
-            });
+            if(shop) {
+                let answer = shop.canMakePurchase([bag, user]);
+                if (answer.ok) {
+                    let productsInfo = shop.calculateBagPrice(bag);
+                    for( let [p, price, quantity] of productsInfo){
+                        totalBagPrice += price* quantity;
+                        shopOrder += `${p.id}, ${p.name}, ${p.fullPrice}, price\n`;
+                    }
+                    totalCartPrice+= totalBagPrice;
+                }
+                else
+                    return new Result(false, undefined, answer.message);
+            }
             shopOrder += `Total Shop Order Price: ${totalBagPrice} \n`;
             buyerOrder += shopOrder;
             shopOrder += `Purchase Date: ${new Date().toLocaleString()} \n`;
@@ -143,7 +150,5 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         } else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
         return new Result(true, undefined);
-
-
     }
 }

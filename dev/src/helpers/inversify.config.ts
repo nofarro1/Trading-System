@@ -7,7 +7,7 @@ import {MarketplaceService} from "../service/MarketplaceService";
 import {MemberService} from "../service/MemberService";
 import {OrderService} from "../service/OrderService";
 import {ShoppingCartService} from "../service/ShoppingCartService";
-import {ShoppingCartController} from "../domain/marketplace/ShoppingCartController";
+import {ShoppingCartController} from "../domain/user/ShoppingCartController";
 import {MessageController} from "../domain/notifications/MessageController";
 import {UserController} from "../domain/user/UserController";
 import {NotificationController} from "../domain/notifications/NotificationController";

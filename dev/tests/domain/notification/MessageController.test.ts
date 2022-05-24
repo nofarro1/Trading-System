@@ -2,7 +2,7 @@ import {MessageBox, ILLiveNotificationSubscriber} from "../../../src/domain/noti
 import {Message} from "../../../src/domain/notifications/Message";
 import {Member} from "../../../src/domain/user/Member";
 import {MessageController} from "../../../src/domain/notifications/MessageController";
-import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
+import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
 
 
 

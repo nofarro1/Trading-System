@@ -8,7 +8,7 @@ import {SimpleShoppingCart} from "./user/SimpleShoppingCart";
 import {Shop} from "../../domain/marketplace/Shop";
 import {Guest} from "../../domain/user/Guest";
 import {Member} from "../../domain/user/Member";
-import {ShoppingCart} from "../../domain/marketplace/ShoppingCart";
+import {ShoppingCart} from "../../domain/user/ShoppingCart";
 
 
 export function toSimpleProduct(product: Product): SimpleProduct{

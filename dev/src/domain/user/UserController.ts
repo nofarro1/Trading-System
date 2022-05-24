@@ -2,7 +2,7 @@ import { logger } from "../../helpers/logger";
 import { JobType } from "../../utilities/Enums";
 import { Permissions } from "../../utilities/Permissions";
 import { Result } from "../../utilities/Result";
-import { ShoppingCart } from "../marketplace/ShoppingCart";
+import { ShoppingCart } from "./ShoppingCart";
 import { MessageBox } from "../notifications/MessageBox";
 import { Guest } from "./Guest";
 import { Member } from "./Member";

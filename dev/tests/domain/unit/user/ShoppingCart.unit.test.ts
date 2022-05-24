@@ -1,5 +1,5 @@
-import {ShoppingCart} from "../../../../src/domain/marketplace/ShoppingCart";
-import {ShoppingBag} from "../../../../src/domain/marketplace/ShoppingBag";
+import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
+import {ShoppingBag} from "../../../../src/domain/user/ShoppingBag";
 import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {ProductCategory} from "../../../../src/utilities/Enums";
