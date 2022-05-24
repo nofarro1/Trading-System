@@ -8,17 +8,17 @@ import {Role} from "../../../../src/domain/user/Role";
 class TestMember extends Member {
 
     constructor(member: Member) {
-        super("1", member.username, member.shoppingCart);
+        super("1", member.username);
     }
 
 }
 
-const m1: Member = new Member("1", "m1", new ShoppingCart());
+const m1: Member = new Member("1", "m1");
 const test_m1 = new TestMember(m1);
-const founder = new Member("1", "founder", new ShoppingCart());
+const founder = new Member("1", "founder");
 
-const shop1 = new Shop(12, "myShop", founder.username, undefined);
-const shop2 = new Shop(42, "theShop", founder.username, undefined);
+const shop1 = new Shop(12, "myShop", founder.username);
+const shop2 = new Shop(42, "theShop", founder.username);
 
 let emptyPerm = new Set<Permissions>();
 const r1 = new Role(shop1.id, "manager of myShop", JobType.Manager, emptyPerm);

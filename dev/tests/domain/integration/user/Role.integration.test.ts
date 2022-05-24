@@ -13,8 +13,8 @@ class TestRole extends Role {
     }
 }
 
-const founder = new Member("1", "founder", new ShoppingCart());
-const shop1 = new Shop(12, "myShop", founder.username, undefined);
+const founder = new Member("1", "founder");
+const shop1 = new Shop(12, "myShop", founder.username);
 const emptyPerm = new Set<Permissions>();
 const r1 = new Role(shop1.id, "manager of myShop", JobType.Manager, emptyPerm);
 

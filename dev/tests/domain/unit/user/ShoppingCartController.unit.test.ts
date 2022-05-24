@@ -1,6 +1,5 @@
 import {ShoppingCartController} from "../../../../src/domain/user/ShoppingCartController";
 import {Member} from "../../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {ProductCategory} from "../../../../src/utilities/Enums";
 import {Shop} from "../../../../src/domain/marketplace/Shop";
@@ -8,11 +7,10 @@ import {Result} from "../../../../src/utilities/Result";
 
 
 let shoppingCartController: ShoppingCartController;
-const shoppingCart: ShoppingCart = new ShoppingCart();
-const member: Member = new Member("1", "Mario", shoppingCart);
+const member: Member = new Member("1", "Mario");
 const shop: Shop = new Shop(1, "THE Shop", "Luigi");
 const quantity: number = 10;
-const product: Product = new Product("Pizza", 1, ProductCategory.A, 15, 15);
+const product: Product = new Product("Pizza", 1, ProductCategory.A, 15);
 
 describe("Shopping Cart - unit tests", function () {
     beforeEach(function () {

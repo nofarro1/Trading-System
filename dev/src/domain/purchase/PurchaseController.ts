@@ -101,7 +101,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     }
 
     checkout(user: Guest): Result<void> {
-        let shoppingCart = user._shoppingCart;
+        let shoppingCart = user.shoppingCart;
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
         shoppingCart.bags.forEach((bag: ShoppingBag) => {
@@ -149,6 +149,9 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             //check purchase And Discount Policies
         } else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
-        return new Result(true, undefined);
+        if(this.paymentService.makePayment(undefined).ok && this.deliveryService.makeDelivery(undefined).ok)
+            return new Result(true, undefined, "Purchase made successfully");
+        else
+            return new Result(false, undefined, "Purchase wasn't successful");
     }
 }

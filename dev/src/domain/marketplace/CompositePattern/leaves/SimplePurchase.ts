@@ -6,7 +6,7 @@ import {Guest} from "../../../user/Guest";
 
 
 
-export class SimplePutrchase implements ImmediatePurchasePolicyComponent{
+export class SimplePurchase implements ImmediatePurchasePolicyComponent{
     private _type: SimplePolicyType ;
     private _predicat: (purchaseInfo: [ShoppingBag, Guest]) => boolean;
     private answer: Answer;
