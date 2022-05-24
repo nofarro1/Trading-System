@@ -1,9 +1,9 @@
-import { JobType } from "../../utilities/Enums";
-import { Permissions } from "../../utilities/Permissions";
-import { Role } from "./Role";
-import {Member} from "../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
-import {Shop} from "../../../src/domain/marketplace/Shop";
+import {Member} from "../../../../src/domain/user/Member";
+import {ShoppingCart} from "../../../../src/domain/marketplace/ShoppingCart";
+import {Shop} from "../../../../src/domain/marketplace/Shop";
+import {Role} from "../../../../src/domain/user/Role";
+import {Permissions} from "../../../../src/utilities/Permissions";
+import {JobType} from "../../../../src/utilities/Enums";
 
 class TestRole extends Role {
 
@@ -13,7 +13,7 @@ class TestRole extends Role {
     }
 }
 
-const founder = new Member("founder", new ShoppingCart());
+const founder = new Member("1", "founder", new ShoppingCart());
 const shop1 = new Shop(12, "myShop", founder.username, undefined);
 const emptyPerm = new Set<Permissions>();
 const r1 = new Role(shop1.id, "manager of myShop", JobType.Manager, emptyPerm);

@@ -10,6 +10,7 @@ import {Guest} from "../user/Guest";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
+import {MarketplaceController} from "../marketplace/MarketplaceController";
 
 
 @injectable()
@@ -21,14 +22,16 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     private shopOrderCounter: number = 0;
     private _buyerOrders: Map<string, Set<string>>;
     private _shopOrders: Map<number, Set<string>>;
+    private _marketPlaceController: MarketplaceController;
 
 
-    constructor(@inject(TYPES.PaymentServiceAdaptor) paymentService: PaymentServiceAdaptor, @inject(TYPES.DeliveryServiceAdaptor) deliveryService: DeliveryServiceAdaptor) {
+    constructor(@inject(TYPES.PaymentServiceAdaptor) paymentService: PaymentServiceAdaptor, @inject(TYPES.DeliveryServiceAdaptor) deliveryService: DeliveryServiceAdaptor, @inject(TYPES.MarketplaceController)marketPlaceController: MarketplaceController) {
         this.subscribers = [];
         this._buyerOrders = new Map<string, Set<string>>();
         this._shopOrders = new Map<number, Set<string>>();
         this._paymentService = paymentService;
         this._deliveryService = deliveryService;
+        this._marketPlaceController = marketPlaceController;
     }
 
     swapDeliveryService(deliveryService: DeliveryServiceAdaptor) {
@@ -105,9 +108,8 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             let totalBagPrice = 0;
             let shopOrder = `Shop Order Number: ${this.shopOrderCounter} \nProduct: \nProduct Id,  Product Name, Full Price, Final Price `;
             this.shopOrderCounter++;
-            bag.productsOnSale.forEach((products, sale) => {
-                sale.applyDiscount(products);
-            });
+            let shop = this._marketPlaceController.shops.get(bag.shopId);
+
             bag.products.forEach((product) => {
                 // TODO: check quantity somehow
                 totalBagPrice += product[0].discountPrice;
