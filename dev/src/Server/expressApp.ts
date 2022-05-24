@@ -13,7 +13,7 @@ router.get('/check', (req, res) => {
     let sessId = req.session.id;
     console.log(sessId + " have been activated");
     res.status(200);
-    res.send({message:"hello, your id is " +sessId});
+    res.send({message: "hello, your id is " + sessId});
 
 })
 
@@ -32,8 +32,8 @@ router.get('/', async (req, res) => {
         res.status(200);
         res.send(guest)
 
-    } catch (e:any) {
-        res.status(403)
+    } catch (e: any) {
+        res.status(401)
         res.send("could not access marketplace")
     }
 })
@@ -55,7 +55,7 @@ router.post('/guest/register', async (req, res) => {
 
 
     try {
-        let sessId = req.session.id;
+        let sessId = req.body.id;
         let username = req.body.username;
         let password = req.body.password;
         let firstName = req.body.firstName;
@@ -63,8 +63,10 @@ router.post('/guest/register', async (req, res) => {
         let email = req.body.email;
         let country = req.body.country;
         let ans = await service.register(sessId, username, password, firstName, lastName, email, country)
-        res.send(ans)
-    } catch (e:any) {
+        res.status(201);
+        res.send(ans);
+    } catch (e: any) {
+        res.status(404)
         res.send(e.message)
     }
 
@@ -123,7 +125,7 @@ router.post('/guest/login', async (req, res) => {
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -140,7 +142,7 @@ router.get('/member/logout/:username', async (req, res) => {
         let username = req.params.username
         let ans = await service.logout(sessId, username)
         res.send(ans)
-    } catch (e:any) {
+    } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
@@ -531,7 +533,7 @@ router.post('/admin/services/edit', async (req, res) => {
         let ans = await service.swapConnectionWithExternalService(sess, admin_name, type, settings)
         res.send(ans)
     } catch (e: any) {
-        res.status(404)
+        res.status(402)
         res.send(e.message)
     }
 })
@@ -540,5 +542,6 @@ router.post('/admin/services/edit', async (req, res) => {
 export const app = express();
 export const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
 app.use(sessionMiddleware);
+app.use(express.json())
 app.use(router);
 

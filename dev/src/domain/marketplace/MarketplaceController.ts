@@ -13,7 +13,7 @@ import {DiscountComponent} from "./CompositePattern/Components/DiscountComponent
 import {ImmediatePurchasePolicyComponent} from "./CompositePattern/Components/ImmediatePurchasePolicyComponent";
 
 @injectable()
-export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage>, IMessageListener<ShopPurchaseMessage> {
+export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
 
     private _shops: Map<number, Shop>;
     private shopCounter: number;
@@ -327,20 +327,20 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
 
-    visitPurchaseEvent(msg: ShopPurchaseMessage): void {
-        // logger.info(`"ShopPurchaseMessage" was received in marketPlaceController.`);
-        // let shopId = msg.purchase.shopId;
-        // let shop = this._shops.get(shopId);
-        // if (shop !== undefined) {
-        //     msg.purchase.products.forEach(([product, quantity]) => {
-        //         shop?.updateProductQuantity(product.id, quantity)
-        //     });
-        // }
-    }
-
-    visitShopStatusChangedEvent(msg: ShopStatusChangedMessage): void {
-        console.log("Not interested in that event");
-    }
+    // visitPurchaseEvent(msg: ShopPurchaseMessage): void {
+    //     // logger.info(`"ShopPurchaseMessage" was received in marketPlaceController.`);
+    //     // let shopId = msg.purchase.shopId;
+    //     // let shop = this._shops.get(shopId);
+    //     // if (shop !== undefined) {
+    //     //     msg.purchase.products.forEach(([product, quantity]) => {
+    //     //         shop?.updateProductQuantity(product.id, quantity)
+    //     //     });
+    //     // }
+    // }
+    //
+    // visitShopStatusChangedEvent(msg: ShopStatusChangedMessage): void {
+    //     console.log("Not interested in that event");
+    // }
 
     notifySubscribers(message: ShopStatusChangedMessage): void {
     }

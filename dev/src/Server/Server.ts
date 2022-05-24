@@ -1,6 +1,6 @@
 import https from 'https'
 import fs from 'fs'
-import io, {Socket} from 'socket.io'
+import io, {Socket} from 'socket.io';
 import {app, sessionMiddleware} from './expressApp'
 import  {Session} from "express-session";
 import express, {Express, NextFunction, Request, Response} from "express";
@@ -35,7 +35,9 @@ export class Server {
     }
 
     start(){
-        this.ioServer = new io.Server()
+        this.ioServer = new io.Server(this.httpsServer,{
+            cors: { origin: "*"}
+        })
         this.ioServer.listen(this.httpsServer)
         this.ioServer.use(wrap(sessionMiddleware));
         // this.httpsServer.on('connect', (req)=>{
