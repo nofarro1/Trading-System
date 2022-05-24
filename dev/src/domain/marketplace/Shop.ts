@@ -2,6 +2,9 @@ import {Product} from "./Product";
 import {Sale} from "./Sale";
 import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
 import {ShoppingBag} from "./ShoppingBag";
+import {DiscountComponent} from "./CompositePattern/Components/DiscountComponent";
+import {User} from "../user/User";
+import {ImmediatePurchasePolicyComponent} from "./CompositePattern/Components/ImmediatePurchasePolicyComponent";
 
 
 export class Shop {
@@ -13,9 +16,12 @@ export class Shop {
     private _shopManagers: Set<string>;
     private _products: Map<number, [Product, number]>;
     private _rate: ShopRate;
+    private _discounts: Map<number, DiscountComponent>;
+    private _discountCounter: number;
+    private _purchasePolicies: Map <number, ImmediatePurchasePolicyComponent>;
+    private _purchaseCounter: number;
 
-
-    constructor(id: number, name: string, shopFounder: string,shopAndDiscountPolicy?: string){
+    constructor(id: number, name: string, shopFounder: string){
         this._id= id;
         this._name= name;
         this._status= ShopStatus.open;
@@ -23,7 +29,11 @@ export class Shop {
         this._shopOwners= new Set<string>([shopFounder]);
         this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
-        this._rate= ShopRate.NotRated
+        this._rate= ShopRate.NotRated;
+        this._discounts= new Map<number, DiscountComponent>();
+        this._discountCounter= 0;
+        this._purchasePolicies = new Map <number, ImmediatePurchasePolicyComponent>();
+        this._purchaseCounter = 0;
     }
 
 
@@ -91,8 +101,8 @@ export class Shop {
         this._rate = value;
     }
 
-    addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number, discountPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
-        let toAdd= new Product(productName, shopId, category, discountPrice, fullPrice, relatedSale, productDesc);
+    addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
+        let toAdd= new Product(productName, shopId, category, fullPrice, relatedSale, productDesc);
         if(!this.products.has(toAdd.id)){
             this.products.set(toAdd.id, [toAdd, quantity]);
             return toAdd;
@@ -143,12 +153,58 @@ export class Shop {
         this.shopManagers?.add(managerId);
     }
 
-    checkDiscountPolicies (bag: ShoppingBag): boolean{
-        return true;
+    calculateBagPrice(bag: ShoppingBag): [Product, number, number][]{
+
+        let productsList = this.extractProducts(bag.products);
+        let productsInfo: [Product, number, number][] = [];
+        for(let [p, quantity] of bag.products.values()){
+            productsInfo.push([p, p.fullPrice, quantity]);
+        }
+        if(this._discounts.size>0){
+            for( let disc of this._discounts.values()){
+                productsInfo = disc.calculateProductsPrice(productsInfo);
+            }
+        }
+
+        return productsInfo;
     }
 
-    checkPutrchasePolicies (bag: ShoppingBag): boolean {
-        return true;
+    canMakePurchase(bag: ShoppingBag, user: User){
+
     }
+
+    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
+        let productsList = [];
+        for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
+        return productsList;
+    }
+
+    addDiscount(disc: DiscountComponent): number{
+        this._discounts.set(this._discountCounter,disc);
+        this._discountCounter++;
+        return this._discountCounter-1;
+    }
+
+    removeDiscount(idDisc: number): void{
+        this._discounts.delete(idDisc);
+    }
+
+    addPurchasePolicy(puPolicy: ImmediatePurchasePolicyComponent): number{
+        this._purchasePolicies.set(this._purchaseCounter,puPolicy);
+        this._purchaseCounter++;
+        return this._purchaseCounter--;
+    }
+
+    removePurchasePolicy(idPuPolicy: number){
+        this._purchasePolicies.delete(idPuPolicy);
+    }
+
+    // checkDiscountPolicies (bag: ShoppingBag): boolean{
+    //     return true;
+    // }
+    //
+    // checkPurchasePolicies (bag: ShoppingBag): boolean {
+    //     return true;
+    // }
 
 }
