@@ -1,1 +1,24 @@
-<p>shop works!</p>
+<p-dataView [value]="products">
+    products: {{products[0].name}}
+    <ng-template pTemplate="header"> </ng-template>
+  <ng-template let-product pTemplate="listItem">
+    <div>
+      {{ product.id }}
+    </div>
+  </ng-template>
+  <ng-template let-product pTemplate="gridItem">
+    <div class="col-12 md:col-3">
+      {{ product.name }}
+    </div>
+  </ng-template>
+  <ng-template let-product pTemplate="gridItem">
+    <div class="col-12 md:col-3">
+      {{ product.rate }}
+    </div>
+  </ng-template>
+  <ng-template let-product pTemplate="gridItem">
+    <div class="col-12 md:col-3">
+      {{ product.description }}
+    </div>
+  </ng-template>
+</p-dataView>

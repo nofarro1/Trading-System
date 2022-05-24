@@ -3,6 +3,7 @@
     "@types/jest": "^27.5.1"
   },
   "dependencies": {
-    "@angular/cli": "^13.3.6"
+    "@angular/cli": "^13.3.6",
+    "primeicons": "^5.0.0"
   }
 }

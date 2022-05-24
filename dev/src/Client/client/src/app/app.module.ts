@@ -11,7 +11,8 @@ import { MainComponent } from './main/main.component';
 import { ShopComponent } from './shop/shop.component';
 import { CartComponent } from './cart/cart.component';
 import { TableModule } from 'primeng/table';
-import {ButtonModule} from 'primeng/button';
+import { DataViewModule } from 'primeng/dataview';
+import { ButtonModule } from 'primeng/button';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import {ButtonModule} from 'primeng/button';
     BrowserModule,
     AppRoutingModule,
     TableModule,
-    ButtonModule
+    ButtonModule,
+    DataViewModule
   ],
   providers: [],
   bootstrap: [AppComponent]
