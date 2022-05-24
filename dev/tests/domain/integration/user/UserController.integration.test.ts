@@ -1,18 +1,11 @@
+import { Guest } from "../../../../src/domain/user/Guest";
+import {Member} from "../../../../src/domain/user/Member";
+import {ShoppingCart} from "../../../../src/domain/marketplace/ShoppingCart";
+import {UserController} from "../../../../src/domain/user/UserController";
+import {Permissions} from "../../../../src/utilities/Permissions";
+import {Shop} from "../../../../src/domain/marketplace/Shop";
+import {JobType} from "../../../../src/utilities/Enums";
 
-import { UserController } from "./UserController";
-import {Member} from "../../../src/domain/user/Member";
-import { ShoppingCart } from "../integration/marketplace/SimpleShoppingCart";
-import { Permissions } from "../../utilities/Permissions";
-import { Shop } from "../integration/marketplace/SimpleShop";
-import { JobType } from "../../utilities/Enums";
-import { Guest } from "../../../src/domain/user/Guest";
-
-class TestUserController extends UserController {
-
-    constructor() {
-        super();
-    }
-}
 const userController = new UserController();
 
 const m1: Member = new Member("session1", "member1", new ShoppingCart());

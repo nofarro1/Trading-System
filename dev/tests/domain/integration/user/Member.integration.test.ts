@@ -1,23 +1,21 @@
-
-import {JobType} from "../../../src/utilities/Enums";
-import {Permissions} from "../../../src/utilities/Permissions";
-import {Member} from "../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
-import {Shop} from "../../../src/domain/marketplace/Shop";
-import {Role} from "../../../src/domain/user/Role";
-import {MessageBox} from "../../../src/domain/notifications/MessageBox";
+import {JobType} from "../../../../src/utilities/Enums";
+import {Permissions} from "../../../../src/utilities/Permissions";
+import {Member} from "../../../../src/domain/user/Member";
+import {ShoppingCart} from "../../../../src/domain/marketplace/ShoppingCart";
+import {Shop} from "../../../../src/domain/marketplace/Shop";
+import {Role} from "../../../../src/domain/user/Role";
 
 class TestMember extends Member {
 
     constructor(member: Member) {
-        super(member.username, member.shoppingCart);
+        super("1", member.username, member.shoppingCart);
     }
 
 }
 
-const m1: Member = new Member("m1", new ShoppingCart());
+const m1: Member = new Member("1", "m1", new ShoppingCart());
 const test_m1 = new TestMember(m1);
-const founder = new Member("founder", new ShoppingCart());
+const founder = new Member("1", "founder", new ShoppingCart());
 
 const shop1 = new Shop(12, "myShop", founder.username, undefined);
 const shop2 = new Shop(42, "theShop", founder.username, undefined);
