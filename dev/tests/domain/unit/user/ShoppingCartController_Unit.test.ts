@@ -9,7 +9,7 @@ import {Result} from "../../../../src/utilities/Result";
 
 let shoppingCartController: ShoppingCartController;
 const shoppingCart: ShoppingCart = new ShoppingCart();
-const member: Member = new Member("Mario", shoppingCart);
+const member: Member = new Member("1", "Mario", shoppingCart);
 const shop: Shop = new Shop(1, "THE Shop", "Luigi");
 const quantity: number = 10;
 const product: Product = new Product("Pizza", 1, ProductCategory.A, 15, 15);
