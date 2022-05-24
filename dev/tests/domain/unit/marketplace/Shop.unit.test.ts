@@ -2,22 +2,22 @@ import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {DiscountType, ProductCategory, SimplePolicyType} from "../../../../src/utilities/Enums";
 import {ShoppingBag} from "../../../../src/domain/user/ShoppingBag";
-import {SimpleDiscount} from "../../../../src/domain/marketplace/CompositePattern/leaves/SimpleDiscount";
+import {SimpleDiscount} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimpleDiscount";
 import {Answer, discountInf} from "../../../../src/utilities/Types"
 import {
     AndDiscounts
-} from "../../../../src/domain/marketplace/CompositePattern/Containers/DiscountsContainers/LogicComposiotions/AndDiscounts";
+} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicComposiotions/AndDiscounts";
 import {
     OrDiscounts
-} from "../../../../src/domain/marketplace/CompositePattern/Containers/DiscountsContainers/LogicComposiotions/OrDiscounts";
+} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicComposiotions/OrDiscounts";
 import {
     MaxDiscounts
-} from "../../../../src/domain/marketplace/CompositePattern/Containers/DiscountsContainers/NumericConditions/MaxDiscounts";
+} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/MaxDiscounts";
 import {
     AdditionDiscounts
-} from "../../../../src/domain/marketplace/CompositePattern/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts";
-import {ConditionalDiscount} from "../../../../src/domain/marketplace/CompositePattern/leaves/ConditionalDiscount";
-import {SimplePurchase} from "../../../../src/domain/marketplace/CompositePattern/leaves/SimplePurchase";
+} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts";
+import {ConditionalDiscount} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/ConditionalDiscount";
+import {SimplePurchase} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimplePurchase";
 import {Guest} from "../../../../src/domain/user/Guest";
 import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 
@@ -240,17 +240,51 @@ describe('SimpleShop- products', function() {
         expect(totalPrice).toBeCloseTo(10.415);
     })
 
-    test('camMakePurchase- simplePurchase', ()=>{
-        let bag = new ShoppingBag(0);
+    test('camMakePurchase- simplePurchase. Could make purchase.', ()=>{
         let pred = (purchaseInfo: [bag: ShoppingBag, user: Guest]): boolean => {
-            return bag.products.get(p1.id)[1] <= 5
+            let quantity = purchaseInfo[0].products.get(p1.id)[1];
+            return  quantity<= 5
         };
-        let cart = new ShoppingCart().addProduct(p1, 2);
+        let cart = new ShoppingCart();
+        cart.addProduct(p1, 2);
+        let bag = cart.bags.get(0);
         let user = new Guest("1");
         let simplePolicy = new SimplePurchase(SimplePolicyType.Product, pred, "Couldn't continue with checkout because the quantity oh 'ski' cheese is more the 5.");
         s1.addPurchasePolicy(simplePolicy);
         let ans = s1.canMakePurchase([bag, user]);
         expect(ans.ok).toBe(true);
+    })
+
+    test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
+        let pred = (purchaseInfo: [bag: ShoppingBag, user: Guest]): boolean => {
+            let quantity = purchaseInfo[0].products.get(p1.id)[1];
+            return  quantity<= 5
+        };
+        let cart = new ShoppingCart();
+        cart.addProduct(p1, 6);
+        let bag = cart.bags.get(0);
+        let user = new Guest("1");
+        let simplePolicy = new SimplePurchase(SimplePolicyType.Product, pred, "The quantity of 'ski' cheese is more the 5.");
+        s1.addPurchasePolicy(simplePolicy);
+        let ans = s1.canMakePurchase([bag, user]);
+        expect(ans.ok).toBe(false);
+        expect(ans.message).toBe("Couldn't make purchase because:\nThe quantity of 'ski' cheese is more the 5.");
+    })
+
+    test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
+        let pred = (purchaseInfo: [bag: ShoppingBag, user: Guest]): boolean => {
+            let quantity = purchaseInfo[0].products.get(p1.id)[1];
+            return  quantity<= 5
+        };
+        let cart = new ShoppingCart();
+        cart.addProduct(p1, 6);
+        let bag = cart.bags.get(0);
+        let user = new Guest("1");
+        let simplePolicy = new SimplePurchase(SimplePolicyType.Product, pred, "The quantity of 'ski' cheese is more the 5.");
+        s1.addPurchasePolicy(simplePolicy);
+        let ans = s1.canMakePurchase([bag, user]);
+        expect(ans.ok).toBe(false);
+        expect(ans.message).toBe("Couldn't make purchase because:\nThe quantity of 'ski' cheese is more the 5.");
     })
 })
 

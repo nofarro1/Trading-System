@@ -9,3 +9,4 @@ export enum PolicyType {LogicalPolicy, SimplePolicy }
 export enum SimplePolicyType {Product, Category, ShoppingBag, UserInfo}
 export enum LogicalPolicy {AndPolicy, OrPolicy, ConditionalPolicy}
 export enum JobType {Founder, Owner, Manager, admin}
+export enum RelationType {LessThen, LessThenOrEqual, Equal, GreaterThen, GreaterThenOrEqual, NotEqual }

@@ -116,6 +116,8 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                     for( let [p, price, quantity] of productsInfo){
                         totalBagPrice += price* quantity;
                         shopOrder += `${p.id}, ${p.name}, ${p.fullPrice}, price\n`;
+                        let oldQuantity =shop.products.get(p.id)[1];
+                        shop.updateProductQuantity(p.id, oldQuantity-quantity);
                     }
                     totalCartPrice+= totalBagPrice;
                 }
@@ -146,7 +148,6 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             this.buyerOrders.set(user.username, orders);
             logger.info(`User ${user.username} made purchase. order#: ${this.buyerOrderCounter}`);
             this.buyerOrderCounter++;
-            //check purchase And Discount Policies
         } else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
         if(this.paymentService.makePayment(undefined).ok && this.deliveryService.makeDelivery(undefined).ok)

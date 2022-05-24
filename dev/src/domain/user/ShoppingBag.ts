@@ -6,13 +6,11 @@ const compProducts = (p1: Product, p2: Product)=>  p1.fullPrice - p2.fullPrice;
 export class ShoppingBag {
     private _shopId: number;
     private _products: Map<number, [Product, number]>; //ProductID -> [Product, Quantity]
-    private _productsOnSale: Map<Sale, PriorityQueue<Product>>;
     private _totalPrice: number;
 
     constructor(shopId: number){
         this._shopId= shopId;
         this._products= new Map<number, [Product, number]>();
-        this._productsOnSale= new Map<Sale, PriorityQueue<Product>>();
         this._totalPrice= 0;
     }
 
@@ -30,13 +28,6 @@ export class ShoppingBag {
         this._products = value;
     }
 
-    public get productsOnSale(): Map<Sale, PriorityQueue<Product>> {
-        return this._productsOnSale;
-    }
-    public set productsOnSale(value: Map<Sale, PriorityQueue<Product>>) {
-        this._productsOnSale = value;
-    }
-
     public get totalPrice(): number {
         return this._totalPrice;
     }
@@ -44,33 +35,14 @@ export class ShoppingBag {
         this._totalPrice = value;
     }
 
-    addProduct(toAdd:Product, quantity: number): void{
+    addProduct(toAdd:Product, quantity: number): void {
         let productPair = this.products.get(toAdd.id);
-        if(productPair){
-            let updateQuantity = productPair[1]+quantity;
+        if (productPair) {
+            let updateQuantity = productPair[1] + quantity;
             this.products.set(toAdd.id, [toAdd, updateQuantity]);
         }
         else
             this.products.set(toAdd.id, [toAdd, quantity]);
-        if(toAdd.relatedSale){// if the product is on sale
-            if(this.productsOnSale.has(toAdd.relatedSale)){
-                var queue= this.productsOnSale.get(toAdd.relatedSale);
-                if(queue){
-                    queue.queue(toAdd); //check if the queue in the sales is update or need to be put again
-                    this.totalPrice+= toAdd.fullPrice;
-                    this.totalPrice-= toAdd.relatedSale.applyDiscount(queue);
-                }
-                throw new Error("Failed to add product because the queue of the associated Sale was undefined")
-            }
-            else{  
-                queue= new PriorityQueue({comparator: compProducts});
-                queue.queue(toAdd);
-                this.totalPrice= toAdd.relatedSale.applyDiscount(queue);
-                this.productsOnSale.set(toAdd.relatedSale, queue);
-            }
-        }
-        // this.totalPrice+= toAdd.fullPrice;
-        // return this.totalPrice;
         }
     
     removeProduct(toRemove: Product):void {
@@ -130,7 +102,6 @@ export class ShoppingBag {
 
     emptyBag(): void{
         this.products.clear;
-        this.productsOnSale.clear;
         // this.totalPrice = 0;
     }
 
