@@ -1,5 +1,5 @@
 import { Result } from "../../utilities/Result";
-import { Product } from "./Product";
+import { Product } from "../marketplace/Product";
 import { ShoppingCart } from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
@@ -75,10 +75,10 @@ export class ShoppingCartController {
         }
     }
 
-    addCart(username: string): Result<void>{
+    addCart(username: string): Result<ShoppingCart>{
         this.carts.set(username, new ShoppingCart());
         logger.info(`New cart was created for ${username}`);
-        return new Result(true, undefined);
+        return new Result(true, this.carts.get(username),undefined);
     }
 
     removeCart(username: string): Result<void>{

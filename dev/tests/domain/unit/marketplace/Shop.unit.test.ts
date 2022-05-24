@@ -1,7 +1,7 @@
 import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {DiscountType, ProductCategory} from "../../../../src/utilities/Enums";
-import {ShoppingBag} from "../../../../src/domain/marketplace/ShoppingBag";
+import {ShoppingBag} from "../../../../src/domain/user/ShoppingBag";
 import {discountInf, SimpleDiscount} from "../../../../src/domain/marketplace/CompositePattern/leaves/SimpleDiscount";
 import {
     AndDiscounts

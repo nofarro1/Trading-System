@@ -7,7 +7,7 @@ import {UserController} from "../../../src/domain/user/UserController";
 import {NotificationController} from "../../../src/domain/notifications/NotificationController";
 import {Guest} from "../../../src/domain/user/Guest";
 import {Member} from "../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
+import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
 import {MessageBox} from "../../../src/domain/notifications/MessageBox";
 import {Product} from "../../../src/domain/marketplace/Product";
 import {JobType, ProductCategory, SearchType} from "../../../src/utilities/Enums";

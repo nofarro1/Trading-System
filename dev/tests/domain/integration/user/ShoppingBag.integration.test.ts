@@ -1,4 +1,4 @@
-import {ShoppingBag} from "../../../../src/domain/marketplace/ShoppingBag";
+import {ShoppingBag} from "../../../../src/domain/user/ShoppingBag";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {ProductCategory} from "../../../../src/utilities/Enums";
 

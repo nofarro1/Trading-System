@@ -1,5 +1,5 @@
 import {UUIDGenerator} from "../../utilities/Utils";
-import { ShoppingCart } from "../marketplace/ShoppingCart";
+import { ShoppingCart } from "./ShoppingCart";
 
 
 export class Guest {

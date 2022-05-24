@@ -1,5 +1,5 @@
 //import PriorityQueue from "ts-priority-queue"
-import { Product } from "./Product"
+import { Product } from "../marketplace/Product"
 //import { Sale } from "./Sale"
 //import Comparator from "ts-priority-queue/src/PriorityQueue"
 //import { Result } from "../../utilities/Result";

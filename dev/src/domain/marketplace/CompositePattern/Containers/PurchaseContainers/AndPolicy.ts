@@ -1,10 +1,7 @@
 import {ImmediatePurchasePolicyComponent} from "../../Components/ImmediatePurchasePolicyComponent";
-import {ShoppingBag} from "../../../ShoppingBag";
-import {Product} from "../../../Product";
-import {LogicalPolicy, ProductCategory} from "../../../../../utilities/Enums";
-import {SimplePutrchase} from "../../leaves/SimplePutrchase";
-import {User} from "../../../../user/User";
+import {ShoppingBag} from "../../../../user/ShoppingBag";
 import {Answer} from "../../../../../utilities/Types";
+import {Guest} from "../../../../user/Guest";
 
 export class AndPolicy implements ImmediatePurchasePolicyComponent{
     private purchasePolicies: ImmediatePurchasePolicyComponent[];
@@ -23,9 +20,9 @@ export class AndPolicy implements ImmediatePurchasePolicyComponent{
         this.purchasePolicies.splice(ind, 1);
     }
 
-    CanMakePurchase(object: Product | ProductCategory | ShoppingBag | User): Answer {
+    CanMakePurchase(purchaseInfo: [ShoppingBag, Guest]): Answer {
         let pred = (acc: Answer, currPolicy: ImmediatePurchasePolicyComponent): Answer => {
-                let ans = currPolicy.CanMakePurchase(object);
+                let ans = currPolicy.CanMakePurchase(purchaseInfo);
                 if(acc.ok && ans.ok){
                     return acc= {ok: acc.ok && ans.ok, message: acc.message};
                 }

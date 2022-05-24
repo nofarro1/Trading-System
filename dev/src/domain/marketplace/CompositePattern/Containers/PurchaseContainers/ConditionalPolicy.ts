@@ -1,9 +1,7 @@
 import {ImmediatePurchasePolicyComponent} from "../../Components/ImmediatePurchasePolicyComponent";
-import {ShoppingBag} from "../../../ShoppingBag";
+import {ShoppingBag} from "../../../../user/ShoppingBag";
 import {Answer} from "../../../../../utilities/Types";
-import {Product} from "../../../Product";
-import {ProductCategory} from "../../../../../utilities/Enums";
-import {User} from "../../../../user/User";
+import {Guest} from "../../../../user/Guest";
 
 export class ConditioningPurchasePolicies implements ImmediatePurchasePolicyComponent{
     private dependent: ImmediatePurchasePolicyComponent;
@@ -13,8 +11,9 @@ export class ConditioningPurchasePolicies implements ImmediatePurchasePolicyComp
         this.dependent = dependent ;
         this.dependentOn = dependentOn;
     }
-    CanMakePurchase(object: Product | ProductCategory | ShoppingBag | User ): Answer {
-        let ans = this.dependent.CanMakePurchase(object)
-        return ans.ok ? this.dependentOn.CanMakePurchase(object) : ans;
+
+    CanMakePurchase(purchaseInfo: [ShoppingBag, Guest]): Answer {
+        let ans = this.dependent.CanMakePurchase(purchaseInfo)
+        return ans.ok ? this.dependentOn.CanMakePurchase(purchaseInfo) : ans;
     }
 }

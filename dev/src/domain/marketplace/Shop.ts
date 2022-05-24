@@ -1,10 +1,11 @@
 import {Product} from "./Product";
 import {Sale} from "./Sale";
 import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
-import {ShoppingBag} from "./ShoppingBag";
+import {ShoppingBag} from "../user/ShoppingBag";
 import {DiscountComponent} from "./CompositePattern/Components/DiscountComponent";
-import {User} from "../user/User";
 import {ImmediatePurchasePolicyComponent} from "./CompositePattern/Components/ImmediatePurchasePolicyComponent";
+import {Answer} from "../../utilities/Types";
+import {Guest} from "../user/Guest";
 
 
 export class Shop {
@@ -169,8 +170,13 @@ export class Shop {
         return productsInfo;
     }
 
-    canMakePurchase(bag: ShoppingBag, user: User){
-
+    canMakePurchase(purchaseInfo:[ bag: ShoppingBag, user: Guest]): Answer {
+        let policies = Array.from(this._purchasePolicies.values());
+        let callBack = (acc: Answer, currPolicy: ImmediatePurchasePolicyComponent): Answer => {
+                            let ans = currPolicy.CanMakePurchase(purchaseInfo);
+                            return acc = {ok: acc.ok && ans.ok, message: acc.message + ',' + ans.message}
+                        };
+        return policies.reduce(callBack, {ok:true, message:""});
     }
 
     private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
