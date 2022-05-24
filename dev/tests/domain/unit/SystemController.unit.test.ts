@@ -93,9 +93,9 @@ describe('system controller - unit', () => {
 
     const shop1 = new Shop(0, "_name", username1, "this is my shop");
 
-    const p1 = new Product("ps1", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p2 = new Product("ps2", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p3 = new Product("ps3", 0, ProductCategory.A, 10, 10, undefined,"description");
+    const p1 = new Product("ps1", 0, ProductCategory.A, 10, undefined,"description");
+    const p2 = new Product("ps2", 0, ProductCategory.A, 10, undefined,"description");
+    const p3 = new Product("ps3", 0, ProductCategory.A, 10, undefined,"description");
     // const p4 = new Product("ps4", 0, ProductCategory.A, "description", 10, 10)
     // const p5 = new Product("ps5", 0, ProductCategory.A, "description", 10, 10)
     // const p6 = new Product("ps6", 0, ProductCategory.A, "description", 10, 10)
@@ -143,20 +143,20 @@ describe('system controller - unit', () => {
 
     beforeEach(() => {
         cart1 = new ShoppingCart()
-        user1 = new Guest(sess1, cart1)
+        user1 = new Guest(sess1)
 
         cart2 = new ShoppingCart()
-        user2 = new Guest(sess2, cart2)
+        user2 = new Guest(sess2)
 
         cart2 = new ShoppingCart()
-        user2 = new Guest(sess3, cart3)
+        user2 = new Guest(sess3)
 
         cart4 = new ShoppingCart()
-        member1 = new Member(sess4,username1, cart4)
+        member1 = new Member(sess4,username1)
         box1 = new MessageBox(username1);
 
         cart5 = new ShoppingCart()
-        member2 = new Member(sess5,username2, cart5)
+        member2 = new Member(sess5,username2)
         box2 = new MessageBox(username1);
 
     })

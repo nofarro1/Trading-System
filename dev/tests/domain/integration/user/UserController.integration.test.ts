@@ -8,11 +8,11 @@ import {JobType} from "../../../../src/utilities/Enums";
 
 const userController = new UserController();
 
-const m1: Member = new Member("session1", "member1", new ShoppingCart());
-const m2: Member = new Member("session1", "member2", new ShoppingCart());
+const m1: Member = new Member("session1", "member1");
+const m2: Member = new Member("session1", "member2");
 
-const g1: Guest = new Guest("session1", new ShoppingCart());
-const g2: Guest = new Guest("session", new ShoppingCart());
+const g1: Guest = new Guest("session1");
+const g2: Guest = new Guest("session");
 
 
 describe('UserController tests - test', function () {
@@ -44,19 +44,19 @@ describe('UserController tests - test', function () {
     })
 
     test("add member", () => {
-        let m = userController.addMember("session1", "member", new ShoppingCart()).data;
+        let m = userController.addMember("session1", "member").data;
         expect(userController.members).toContain(m?.username);
     })
 
     test("get member"), () => {
-        let m = userController.addMember("session1", "member", new ShoppingCart()).data;
+        let m = userController.addMember("session1", "member").data;
         if (m)
             expect(userController.getMember(m.username).data).toBe(m);
     }
 
     test("add permission to member"), () => {
         let p1 = Permissions.ModifyProduct;
-        let m = userController.addMember("session1", "member", new ShoppingCart()).data;
+        let m = userController.addMember("session1", "member").data;
         if (m){
             let s1 = new Shop(12, "myShop", m1.username);
             let perms = new Set<Permissions>(); 
@@ -71,7 +71,7 @@ describe('UserController tests - test', function () {
 
     test("remove permission from member"), () => {
         let p1 = Permissions.ModifyProduct;
-        let m = userController.addMember("session1", "member", new ShoppingCart()).data;
+        let m = userController.addMember("session1", "member").data;
         if (m){
             let s1 = new Shop(12, "myShop", m1.username);
             let perms = new Set<Permissions>(); 

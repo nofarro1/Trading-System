@@ -7,8 +7,8 @@ import {Shop} from "../../../../src/domain/marketplace/Shop";
 
 describe("MarketPlaceController unit", ()=>{
     let controller: MarketplaceController;
-    let p1: Product = new Product("Ski", 0, ProductCategory.A, 5.9, 5.9 , undefined,"Yami chees");
-    let p2: Product  = new Product("Cottage", 0, ProductCategory.A,  6, 6, undefined, "Yami chees");
+    let p1: Product = new Product("Ski", 0, ProductCategory.A, 5.9, undefined,"Yami chees");
+    let p2: Product  = new Product("Cottage", 0, ProductCategory.A,  6, undefined, "Yami chees");
     let shop1: Shop;
     let shop2: Shop;
 
@@ -45,7 +45,7 @@ describe("MarketPlaceController unit", ()=>{
     })
 
     test("Add product to shop - valid input", ()=>{
-        let p3 = controller.addProductToShop(0, ProductCategory.B, "Cottage", 3, 5.9, 5.9);
+        let p3 = controller.addProductToShop(0, ProductCategory.B, "Cottage", 3, 5.9);
         if(p3.data){
             let product_tupl = shop1.products.get(p3.data.id);
             if(product_tupl){
@@ -56,7 +56,7 @@ describe("MarketPlaceController unit", ()=>{
     })
 
     test("Add product to shop - invalid input", ()=>{
-            let res = controller.addProductToShop(0, ProductCategory.B, "Simphonia", -1, 6, 6);
+            let res = controller.addProductToShop(0, ProductCategory.B, "Simphonia", -1, 6);
             expect(res.ok).toBe(false);
     })
 

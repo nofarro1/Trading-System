@@ -9,8 +9,8 @@ let shoppingCart: ShoppingCart;
 let shop1: Shop = new Shop(1, "Super Shop", "Mario");
 let shop2: Shop = new Shop(2, "Mega Shop", "Luigi");
 let shoppingBag1: ShoppingBag = new ShoppingBag(1);
-let product1: Product = new Product("Pizza", 1, ProductCategory.A, 15, 15);
-let product11: Product = new Product("Sparkling Water", 1, ProductCategory.A, 7, 7);
+let product1: Product = new Product("Pizza", 1, ProductCategory.A, 15);
+let product11: Product = new Product("Sparkling Water", 1, ProductCategory.A, 7);
 
 describe("Shopping Cart - unit tests", function () {
 

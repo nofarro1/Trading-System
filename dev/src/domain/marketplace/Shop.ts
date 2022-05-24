@@ -21,8 +21,9 @@ export class Shop {
     private _discountCounter: number;
     private _purchasePolicies: Map <number, ImmediatePurchasePolicyComponent>;
     private _purchaseCounter: number;
+    private _description?: string;
 
-    constructor(id: number, name: string, shopFounder: string){
+    constructor(id: number, name: string, shopFounder: string, description?: string){
         this._id= id;
         this._name= name;
         this._status= ShopStatus.open;
@@ -35,6 +36,7 @@ export class Shop {
         this._discountCounter= 0;
         this._purchasePolicies = new Map <number, ImmediatePurchasePolicyComponent>();
         this._purchaseCounter = 0;
+        this._description = description;
     }
 
 
@@ -64,6 +66,10 @@ export class Shop {
 
     get shopFounder(): string {
         return this._shopFounder;
+    }
+
+    get description(): string {
+        return this._description;
     }
 
     set shopFounder(value: string) {
@@ -100,6 +106,10 @@ export class Shop {
 
     set rate(value: ShopRate) {
         this._rate = value;
+    }
+
+    set description(value: string) {
+        this._description = value;
     }
 
     addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
