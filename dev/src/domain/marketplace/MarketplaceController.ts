@@ -7,8 +7,10 @@ import {Sale} from "./Sale";
 import {FilterType, ProductCategory, ProductRate, SearchType, ShopRate, ShopStatus,} from "../../utilities/Enums";
 import {Range} from "../../utilities/Range";
 import {logger} from "../../helpers/logger";
-import {injectable} from "inversify";
+import {id, injectable} from "inversify";
 import "reflect-metadata";
+import {DiscountComponent} from "./CompositePattern/Components/DiscountComponent";
+import {ImmediatePurchasePolicyComponent} from "./CompositePattern/Components/ImmediatePurchasePolicyComponent";
 
 @injectable()
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage>, IMessageListener<ShopPurchaseMessage> {
@@ -275,15 +277,65 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         logger.error(`Product with id: ${productId} was not found.`)
         return new Result(false,undefined,`Product with id: ${productId} was not found.`);
     }
-    visitPurchaseEvent(msg: ShopPurchaseMessage): void {
-        logger.info(`"ShopPurchaseMessage" was received in marketPlaceController.`);
-        let shopId = msg.purchase.shopId;
+
+    addDiscount(shopId: number, disc: DiscountComponent): Result<number | void>{
         let shop = this._shops.get(shopId);
-        if (shop !== undefined) {
-            msg.purchase.products.forEach(([product, quantity]) => {
-                shop?.updateProductQuantity(product.id, quantity)
-            });
+        if(shop){
+            let discId =  shop.addDiscount(disc);
+            logger.info(`Discount with id: ${discId} was added to Shop with id: ${shopId} successfully.`)
+            return new Result(true, discId);
         }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
+    removeDiscount(shopId: number, idDisc: number): Result<void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let discId =  shop.removeDiscount(idDisc)
+            logger.info(`Discount with id: ${discId} was removed from Shop with id: ${shopId} successfully.`)
+            return new Result(true, discId);
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
+    addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchasePolicyComponent): Result<number | void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let purchasePolicyId =  shop.addPurchasePolicy(puPolicy);
+            logger.info(`Purchase policy with id: ${purchasePolicyId} was added to Shop with id: ${shopId} successfully.`)
+            return new Result(true, purchasePolicyId);
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
+    removePurchasePolicy(shopId: number, idPuPolicy: number){
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let puPurchaseId =  shop.removeDiscount(idPuPolicy)
+            logger.info(`Purchase policy with id: ${puPurchaseId} was removed from Shop with id: ${shopId} successfully.`)
+            return new Result(true, puPurchaseId);
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
+
+    visitPurchaseEvent(msg: ShopPurchaseMessage): void {
+        // logger.info(`"ShopPurchaseMessage" was received in marketPlaceController.`);
+        // let shopId = msg.purchase.shopId;
+        // let shop = this._shops.get(shopId);
+        // if (shop !== undefined) {
+        //     msg.purchase.products.forEach(([product, quantity]) => {
+        //         shop?.updateProductQuantity(product.id, quantity)
+        //     });
+        // }
     }
 
     visitShopStatusChangedEvent(msg: ShopStatusChangedMessage): void {

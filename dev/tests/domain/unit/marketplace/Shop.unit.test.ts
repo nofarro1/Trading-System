@@ -1,8 +1,9 @@
 import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Product} from "../../../../src/domain/marketplace/Product";
-import {DiscountType, ProductCategory} from "../../../../src/utilities/Enums";
+import {DiscountType, ProductCategory, SimplePolicyType} from "../../../../src/utilities/Enums";
 import {ShoppingBag} from "../../../../src/domain/user/ShoppingBag";
-import {discountInf, SimpleDiscount} from "../../../../src/domain/marketplace/CompositePattern/leaves/SimpleDiscount";
+import {SimpleDiscount} from "../../../../src/domain/marketplace/CompositePattern/leaves/SimpleDiscount";
+import {Answer, discountInf} from "../../../../src/utilities/Types"
 import {
     AndDiscounts
 } from "../../../../src/domain/marketplace/CompositePattern/Containers/DiscountsContainers/LogicComposiotions/AndDiscounts";
@@ -16,6 +17,9 @@ import {
     AdditionDiscounts
 } from "../../../../src/domain/marketplace/CompositePattern/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts";
 import {ConditionalDiscount} from "../../../../src/domain/marketplace/CompositePattern/leaves/ConditionalDiscount";
+import {SimplePurchase} from "../../../../src/domain/marketplace/CompositePattern/leaves/SimplePurchase";
+import {Guest} from "../../../../src/domain/user/Guest";
+import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 
 describe('SimpleShop- products', function() {
 
@@ -234,6 +238,19 @@ describe('SimpleShop- products', function() {
             totalPrice += price* quantity;
         }
         expect(totalPrice).toBeCloseTo(10.415);
+    })
+
+    test('camMakePurchase- simplePurchase', ()=>{
+        let bag = new ShoppingBag(0);
+        let pred = (purchaseInfo: [bag: ShoppingBag, user: Guest]): boolean => {
+            return bag.products.get(p1.id)[1] <= 5
+        };
+        let cart = new ShoppingCart().addProduct(p1, 2);
+        let user = new Guest("1");
+        let simplePolicy = new SimplePurchase(SimplePolicyType.Product, pred, "Couldn't continue with checkout because the quantity oh 'ski' cheese is more the 5.");
+        s1.addPurchasePolicy(simplePolicy);
+        let ans = s1.canMakePurchase([bag, user]);
+        expect(ans.ok).toBe(true);
     })
 })
 
