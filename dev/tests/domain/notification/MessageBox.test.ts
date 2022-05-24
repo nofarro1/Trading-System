@@ -27,7 +27,7 @@ const sess1 = "1";
 const sess2 = "2";
 const id2 = "u2"
 let cart2 = new ShoppingCart();
-const tu2: Member = new Member(sess2,id2,cart2)
+const tu2: Member = new Member(sess2,id2)
 let mb2 = new MessageBox(id2);
 let controller: MessageController
 

@@ -29,7 +29,7 @@ const sess1 = "1";
 const sess2 = "2";
 const id2 = "u2"
 let cart2 = new ShoppingCart();
-const tu2: Member = new Member(sess2,id2,cart2)
+const tu2: Member = new Member(sess2,id2)
 let mb2 = new MessageBox(id2);
 let controller: MessageController
 
@@ -42,7 +42,7 @@ describe('messageBox - test', function () {
 
     beforeEach(function () {
         cart1 = new ShoppingCart();
-        tu1 = new Member(sess1,id1,cart1)
+        tu1 = new Member(sess1,id1)
         mb1 = new MessageBox(id1);
         controller = new MessageController();
         controller.messageBoxes.set(id1, mb1)

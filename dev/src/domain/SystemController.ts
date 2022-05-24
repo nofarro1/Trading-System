@@ -199,7 +199,7 @@ export class SystemController {
                 const delCart = this.scController.removeCart(sessionId);
                 if (checkRes(toExit) && checkRes(delCart)) {
                     this.uController.exitGuest(toExit.data);
-                    return new Result(true, undefined, "bye bye!");
+                    return new Result(true, toSimpleMember(user), "member logged in");
                 }
                 return new Result(true, undefined, res.message)
             } else {
