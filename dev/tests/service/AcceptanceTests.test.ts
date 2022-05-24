@@ -38,6 +38,9 @@ describe('System dis/connections-tests', function () {
         adminPassword = "admin";
     })
 
+    //System1
+    //Asserting there's delivery and payment external services **Constraint11**
+    //Asserting there's atleast one system manager **Constraint2**
     test('initialize marketplace-success', async (done) => {
         service = systemContainer.get(TYPES.Service);
         testGuest = (await service.accessMarketplace(adminSession)).data;
@@ -48,11 +51,12 @@ describe('System dis/connections-tests', function () {
         expect((await service.editConnectionWithExternalService(adminSession, adminUsername, ExternalServiceType.Payment, undefined)).ok).toBe(true);
         done();
     })
-
+    //User1.1
     test('access marketplace-success', () => {
         expect(testGuest).toBeInstanceOf(SimpleGuest);
     })
-
+    //User1.3
+    //Register with valid info
     test('register-success', async (done) => {
         if (testGuest instanceof SimpleGuest) {
             expect((await service.register(testGuest.guestID, 'user', 'pass1234', 'steve', 'jobs', 'steve@jobs.co.il', 'israel')).ok).toBe(true);
@@ -60,7 +64,7 @@ describe('System dis/connections-tests', function () {
         } else fail('expected testGuest to be SimpleGuest');
         done();
     })
-
+    //Register with invalid password
     test('register-fail', async (done) => {
         if (testGuest instanceof SimpleGuest) {
             expect((await service.register(testGuest.guestID, 'user2', 'pass!', 'steve', 'jobs', 'steve@jobs.co.il', 'israel')).ok).toBe(false);
@@ -68,13 +72,13 @@ describe('System dis/connections-tests', function () {
         } else fail('expected testGuest to be SimpleGuest');
         done();
     })
-
+    //Register with invalid session **Constraint4**
     test('register-fail', async (done) => {
         expect((await service.register("-1", 'user3', 'pass1234', 'steve', 'jobs', 'steve@jobs.co.il', 'israel')).ok).toBe(false);
         expect((await service.login("-1", 'user3', 'pass1234')).ok).toBe(false);
         done();
     })
-
+    //Register with already used username **Constraint1**
     test('register-fail', async (done) => {
         if (testGuest instanceof SimpleGuest) {
             expect((await service.register(testGuest.guestID, 'user', 'pass1234', 'steve', 'jobs', 'steve@jobs.co.il', 'israel')).ok).toBe(false);
@@ -107,7 +111,7 @@ describe('System dis/connections-tests', function () {
         } else fail('expected testGuest to be SimpleGuest');
         done();
     })
-
+    //User1.4
     test('login-success', async (done) => {
         if (testGuest instanceof SimpleGuest) {
             (await service.register(testGuest.guestID, 'Loginuser', 'pass1234', 'steve', 'jobs', 'steve@jobs.co.il', 'israel'));
@@ -115,26 +119,24 @@ describe('System dis/connections-tests', function () {
         } else fail('expected testGuest to be SimpleGuest');
         done();
     })
-
     test('login-fail', async (done) => {
         if (testGuest instanceof SimpleGuest) {
-            expect((await service.login(testGuest.guestID, 'Loginuser', 'pass1234')).ok).toBe(false);
+            expect((await service.login(testGuest.guestID, 'Loginuser', 'pass12345')).ok).toBe(false);
         } else fail('expected testGuest to be SimpleGuest');
         done();
     })
-
     test('login-fail', async (done) => {
         if (testGuest instanceof SimpleGuest) {
             expect((await service.login(testGuest.guestID, 'wuser', 'pass1234')).ok).toBe(false);
         } else fail('expected testGuest to be SimpleGuest');
         done();
     })
-
+    //Login with invalid session **Constraint4**
     test('login-fail', async (done) => {
         expect((await service.login("-1", 'user', 'pass1234')).ok).toBe(false);
         done();
     })
-
+    //User3.1
     test('logout-success', async (done) => {
         expect((await service.logout("1", 'Loginuser')).ok).toBe(true);
         done();
@@ -149,7 +151,7 @@ describe('System dis/connections-tests', function () {
         expect((await service.logout("-1", 'user')).ok).toBe(false);
         done();
     })
-
+    //User1.2
     test('exit marketplace-success', async (done) => {
         if (testGuest instanceof SimpleGuest) {
             expect((await service.exitMarketplace(testGuest.guestID)).ok).toBe(true);
@@ -180,19 +182,19 @@ describe('SimpleShop-tests', function () {
         expect(testShop).toBeInstanceOf(SimpleShop);
         done();
     })
-
+    //User3.2
     test('set up shop-success', async (done) => {
         if (testMember instanceof SimpleMember) {
             expect((await service.setUpShop("1", testMember.username, 'footlocker')).data).toBeInstanceOf(SimpleShop);
         } else fail('expected testMember to be SimpleMember');
         done();
     })
-
+    //Setting up shop non-member **Constraint3**
     test('set up shop-fail', async (done) => {
         expect((await service.setUpShop("2", 'nonuser', 'ikea')).ok).toBe(false);
         done();
     })
-
+    //User2.1
     test('get shop info-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
             expect((await service.getShopInfo(testMember.username, testShop.ID)).data).toBeInstanceOf(SimpleShop);
@@ -213,7 +215,7 @@ describe('SimpleShop-tests', function () {
         } else fail('expected testShop to be shop');
         done();
     })
-
+    //User4.1
     test('add product-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
             expect((await service.addProductToShop("1", testMember.username, testShop.ID, ProductCategory.A, 'white shirt', 50, 10)).ok).toBe(true);
@@ -234,14 +236,14 @@ describe('SimpleShop-tests', function () {
         } else fail('expected testMember to be SimpleMember and testShop to be SimpleShop');
         done();
     })
-
+    //Asserting quantity can't be negative **Constraint9**
     test('add product-fail', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
             expect((await service.addProductToShop("1", testMember.username, testShop.ID, ProductCategory.A, 'white shirt', 50, -10)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember and testShop to be SimpleShop');
         done();
     })
-
+    //User2.2
     test('search products-success', async (done) => {
         if (testGuest instanceof SimpleGuest) {
             testProducts = (await service.searchProducts(testGuest.guestID, SearchType.category, "product")).data;
@@ -254,7 +256,7 @@ describe('SimpleShop-tests', function () {
         expect((await service.searchProducts("-1", SearchType.category, "product")).ok).toBe(false);
         done();
     })
-
+    //User4.1
     test('modify product-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop && testProducts instanceof Array) {
             expect((await service.modifyProductQuantityInShop("1", testMember.username, testShop.ID, testProducts[0].productID, 15)).ok).toBe(true);
@@ -282,14 +284,14 @@ describe('SimpleShop-tests', function () {
         } else fail('testShop to be SimpleShop and testProducts to be array of products');
         done();
     })
-
+    //Asserting quantity can't be negative **Constraint9**
     test('modify product-fail', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop && testProducts instanceof Array) {
             expect((await service.modifyProductQuantityInShop("1", testMember.username, testShop.ID, testProducts[0].productID, -15)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop and testProducts to be array of products');
         done();
     })
-
+    //User4.1
     test('remove product-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop && testProducts instanceof Array) {
             expect((await service.removeProductFromShop("1", testMember.username, testShop.ID, testProducts[0].productID)).ok).toBe(true);
@@ -317,7 +319,7 @@ describe('SimpleShop-tests', function () {
         } else fail('testShop to be SimpleShop and testProducts to be array of products');
         done();
     })
-
+    //User4.13
     test('get purchase history-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
             expect((await service.getShopPurchaseHistory("1", testMember.username, testShop.ID, new Date('2022-03-20'), new Date('2022-04-20'))).data).toBeInstanceOf(Array);
@@ -345,7 +347,7 @@ describe('SimpleShop-tests', function () {
         } else fail('expected testMember to be SimpleMember');
         done();
     })
-
+    //User4.9
     test('close shop-fail', async (done) => {
         if (testShop instanceof SimpleShop) {
             expect((await service.closeShop("-1", 'notpermitted', testShop.ID)).ok).toBe(false);
@@ -379,7 +381,7 @@ describe('SimpleShop Management-tests', function () {
         expect(testShop).toBeInstanceOf(SimpleShop);
         done();
     })
-
+    //User4.6
     test('appoint shop manager-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
             expect((await service.appointShopManager("1", 'manager', testShop.ID, testMember.username)).ok).toBe(true);
@@ -400,7 +402,7 @@ describe('SimpleShop Management-tests', function () {
         } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop');
         done();
     })
-
+    //User4.4
     test('appoint shop owner-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
             expect((await service.appointShopOwner("1", 'owner', testShop.ID, testMember.username)).ok).toBe(true);
@@ -421,7 +423,7 @@ describe('SimpleShop Management-tests', function () {
         } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop');
         done();
     })
-
+    //User4.11
     test('request shop personnel-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
             expect((await service.requestShopPersonnelInfo("1", testMember.username, testShop.ID)).ok).toBe(true);
@@ -442,7 +444,7 @@ describe('SimpleShop Management-tests', function () {
         } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop');
         done();
     })
-
+    //User4.7
     test('add permissions-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
             (await service.addPermissions("1", testMember.username, 'manager', testShop.ID, Permissions.RequestPersonnelInfo));
@@ -511,7 +513,7 @@ describe('Shopping cart-tests', function () {
         expect(testShop).toBeInstanceOf(SimpleShop);
         done();
     })
-
+    //User2.3
     test('add to cart-success', async (done) => {
         if (testMember instanceof SimpleMember) {
             expect((await service.addToCart(testMember.username, testProduct.productID, 5)).ok).toBe(true);
@@ -575,7 +577,7 @@ describe('Shopping cart-tests', function () {
         } else fail('expected testMember to be SimpleMember');
         done();
     })
-
+    //User2.4
     test('check cart-success', async (done) => {
         if (testMember instanceof SimpleMember) {
             expect((await service.checkShoppingCart(testMember.username)).data).toBeInstanceOf(SimpleShoppingCart);
@@ -589,7 +591,8 @@ describe('Shopping cart-tests', function () {
         } else fail('expected testMember to be SimpleMember');
         done();
     })
-
+    //System3+4
+    //User2.5
     test('checkout-success', async (done) => {
         if (testMember instanceof SimpleMember) {
             expect((await service.checkout(testMember.username, 'payment', 'address')).ok).toBe(true);
@@ -604,7 +607,7 @@ describe('Shopping cart-tests', function () {
         done();
     })
 })
-
+//System2
 describe('External Connection-tests', function () {
     beforeAll(function () {
         service = systemContainer.get(TYPES.Service);
