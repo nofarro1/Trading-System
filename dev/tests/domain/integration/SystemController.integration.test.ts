@@ -22,6 +22,8 @@ import {
     toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
 import {ExternalServiceType} from "../../../src/utilities/Utils";
+import {systemContainer} from "../../../src/helpers/inversify.config";
+import {TYPES} from "../../../src/helpers/types";
 
 
 describe('system controller - integration', () => {
@@ -69,7 +71,7 @@ describe('system controller - integration', () => {
     const role2 = new Role(0, "title", JobType.Manager, new Set())
 
     beforeAll(() => {
-        sys = SystemController.initialize();
+        sys = systemContainer.get(TYPES.SystemController)
         mpController = sys.mpController
         mController = sys.mController
         pController = sys.pController

@@ -22,6 +22,7 @@ const wrap = (middleware: express.RequestHandler) =>
 export class Server {
     private readonly httpsServer: https.Server
     private backendService: Service
+    private ioServer: io.Server
 
 
     constructor(app:Express, service:Service){
@@ -34,9 +35,9 @@ export class Server {
     }
 
     start(){
-        const ioServer = new io.Server()
-        ioServer.listen(this.httpsServer)
-        ioServer.use(wrap(sessionMiddleware));
+        this.ioServer = new io.Server()
+        this.ioServer.listen(this.httpsServer)
+        this.ioServer.use(wrap(sessionMiddleware));
         // this.httpsServer.on('connect', (req)=>{
         //     console.log(`client with session ${req.session.id} connected`);
         //     req.socket.on('close', () => {

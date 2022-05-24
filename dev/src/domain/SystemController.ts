@@ -198,7 +198,6 @@ export class SystemController {
                     this.uController.exitGuest(toExit.data);
                     return new Result(true, undefined, "bye bye!");
                 }
-                //todo: initiate live notification connection with user
                 return new Result(true, undefined, res.message)
             } else {
                 return new Result(false, undefined, "member does not exist");
@@ -461,9 +460,9 @@ export class SystemController {
             if (this.uController.checkPermission(appointerId, r.shopId, Permissions.AddShopManager).data) {
                 const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions)) //todo: adding an assigner to the method?
                 if (result.ok) {
-                    this.mpController.appointShopManager(r.member, r.shopId)
+                    return this.mpController.appointShopManager(r.member, r.shopId)
                 }
-                return new Result(true, undefined, "shop manager appointed");
+                return new Result(false, undefined, "failed to add role to member");
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
@@ -553,7 +552,7 @@ export class SystemController {
             }
             let orders: string[] = this.pController.shopOrders.has(shop) ?
                 [...(this.pController.shopOrders.get(shop))] : []
-            return new Result(orders.length !== 0, orders, orders.length !== 0 ? undefined : "no SimpleShop order were found");
+            return new Result(true, orders, orders.length !== 0 ? undefined : "no SimpleShop order were found");
         }
 
         return this.authenticateMarketVisitor(sessId, callback);

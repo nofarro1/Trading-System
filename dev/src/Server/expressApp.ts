@@ -25,6 +25,7 @@ router.get('/', async (req, res) => {
         let guest = await service.accessMarketplace(sessId);
 
         req.socket.on("disconnect", async () => {
+            console.log(`client ${sessId} disconnected`);
             await service.exitMarketplace(sessId)
         })
 
@@ -35,8 +36,6 @@ router.get('/', async (req, res) => {
         res.status(403)
         res.send("could not access marketplace")
     }
-   console.log("hello, your id is " + sessId);
-
 })
 
 /**

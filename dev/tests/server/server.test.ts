@@ -16,14 +16,14 @@ afterAll(() => {
     server.shutdown()
 })
 
-const getRequest = (path: string, expectedStatus: number, testBody: (body:any) => void): void => {
+const getRequest = (path: string, expectedStatus: number, testBody: (body: any) => void): void => {
     request(baseUrl).get(path).then((response: Response) => {
         expect(response.status).toBe(expectedStatus)
         testBody(response.body);
     })
 }
 
-const postRequest = (path: string, expectedStatus: number, body: any, testBody: (response: Response) => void): void => {
+const postRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
     request(baseUrl).post(path).send(body).then((response: Response) => {
         expect(response.status).toBe(expectedStatus)
         testBody(response.body);
@@ -31,7 +31,7 @@ const postRequest = (path: string, expectedStatus: number, body: any, testBody: 
     })
 }
 
-const patchRequest = (path: string,expectedStatus:number, body: any, testBody: (response: Response) => void): void => {
+const patchRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
     request(baseUrl).patch(path).send(body).then((response: Response) => {
         expect(response.status).toBe(expectedStatus)
         testBody(response.body);
@@ -39,7 +39,7 @@ const patchRequest = (path: string,expectedStatus:number, body: any, testBody: (
     })
 }
 
-const deleteRequest = (path: string, expectedStatus: number, body: any, testBody: (response: Response) => void): void => {
+const deleteRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
     request(baseUrl).delete(path).then((response: Response) => {
         expect(response.status).toBe(expectedStatus)
         testBody(response.body);
@@ -49,6 +49,16 @@ const deleteRequest = (path: string, expectedStatus: number, body: any, testBody
 
 
 describe("networking tests", () => {
+    let activeSession;
+
+
+    beforeEach((done) => {
+        request(baseUrl).get("/").then((res)=>{
+            let result = res.body;
+            activeSession = result.data._guestID
+        })
+    })
+
 
     test("smoke test", (done) => {
         getRequest("/check", 200, (body) => {
@@ -56,4 +66,25 @@ describe("networking tests", () => {
             done()
         })
     })
+
+    test("POST register guest", (done) => {
+
+        //prep
+
+        //act
+        postRequest("/guest/register", 201, {
+            username: "my username",
+            password: "12345678",
+            firstname: "john",
+            lastname: "dou",
+            email:"johndou@john.com",
+            country: "IL"
+        }, (body) => {
+            expect(body.ok).toBe(true)
+            expect(body.data).toBe(undefined)
+            expect(body.message).toMatch("success")
+        })
+    })
+
+
 })
