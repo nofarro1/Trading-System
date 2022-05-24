@@ -1,6 +1,6 @@
-import {ShoppingBag} from "../../../src/domain/marketplace/ShoppingBag";
-import {Product} from "../../../src/domain/marketplace/Product";
-import {ProductCategory} from "../../../src/utilities/Enums";
+import {ShoppingBag} from "../../../../src/domain/marketplace/ShoppingBag";
+import {Product} from "../../../../src/domain/marketplace/Product";
+import {ProductCategory} from "../../../../src/utilities/Enums";
 
 
 let bag: ShoppingBag;
