@@ -1,73 +1,75 @@
-import {LogicalPolicy, PolicyType, ProductCategory, RelationType, SimplePolicyType} from "../../../utilities/Enums";
-import {Guest} from "../../user/Guest";
-import {ShoppingBag} from "../../user/ShoppingBag";
-import {Product} from "../Product";
+import {LogicalPolicy, PolicyType, ProductCategory, RelationType, SimplePolicyType} from "../../../../utilities/Enums";
+import {Guest} from "../../../user/Guest";
+import {ShoppingBag} from "../../../user/ShoppingBag";
+import {Product} from "../../Product";
+import {Answer} from "../../../../utilities/Types";
 
-export class PredicatPolicyData {
-    type: PolicyType;       //Simple
-    subType: SimplePolicyType | LogicalPolicy; // Simple.Product
-    object: number | ProductCategory | Guest | number[]; //0 => tomatoes id
+export class PredicatePurchasePolicy {
+    type: SimplePolicyType; // Simple.Product
+    object: number | ProductCategory | Guest; //0 => tomatoes id
     relation: RelationType; // <=
     value: number;// 5
 
-    constructor() {
+    constructor(type: SimplePolicyType, object: number | ProductCategory | Guest, relation: RelationType, value: number) {
+        this.type = type;
+        this.object = object;
+        this.relation = relation;
+        this.value = value;
     }
 
-    predicate(purchaseInfo: [ShoppingBag, Guest]): boolean {
-        if (this.type === PolicyType.SimplePolicy) {
-            if (this.subType === SimplePolicyType.Product)
+    checkPredicate(purchaseInfo: [ShoppingBag, Guest]): boolean {
+            if (this.type === SimplePolicyType.Product)
                 return this.predicateOnProduct(purchaseInfo);
-            if (this.subType === SimplePolicyType.Category)
+            if (this.type === SimplePolicyType.Category)
                 return this.predicateOnCategory(purchaseInfo);
-            if (this.subType === SimplePolicyType.ShoppingBag)
+            if (this.type === SimplePolicyType.ShoppingBag)
                 return this.predicateOnShoppingBag(purchaseInfo);
-            if (this.subType === SimplePolicyType.UserInfo)
+            if (this.type === SimplePolicyType.UserInfo)
                 return this.predicateOnUserInfo(purchaseInfo);
-        }
     }
 
-    predicateOnProduct(purchaseInfo: [ ShoppingBag,  Guest]): boolean {
+    private predicateOnProduct(purchaseInfo: [ ShoppingBag,  Guest]): boolean {
         if (typeof this.object === "number") {
             let quantity = purchaseInfo[0].products.get(this.object)[1];
             return this.applyRelation(quantity , this.value);
         }
-
         else
             throw Error("Type problem");
     }
 
-    predicateOnCategory(purchaseInfo: [ShoppingBag, Guest]): boolean {
+    private predicateOnCategory(purchaseInfo: [ShoppingBag, Guest]): boolean{
         if(this.object === ProductCategory.A || this.object === ProductCategory.B || this.object === ProductCategory.C){
             let products = Array.from(purchaseInfo[0].products.values());
             let filteredProducts = products.filter((curr: [Product, number]):boolean => {
                 return curr[0].category === this.object;
             })
             let quantity = filteredProducts.length;
-            return this.applyRelation(quantity, this.value);
+            return this.applyRelation(quantity , this.value);
+
         }
         else
             throw Error("Type problem");
     }
 
-    predicateOnShoppingBag(purchaseInfo: [ShoppingBag, Guest]): boolean {
+    private predicateOnShoppingBag(purchaseInfo: [ShoppingBag, Guest]): boolean {
         if(this.object === undefined) {
             let quantity = Array.from(purchaseInfo[0].products.values()).length;
-            return this.applyRelation(quantity, this.value);
+            return this.applyRelation(quantity , this.value);
         }
         else
             throw Error("Type problem");
     }
 
-    predicateOnUserInfo(purchaseInfo: [ShoppingBag, Guest]): boolean {
+    private predicateOnUserInfo(purchaseInfo: [ShoppingBag, Guest]): boolean {
         if(this.object instanceof Guest){
             let quantity = purchaseInfo[1].session.length;
-            return this.applyRelation(quantity, this.value);
+            return this.applyRelation(quantity , this.value);
         }
         else
             throw Error("Type problem");
     }
 
-    applyRelation(quantity: any, value: number): boolean {
+    private applyRelation(quantity: any, value: number): boolean {
         switch(this.relation){
 
             case RelationType.Equal:
@@ -90,14 +92,4 @@ export class PredicatPolicyData {
         }
 
     }
-
-// let callback = (purchaseInfo: [ShoppingBag, Guest])
-// :
-// boolean
-// {
-//     let quantity = products.get(object)[1];
-//     return quantity
-//     relation
-//     value;
-// }
 }

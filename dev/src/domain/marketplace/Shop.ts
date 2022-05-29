@@ -16,6 +16,7 @@ export class Shop {
     private _shopOwners: Set<string>;
     private _shopManagers: Set<string>;
     private _products: Map<number, [Product, number]>;
+    private _productsCounter: number;
     private _rate: ShopRate;
     private _discounts: Map<number, DiscountComponent>;
     private _discountCounter: number;
@@ -31,6 +32,7 @@ export class Shop {
         this._shopOwners= new Set<string>([shopFounder]);
         this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
+        this._productsCounter = 0;
         this._rate= ShopRate.NotRated;
         this._discounts= new Map<number, DiscountComponent>();
         this._discountCounter= 0;
@@ -112,12 +114,13 @@ export class Shop {
         this._description = value;
     }
 
-    addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
-        let toAdd= new Product(productName, shopId, category, fullPrice, relatedSale, productDesc);
+    addProduct(productName: string, category: ProductCategory, fullPrice: number,quantity: number, productDesc?: string ): Product{
+        let toAdd= new Product(productName, this.id, this._productsCounter, category, fullPrice, productDesc);
         if(!this.products.has(toAdd.id)){
             this.products.set(toAdd.id, [toAdd, quantity]);
             return toAdd;
         }
+        this._productsCounter++;
         return toAdd;
     }
 
@@ -173,7 +176,8 @@ export class Shop {
         }
         if(this._discounts.size>0){
             for( let disc of this._discounts.values()){
-                productsInfo = disc.calculateProductsPrice(productsInfo);
+                if(disc.predicate(productsInfo))
+                    productsInfo = disc.calculateProductsPrice(productsInfo);
             }
         }
 
@@ -214,13 +218,5 @@ export class Shop {
     removePurchasePolicy(idPuPolicy: number){
         this._purchasePolicies.delete(idPuPolicy);
     }
-
-    // checkDiscountPolicies (bag: ShoppingBag): boolean{
-    //     return true;
-    // }
-    //
-    // checkPurchasePolicies (bag: ShoppingBag): boolean {
-    //     return true;
-    // }
 
 }

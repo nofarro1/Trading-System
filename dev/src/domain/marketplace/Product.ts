@@ -11,13 +11,11 @@ export class Product {
     private _category: ProductCategory;
     private _rate: ProductRate;
     private _description: string;
-    private _relatedSale?: Sale;
 
 
 
-    constructor(name: string, shopId: number, category: ProductCategory, fullPrice: number, relatedSale?: Sale, description?: string){
+    constructor(name: string, shopId: number, id: number, category: ProductCategory, fullPrice: number, description?: string){
         this._id= productsCounter;
-        productsCounter++;
         this._name= name;
         this._shopId= shopId;
         this._category= category;
@@ -28,7 +26,6 @@ export class Product {
         else
             this._description="";
         this._fullPrice= fullPrice;
-        this._relatedSale = relatedSale;
     }
 
     public get id(): number {
@@ -81,14 +78,6 @@ export class Product {
         this._fullPrice = value;
     }
 
-
-    get relatedSale(): Sale | undefined {
-        return this._relatedSale;
-    }
-
-    set relatedSale(value: Sale | undefined) {
-        this._relatedSale = value;
-    }
 
 
 }

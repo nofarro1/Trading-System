@@ -10,12 +10,8 @@ export class OrDiscounts implements DiscountComponent{
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
-        let predCallbak = (acc:boolean, dc:DiscountComponent) => acc || dc.predicate(products);
         let discCallBack = (acc:[Product, number, number][], dcCurr: DiscountComponent)=> dcCurr.calculateProductsPrice(acc);
-        if(this.discounts.reduce(predCallbak, true))
             return this.discounts.reduce(discCallBack,products);
-        else
-            return products;
     }
 
 
