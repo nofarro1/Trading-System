@@ -11,6 +11,8 @@ import {inject, injectable} from "inversify";
 import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
+import {ShoppingCart} from "../user/ShoppingCart";
+import {Shop} from "../marketplace/Shop";
 
 
 @injectable()
@@ -101,6 +103,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     }
 
     checkout(user: Guest): Result<void> {
+        let forUpdate: [[Shop, number, number]];
         let shoppingCart = user.shoppingCart;
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
@@ -117,7 +120,9 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                         totalBagPrice += price* quantity;
                         shopOrder += `${p.id}, ${p.name}, ${p.fullPrice}, price\n`;
                         let oldQuantity =shop.products.get(p.id)[1];
-                        shop.updateProductQuantity(p.id, oldQuantity-quantity);
+                        forUpdate.push([shop,p.id, oldQuantity-quantity]);
+                        //shop.updateProductQuantity(p.id, oldQuantity-quantity);
+
                     }
                     totalCartPrice+= totalBagPrice;
                 }
@@ -150,8 +155,12 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             this.buyerOrderCounter++;
         } else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
-        if(this.paymentService.makePayment(undefined).ok && this.deliveryService.makeDelivery(undefined).ok)
+        if(this.paymentService.makePayment(undefined).ok && this.deliveryService.makeDelivery(undefined).ok) {
+            forUpdate.forEach((toUpdate) => {
+                toUpdate[0].updateProductQuantity(toUpdate[1], toUpdate[2]);
+            });
             return new Result(true, undefined, "Purchase made successfully");
+        }
         else
             return new Result(false, undefined, "Purchase wasn't successful");
     }
