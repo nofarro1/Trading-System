@@ -4,40 +4,68 @@ import request, {Response} from "supertest"
 import {systemContainer} from "../../src/helpers/inversify.config";
 import {TYPES} from "../../src/helpers/types";
 import {ProductCategory, SearchType, ShopStatus} from "../../src/utilities/Enums";
+import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../mockHelper";
+import {Service} from "../../src/service/Service";
+import {Result} from "../../src/utilities/Result";
+import {SimpleMember} from "../../src/utilities/simple_objects/user/SimpleMember";
+import {SimpleGuest} from "../../src/utilities/simple_objects/user/SimpleGuest";
+import {SimpleProduct} from "../../src/utilities/simple_objects/marketplace/SimpleProduct";
+import {SimpleShop} from "../../src/utilities/simple_objects/marketplace/SimpleShop";
 
 
-jest.setTimeout(5000)
+jest.setTimeout(50000)
 let server: Server
 const baseUrl = "https://localhost:3000"
+let agent: request.SuperAgentTest;
+let serviceMockMethod: jest.SpyInstance<any, unknown[]>;
 
+const mockServiceMethod = <T>(method: string, data: T) => {
+    return mockMethod(Service.prototype, method, () => {
+        return new Result(true, data, undefined);
+    })
+}
 
 describe("networking tests - basic actions", () => {
+    mockInstance(mockDependencies.Service);
     let activeSession: string;
     let shopId: number;
     let productId: number;
 
-    beforeAll(() => {
+
+    beforeAll((done) => {
         server = new Server(app, systemContainer.get(TYPES.Service));
         server.start()
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = String(0); //allow self-signed certificate
+        agent = request.agent(app)
 
-    })
-
-    afterAll(() => {
-        server.shutdown()
-    })
-
-    beforeEach((done) => {
         //access the marketplace before each test
-        request(baseUrl).get("/").end((err, res) => {
+        agent.get("/").end((err, res) => {
             activeSession = res.body.data._guestID;
             done()
         })
+
     })
 
+    afterEach(() => {
+        if (serviceMockMethod)
+            clearMocks(serviceMockMethod)
+    })
+
+    afterAll((done) => {
+        server.shutdown()
+        done()
+    })
+
+    // beforeEach((done) => {
+    //     //access the marketplace before each test
+    //     agent.get("/").end((err, res) => {
+    //         activeSession = res.body.data._guestID;
+    //         done()
+    //     })
+    // })
+
     const getRequest = (path: string, expectedStatus: number, testBody: (body: any) => void): void => {
-        const res = request(baseUrl).get(path)
-        res.cookies = activeSession
+        const res = agent.get(path);
         res.then((response: Response) => {
             expect(response.status).toBe(expectedStatus)
             testBody(response.body);
@@ -45,8 +73,8 @@ describe("networking tests - basic actions", () => {
     }
 
     const postRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
-        const res = request(baseUrl).post(path).set("accept", "application/json")
-        res.cookies = activeSession
+        const res = agent.post(path).set("accept", "application/json")
+        // res.cookies = activeSession
         res.send(body).then((response: Response) => {
             expect(response.status).toBe(expectedStatus)
             testBody(response.body);
@@ -54,7 +82,7 @@ describe("networking tests - basic actions", () => {
     }
 
     const patchRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
-        request(baseUrl).patch(path).set("accept", "application/json").send(body).then((response: Response) => {
+        agent.patch(path).set("accept", "application/json").send(body).then((response: Response) => {
             expect(response.status).toBe(expectedStatus)
             testBody(response.body);
 
@@ -62,7 +90,7 @@ describe("networking tests - basic actions", () => {
     }
 
     const deleteRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
-        request(baseUrl).delete(path).then((response: Response) => {
+        agent.delete(path).then((response: Response) => {
             expect(response.status).toBe(expectedStatus)
             testBody(response.body);
 
@@ -78,8 +106,11 @@ describe("networking tests - basic actions", () => {
     })
 
     test("POST register guest", (done) => {
+        serviceMockMethod = mockMethod(Service.prototype, 'register', async (): Promise<Result<void>> => {
+            return new Result(true, undefined, "success")
+        })
+
         postRequest("/guest/register", 201, {
-            id: activeSession,
             username: "myusername",
             password: "12345678",
             firstName: "john",
@@ -95,20 +126,20 @@ describe("networking tests - basic actions", () => {
     })
 
     test("POST login guest", (done) => {
+        serviceMockMethod = mockServiceMethod('login', new SimpleMember("myusername"))
         postRequest("/guest/login", 200, {
-            id: activeSession,
             username: "myusername",
             password: "12345678"
         }, (body) => {
             expect(body.ok).toBe(true)
-            expect(body.data.username).toBe("myusername")
-            expect(body.message).toMatch("success")
+            expect(body.data._username).toBe("myusername")
             done()
         })
     })
 
     test("GET - logout", (done) => {
-        getRequest(`/members/logout/${activeSession}/myusername`, 200, (body) => {
+        serviceMockMethod = mockServiceMethod('logout', new SimpleGuest(activeSession));
+        getRequest(`/member/logout/myusername`, 200, (body) => {
             expect(body.ok).toBe(true);
             expect(body.data._guestID).toBe(activeSession)
             done()
@@ -116,17 +147,18 @@ describe("networking tests - basic actions", () => {
     })
 
     test("GET - exit marketplace", (done) => {
-        getRequest(`/exit/${activeSession}`, 202, (body) => {
+        serviceMockMethod = mockServiceMethod<void>('exitMarketplace', undefined);
+        getRequest(`/exit`, 202, (body) => {
             expect(body.ok).toBe(true)
             expect(body.data).toBe(undefined)
-            expect(body.message).toMatch("bye")
+            // expect(body.message).toMatch("bye")
             done()
         })
     })
 
     test("POST - search products", (done) => {
-        postRequest("/products", 202, {
-            id: activeSession,
+        serviceMockMethod = mockServiceMethod<SimpleProduct[]>('searchProducts', [])
+        postRequest("/product/search", 202, {
             term: "cotage",
             type: SearchType.productName,
             filter: undefined
@@ -138,8 +170,8 @@ describe("networking tests - basic actions", () => {
     })
 
     test("POST - setup shop", (done) => {
+        serviceMockMethod = mockServiceMethod('setUpShop', new SimpleShop(0, "super shop", ShopStatus.open, new Map()))
         postRequest("/shop", 201, {
-            id: activeSession,
             username: "myusername",
             shopName: "super shop",
         }, (body) => {
@@ -155,7 +187,6 @@ describe("networking tests - basic actions", () => {
 
     test("POST - add product to shop", (done) => {
         postRequest(`/product/${shopId}`, 201, {
-            id: activeSession,
             username: "myusername",
             category: ProductCategory.A,
             name: "cotage",
@@ -175,7 +206,6 @@ describe("networking tests - basic actions", () => {
 
     test("PATCH - update product quantity", (done) => {
         patchRequest(`/product/${shopId}/${productId}`, 200, {
-            id: activeSession,
             username: "myusername",
             quantity: 5
         }, (body) => {
@@ -186,7 +216,6 @@ describe("networking tests - basic actions", () => {
 
     test("DELETE - delete product from shop", (done) => {
         deleteRequest(`/product/${shopId}/${productId}`, 200, {
-            id: activeSession,
             username: "myusername"
         }, (body) => {
             expect(body.ok).toBe(true);
@@ -206,7 +235,6 @@ describe("networking tests - basic actions", () => {
 
     test("PATCH - close shop", (done) => {
         patchRequest(`/shop/close/${shopId}`, 200, {
-            id: activeSession,
             founder: "myusername"
         }, (body) => {
             expect(body.ok).toBe(true);
@@ -224,8 +252,7 @@ describe("networking tests - basic actions", () => {
     })
 
     test("POST - add to shopping cart", (done) => {
-        postRequest("/cart",202,{
-            id:activeSession,
+        postRequest("/cart", 202, {
             product: productId,
             quantity: 2
         }, (body) => {
@@ -238,7 +265,6 @@ describe("networking tests - basic actions", () => {
 
     test("PATCH - modify shopping cart product quantity", (done) => {
         patchRequest(`/cart`, 200, {
-            id:activeSession,
             product: productId,
             quantity: 3
         }, (body) => {
@@ -249,18 +275,17 @@ describe("networking tests - basic actions", () => {
     })
 
     test("POST - checkout", (done) => {
-        postRequest("/cartcheckout",200,{
-            id:activeSession,
-            paymentDetails:{
+        postRequest("/cartcheckout", 200, {
+            paymentDetails: {
                 creditNumber: "0000111122223333",
                 expires: "12/30"
             },
             deliveryDetails: {
-                city:"a city",
+                city: "a city",
                 street: "a street",
                 houseNumber: "42"
             }
-        },(body)=>{
+        }, (body) => {
             expect(body.ok).toBe(true);
             expect(body.data).toBe(undefined);
             done()
