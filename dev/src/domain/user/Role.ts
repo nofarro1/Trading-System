@@ -3,7 +3,7 @@ import { Permissions } from "../../utilities/Permissions";
 
 
 export class Role {
-    private _shopId: number;
+    private readonly _shopId: number;
     private _title: string;
     private _jobType: JobType;
     private _permissions: Set<Permissions>;

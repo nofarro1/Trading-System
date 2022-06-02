@@ -6,11 +6,9 @@ import { SimpleGuest } from "./user/SimpleGuest";
 import { SimpleMember } from "./user/SimpleMember";
 import {SimpleShoppingCart} from "./user/SimpleShoppingCart";
 import {Shop} from "../../domain/marketplace/Shop";
-import {ShopOrder} from "../../domain/purchase/ShopOrder";
 import {Guest} from "../../domain/user/Guest";
 import {Member} from "../../domain/user/Member";
-import {ShoppingCart} from "../../domain/marketplace/ShoppingCart";
-import {Role} from "../../domain/user/Role";
+import {ShoppingCart} from "../../domain/user/ShoppingCart";
 
 
 export function toSimpleProduct(product: Product): SimpleProduct{
@@ -38,27 +36,6 @@ export function toSimpleShop(shop: Shop): SimpleShop{
     }
 
     return new SimpleShop(shop.id, shop.name, shop.status, products);
-}
-
-export function toSimpleShopOrder(shopOrder: ShopOrder): SimpleShopOrder{
-    //Extract products and quantities from domain products
-    const products: Map<SimpleProduct, number> = new Map<SimpleProduct, number>();
-    for (const [product, quantity] of shopOrder.products.values()) {
-        const simpleProduct: SimpleProduct = toSimpleProduct(product);
-        products.set(simpleProduct, quantity);
-    }
-
-    return new SimpleShopOrder(shopOrder.shopId, products, shopOrder.totalPrice, shopOrder.creationTime);
-}
-
-export function toSimpleShopOrders(shopOrders: ShopOrder[]): SimpleShopOrder[]{
-    const simpleShopOrders: SimpleShopOrder[] = new Array<SimpleShopOrder>();
-
-    for (const shopOrder of <ShopOrder[]> shopOrders) {
-        const simpleShopOrder: SimpleShopOrder = toSimpleShopOrder(shopOrder);
-        simpleShopOrders.push(simpleShopOrder);
-    }
-    return simpleShopOrders;
 }
 
 export function toSimpleGuest(guest: Guest): SimpleGuest{

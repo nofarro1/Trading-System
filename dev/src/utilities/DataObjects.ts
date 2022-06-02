@@ -1,8 +1,8 @@
 // User Related Data Objects
 
 import {Sale} from "../domain/marketplace/Sale";
-import {ProductCategory} from "./Enums";
-import { Permissions } from "./Permissions";
+import {LogicalPolicy, PolicyType, ProductCategory, RelationType, SimplePolicyType} from "./Enums";
+import {Permissions} from "./Permissions";
 
 export interface LoginData {
     username: string;
@@ -30,9 +30,10 @@ export interface NewProductData {
 }
 
 export interface NewRoleData {
-    member: string
+    member: string;
     shopId: number;
     assigner: string;
     title?: string;
     permissions: Permissions[];
 }
+

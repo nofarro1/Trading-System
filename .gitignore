@@ -7,4 +7,4 @@
 /httpRequests/
 \.idea
 /dev/dist/
-/**.log
+/**/*.log

@@ -1,7 +1,7 @@
 import {Result} from "../../utilities/Result";
 import {DeliveryServiceAdaptor} from "../external_services/DeliveryServiceAdaptor";
 import {PaymentServiceAdaptor} from "../external_services/PaymentServiceAdaptor";
-import {ShoppingBag} from "../marketplace/ShoppingBag";
+import {ShoppingBag} from "../user/ShoppingBag";
 import {IMessagePublisher, IMessageListener} from "../notifications/IEventPublishers";
 import {ShopPurchaseMessage, ShopStatusChangedMessage} from "../notifications/Message";
 import {Member} from "../user/Member";
@@ -10,6 +10,7 @@ import {Guest} from "../user/Guest";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
+import {MarketplaceController} from "../marketplace/MarketplaceController";
 
 
 @injectable()
@@ -21,14 +22,16 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     private shopOrderCounter: number = 0;
     private _buyerOrders: Map<string, Set<string>>;
     private _shopOrders: Map<number, Set<string>>;
+    private _marketPlaceController: MarketplaceController;
 
 
-    constructor(@inject(TYPES.PaymentServiceAdaptor) paymentService: PaymentServiceAdaptor, @inject(TYPES.DeliveryServiceAdaptor) deliveryService: DeliveryServiceAdaptor) {
+    constructor(@inject(TYPES.PaymentServiceAdaptor) paymentService: PaymentServiceAdaptor, @inject(TYPES.DeliveryServiceAdaptor) deliveryService: DeliveryServiceAdaptor, @inject(TYPES.MarketplaceController)marketPlaceController: MarketplaceController) {
         this.subscribers = [];
         this._buyerOrders = new Map<string, Set<string>>();
         this._shopOrders = new Map<number, Set<string>>();
         this._paymentService = paymentService;
         this._deliveryService = deliveryService;
+        this._marketPlaceController = marketPlaceController;
     }
 
     swapDeliveryService(deliveryService: DeliveryServiceAdaptor) {
@@ -98,21 +101,29 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     }
 
     checkout(user: Guest): Result<void> {
-        let shoppingCart = user._shoppingCart;
+        let shoppingCart = user.shoppingCart;
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
         shoppingCart.bags.forEach((bag: ShoppingBag) => {
             let totalBagPrice = 0;
             let shopOrder = `Shop Order Number: ${this.shopOrderCounter} \nProduct: \nProduct Id,  Product Name, Full Price, Final Price `;
             this.shopOrderCounter++;
-            bag.productsOnSale.forEach((products, sale) => {
-                sale.applyDiscount(products);
-            });
-            bag.products.forEach((product) => {
-                // TODO: check quantity somehow
-                totalBagPrice += product[0].discountPrice;
-                shopOrder += `${product[0].id}, ${product[0].name}, ${product[0].fullPrice}, ${product[0].discountPrice}\n`;
-            });
+            let shop = this._marketPlaceController.shops.get(bag.shopId);
+            if(shop) {
+                let answer = shop.canMakePurchase([bag, user]);
+                if (answer.ok) {
+                    let productsInfo = shop.calculateBagPrice(bag);
+                    for( let [p, price, quantity] of productsInfo){
+                        totalBagPrice += price* quantity;
+                        shopOrder += `${p.id}, ${p.name}, ${p.fullPrice}, price\n`;
+                        let oldQuantity =shop.products.get(p.id)[1];
+                        shop.updateProductQuantity(p.id, oldQuantity-quantity);
+                    }
+                    totalCartPrice+= totalBagPrice;
+                }
+                else
+                    return new Result(false, undefined, answer.message);
+            }
             shopOrder += `Total Shop Order Price: ${totalBagPrice} \n`;
             buyerOrder += shopOrder;
             shopOrder += `Purchase Date: ${new Date().toLocaleString()} \n`;
@@ -137,11 +148,11 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             this.buyerOrders.set(user.username, orders);
             logger.info(`User ${user.username} made purchase. order#: ${this.buyerOrderCounter}`);
             this.buyerOrderCounter++;
-            //check purchase And Discount Policies
         } else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
-        return new Result(true, undefined);
-
-
+        if(this.paymentService.makePayment(undefined).ok && this.deliveryService.makeDelivery(undefined).ok)
+            return new Result(true, undefined, "Purchase made successfully");
+        else
+            return new Result(false, undefined, "Purchase wasn't successful");
     }
 }

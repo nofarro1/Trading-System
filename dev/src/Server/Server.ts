@@ -1,6 +1,6 @@
 import https from 'https'
 import fs from 'fs'
-import io, {Socket} from 'socket.io'
+import io, {Socket} from 'socket.io';
 import {app, sessionMiddleware} from './expressApp'
 import  {Session} from "express-session";
 import express, {Express, NextFunction, Request, Response} from "express";
@@ -22,6 +22,7 @@ const wrap = (middleware: express.RequestHandler) =>
 export class Server {
     private readonly httpsServer: https.Server
     private backendService: Service
+    private ioServer: io.Server
 
 
     constructor(app:Express, service:Service){
@@ -34,9 +35,11 @@ export class Server {
     }
 
     start(){
-        const ioServer = new io.Server()
-        ioServer.listen(this.httpsServer)
-        ioServer.use(wrap(sessionMiddleware));
+        this.ioServer = new io.Server(this.httpsServer,{
+            cors: { origin: "*"}
+        })
+        this.ioServer.listen(this.httpsServer)
+        this.ioServer.use(wrap(sessionMiddleware));
         // this.httpsServer.on('connect', (req)=>{
         //     console.log(`client with session ${req.session.id} connected`);
         //     req.socket.on('close', () => {
@@ -48,6 +51,10 @@ export class Server {
         this.httpsServer.listen(port, () => {
             console.log("server started. listening on port " + port)
         });
+    }
+
+    shutdown(){
+        this.httpsServer.close(() => console.log("server is down"));
     }
 
 }

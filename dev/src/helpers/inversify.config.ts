@@ -7,7 +7,7 @@ import {MarketplaceService} from "../service/MarketplaceService";
 import {MemberService} from "../service/MemberService";
 import {OrderService} from "../service/OrderService";
 import {ShoppingCartService} from "../service/ShoppingCartService";
-import {ShoppingCartController} from "../domain/marketplace/ShoppingCartController";
+import {ShoppingCartController} from "../domain/user/ShoppingCartController";
 import {MessageController} from "../domain/notifications/MessageController";
 import {UserController} from "../domain/user/UserController";
 import {NotificationController} from "../domain/notifications/NotificationController";
@@ -20,7 +20,7 @@ import {DeliveryServiceAdaptor} from "../domain/external_services/DeliveryServic
 
 const systemContainer = new Container();
 //services
-systemContainer.bind<Service>(TYPES.Service).to(Service)
+systemContainer.bind<Service>(TYPES.Service).to(Service).inSingletonScope()
 systemContainer.bind<GuestService>(TYPES.GuestService).to(GuestService)
 systemContainer.bind<MarketplaceService>(TYPES.MarketplaceService).to(MarketplaceService)
 systemContainer.bind<MemberService>(TYPES.MemberService).to(MemberService)
@@ -32,7 +32,7 @@ systemContainer.bind<ShoppingCartController>(TYPES.ShoppingCartController).to(Sh
 systemContainer.bind<MessageController>(TYPES.MessageController).to(MessageController)
 systemContainer.bind<UserController>(TYPES.UserController).to(UserController)
 systemContainer.bind<NotificationController>(TYPES.NotificationController).to(NotificationController)
-systemContainer.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController)
+systemContainer.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController).inSingletonScope()
 systemContainer.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController)
 systemContainer.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)
 //external services
