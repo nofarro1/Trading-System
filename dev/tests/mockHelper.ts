@@ -11,6 +11,7 @@ export const mockDependencies = {
     ShoppingBag: "../../src/domain/marketplace/ShoppingBag",
     ShoppingCart: "../../src/domain/marketplace/ShoppingCart",
     Product: "../../src/domain/marketplace/Product",
+    SimpleDiscount: "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimpleDiscount",
 }
 export const mockInstance = (dependency: string) => {
     jest.mock(dependency)

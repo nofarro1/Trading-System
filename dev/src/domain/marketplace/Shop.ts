@@ -9,6 +9,7 @@ import {Guest} from "../user/Guest";
 
 
 export class Shop {
+
     private _id: number;
     private _name: string;
     private _status: ShopStatus;
@@ -112,6 +113,24 @@ export class Shop {
 
     set description(value: string) {
         this._description = value;
+    }
+
+    get discounts(): Map<number, DiscountComponent> {
+        return this._discounts;
+    }
+
+    get discountCounter(): number {
+        this._discountCounter++;
+        return this._discountCounter--;
+    }
+
+    get purchasePolicies(): Map<number, ImmediatePurchasePolicyComponent> {
+        return this._purchasePolicies;
+    }
+
+    get purchaseCounter(): number {
+        this._purchaseCounter++;
+        return this._purchaseCounter--;
     }
 
     addProduct(productName: string, category: ProductCategory, fullPrice: number,quantity: number, productDesc?: string ): Product{
