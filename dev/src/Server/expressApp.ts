@@ -3,6 +3,7 @@ import session from 'express-session';
 import {Service} from "../service/Service";
 import {systemContainer} from "../helpers/inversify.config";
 import {TYPES} from "../helpers/types";
+import {Result} from "../utilities/Result";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
@@ -43,7 +44,6 @@ router.get('/', async (req, res) => {
  * register a guest in the system.
  * body:
  * {
- *     id: string
  *     username: string,
  *     password: string,
  *     firstName?: string,
@@ -421,7 +421,7 @@ router.patch('/shop/close/:shopId', async (req, res) => {
     }
 })
 
-
+//purchase history
 router.get('/shop/orders/:shopId/:ownerUsername/:from/:to', async (req, res) => {
     try {
         let sessId = req.session.id;
@@ -441,12 +441,12 @@ router.get('/shop/orders/:shopId/:ownerUsername/:from/:to', async (req, res) => 
 })
 
 
-router.get('/cart/:id', async (req, res) => {
+router.get('/cart', async (req, res) => {
 
     try {
-        let sess = req.params.id
+        let sess = req.session.id
         let ans = await service.checkShoppingCart(sess)
-        res.send(ans)
+        res.status(200).send(ans)
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
@@ -471,17 +471,31 @@ router.post('/cart', async (req, res) => {
 
 })
 
+//removeFromCart
+router.delete('/cart', async (req, res) => {
+
+    try {
+        let sess = req.session.id
+        let product = req.body.product
+        let ans: Result<void> = await service.removeFromCart(sess, product)
+        res.status(202).send(ans)
+    } catch (e: any) {
+        res.status(404)
+        res.send(e.message)
+    }
+
+})
+
 //modifyCart
 router.patch('/cart/', async (req, res) => {
     try {
         let sess = req.session.id
         let product = req.body.product
         let quantity = req.body.quantity
-        let ans = await service.editProductInCart(sess, product, quantity)
-        res.send(ans)
+        let ans: Result<void> = await service.editProductInCart(sess, product, quantity)
+        res.status(200).send(ans)
     } catch (e: any) {
-        res.status(404)
-        res.send(e.message)
+        res.status(404).send(e.message)
     }
 })
 
@@ -499,7 +513,7 @@ router.post('/cart/checkout', async (req, res) => {
         let payment = req.body.paymentDetails
         let delivery = req.body.deliveryDetails
         let ans = await service.checkout(sess, payment, delivery)
-        res.send(ans)
+        res.status(200).send(ans);
     } catch (e: any) {
         res.status(404)
         res.send(e.message)

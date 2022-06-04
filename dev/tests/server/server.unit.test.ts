@@ -3,7 +3,7 @@ import {Server} from "../../src/Server/Server"
 import request, {Response} from "supertest"
 import {systemContainer} from "../../src/helpers/inversify.config";
 import {TYPES} from "../../src/helpers/types";
-import {ProductCategory, SearchType, ShopStatus} from "../../src/utilities/Enums";
+import {ProductCategory, ProductRate, SearchType, ShopStatus} from "../../src/utilities/Enums";
 import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../mockHelper";
 import {Service} from "../../src/service/Service";
 import {Result} from "../../src/utilities/Result";
@@ -11,6 +11,7 @@ import {SimpleMember} from "../../src/utilities/simple_objects/user/SimpleMember
 import {SimpleGuest} from "../../src/utilities/simple_objects/user/SimpleGuest";
 import {SimpleProduct} from "../../src/utilities/simple_objects/marketplace/SimpleProduct";
 import {SimpleShop} from "../../src/utilities/simple_objects/marketplace/SimpleShop";
+import {SimpleShoppingCart} from "../../src/utilities/simple_objects/user/SimpleShoppingCart";
 
 
 jest.setTimeout(50000)
@@ -56,13 +57,6 @@ describe("networking tests - basic actions", () => {
         done()
     })
 
-    // beforeEach((done) => {
-    //     //access the marketplace before each test
-    //     agent.get("/").end((err, res) => {
-    //         activeSession = res.body.data._guestID;
-    //         done()
-    //     })
-    // })
 
     const getRequest = (path: string, expectedStatus: number, testBody: (body: any) => void): void => {
         const res = agent.get(path);
@@ -74,7 +68,6 @@ describe("networking tests - basic actions", () => {
 
     const postRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
         const res = agent.post(path).set("accept", "application/json")
-        // res.cookies = activeSession
         res.send(body).then((response: Response) => {
             expect(response.status).toBe(expectedStatus)
             testBody(response.body);
@@ -151,7 +144,6 @@ describe("networking tests - basic actions", () => {
         getRequest(`/exit`, 202, (body) => {
             expect(body.ok).toBe(true)
             expect(body.data).toBe(undefined)
-            // expect(body.message).toMatch("bye")
             done()
         })
     })
@@ -186,6 +178,10 @@ describe("networking tests - basic actions", () => {
     })
 
     test("POST - add product to shop", (done) => {
+
+        serviceMockMethod = mockServiceMethod('addProductToShop',
+            new SimpleProduct(1, "cotage", shopId, 5.5, ProductCategory.A, ProductRate.NotRated, "this is a product description"))
+
         postRequest(`/product/${shopId}`, 201, {
             username: "myusername",
             category: ProductCategory.A,
@@ -205,6 +201,8 @@ describe("networking tests - basic actions", () => {
     })
 
     test("PATCH - update product quantity", (done) => {
+
+        serviceMockMethod = mockServiceMethod<void>('modifyProductQuantityInShop', undefined)
         patchRequest(`/product/${shopId}/${productId}`, 200, {
             username: "myusername",
             quantity: 5
@@ -214,7 +212,9 @@ describe("networking tests - basic actions", () => {
         })
     })
 
-    test("DELETE - delete product from shop", (done) => {
+    test("delete - product from shop", (done) => {
+        serviceMockMethod = mockServiceMethod<void>('removeProductFromShop', undefined)
+
         deleteRequest(`/product/${shopId}/${productId}`, 200, {
             username: "myusername"
         }, (body) => {
@@ -224,6 +224,8 @@ describe("networking tests - basic actions", () => {
     })
 
     test("GET - get shop", (done) => {
+        serviceMockMethod = mockServiceMethod('getShopInfo', new SimpleShop(0, "super shop", ShopStatus.open, new Map()))
+
         getRequest(`/shop/${activeSession}/${shopId}`, 200, (body) => {
             expect(body.ok).toBe(true);
             expect(body.data._ID).toBe(shopId);
@@ -234,6 +236,8 @@ describe("networking tests - basic actions", () => {
     })
 
     test("PATCH - close shop", (done) => {
+        serviceMockMethod = mockServiceMethod('closeShop', undefined)
+
         patchRequest(`/shop/close/${shopId}`, 200, {
             founder: "myusername"
         }, (body) => {
@@ -243,15 +247,18 @@ describe("networking tests - basic actions", () => {
     })
 
     test("GET - shopping cart", (done) => {
-        getRequest(`cart/${activeSession}`, 200, (body) => {
+        serviceMockMethod = mockServiceMethod('checkShoppingCart', new SimpleShoppingCart("myusername",new Map(), 0))
+        getRequest(`/cart`, 200, (body) => {
             expect(body.ok).toBe(true);
             expect(body.data._userId).toBe("myusername");
-            expect(body.data.products).toBeInstanceOf(Map);
+            expect(body.data._products).toBeDefined()
             done()
         })
     })
 
     test("POST - add to shopping cart", (done) => {
+
+        serviceMockMethod = mockServiceMethod('addToCart', undefined)
         postRequest("/cart", 202, {
             product: productId,
             quantity: 2
@@ -262,8 +269,21 @@ describe("networking tests - basic actions", () => {
         })
     })
 
+    test("Delete - remove product - shopping cart", (done) => {
+
+        serviceMockMethod = mockServiceMethod<void>('removeFromCart', undefined)
+        deleteRequest("/cart", 202, {
+            product: productId,
+        }, (body) => {
+            expect(body.ok).toBe(true);
+            expect(body.data).toBe(undefined);
+            done()
+        })
+    })
+
 
     test("PATCH - modify shopping cart product quantity", (done) => {
+        serviceMockMethod = mockServiceMethod<void>('editProductInCart', undefined)
         patchRequest(`/cart`, 200, {
             product: productId,
             quantity: 3
@@ -275,7 +295,8 @@ describe("networking tests - basic actions", () => {
     })
 
     test("POST - checkout", (done) => {
-        postRequest("/cartcheckout", 200, {
+        serviceMockMethod = mockServiceMethod<void>('checkout', undefined)
+        postRequest("/cart/checkout", 200, {
             paymentDetails: {
                 creditNumber: "0000111122223333",
                 expires: "12/30"
