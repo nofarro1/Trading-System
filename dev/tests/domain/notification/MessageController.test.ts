@@ -1,17 +1,17 @@
-import {MessageBox, IIncomingMessageSubscriber} from "../../../src/domain/notifications/MessageBox";
-import {GenericMessage, Message} from "../../../src/domain/notifications/Message";
+import {MessageBox, ILLiveNotificationSubscriber} from "../../../src/domain/notifications/MessageBox";
+import {Message} from "../../../src/domain/notifications/Message";
 import {Member} from "../../../src/domain/user/Member";
 import {MessageController} from "../../../src/domain/notifications/MessageController";
-import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
+import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
 
 
 
 class TestMessage extends Message {
 
-    content
+    private content: string;
 
-    constructor() {
-        super();
+    constructor(recipients: Set<string>) {
+        super(recipients);
         this.content = "i'm A test message"
     }
 
@@ -25,21 +25,24 @@ let cart1;
 let tu1: Member;
 let mb1 = new MessageBox(id1);
 
+const sess1 = "1";
+const sess2 = "2";
 const id2 = "u2"
 let cart2 = new ShoppingCart();
-const tu2: Member = new Member(id2,cart2)
+const tu2: Member = new Member(sess2,id2)
 let mb2 = new MessageBox(id2);
 let controller: MessageController
-const tm1 = new TestMessage();
-const tm2 = new TestMessage();
-const tm3 = new TestMessage();
-const gm1 = new GenericMessage("gm1 - hello");
+
+const recipients = new Set([id1])
+const tm1 = new TestMessage(recipients);
+const tm2 = new TestMessage(recipients);
+const tm3 = new TestMessage(recipients);
 
 describe('messageBox - test', function () {
 
     beforeEach(function () {
         cart1 = new ShoppingCart();
-        tu1 = new Member(id1,cart1)
+        tu1 = new Member(sess1,id1)
         mb1 = new MessageBox(id1);
         controller = new MessageController();
         controller.messageBoxes.set(id1, mb1)
@@ -60,12 +63,12 @@ describe('messageBox - test', function () {
         )
         mb1.addMessage(tm1);
         const mockCont = "i'm a mock";
-        expect(controller.getMessage(id1, tm1.id)).toBe(tm1);
+        expect(controller.getMessages(id1)).toBe(tm1);
         expect(addMessageMock).lastReturnedWith(tm1);
     })
 
     test("get Box from non-exist", () => {
-        expect(controller.getMessage(id2, tm1.id)).toBeInstanceOf(GenericMessage);
+        expect(controller.getMessages(id2)).not.toContain(tm1)
     })
 
     test("get messages - existing box ", () => {
@@ -102,9 +105,9 @@ describe('messageBox - test', function () {
             }
         )
         const onEvent = jest.fn();
-        let sub: IIncomingMessageSubscriber = {
+        let sub: ILLiveNotificationSubscriber = {
             onNewMessages:onEvent
-        } as IIncomingMessageSubscriber;
+        } as ILLiveNotificationSubscriber;
         controller.addSubscriberToBox(id1,sub);
         expect(subscribeMock).toBeCalledWith(sub);
     })
@@ -118,9 +121,9 @@ describe('messageBox - test', function () {
             }
         )
         const onEvent = jest.fn();
-        let sub: IIncomingMessageSubscriber = {
+        let sub: ILLiveNotificationSubscriber = {
             onNewMessages:onEvent
-        } as IIncomingMessageSubscriber;
+        } as ILLiveNotificationSubscriber;
         controller.addSubscriberToBox(id1,sub);
         expect(mb1.subs).toContain(sub);
         //act

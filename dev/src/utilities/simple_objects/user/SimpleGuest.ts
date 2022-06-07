@@ -1,7 +1,7 @@
 
 
 export class SimpleGuest {
-    private readonly _guestID: string;
+    readonly _guestID: string;
 
     constructor(guestID: string) {
         this._guestID = guestID;

@@ -1,42 +1,44 @@
-import {Guest} from "./user/Guest";
 import {SecurityController} from "./SecurityController";
 
 import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
 import {Member} from "./user/Member";
-import {ExternalServiceType, string} from "../utilities/Utils";
+import {ExternalServiceType} from "../utilities/Utils";
 import {MarketplaceController} from "./marketplace/MarketplaceController";
-import {ShoppingCartController} from "./marketplace/ShoppingCartController";
+import {ShoppingCartController} from "./user/ShoppingCartController";
 import {PurchaseController} from "./purchase/PurchaseController";
 import {MessageController} from "./notifications/MessageController";
 import {NotificationController} from "./notifications/NotificationController";
-import {checkRes, Result, safe} from "../utilities/Result";
-import {Shop} from "./marketplace/Shop";
-import {Product} from "./marketplace/Product";
-import {ShoppingCart} from "./marketplace/ShoppingCart";
-import {ShopOrder} from "./purchase/ShopOrder";
+import {checkRes, Result} from "../utilities/Result";
+import {ShoppingCart} from "./user/ShoppingCart";
 import {UserController} from "./user/UserController";
+<<<<<<< HEAD
 import {User} from "./user/Guest";
+=======
+import {Guest} from "./user/Guest";
+>>>>>>> origin/dev2.0
 import {logger} from "../helpers/logger";
 import {JobType, ProductCategory, SearchType} from "../utilities/Enums";
 import {Permissions} from "../utilities/Permissions";
 import {PaymentServiceAdaptor} from "./external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "./external_services/DeliveryServiceAdaptor";
-import {MessageBox} from "./notifications/MessageBox";
+
 import {
     toSimpleGuest,
     toSimpleMember,
     toSimpleProduct,
     toSimpleProducts,
-    toSimpleShop, toSimpleShopOrder, toSimpleShoppingCart
+    toSimpleShop, toSimpleShoppingCart
 } from "../utilities/simple_objects/SimpleObjectFactory";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
-import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../helpers/types";
+import "reflect-metadata";
 
-
+@injectable()
 export class SystemController {
 
     mpController: MarketplaceController
@@ -48,14 +50,13 @@ export class SystemController {
     notifyController: NotificationController
 
 
-    constructor(mpController: MarketplaceController,
-                scController: ShoppingCartController,
-                uController: UserController,
-                pController: PurchaseController,
-                msgController: MessageController,
-                sController: SecurityController,
-                notifyController: NotificationController,
-                defaultAdmin: Member | undefined) {
+    constructor(@inject(TYPES.MarketplaceController) mpController: MarketplaceController,
+                @inject(TYPES.ShoppingCartController) scController: ShoppingCartController,
+                @inject(TYPES.UserController) uController: UserController,
+                @inject(TYPES.PurchaseController) pController: PurchaseController,
+                @inject(TYPES.MessageController) msgController: MessageController,
+                @inject(TYPES.SecurityController) sController: SecurityController,
+                @inject(TYPES.NotificationController) notifyController: NotificationController) {
 
         this.mpController = mpController;
         this.scController = scController;
@@ -64,39 +65,47 @@ export class SystemController {
         this.mController = msgController;
         this.securityController = sController;
         this.notifyController = notifyController;
-        if (defaultAdmin === undefined) {
+
+        const defaultAdmin = SystemController.createDefaultAdmin(this.securityController, this.uController, this.scController, this.mController, {
+            username: "admin",
+            password: "adminadmin"
+        })
+        if (defaultAdmin.data === undefined) {
             logger.error("failed to initialize system. default admin registration failed")
             throw new Error("failed to register default admin member");
         } else {
             logger.info("system controller initialize successfully")
         }
-    }
-
-    static initialize(): SystemController {
-
-
-        //create all services
-        let marketplace = new MarketplaceController();
-        let shoppingCart = new ShoppingCartController();
-        let user = new UserController()
-        let purchase = new PurchaseController(new PaymentServiceAdaptor("Pservice", undefined), new DeliveryServiceAdaptor("Dservice", undefined));
-        let messages = new MessageController();
-        let notifications = new NotificationController();
-        let security = new SecurityController();
 
         //todo: configure dependencies between controllers
-        purchase.subscribe(marketplace)
-        marketplace.subscribe(messages)
-        const defaultAdmin = this.createDefaultAdmin(security, user, shoppingCart, messages, {
-            username: "admin",
-            password: "adminadmin"
-        })
-        return new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications, defaultAdmin.data);
-
+        this.pController.subscribe(this.mController)
+        this.mpController.subscribe(this.mController)
     }
+
+    // static initialize(): SystemController {
+    //
+    //
+    //     //create all services
+    //     let marketplace = new MarketplaceController();
+    //     let shoppingCart = new ShoppingCartController();
+    //     let user = new UserController()
+    //     let purchase = new PurchaseController(new PaymentServiceAdaptor("Pservice", undefined), new DeliveryServiceAdaptor("Dservice", undefined));
+    //     let messages = new MessageController();
+    //     let notifications = new NotificationController();
+    //     let security = new SecurityController();
+    //
+    //
+    //     const defaultAdmin = this.createDefaultAdmin(security, user, shoppingCart, messages, {
+    //         username: "admin",
+    //         password: "adminadmin"
+    //     })
+    //     return new SystemController(marketplace, shoppingCart, user, purchase, messages, security, notifications);
+    //
+    // }
 
     private static createDefaultAdmin(security: SecurityController, user: UserController, cart: ShoppingCartController, box: MessageController, newMember: RegisterMemberData) {
         try {
+            security.accessMarketplace("-1")
             security.register("-1", newMember.username, newMember.password);
         } catch (e: any) {
             return new Result(false, undefined, e.message);
@@ -107,7 +116,7 @@ export class SystemController {
         if (res.ok) {
             let mb = box.addMessageBox(newMember.username)
             if (mb.ok) {
-                const memRes = user.addMember(newMember.username, res.data as ShoppingCart)
+                const memRes = user.addMember("-1", newMember.username)
                 if (memRes.ok)
                     return new Result(true, memRes.data, "register success");
             }
@@ -129,14 +138,17 @@ export class SystemController {
     accessMarketplace(session: string): Result<void | SimpleGuest> {
         let newGuest: Result<Guest> = this.uController.createGuest(session);
         if (!newGuest.ok) {
-            return new Result(false,undefined);
+            return new Result(false, undefined);
         }
         const guest = newGuest.data
-        this.securityController.accessMarketplace(guest.id);
+        let res = this.scController.addCart(guest.session);
+        if (checkRes(res)) {
+            // guest._shoppingCart = res.data
+        }
+        this.securityController.accessMarketplace(guest.session);
         return new Result(true, toSimpleGuest(guest));
     }
 
-    //fix according to security controller
     exitMarketplace(sessionId: string): Result<void> {
 
         const callback = (id: string) => {
@@ -150,7 +162,7 @@ export class SystemController {
                 const toExit = this.uController.getGuest(toLogout);
                 const delCart = this.scController.removeCart(toLogout);
                 if (checkRes(toExit) && checkRes(delCart)) {
-                    this.uController.exitGuest(toExit.data as Guest);
+                    this.uController.exitGuest(toExit.data);
                     return new Result(true, undefined, "bye bye!");
                 }
                 return new Result(false, undefined, "for some reason guest was not deleted");
@@ -173,7 +185,7 @@ export class SystemController {
     // }
 
     login(sessionId: string, d: LoginData): Result<void> {
-        const secCallback = (id:string) => {
+        const secCallback = (id: string) => {
             //if success get the member_id
             try {
                 this.securityController.login(id, d.username, d.password);
@@ -184,18 +196,19 @@ export class SystemController {
             const res = this.uController.getMember(d.username)
             if (checkRes(res)) {
                 const user: Member = res.data
+                user.session = sessionId;
                 this.notifyController.addActiveUser(user.username);
                 //delete the guest
                 const toExit = this.uController.getGuest(sessionId);
                 const delCart = this.scController.removeCart(sessionId);
                 if (checkRes(toExit) && checkRes(delCart)) {
-                    this.uController.exitGuest(toExit.data as Guest);
-                    return new Result(true, undefined, "bye bye!");
+                    this.uController.exitGuest(toExit.data);
+                    return new Result(true, toSimpleMember(user), "member logged in");
                 }
                 return new Result(true, undefined, res.message)
+            } else {
+                return new Result(false, undefined, "member does not exist");
             }
-            //initiate live notification connection with user
-            return new Result(false, undefined, res.message);
         }
 
         return this.authenticateMarketVisitor(sessionId, secCallback);
@@ -205,7 +218,7 @@ export class SystemController {
         const secCallback = (id: string) => {
             // remove member and live notification
             try {
-                this.securityController.logout(sessionID,id);
+                this.securityController.logout(sessionID, id);
                 this.notifyController.removeActiveUser(sessionID);
                 return this.accessMarketplace(sessionID);
             } catch (e: any) {
@@ -216,7 +229,7 @@ export class SystemController {
     }
 
     registerMember(sessionID: string, newMember: RegisterMemberData): Result<void> {
-        const secCallback = (id:string): Result<void> => {
+        const secCallback = (id: string): Result<void> => {
             //register process
             const res = this.register(id, newMember);
             if (res.ok) {
@@ -242,7 +255,7 @@ export class SystemController {
         if (checkRes(res)) {
             let mb = this.mController.addMessageBox(newMember.username)
             if (checkRes(mb)) {
-                const memRes = this.uController.addMember(newMember.username, res.data)
+                const memRes = this.uController.addMember(sessionId, newMember.username)
                 if (checkRes(memRes))
                     return new Result(true, toSimpleMember(memRes.data), "register success");
             }
@@ -258,8 +271,8 @@ export class SystemController {
 
         return this.authenticateMarketVisitor(sessionID, () => {
 
-            const res =  this.mpController.getProduct(productId);
-            if(checkRes(res)){
+            const res = this.mpController.getProduct(productId);
+            if (checkRes(res)) {
                 return new Result(true, toSimpleProduct(res.data), res.message)
             }
             return new Result(false, undefined, "could not get product")
@@ -273,8 +286,8 @@ export class SystemController {
 
     getShop(sessionId: string, shopId: number): Result<SimpleShop | void> {
         return this.authenticateMarketVisitor(sessionId, () => {
-            const res =  this.mpController.getShopInfo(shopId);
-            if(checkRes(res)){
+            const res = this.mpController.getShopInfo(shopId);
+            if (checkRes(res)) {
                 return new Result(true, toSimpleShop(res.data), res.message)
             }
             return new Result(false, undefined, "could not get product")
@@ -290,8 +303,8 @@ export class SystemController {
         //market visitor authentication
         return this.authenticateMarketVisitor(sessionId, () => {
 
-            const res =  this.mpController.searchProduct(searchBy, searchTerm)
-            if(checkRes(res)){
+            const res = this.mpController.searchProduct(searchBy, searchTerm)
+            if (checkRes(res)) {
                 return new Result(true, toSimpleProducts(res.data), res.message)
             }
             return new Result(false, undefined, "could not get product")
@@ -301,7 +314,7 @@ export class SystemController {
 
     addToCart(sessionId: string, productId: number, quantity: number): Result<void> {
 
-        const authCallback = (id:string) => {
+        const authCallback = (id: string) => {
             const productRes = this.mpController.getProduct(productId);
             if (checkRes(productRes))
                 return this.scController.addProduct(id, productRes.data, quantity)
@@ -314,9 +327,9 @@ export class SystemController {
 
     getCart(sessionId: string): Result<SimpleShoppingCart | void> {
 
-        const authCallback = (id:string): Result<SimpleShoppingCart | void> => {
+        const authCallback = (id: string): Result<SimpleShoppingCart | void> => {
             const result = this.scController.getCart(id);
-            return checkRes(result) ? new Result(true, toSimpleShoppingCart(id,result.data)) : new Result(false, undefined, result.message);
+            return checkRes(result) ? new Result(true, toSimpleShoppingCart(id, result.data)) : new Result(false, undefined, result.message);
 
 
         }
@@ -324,9 +337,9 @@ export class SystemController {
     }
 
     editCart(sessionId: string, product: number, quantity: number, additionalData?: any): Result<void> {
-        const authCallback = (id:string) => {
+        const authCallback = (id: string) => {
             const productRes = this.mpController.getProduct(product);
-            if (productRes.ok && productRes.data !== undefined) {
+            if (checkRes(productRes)) {
                 return this.scController.updateProductQuantity(id, productRes.data, quantity)
             } else
                 return new Result(false, undefined, "product not found")
@@ -336,7 +349,7 @@ export class SystemController {
     }
 
     removeProductFromCart(sessionId: string, product: number): Result<void> {
-        const authCallback = (id:string) => {
+        const authCallback = (id: string) => {
             const productRes = this.mpController.getProduct(product);
             if (checkRes(productRes)) {
                 return this.scController.removeProduct(id, productRes.data)
@@ -350,7 +363,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, (id) => {
             let result = this.uController.getGuest(id);
             let resultMm = this.uController.getMember(id);
-            let userObj: User;
+            let userObj: Guest;
             if (checkRes(result)) {
                 userObj = result.data;
                 return this.pController.checkout(userObj);
@@ -363,7 +376,7 @@ export class SystemController {
     }
 
     setUpShop(sessionId: string, shopName: string): Result<void> {
-        const authCallback = (founderId:string): Result<void> => {
+        const authCallback = (founderId: string): Result<void> => {
             const result = this.uController.getMember(founderId);
             if (checkRes(result)) {
                 let shop = this.mpController.setUpShop(founderId, shopName)
@@ -384,13 +397,17 @@ export class SystemController {
 
     //shop owner related
 
-    addProduct(sessionId: string, p: NewProductData): Result<void> {
-        const authCallback = (id: string): Result<void> => {
+    addProduct(sessionId: string, p: NewProductData): Result<SimpleProduct | void> {
+        const authCallback = (id: string) => {
             if (this.uController.checkPermission(id, p.shopId, Permissions.AddProduct).data) {
-                return this.mpController.addProductToShop(
+
+                let res = this.mpController.addProductToShop(
                     p.shopId, p.productCategory, p.productName,
-                    p.quantity, p.fullPrice, !p.discountPrice ? p.fullPrice : p.discountPrice,
-                    p.relatedSale, p.productDesc);
+                    p.quantity, p.fullPrice, p.relatedSale, p.productDesc);
+
+                if (checkRes(res)) {
+                    return new Result(true, toSimpleProduct(res.data), res.message)
+                }
             }
             return new Result(false, undefined, "member does not have permissions");
         }
@@ -449,9 +466,9 @@ export class SystemController {
             if (this.uController.checkPermission(appointerId, r.shopId, Permissions.AddShopManager).data) {
                 const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions)) //todo: adding an assigner to the method?
                 if (result.ok) {
-                    this.mpController.appointShopManager(r.member, r.shopId)
+                    return this.mpController.appointShopManager(r.member, r.shopId)
                 }
-                return new Result(true, undefined, "shop manager appointed");
+                return new Result(false, undefined, "failed to add role to member");
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
@@ -527,21 +544,21 @@ export class SystemController {
                 return new Result(true, collectedMembers.map(toSimpleMember),)
             }
 
-            return new Result(false, [], shopRes.message);
+            return new Result(false, [], "not shop with that Id exists");
         }
         return this.authenticateMarketVisitor(sessId, callback);
     }
 
-    getShopPurchases(sessId: string, shop: number, startDate: Date, endDate: Date, filter?: any): Result<SimpleShopOrder[] | void> {
+    getShopPurchases(sessId: string, shop: number, startDate: Date, endDate: Date, filter?: any): Result<string[] | void> {
 
-        const callback = (id:string) => {
+        const callback = (id: string) => {
             //check if can preview History
             if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data) {
                 return new Result(false, undefined, "no permission");
             }
-            let orders: ShopOrder[] = this.pController.shopOrders.has(shop) ?
-                [...(this.pController.shopOrders.get(shop) as Set<ShopOrder>)].filter((o) => o.creationTime > startDate && o.creationTime < endDate) : []
-            return new Result(orders.length !== 0, orders.map(toSimpleShopOrder), orders.length !== 0 ? undefined : "no SimpleShop order were found");
+            let orders: string[] = this.pController.shopOrders.has(shop) ?
+                [...(this.pController.shopOrders.get(shop))] : []
+            return new Result(true, orders, orders.length !== 0 ? undefined : "no SimpleShop order were found");
         }
 
         return this.authenticateMarketVisitor(sessId, callback);
@@ -566,7 +583,7 @@ export class SystemController {
 
 
     editConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, settings: any): Result<void> {
-        return this.authenticateMarketVisitor(admin, (id:string) => {
+        return this.authenticateMarketVisitor(admin, (id: string) => {
             if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
             }
@@ -581,7 +598,7 @@ export class SystemController {
     }
 
     swapConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, newServiceName: string): Result<void> {
-        return this.authenticateMarketVisitor(admin, (id:string) => {
+        return this.authenticateMarketVisitor(admin, (id: string) => {
             if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
             }

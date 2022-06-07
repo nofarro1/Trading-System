@@ -1,12 +1,13 @@
 import {Result} from "../../utilities/Result";
 import {logger} from "../../helpers/logger";
+import {inject, injectable} from "inversify";
 
-
+@injectable()
 export class DeliveryServiceAdaptor {
     private readonly _name: string;
     private _settings: any;
 
-    constructor(name: string, settings: any) {
+    constructor(@inject("DeliveryServiceName")name: string, settings: any = {}) {
         this._name = name;
         this._settings = settings;
     }

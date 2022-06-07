@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Permissions } from "../../utilities/Permissions";
 import { ShoppingCart } from "../marketplace/ShoppingCart";
 import {  Role } from "./Role";
@@ -5,25 +6,29 @@ import { Guest } from "./Guest";
 
 
 export class Member extends Guest{
+=======
+import {Permissions} from "../../utilities/Permissions";
+import {Role} from "./Role";
+import {Guest} from "./Guest";
+
+
+export class Member extends Guest {
+>>>>>>> origin/dev2.0
     private _username: string;
-    private _roles: Map<number, Role>;
-    
-    constructor(session: string, username: string, shoppingCart: ShoppingCart){
-        super(session, shoppingCart);
+    private readonly _roles: Map<number, Role>;
+
+    constructor(session: string, username: string) {
+        super(session);
         this._username = username;
         this._roles = new Map<number, Role>();
     }
-    
+
     public get username(): string {
         return this._username;
     }
 
     public set username(value: string) {
         this._username = value;
-    }
-    
-    public get shoppingCart(): ShoppingCart {
-        return this._shoppingCart;
     }
 
     public get roles(): Map<number, Role> {

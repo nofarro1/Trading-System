@@ -2,12 +2,19 @@ import { logger } from "../../helpers/logger";
 import { JobType } from "../../utilities/Enums";
 import { Permissions } from "../../utilities/Permissions";
 import { Result } from "../../utilities/Result";
+<<<<<<< HEAD
 import { ShoppingCart } from "../marketplace/ShoppingCart";
+=======
+import { ShoppingCart } from "./ShoppingCart";
+>>>>>>> origin/dev2.0
 import { Guest } from "./Guest";
 import { Member } from "./Member";
 import { Role } from "./Role";
+import {injectable} from "inversify";
+import "reflect-metadata";
 
 
+@injectable()
 export class UserController {
     private _connectedGuests: Map<string, Guest>;
     private _members: Map<string, Member>;
@@ -25,10 +32,15 @@ export class UserController {
         return this._members;
     }
 
+<<<<<<< HEAD
 
     createGuest(session: string): Result<Guest>{
         const shoppingCart = new ShoppingCart();
         const guest = new Guest(session, shoppingCart);
+=======
+    createGuest(session: string): Result<Guest>{
+        const guest = new Guest(session);
+>>>>>>> origin/dev2.0
         this.connectedGuests.set(guest.session, guest);
         logger.info(`Guest ${session} connected`);
         return new Result(true, guest);
@@ -74,13 +86,13 @@ export class UserController {
         return new Result(false, undefined);
     }
 
-    addMember(session: string, username: string, shoppingCart: ShoppingCart): Result<Member| undefined>{
+    addMember(session: string, username: string): Result<Member| undefined>{
         if(this.members.has(username)){
             logger.info(`[addMember] Member with username:  ${username}, already exist in the marketplace`);
             return new Result(false, undefined , `User ${username} already exist`);
         }
         else{
-            let member = new Member(session, username, shoppingCart);
+            let member = new Member(session, username);
             this.members.set(username, member);
             logger.info(`[addMember] Member ${username} added to the marketPlace`); 
             return new Result(true, member);

@@ -3,7 +3,6 @@ import {MemberService} from "./MemberService";
 import {ShoppingCartService} from "./ShoppingCartService";
 import {MarketplaceService} from "./MarketplaceService";
 import {OrderService} from "./OrderService";
-import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
@@ -11,29 +10,33 @@ import {Permissions} from "../utilities/Permissions";
 import {ExternalServiceType} from "../utilities/Utils";
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
-import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {ProductCategory, SearchType} from "../utilities/Enums";
 import {logger} from "../helpers/logger";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../helpers/types";
+import "reflect-metadata";
 
-
+@injectable()
 export class Service {
-    private readonly systemController: SystemController;
-
     private guestService: GuestService;
     private memberService: MemberService;
     private marketplaceService: MarketplaceService;
     private shoppingCartService: ShoppingCartService;
     private orderService: OrderService;
 
-    constructor() {
+    constructor(@inject(TYPES.GuestService) guestService: GuestService,
+                @inject(TYPES.MemberService) memberService: MemberService,
+                @inject(TYPES.MarketplaceService) marketplaceService: MarketplaceService,
+                @inject(TYPES.ShoppingCartService) shoppingCartService: ShoppingCartService,
+                @inject(TYPES.OrderService) orderService: OrderService) {
         //System - Use-Case 1
-        this.systemController = SystemController.initialize();//TODO move system controller as a parameter
-        this.guestService = new GuestService(this.systemController);
-        this.memberService = new MemberService(this.systemController);
-        this.marketplaceService = new MarketplaceService(this.systemController);
-        this.shoppingCartService = new ShoppingCartService(this.systemController);
-        this.orderService = new OrderService(this.systemController);
+
+        this.guestService = guestService
+        this.memberService = memberService
+        this.marketplaceService = marketplaceService
+        this.shoppingCartService = shoppingCartService
+        this.orderService = orderService
     }
 
     //----------------------Guest Service methods-------------------------------
@@ -139,7 +142,7 @@ export class Service {
 
     //Shop Owner - Use-Case 1.1
     addProductToShop(sessionID: string, username: string, shopID: number, category: ProductCategory, name: string,
-                     price: number, quantity: number, description?: string): Promise<Result<void>> {
+                     price: number, quantity: number, description?: string): Promise<Result<SimpleProduct | void>> {
         logger.info(`${sessionID}:  user ${username} wants to add a new product to shop ${shopID}`);
         logger.info(`The product contains the following details - category: ${category}, name: ${name}, price: ${price}, quantity: ${quantity}`);
         if(description)
@@ -167,7 +170,7 @@ export class Service {
 
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
-    getShopPurchaseHistory(sessionID: string, ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | SimpleShopOrder[]>> {
+    getShopPurchaseHistory(sessionID: string, ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | string[]>> {
         logger.info(`${sessionID}: ${ownerID} would like to view the purchase history of ${shopID} from ${startDate} to ${endDate}`);
         if(filters)
             logger.info(`The request is made with the following filters: ${filters}`);

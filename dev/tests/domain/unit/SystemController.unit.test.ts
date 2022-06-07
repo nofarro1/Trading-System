@@ -8,8 +8,8 @@ import {NotificationController} from "../../../src/domain/notifications/Notifica
 import {Result} from "../../../src/utilities/Result";
 import {Guest} from "../../../src/domain/user/Guest";
 import {Member} from "../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
-import {ShoppingCartController} from "../../../src/domain/marketplace/ShoppingCartController";
+import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
+import {ShoppingCartController} from "../../../src/domain/user/ShoppingCartController";
 import {MessageBox} from "../../../src/domain/notifications/MessageBox";
 import {Product} from "../../../src/domain/marketplace/Product";
 import {JobType, ProductCategory, SearchType} from "../../../src/utilities/Enums";
@@ -22,6 +22,8 @@ import {
     toSimpleProducts,
     toSimpleShop, toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
+import {systemContainer} from "../../../src/helpers/inversify.config";
+import {TYPES} from "../../../src/helpers/types";
 
 const mockDependencies = {
     SecurityController: "../../../src/domain/SecurityController",
@@ -91,9 +93,9 @@ describe('system controller - unit', () => {
 
     const shop1 = new Shop(0, "_name", username1, "this is my shop");
 
-    const p1 = new Product("ps1", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p2 = new Product("ps2", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p3 = new Product("ps3", 0, ProductCategory.A, 10, 10, undefined,"description");
+    const p1 = new Product("ps1", 0, ProductCategory.A, 10, undefined,"description");
+    const p2 = new Product("ps2", 0, ProductCategory.A, 10, undefined,"description");
+    const p3 = new Product("ps3", 0, ProductCategory.A, 10, undefined,"description");
     // const p4 = new Product("ps4", 0, ProductCategory.A, "description", 10, 10)
     // const p5 = new Product("ps5", 0, ProductCategory.A, "description", 10, 10)
     // const p6 = new Product("ps6", 0, ProductCategory.A, "description", 10, 10)
@@ -126,11 +128,11 @@ describe('system controller - unit', () => {
             console.log(`subscribe has been called for PurchaseController`);
         })
 
-        scControllerMockMethod = mockMethod(SecurityController.prototype, 'isLoggedIn', (id) => {
+        scControllerMockMethod = mockMethod(SecurityController.prototype, 'hasActiveSession', (id) => {
             return id;
         })
 
-        sys = SystemController.initialize();
+        sys = systemContainer.get<SystemController>(TYPES.SystemController)
         mpController = sys.mpController
         mController = sys.mController
         pController = sys.pController
@@ -141,20 +143,20 @@ describe('system controller - unit', () => {
 
     beforeEach(() => {
         cart1 = new ShoppingCart()
-        user1 = new Guest(sess1, cart1)
+        user1 = new Guest(sess1)
 
         cart2 = new ShoppingCart()
-        user2 = new Guest(sess2, cart2)
+        user2 = new Guest(sess2)
 
         cart2 = new ShoppingCart()
-        user2 = new Guest(sess3, cart3)
+        user2 = new Guest(sess3)
 
         cart4 = new ShoppingCart()
-        member1 = new Member(username1, cart4)
+        member1 = new Member(sess4,username1)
         box1 = new MessageBox(username1);
 
         cart5 = new ShoppingCart()
-        member2 = new Member(username2, cart5)
+        member2 = new Member(sess5,username2)
         box2 = new MessageBox(username1);
 
     })
@@ -171,7 +173,7 @@ describe('system controller - unit', () => {
         expect(sys.securityController).toBeDefined();
         expect(sys.notifyController).toBeDefined();
         expect(mpControllerMockMethod).toBeCalledWith(mpController);
-        expect(mpControllerMockMethod).toBeCalledTimes(1);
+        expect(mpControllerMockMethod).toBeCalled();
     })
 
     test("access marketplace test", () => {
@@ -206,14 +208,14 @@ describe('system controller - unit', () => {
         let exitMarketplaceMM = mockMethod(SecurityController.prototype, 'exitMarketplace', () => {
 
         })
-        let toRemoveMM = mockMethod(UserController,'getGuest',()=>{
+        let toRemoveMM = mockMethod(UserController.prototype,'getGuest',()=>{
             return new Result(true,user1)
         })
-        let toRemoveCartMM = mockMethod(ShoppingCartController,'removeCart',()=>{
+        let toRemoveCartMM = mockMethod(ShoppingCartController.prototype,'removeCart',()=>{
             return new Result(true,undefined)
         })
 
-        let ExitGuestMM = mockMethod(UserController,'exitGuest',()=>{
+        let ExitGuestMM = mockMethod(UserController.prototype,'exitGuest',()=>{
             return new Result(true,user1)
         })
 
@@ -223,7 +225,7 @@ describe('system controller - unit', () => {
         expect(res.data).toEqual(undefined)
         expect(res.message).toEqual("bye bye!")
         expect(logoutMockMethod).toBeCalledWith("1")
-        expect(exitMarketplaceMM).toBeCalledWith("2")
+        expect(exitMarketplaceMM).toBeCalledWith("1")
         let mocks = [logoutMockMethod,exitMarketplaceMM,toRemoveMM,toRemoveCartMM,ExitGuestMM]
         for( let mock of mocks){
             expect(mock).toBeCalled();
@@ -239,14 +241,14 @@ describe('system controller - unit', () => {
         let exitMarketplaceMM = mockMethod(SecurityController.prototype, 'exitMarketplace', () => {
 
         })
-        let toRemoveMM = mockMethod(UserController,'getGuest',()=>{
+        let toRemoveMM = mockMethod(UserController.prototype,'getGuest',()=>{
             return new Result(true,user1)
         })
-        let toRemoveCartMM = mockMethod(ShoppingCartController,'removeCart',()=>{
+        let toRemoveCartMM = mockMethod(ShoppingCartController.prototype,'removeCart',()=>{
             return new Result(true,undefined)
         })
 
-        let ExitGuestMM = mockMethod(UserController,'exitGuest',()=>{
+        let ExitGuestMM = mockMethod(UserController.prototype,'exitGuest',()=>{
             return new Result(true,user1)
         })
 
@@ -642,7 +644,7 @@ describe('system controller - unit', () => {
 
         let addProductToShopMM = mockMethod(MarketplaceController.prototype, 'addProductToShop',
             () => {
-                return new Result(true, undefined, "mock success")
+                return new Result(true, toSimpleProduct(p1), "mock success")
             })
         let res = sys.addProduct(username1, {
             shopId: p1.shopId,
@@ -653,7 +655,7 @@ describe('system controller - unit', () => {
         })
 
         expect(res.ok).toBe(true);
-        expect(res.data).not.toBeDefined();
+        expect(res.data).toBeDefined();
         expect(checkPermissionMM).toBeCalled();
         expect(addProductToShopMM).toBeCalled();
 
@@ -668,7 +670,7 @@ describe('system controller - unit', () => {
 
         let addProductToShopMM = mockMethod(MarketplaceController.prototype, 'addProductToShop',
             () => {
-                return new Result(true, undefined, "mock fail")
+                return new Result(true, toSimpleProduct(p1), "mock fail")
             })
         let res = sys.addProduct(username1, {
             shopId: p1.shopId,
@@ -1227,11 +1229,11 @@ describe('system controller - unit', () => {
         test("remove shop manager permissions - failure - remove", () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
-                return new Result(false, false, "mock success")
+                return new Result(true, true, "mock success")
             })
 
             let removePermissionMM = mockMethod(UserController.prototype, 'removePermission', () => {
-                return new Result(true, undefined, "mock success")
+                return new Result(false, undefined, "mock failure")
             })
 
             //act
@@ -1248,7 +1250,7 @@ describe('system controller - unit', () => {
     });
 
 
-    describe('deactivate shop manager', () => {
+    describe('deactivate shop', () => {
 
         test("deactivate shop - success", () => {
             //prep
@@ -1260,7 +1262,7 @@ describe('system controller - unit', () => {
                 return new Result(true, undefined, "mock");
             })
 
-            let res = sys.reactivateShop(username1, 0);
+            let res = sys.deactivateShop(username1, 0);
 
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
@@ -1280,7 +1282,7 @@ describe('system controller - unit', () => {
                 return new Result(true, undefined, "mock");
             })
 
-            let res = sys.reactivateShop(username1, 0);
+            let res = sys.deactivateShop(username1, 0);
 
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
@@ -1300,7 +1302,7 @@ describe('system controller - unit', () => {
                 return new Result(false, undefined, "mock");
             })
 
-            let res = sys.reactivateShop(username1, 0);
+            let res = sys.deactivateShop(username1, 0);
 
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
@@ -1392,7 +1394,7 @@ describe('system controller - unit', () => {
 
         expect(res.ok).toBe(true);
         expect(res.data).toBeDefined()
-        expect(res.data).toContain(toSimpleMember(member1));
+        expect(res.data).toContainEqual(toSimpleMember(member1));
 
         expect(checkPermissionMM).toHaveBeenCalled()
         expect(getShop).toHaveBeenCalled()
@@ -1407,16 +1409,11 @@ describe('system controller - unit', () => {
             return new Result(true, true, "mock success")
         })
 
-        let shopOrders = mockMethod(PurchaseController.prototype, 'shopOrders', () => {
-            return new Result(true, [])
-        })
-
         let res = sys.getShopPurchases(username1, 0, new Date(), new Date())
 
         expect(res.ok).toBe(true)
         expect(res.data).toEqual([]);
         expect(checkPermissionMM).toHaveBeenCalled()
-        expect(shopOrders).toHaveBeenCalled()
 
     })
 
