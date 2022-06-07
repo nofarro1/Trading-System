@@ -103,6 +103,13 @@ export class Shop {
         this._products = value;
     }
 
+    get productsCounter(): number {
+        return this._productsCounter;
+    }
+    set productsCounter(value: number) {
+        this._productsCounter = value;
+    }
+
     get rate(): ShopRate {
         return this._rate;
     }
@@ -120,8 +127,10 @@ export class Shop {
     }
 
     get discountCounter(): number {
-        this._discountCounter++;
-        return this._discountCounter--;
+        return this._discountCounter;
+    }
+    set discountCounter(value: number) {
+        this._discountCounter = value;
     }
 
     get purchasePolicies(): Map<number, ImmediatePurchasePolicyComponent> {
@@ -131,6 +140,9 @@ export class Shop {
     get purchaseCounter(): number {
         this._purchaseCounter++;
         return this._purchaseCounter--;
+    }
+    set purchaseCounter(value: number) {
+        this._purchaseCounter = value;
     }
 
     addProduct(productName: string, category: ProductCategory, fullPrice: number,quantity: number, productDesc?: string ): Product{
@@ -231,7 +243,7 @@ export class Shop {
     addPurchasePolicy(puPolicy: ImmediatePurchasePolicyComponent): number{
         this._purchasePolicies.set(this._purchaseCounter,puPolicy);
         this._purchaseCounter++;
-        return this._purchaseCounter--;
+        return this._purchaseCounter-1;
     }
 
     removePurchasePolicy(idPuPolicy: number){
