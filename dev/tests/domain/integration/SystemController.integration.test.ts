@@ -7,7 +7,7 @@ import {UserController} from "../../../src/domain/user/UserController";
 import {NotificationController} from "../../../src/domain/notifications/NotificationController";
 import {Guest} from "../../../src/domain/user/Guest";
 import {Member} from "../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
+import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
 import {MessageBox} from "../../../src/domain/notifications/MessageBox";
 import {Product} from "../../../src/domain/marketplace/Product";
 import {JobType, ProductCategory, SearchType} from "../../../src/utilities/Enums";
@@ -22,6 +22,8 @@ import {
     toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
 import {ExternalServiceType} from "../../../src/utilities/Utils";
+import {systemContainer} from "../../../src/helpers/inversify.config";
+import {TYPES} from "../../../src/helpers/types";
 
 
 describe('system controller - integration', () => {
@@ -61,15 +63,15 @@ describe('system controller - integration', () => {
 
     const shop1 = new Shop(0, "_name", username1, "this is my shop");
 
-    const p1 = new Product("ps1", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p2 = new Product("ps2", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p3 = new Product("ps3", 0, ProductCategory.A, 10, 10, undefined,"description");
+    const p1 = new Product("ps1", 0, ProductCategory.A, 10, undefined,"description");
+    const p2 = new Product("ps2", 0, ProductCategory.A, 10, undefined,"description");
+    const p3 = new Product("ps3", 0, ProductCategory.A, 10, undefined,"description");
 
     const role1 = new Role(0, "title", JobType.Owner, new Set())
     const role2 = new Role(0, "title", JobType.Manager, new Set())
 
     beforeAll(() => {
-        sys = SystemController.initialize();
+        sys = systemContainer.get(TYPES.SystemController)
         mpController = sys.mpController
         mController = sys.mController
         pController = sys.pController
@@ -80,20 +82,20 @@ describe('system controller - integration', () => {
 
     beforeEach(() => {
         cart1 = new ShoppingCart();
-        guest1 = new Guest(sess1, cart1);
+        guest1 = new Guest(sess1);
 
         cart2 = new ShoppingCart();
-        guest2 = new Guest(sess2, cart2);
+        guest2 = new Guest(sess2);
 
         cart3 = new ShoppingCart();
-        guest3 = new Guest(sess3, cart3);
+        guest3 = new Guest(sess3);
 
         cart4 = new ShoppingCart();
-        member1 = new Member(sess4, username1, cart4)
+        member1 = new Member(sess4, username1)
         box1 = new MessageBox(username1);
 
         cart5 = new ShoppingCart();
-        member2 = new Member(sess5, username2, cart5)
+        member2 = new Member(sess5, username2)
         box2 = new MessageBox(username1);
     })
 

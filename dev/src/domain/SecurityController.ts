@@ -1,5 +1,6 @@
 import {logger} from "../helpers/logger";
 import {injectable} from "inversify";
+import "reflect-metadata";
 
 @injectable()
 export class SecurityController {

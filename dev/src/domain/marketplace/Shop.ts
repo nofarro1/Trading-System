@@ -1,10 +1,15 @@
 import {Product} from "./Product";
 import {Sale} from "./Sale";
 import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
-import {ShoppingBag} from "./ShoppingBag";
+import {ShoppingBag} from "../user/ShoppingBag";
+import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
+import {ImmediatePurchasePolicyComponent} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
+import {Answer} from "../../utilities/Types";
+import {Guest} from "../user/Guest";
 
 
 export class Shop {
+
     private _id: number;
     private _name: string;
     private _status: ShopStatus;
@@ -12,10 +17,15 @@ export class Shop {
     private _shopOwners: Set<string>;
     private _shopManagers: Set<string>;
     private _products: Map<number, [Product, number]>;
+    private _productsCounter: number;
     private _rate: ShopRate;
+    private _discounts: Map<number, DiscountComponent>;
+    private _discountCounter: number;
+    private _purchasePolicies: Map <number, ImmediatePurchasePolicyComponent>;
+    private _purchaseCounter: number;
+    private _description?: string;
 
-
-    constructor(id: number, name: string, shopFounder: string,shopAndDiscountPolicy?: string){
+    constructor(id: number, name: string, shopFounder: string, description?: string){
         this._id= id;
         this._name= name;
         this._status= ShopStatus.open;
@@ -23,7 +33,13 @@ export class Shop {
         this._shopOwners= new Set<string>([shopFounder]);
         this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
-        this._rate= ShopRate.NotRated
+        this._productsCounter = 0;
+        this._rate= ShopRate.NotRated;
+        this._discounts= new Map<number, DiscountComponent>();
+        this._discountCounter= 0;
+        this._purchasePolicies = new Map <number, ImmediatePurchasePolicyComponent>();
+        this._purchaseCounter = 0;
+        this._description = description;
     }
 
 
@@ -55,6 +71,10 @@ export class Shop {
         return this._shopFounder;
     }
 
+    get description(): string {
+        return this._description;
+    }
+
     set shopFounder(value: string) {
         this._shopFounder = value;
     }
@@ -83,6 +103,13 @@ export class Shop {
         this._products = value;
     }
 
+    get productsCounter(): number {
+        return this._productsCounter;
+    }
+    set productsCounter(value: number) {
+        this._productsCounter = value;
+    }
+
     get rate(): ShopRate {
         return this._rate;
     }
@@ -91,12 +118,40 @@ export class Shop {
         this._rate = value;
     }
 
-    addProduct(productName: string, shopId: number, category: ProductCategory, fullPrice: number, discountPrice: number,quantity: number, relatedSale?: Sale, productDesc?: string ): Product{
-        let toAdd= new Product(productName, shopId, category, discountPrice, fullPrice, relatedSale, productDesc);
+    set description(value: string) {
+        this._description = value;
+    }
+
+    get discounts(): Map<number, DiscountComponent> {
+        return this._discounts;
+    }
+
+    get discountCounter(): number {
+        return this._discountCounter;
+    }
+    set discountCounter(value: number) {
+        this._discountCounter = value;
+    }
+
+    get purchasePolicies(): Map<number, ImmediatePurchasePolicyComponent> {
+        return this._purchasePolicies;
+    }
+
+    get purchaseCounter(): number {
+        this._purchaseCounter++;
+        return this._purchaseCounter--;
+    }
+    set purchaseCounter(value: number) {
+        this._purchaseCounter = value;
+    }
+
+    addProduct(productName: string, category: ProductCategory, fullPrice: number,quantity: number, productDesc?: string ): Product{
+        let toAdd= new Product(productName, this.id, this._productsCounter, category, fullPrice, productDesc);
         if(!this.products.has(toAdd.id)){
             this.products.set(toAdd.id, [toAdd, quantity]);
             return toAdd;
         }
+        this._productsCounter++;
         return toAdd;
     }
 
@@ -143,12 +198,56 @@ export class Shop {
         this.shopManagers?.add(managerId);
     }
 
-    checkDiscountPolicies (bag: ShoppingBag): boolean{
-        return true;
+    calculateBagPrice(bag: ShoppingBag): [Product, number, number][]{
+
+        let productsList = this.extractProducts(bag.products);
+        let productsInfo: [Product, number, number][] = [];
+        for(let [p, quantity] of bag.products.values()){
+            productsInfo.push([p, p.fullPrice, quantity]);
+        }
+        if(this._discounts.size>0){
+            for( let disc of this._discounts.values()){
+                if(disc.predicate(productsInfo))
+                    productsInfo = disc.calculateProductsPrice(productsInfo);
+            }
+        }
+
+        return productsInfo;
     }
 
-    checkPutrchasePolicies (bag: ShoppingBag): boolean {
-        return true;
+    canMakePurchase(purchaseInfo:[ bag: ShoppingBag, user: Guest]): Answer {
+        let policies = Array.from(this._purchasePolicies.values());
+        let callBack = (acc: Answer, currPolicy: ImmediatePurchasePolicyComponent): Answer => {
+                            let ans = currPolicy.CanMakePurchase(purchaseInfo);
+                            return acc = {ok: acc.ok && ans.ok, message: acc.message + '\n' + ans.message}
+                        };
+        return policies.reduce(callBack, {ok:true, message:"Couldn't make purchase because:"});
+    }
+
+    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
+        let productsList = [];
+        for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
+        return productsList;
+    }
+
+    addDiscount(disc: DiscountComponent): number{
+        this._discounts.set(this._discountCounter,disc);
+        this._discountCounter++;
+        return this._discountCounter-1;
+    }
+
+    removeDiscount(idDisc: number): void{
+        this._discounts.delete(idDisc);
+    }
+
+    addPurchasePolicy(puPolicy: ImmediatePurchasePolicyComponent): number{
+        this._purchasePolicies.set(this._purchaseCounter,puPolicy);
+        this._purchaseCounter++;
+        return this._purchaseCounter-1;
+    }
+
+    removePurchasePolicy(idPuPolicy: number){
+        this._purchasePolicies.delete(idPuPolicy);
     }
 
 }

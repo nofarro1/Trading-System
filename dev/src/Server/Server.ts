@@ -1,55 +1,63 @@
 import https from 'https'
 import fs from 'fs'
-import io, {Socket} from 'socket.io'
-import {router, app} from './expressApp'
-import session, {Session} from "express-session";
-import {Response, Request, NextFunction} from "express"
+import io, {Socket} from 'socket.io';
+import {app, sessionMiddleware} from './expressApp'
+import  {Session} from "express-session";
+import express, {Express, NextFunction, Request, Response} from "express";
+import {Service} from "../service/Service";
 
 declare module "http" {
     interface IncomingMessage {
         session: Session
     }
 }
-
-//express set up
-
 const keyPath = "F:\\Repositories\\Trading-System\\dev\\src\\Server\\security\\local.key"
 const certPath = "F:\\Repositories\\Trading-System\\dev\\src\\Server\\security\\cert.crt"
 const port = process.env.PORT || 3000;
 
 
-//https setup
-export const httpsServer = https.createServer({
-    key: fs.readFileSync(keyPath),
-    cert: fs.readFileSync(certPath)
-}, app)
+const wrap = (middleware: express.RequestHandler) =>
+    (socket: Socket, next: NextFunction): void => middleware(socket.request as Request, {} as Response, next as NextFunction);
+
+export class Server {
+    private readonly httpsServer: https.Server
+    private backendService: Service
+    private ioServer: io.Server
 
 
-//socket.IO setup
-export const ioServer = new io.Server()
-ioServer.listen(httpsServer)
+    constructor(app:Express, service:Service){
+        this.backendService = service;
+        this.httpsServer = https.createServer({
+            key: fs.readFileSync(keyPath),
+            cert: fs.readFileSync(certPath)
+        }, app)
 
-// const wrap = (middleware: express.RequestHandler) =>
-//     (socket: Socket, next: NextFunction): void => middleware(socket.request as Request, {} as Response, next as NextFunction);
-//
-// io.use(wrap(sessionMiddleware));
+    }
 
-
-// io.use((socket,next) => {
-//     const sess = socket.request.session
-//     if(sess){
-//         next();
-//     } else {
-//         next(new Error("cannot get session"))
-//     }
-// })
-// httpsServer.on('connection',(socket)=>{
-//     console.log(`session  has connected`);
-// })
-
-
+    start(){
+        this.ioServer = new io.Server(this.httpsServer,{
+            cors: { origin: "*"}
+        })
+        this.ioServer.listen(this.httpsServer)
+        this.ioServer.use(wrap(sessionMiddleware));
+        // this.httpsServer.on('connect', (req)=>{
+        //     console.log(`client with session ${req.session.id} connected`);
+        //     req.socket.on('close', () => {
+        //         console.log(`client with session ${req.session.id} disconnect`);
+        //     })
+        // })
 
 
-httpsServer.listen(port, () => {
-    console.log("server started. listening on port " + port)
-});
+        this.httpsServer.listen(port, () => {
+            console.log("server started. listening on port " + port)
+        });
+    }
+
+    shutdown(){
+        this.httpsServer.close(() => console.log("server is down"));
+    }
+
+}
+
+
+

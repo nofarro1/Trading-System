@@ -1,9 +1,9 @@
-import {MessageBox, IIncomingMessageSubscriber} from "./MessageBox";
+import {MessageBox, ILLiveNotificationSubscriber} from "./MessageBox";
 import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message";
 import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
 import { injectable } from "inversify";
-
+import "reflect-metadata";
 @injectable()
 export class MessageController implements IMessageListener<Message> {
 
@@ -23,7 +23,7 @@ export class MessageController implements IMessageListener<Message> {
         return new Result(false,undefined,"user already has a message box")
     }
 
-    addSubscriberToBox(memberId: string, subscriber: IIncomingMessageSubscriber): void {
+    addSubscriberToBox(memberId: string, subscriber: ILLiveNotificationSubscriber): void {
         try {
             let box =  this.getMessageBox(memberId);
             box.subscribe(subscriber);
@@ -32,7 +32,7 @@ export class MessageController implements IMessageListener<Message> {
         }
     }
 
-    removeSubscriberFromBox(memberId: string, subscriber: IIncomingMessageSubscriber): void {
+    removeSubscriberFromBox(memberId: string, subscriber: ILLiveNotificationSubscriber): void {
         try {
             let box =  this.getMessageBox(memberId);
             box.unsubscribe(subscriber);
