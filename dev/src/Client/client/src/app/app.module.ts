@@ -13,6 +13,8 @@ import { CartComponent } from './cart/cart.component';
 import { TableModule } from 'primeng/table';
 import { DataViewModule } from 'primeng/dataview';
 import { ButtonModule } from 'primeng/button';
+import { LogoutComponent } from './logout/logout.component';
+import { SignupComponent } from './signup/signup.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +25,9 @@ import { ButtonModule } from 'primeng/button';
     ShopsComponent,
     MainComponent,
     ShopComponent,
-    CartComponent,  ],
+    CartComponent,
+    LogoutComponent,
+    SignupComponent,  ],
   imports: [
     BrowserModule,
     AppRoutingModule,

@@ -1,20 +1,28 @@
 .login{
   display:grid;
   grid-auto-flow: column;
+  padding-left: 20px;
   height: 100px;
   justify-content: left;
   align-content: space-evenly;
-  border: 1px solid green;
+  border: 1px solid darkslategrey;
   grid-gap: 20px;
+}
+.btngroup{
+  padding-left: 150%;
+  text-align: right;
+  display:grid;
+  grid-auto-flow: column;
+  grid-gap: 10px;
 }
 button {
   width:130px;
-  background-color: #04AA6D; /* Green background */
-  border: 1px solid green; /* Green border */
-  color: white; /* White text */
-  padding: 10px 24px; /* Some padding */
-  cursor: pointer; /* Pointer/hand icon */
-  float: right; /* Float the buttons side by side */
+  background-color: #607D8B;
+  border: 1px solid darkslategray;
+  color: white;
+  padding: 10px 24px;
+  cursor: pointer;
+  float: right;
 }
 
 
@@ -27,6 +35,6 @@ button:after {
 
 /* Add a background color on hover */
 button:hover {
-  background-color: #3e8e41;
+  background-color: #505050;
 }
 
