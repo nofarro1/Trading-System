@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2021",
+    "sourceMap": true,
+    "outDir": "dist",
+    "strict": false,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "types": ["reflect-metadata","jest"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "rootDirs": ["./src","./tests"],
+    "skipLibCheck": true,
+//    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es2021",
+    ]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
