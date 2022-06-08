@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "jest",
-    "build": "tsc --project ./tsconfig.json",
+    "build": "tsc --project tsconfig.json",
     "start": "ts-node ./src/app.ts"
   },
   "keywords": [],
