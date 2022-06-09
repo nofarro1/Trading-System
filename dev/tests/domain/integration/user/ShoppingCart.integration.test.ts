@@ -6,8 +6,8 @@ import {ProductCategory} from "../../../../src/utilities/Enums";
 
 let shoppingCart: ShoppingCart;
 let shop1: Shop = new Shop(1, "Super Shop", "Mario");
-let product1: Product = new Product("Pizza", 1, ProductCategory.A, 15);
-let product11: Product = new Product("Pizza 2", 1, ProductCategory.A, 15);
+let product1: Product = new Product("Pizza", 1, 0, ProductCategory.A, 15);
+let product11: Product = new Product("Pizza 2", 1, 0, ProductCategory.A, 15);
 
 describe("Shopping Cart - unit tests", function () {
     beforeEach(function () {
