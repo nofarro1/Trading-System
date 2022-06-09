@@ -4,8 +4,8 @@ import {MarketplaceController} from "../../../../src/domain/marketplace/Marketpl
 import {Range} from "../../../../src/utilities/Range";
 
 let controller: MarketplaceController;
-const p1: Product = new Product("Ski", 0, ProductCategory.A, 5.9);
-const p2: Product  = new Product("Cottage", 0, ProductCategory.A,  5.9);
+const p1: Product = new Product("Ski", 0, ProductCategory.A, 5.9, 10);
+const p2: Product  = new Product("Cottage", 0, ProductCategory.A,  5.9, 10);
 
 describe("MarketPlaceController", ()=>{
     beforeEach(function(){
