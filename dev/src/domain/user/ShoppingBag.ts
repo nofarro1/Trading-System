@@ -1,6 +1,5 @@
-import PriorityQueue from "ts-priority-queue";
 import { Product } from "../marketplace/Product";
-import { Sale } from "../marketplace/Sale";
+
 const compProducts = (p1: Product, p2: Product)=>  p1.fullPrice - p2.fullPrice;
 
 export class ShoppingBag {
@@ -50,54 +49,12 @@ export class ShoppingBag {
             throw new Error("Failed to remove product because the product wasn't found in bag.")
         let pTuple= this.products.get(toRemove.id);
         this.products.delete(toRemove.id);
-        // if(pTuple) {
-
-        //}
-            //let quantity = pTuple[1];
-
-        //     this.totalPrice-= toRemove.discountPrice*quantity;
-        //     // After removing the items check if there is discount to apply.
-        //     if (toRemove.relatedSale) {
-        //         var queue = this.productsOnSale.get(toRemove.relatedSale);
-        //         if (queue) {
-        //             var updatedQueue = new PriorityQueue({comparator: compProducts});
-        //             while (queue.length != 0) {
-        //                 var p = queue.dequeue();
-        //                 if (p != toRemove)
-        //                     updatedQueue.queue(p);
-        //             }
-        //             this.totalPrice -= toRemove.relatedSale.applyDiscount(updatedQueue);
-        //         }
-        //         throw new Error("Failed to remove product beacause the queue of the assoicated Sale was undifiend")
-        //     }
-        // }
-        // return this.totalPrice;
     }
 
-    updateProductQuantity(toUpdate: Product, quantity: number): number {
+    updateProductQuantity(toUpdate: Product, quantity: number): void {
         if(!this.products.has(toUpdate.id))
             throw new Error("Failed to update product because the product wasn't found in bag.")
-        //let pTuple= this.products.get(toUpdate.id);
-        // if(pTuple) {
-        //     let oldQuantity = pTuple[1];
-        //     this.totalPrice= this.totalPrice-toUpdate.discountPrice*oldQuantity+toUpdate.fullPrice*quantity;
-        //     // After removing the items check if there is discount to apply.
-        //     if (toUpdate.relatedSale) {
-        //         var queue = this.productsOnSale.get(toUpdate.relatedSale);
-        //         if (queue) {
-        //             var updatedQueue = new PriorityQueue({comparator: compProducts});
-        //             while (queue.length != 0) {
-        //                 var p = queue.dequeue();
-        //                 if (p != toUpdate)
-        //                     updatedQueue.queue(p);
-        //             }
-        //             this.totalPrice -= toUpdate.relatedSale.applyDiscount(updatedQueue);
-        //         }
-        //         throw new Error("Failed to update product because the queue of the associated Sale was undefined")
-        //     }
-        // }
         this.products.set(toUpdate.id, [toUpdate, quantity]);
-        return this.totalPrice;
     }
 
     emptyBag(): void{

@@ -5,7 +5,7 @@ import {ProductCategory} from "../../../../src/utilities/Enums";
 
 let bag: ShoppingBag;
 const shopID: number = 1;
-const product: Product = new Product("product", 1, ProductCategory.A, 10);
+const product: Product = new Product("product", 1, 0, ProductCategory.A, 10);
 const quantity: number = 5;
 const newQuantity: number = 10;
 

@@ -10,7 +10,7 @@ let shoppingCartController: ShoppingCartController;
 const member: Member = new Member("1", "Mario");
 const shop: Shop = new Shop(1, "THE Shop", "Luigi");
 const quantity: number = 10;
-const product: Product = new Product("Pizza", 1, ProductCategory.A, 15);
+const product: Product = new Product("Pizza", 1, 0, ProductCategory.A, 15);
 
 describe("Shopping Cart - unit tests", function () {
     beforeEach(function () {
