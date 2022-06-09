@@ -1,7 +1,7 @@
 import https from 'https'
 import fs from 'fs'
 import io, {Socket} from 'socket.io';
-import {app, sessionMiddleware} from './expressApp'
+import {sessionMiddleware} from './expressApp'
 import  {Session} from "express-session";
 import express, {Express, NextFunction, Request, Response} from "express";
 import {Service} from "../service/Service";

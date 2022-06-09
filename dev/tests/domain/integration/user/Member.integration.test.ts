@@ -1,7 +1,6 @@
 import {JobType} from "../../../../src/utilities/Enums";
 import {Permissions} from "../../../../src/utilities/Permissions";
 import {Member} from "../../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Role} from "../../../../src/domain/user/Role";
 

@@ -1,5 +1,5 @@
 import {DiscountComponent} from "../Components/DiscountComponent";
-import {DiscountType, ProductCategory} from "../../../../utilities/Enums";
+import {DiscountType} from "../../../../utilities/Enums";
 import {Product} from "../../Product";
 import {discountInf} from "../../../../utilities/Types";
 

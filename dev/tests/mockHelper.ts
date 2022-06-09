@@ -1,8 +1,3 @@
-import {
-    PredicateDiscountPolicy
-} from "../src/domain/marketplace/DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
-import {ConditionalDiscount} from "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/ConditionalDiscount";
-
 export const mockDependencies = {
     SecurityController: "../../../src/domain/SecurityController",
     MessageController: "../../../src/domain/notifications/MessageController",

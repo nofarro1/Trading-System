@@ -1,7 +1,5 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
-import {ShoppingBag} from "../../../../../user/ShoppingBag";
 import {Product} from "../../../../Product";
-import {ConditionalDiscount} from "../../../leaves/ConditionalDiscount";
 
 export class AndDiscounts implements DiscountComponent{
      private discounts: DiscountComponent[];
