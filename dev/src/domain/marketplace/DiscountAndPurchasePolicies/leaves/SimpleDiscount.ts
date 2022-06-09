@@ -6,16 +6,19 @@ import {discountInf} from "../../../../utilities/Types";
 
 
 export class SimpleDiscount implements DiscountComponent{
-
+    private _id: number;
     private info: discountInf;
     private discountPercent: number;
 
-    constructor(discountInf: discountInf, discountPercent: number) {
+    constructor(id: number, discountInf: discountInf, discountPercent: number) {
+        this._id = id;
         this.info = discountInf;
         this.discountPercent = discountPercent;
     }
 
-
+    get id(): number {
+        return this._id;
+    }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
         let discProductsPrice: [Product, number, number][] = [];

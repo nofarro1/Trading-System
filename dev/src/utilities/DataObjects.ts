@@ -1,8 +1,9 @@
 // User Related Data Objects
 
 import {Sale} from "../domain/marketplace/Sale";
-import {ProductCategory} from "./Enums";
+import {DiscountKinds, DiscountRelation, DiscountType, ProductCategory, RelationType} from "./Enums";
 import {Permissions} from "./Permissions";
+import {Product} from "../domain/marketplace/Product";
 
 export interface LoginData {
     username: string;
@@ -37,3 +38,25 @@ export interface NewRoleData {
     permissions: Permissions[];
 }
 
+export interface DiscountData{}
+
+export class SimpleDiscountData implements DiscountData{
+
+    discountType: DiscountType;
+    object: Product | ProductCategory | undefined;
+    discountPrecent: number;
+}
+
+export class ConditionalDiscountData implements DiscountData{
+    discount: SimpleDiscountData;
+    predTypeObject: DiscountType
+    predObject: number | ProductCategory | undefined;
+    predRelation: RelationType;
+    predValue: number;
+}
+
+export class ContainerDiscountData implements DiscountData{
+    //kind: DiscountKinds
+    discountRelation: DiscountRelation
+    discounts: DiscountData[]
+}

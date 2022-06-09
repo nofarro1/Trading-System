@@ -2,11 +2,18 @@ import {DiscountComponent} from "../../../Components/DiscountComponent";
 import {Product} from "../../../../Product";
 
 export class MaxDiscounts implements DiscountComponent{
+    private _id: number;
     private discounts: DiscountComponent[];
 
-    constructor() {
+    constructor(id: number, discounts: DiscountComponent[]) {
+       this._id = id;
         this.discounts= [];
     }
+
+    get id(): number {
+        return this._id;
+    }
+
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
         let callBack = (disc: DiscountComponent) => disc.calculateProductsPrice(products);
         let tempProductsPrices = this.discounts.map(callBack);

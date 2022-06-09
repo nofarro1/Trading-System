@@ -2,12 +2,17 @@ import {DiscountComponent} from "../../../Components/DiscountComponent";
 import {Product} from "../../../../Product";
 
 export class AndDiscounts implements DiscountComponent{
+
      private discounts: DiscountComponent[];
+     private _id: number;
 
-     constructor(discount: DiscountComponent[]) {
+     constructor(id: number, discount: DiscountComponent[]) {
          this.discounts= discount;
+         this._id = id;
      }
-
+    get id(): number {
+        return this._id;
+    }
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
          let discCallBack = (acc:[Product, number, number][], dcCurr: DiscountComponent)=> dcCurr.calculateProductsPrice(acc);
             return this.discounts.reduce(discCallBack,products);

@@ -1,10 +1,34 @@
 import {Product} from "./Product";
-import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
+import {DiscountRelation, ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
 import {ShoppingBag} from "../user/ShoppingBag";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
-import {ImmediatePurchasePolicyComponent} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
+import {
+    ImmediatePurchasePolicyComponent
+} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 import {Answer} from "../../utilities/Types";
 import {Guest} from "../user/Guest";
+import {
+    ConditionalDiscountData,
+    ContainerDiscountData,
+    DiscountData,
+    SimpleDiscountData
+} from "../../utilities/DataObjects";
+import {SimpleDiscount} from "./DiscountAndPurchasePolicies/leaves/SimpleDiscount";
+import {PredicateDiscountPolicy} from "./DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
+import {ConditionalDiscount} from "./DiscountAndPurchasePolicies/leaves/ConditionalDiscount";
+import {
+    AndDiscounts
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicCompositions/AndDiscounts";
+import {OrDiscounts} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicCompositions/OrDiscounts";
+import {
+    XorDiscounts
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicCompositions/XorDiscounts";
+import {
+    AdditionDiscounts
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts";
+import {
+    MaxDiscounts
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/MaxDiscounts";
 
 
 export class Shop {
@@ -229,10 +253,37 @@ export class Shop {
         return productsList;
     }
 
-    addDiscount(disc: DiscountComponent): number{
-        this._discounts.set(this._discountCounter,disc);
+    addDiscount(disc: DiscountData): DiscountComponent{
+        let toAdd:DiscountComponent;
+        if (disc instanceof SimpleDiscountData){
+            let discInf = {type: disc.discountType, object: disc.object}
+            toAdd = new SimpleDiscount(this._discountCounter,discInf, disc.discountPrecent);
+        }
+        else if (disc instanceof ConditionalDiscountData){
+            let discInf = {type: disc.discount.discountType, object: disc.discount.object}
+            let discount = new SimpleDiscount(this._discountCounter,discInf, disc.discount.discountPrecent);
+            let pred = new PredicateDiscountPolicy(disc.predTypeObject, disc.predObject, disc.predRelation, disc.predValue);
+            toAdd = new ConditionalDiscount(this._discountCounter,discount, pred);
+        }
+       else if (disc instanceof ContainerDiscountData) {
+           let callBack = (curr: DiscountData)=> this.addDiscount(curr);
+           let discComponents = disc.discounts.map(callBack);
+            switch (disc.discountRelation){
+                case DiscountRelation.And:
+                    toAdd = new AndDiscounts(this.discountCounter, discComponents);
+                case DiscountRelation.Or:
+                    toAdd = new OrDiscounts(this.discountCounter,discComponents);
+                case DiscountRelation.Xor:
+                    toAdd= new XorDiscounts(this.discountCounter,discComponents);
+                case DiscountRelation.Addition:
+                    toAdd = new AdditionDiscounts(this.discountCounter,discComponents);
+                case DiscountRelation.Max:
+                    toAdd = new MaxDiscounts(this.discountCounter,discComponents);
+            }
+        }
+        this._discounts.set(this._discountCounter,toAdd);
         this._discountCounter++;
-        return this._discountCounter-1;
+        return toAdd;
     }
 
     removeDiscount(idDisc: number): void{
