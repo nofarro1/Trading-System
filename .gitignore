@@ -1,5 +1,6 @@
 /dev/package-lock.json
 /dev/node_modules/
+/node_modules/
 # Default ignored files
 /shelf/
 /workspace.xml
