@@ -3,6 +3,7 @@ import session from 'express-session';
 import {Service} from "../service/Service";
 import {systemContainer} from "../helpers/inversify.config";
 import {TYPES} from "../helpers/types";
+import {Result} from "../utilities/Result";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
@@ -43,7 +44,6 @@ router.get('/', async (req, res) => {
  * register a guest in the system.
  * body:
  * {
- *     id: string
  *     username: string,
  *     password: string,
  *     firstName?: string,
@@ -53,10 +53,8 @@ router.get('/', async (req, res) => {
  * }
  */
 router.post('/guest/register', async (req, res) => {
-
-
     try {
-        let sessId = req.body.id;
+        let sessId = req.session.id;
         let username = req.body.username;
         let password = req.body.password;
         let firstName = req.body.firstName;
@@ -92,7 +90,7 @@ router.post('/admin/register', async (req, res) => {
 
 
     try {
-        let sessId = req.body.id;
+        let sessId = req.session.id;
         let username = req.body.username;
         let password = req.body.password;
         let firstName = req.body.firstName;
@@ -123,7 +121,7 @@ router.post('/guest/login', async (req, res) => {
 
 
     try {
-        let sessId = req.body.id;
+        let sessId = req.session.id;
         let username = req.body.username;
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
@@ -137,11 +135,9 @@ router.post('/guest/login', async (req, res) => {
 /**
  * logout
  */
-router.get('/member/logout/:id/:username', async (req, res) => {
-
-
+router.get('/member/logout/:username', async (req, res) => {
     try {
-        let sessId = req.params.id;
+        let sessId = req.session.id;
         let username = req.params.username
         let ans = await service.logout(sessId, username)
         res.send(ans)
@@ -162,7 +158,7 @@ router.get('/member/logout/:id/:username', async (req, res) => {
 router.post('/member/shopManagement/assignOwner', async (req, res) => {
 
     try {
-        let sessId = req.body.id
+        let sessId = req.session.id
         let owner = req.body.owner.assigningOwnerId
         let shopId = req.body.shopId
         let newOwner = req.body.shopId
@@ -188,7 +184,7 @@ router.post('/member/shopManagement/assignOwner', async (req, res) => {
 router.post('/member/shopManagement/assignManager', async (req, res) => {
 
     try {
-        let sessId = req.body.id
+        let sessId = req.session.id
         let owner = req.body.owner.assigner
         let shopId = req.body.shopId
         let newManager = req.body.shopId
@@ -214,7 +210,7 @@ router.post('/member/shopManagement/Permissions', async (req, res) => {
 
 
     try {
-        let sessId = req.body.id
+        let sessId = req.session.id
         let owner = req.body.owner.assigner
         let shopId = req.body.shopId
         let permissions = req.body.permissions
@@ -233,7 +229,7 @@ router.post('/member/shopManagement/Permissions', async (req, res) => {
 router.delete('/member/shopManagement/Permissions', async (req, res) => {
 
     try {
-        let sessId = req.body.id
+        let sessId = req.session.id
         let owner = req.body.owner.assigner
         let shopId = req.body.shopId
         let permissions = req.body.permissions
@@ -252,9 +248,10 @@ router.delete('/member/shopManagement/Permissions', async (req, res) => {
  * get shop personnel info
  */
 router.get('/member/shopManagement/Personnel/:username/:shop', async (req, res) => {
-    let sessId = req.body.id
+
 
     try {
+        let sessId = req.session.id
         let username = req.params.username
         let shop: number = Number(req.params.shop);
 
@@ -271,7 +268,7 @@ router.get('/member/shopManagement/Personnel/:username/:shop', async (req, res) 
 //  * access marketplace
 //  */
 // router.get('/guest', async (req, res) => {
-//     let sessId = req.body.id
+//     let sessId = req.session.id
 //     try {
 //         let ans = await service.accessMarketplace(sessId)
 //         res.send(ans)
@@ -286,11 +283,12 @@ router.get('/member/shopManagement/Personnel/:username/:shop', async (req, res) 
 /**
  * exit marketplace
  */
-router.get('/exit/:id', async (req, res) => {
-    let sessId = req.body.id
+router.get('/exit', async (req, res) => {
+
     try {
+        let sessId = req.session.id
         let ans = await service.exitMarketplace(sessId)
-        res.send(ans)
+        res.status(202).send(ans)
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
@@ -300,10 +298,9 @@ router.get('/exit/:id', async (req, res) => {
 /*
 Body - searchTerm, searchType, filters (i.e. price range, rating, ...)
  */
-router.post('/product', async (req, res) => {
-
+router.post('/product/search', async (req, res) => {
     try {
-        let sessId = req.body.id
+        let sessId = req.session.id
         let searchTerm = req.body.term;
         let searchType = req.body.type;
         let filter = req.body.filter;
@@ -313,16 +310,15 @@ router.post('/product', async (req, res) => {
         res.status(404)
         res.send(e.message)
     }
-
 })
 
 /**
  * add product to shop
-  */
+ */
 router.post('/product/:shopId', async (req, res) => {
 
     try {
-        let sessId = req.body.id;
+        let sessId = req.session.id;
         let username = req.body.username;
         let shopId = Number(req.params.shopId);
         let category = req.body.category;
@@ -346,7 +342,7 @@ router.delete('/product/:shopId/:productId', async (req, res) => {
 
 
     try {
-        let sessId = req.body.id;
+        let sessId = req.session.id;
         let username = req.body.username;
         let shopId = Number(req.params.shopId)
         let productId = Number(req.params.productId)
@@ -364,7 +360,7 @@ router.patch('/product/:shopId/:productId', async (req, res) => {
 
 
     try {
-        let sessId = req.body.id;
+        let sessId = req.session.id;
         let username = req.body.username;
         let shopId = Number(req.params.shopId)
         let productId = Number(req.params.productId)
@@ -379,14 +375,12 @@ router.patch('/product/:shopId/:productId', async (req, res) => {
 
 //setup shop
 router.post('/shop/', async (req, res) => {
-
-
     try {
-        let sessId = req.body.id;
+        let sessId = req.session.id;
         let username = req.body.username;
         let shopName = req.body.shopName;
         let ans = await service.setUpShop(sessId, username, shopName)
-        res.send(ans)
+        res.status(201).send(ans)
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
@@ -402,7 +396,7 @@ router.get('/shop/:id/:shopId', async (req, res) => {
         let shopId = Number(req.params.shopId);
 
         let ans = await service.getShopInfo(sessId, shopId)
-        res.send(ans)
+        res.status(200).send(ans)
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
@@ -416,21 +410,21 @@ router.patch('/shop/close/:shopId', async (req, res) => {
 
 
     try {
-        let sessId = req.body.id;
+        let sessId = req.session.id;
         let shopId = Number(req.params.shopId);
         let founder = req.body.founder;
         let ans = await service.closeShop(sessId, founder, shopId)
-        res.send(ans)
+        res.status(200).send(ans)
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
     }
 })
 
-
+//purchase history
 router.get('/shop/orders/:shopId/:ownerUsername/:from/:to', async (req, res) => {
     try {
-        let sessId = req.body.id;
+        let sessId = req.session.id;
         let shopId = Number(req.params.shopId);
         let founder = req.params.ownerUsername;
         let from = new Date(req.params.from);
@@ -447,12 +441,12 @@ router.get('/shop/orders/:shopId/:ownerUsername/:from/:to', async (req, res) => 
 })
 
 
-router.get('/cart/:id', async (req, res) => {
+router.get('/cart', async (req, res) => {
 
     try {
-        let sess = req.params.id
+        let sess = req.session.id
         let ans = await service.checkShoppingCart(sess)
-        res.send(ans)
+        res.status(200).send(ans)
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
@@ -465,7 +459,7 @@ router.get('/cart/:id', async (req, res) => {
 router.post('/cart', async (req, res) => {
 
     try {
-        let sess = req.body.id
+        let sess = req.session.id
         let product = req.body.product
         let quantity = req.body.quantity
         let ans = await service.addToCart(sess, product, quantity)
@@ -477,17 +471,31 @@ router.post('/cart', async (req, res) => {
 
 })
 
-//modifyCart
-router.patch('/cart/', async (req, res) => {
+//removeFromCart
+router.delete('/cart', async (req, res) => {
+
     try {
-        let sess = req.body.id
+        let sess = req.session.id
         let product = req.body.product
-        let quantity = req.body.quantity
-        let ans = await service.editProductInCart(sess, product, quantity)
-        res.send(ans)
+        let ans: Result<void> = await service.removeFromCart(sess, product)
+        res.status(202).send(ans)
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
+    }
+
+})
+
+//modifyCart
+router.patch('/cart/', async (req, res) => {
+    try {
+        let sess = req.session.id
+        let product = req.body.product
+        let quantity = req.body.quantity
+        let ans: Result<void> = await service.editProductInCart(sess, product, quantity)
+        res.status(200).send(ans)
+    } catch (e: any) {
+        res.status(404).send(e.message)
     }
 })
 
@@ -501,11 +509,11 @@ router.patch('/cart/', async (req, res) => {
 router.post('/cart/checkout', async (req, res) => {
 
     try {
-        let sess = req.body.id
+        let sess = req.session.id
         let payment = req.body.paymentDetails
         let delivery = req.body.deliveryDetails
         let ans = await service.checkout(sess, payment, delivery)
-        res.send(ans)
+        res.status(200).send(ans);
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
@@ -525,7 +533,7 @@ router.post('/cart/checkout', async (req, res) => {
 router.post('/admin/services/swap', async (req, res) => {
 
     try {
-        let sess = req.body.id
+        let sess = req.session.id
         let admin_name = req.body.admin
         let type = req.body.serviceType
         let serviceName = req.body.name
@@ -545,8 +553,9 @@ router.post('/admin/services/swap', async (req, res) => {
  * settings
  */
 router.post('/admin/services/edit', async (req, res) => {
-    let sess = req.body.id
+
     try {
+        let sess = req.session.id
         let admin_name = req.body.admin
         let type = req.body.serviceType
         let settings = req.body.settings
