@@ -1,7 +1,7 @@
 // User Related Data Objects
 
 import {Sale} from "../domain/marketplace/Sale";
-import {LogicalPolicy, PolicyType, ProductCategory, RelationType, SimplePolicyType} from "./Enums";
+import {ProductCategory} from "./Enums";
 import {Permissions} from "./Permissions";
 
 export interface LoginData {

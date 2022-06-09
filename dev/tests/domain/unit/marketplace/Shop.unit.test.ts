@@ -25,11 +25,8 @@ import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 import {
     PredicateDiscountPolicy
 } from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
-import mock = jest.mock;
+
 import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../../../mockHelper";
-import {
-    DiscountComponent
-} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/Components/DiscountComponent";
 
 describe('SimpleShop- products', function() {
 

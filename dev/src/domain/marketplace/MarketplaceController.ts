@@ -1,21 +1,19 @@
 import {IMessageListener, IMessagePublisher} from "../notifications/IEventPublishers";
-import {ShopPurchaseMessage, ShopStatusChangedMessage} from "../notifications/Message";
+import {ShopStatusChangedMessage} from "../notifications/Message";
 import {Shop} from "./Shop";
 import {Result} from "../../utilities/Result";
 import {Product} from "./Product";
 import {Sale} from "./Sale";
 import {
-    FilterType, LogicalPolicy, PolicyType,
-    ProductCategory,
-    ProductRate, RelationType,
-    SearchType,
+    FilterType, ProductCategory,
+    ProductRate, SearchType,
     ShopRate,
     ShopStatus,
-    SimplePolicyType,
+
 } from "../../utilities/Enums";
 import {Range} from "../../utilities/Range";
 import {logger} from "../../helpers/logger";
-import {id, injectable} from "inversify";
+import {injectable} from "inversify";
 import "reflect-metadata";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
 import {ImmediatePurchasePolicyComponent} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";

@@ -1,7 +1,5 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
-import {ShoppingBag} from "../../../../../user/ShoppingBag";
 import {Product} from "../../../../Product";
-import {XOR} from 'ts-xor';
 
 export function xor(a: boolean, b: boolean) {
     return !!a !== !!b;

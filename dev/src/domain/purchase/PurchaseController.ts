@@ -11,7 +11,6 @@ import {inject, injectable} from "inversify";
 import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
-import {ShoppingCart} from "../user/ShoppingCart";
 import {Shop} from "../marketplace/Shop";
 
 

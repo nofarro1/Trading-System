@@ -1,5 +1,4 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
-import {ShoppingBag} from "../../../../../user/ShoppingBag";
 import {Product} from "../../../../Product";
 
 export class MaxDiscounts implements DiscountComponent{

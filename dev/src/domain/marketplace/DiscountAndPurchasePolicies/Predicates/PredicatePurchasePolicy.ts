@@ -1,8 +1,7 @@
-import {LogicalPolicy, PolicyType, ProductCategory, RelationType, SimplePolicyType} from "../../../../utilities/Enums";
+import {ProductCategory, RelationType, SimplePolicyType} from "../../../../utilities/Enums";
 import {Guest} from "../../../user/Guest";
 import {ShoppingBag} from "../../../user/ShoppingBag";
 import {Product} from "../../Product";
-import {Answer} from "../../../../utilities/Types";
 
 export class PredicatePurchasePolicy {
     type: SimplePolicyType; // Simple.Product
