@@ -8,8 +8,8 @@ import {Result} from "../../../../src/utilities/Result";
 let shoppingCartController: ShoppingCartController;
 const member: Member = new Member("1", "Mario");
 const quantity: number = 10;
-const product1: Product = new Product("Pizza", 1, ProductCategory.A, 15);
-const product2: Product = new Product("Sparkling Water", 1, ProductCategory.A, 7);
+const product1: Product = new Product("Pizza", 1, 0, ProductCategory.A, 15);
+const product2: Product = new Product("Sparkling Water", 1, 0, ProductCategory.A, 7);
 
 describe("Shopping Cart - unit tests", function () {
     beforeEach(function () {

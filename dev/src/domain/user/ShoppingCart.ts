@@ -26,14 +26,6 @@ export class ShoppingCart {
         this._bags = value;
     }
 
-    // get totalPrice(): number {
-    //     return this._totalPrice;
-    // }
-    //
-    // set totalPrice(value: number) {
-    //     this._totalPrice = value;
-    // }
-
     //When adding a product to the shopping cart,
     //check if there is a discount to be included on the product.
     //If there is, update the total price accordingly.
@@ -43,14 +35,12 @@ export class ShoppingCart {
         let bag= this._bags.get(shopId);
         if(bag){
             bag.addProduct(toAdd, quantity);
-            // if (bag){
-            //     this._totalPrice-= bag.totalPrice;
-            //     this._totalPrice+= bag.addProduct(toAdd, quantity);
-            // }
         }
-        let newBag= new ShoppingBag(shopId);
-        newBag.addProduct(toAdd, quantity);
-        this.bags.set(shopId, newBag);
+        else{
+            let newBag= new ShoppingBag(shopId);
+            newBag.addProduct(toAdd, quantity);
+            this.bags.set(shopId, newBag);
+        }
     }
 
     removeProduct(toRemove: Product): void{
