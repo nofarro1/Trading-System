@@ -1,14 +1,17 @@
 {
   "name": "trading-system",
   "version": "1.0.0",
+  "engines": {
+    "node": "16.14.2"
+  },
   "description": "",
-  "main": "app.js",
+  "main": "app.ts",
   "scripts": {
     "test": "jest",
     "build": "tsc --project tsconfig.json",
     "start": "ts-node ./src/app.ts"
   },
-  "keywords": [],
+  "keywords": ["heroku"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
