@@ -1,4 +1,3 @@
-import {Sale} from "./Sale";
 import {ProductCategory, ProductRate} from "../../utilities/Enums";
 
 let productsCounter= 0;

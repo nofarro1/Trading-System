@@ -1,5 +1,4 @@
 import {Product} from "./Product";
-import {Sale} from "./Sale";
 import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
 import {ShoppingBag} from "../user/ShoppingBag";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
@@ -9,6 +8,7 @@ import {Guest} from "../user/Guest";
 
 
 export class Shop {
+
     private _id: number;
     private _name: string;
     private _status: ShopStatus;
@@ -102,6 +102,13 @@ export class Shop {
         this._products = value;
     }
 
+    get productsCounter(): number {
+        return this._productsCounter;
+    }
+    set productsCounter(value: number) {
+        this._productsCounter = value;
+    }
+
     get rate(): ShopRate {
         return this._rate;
     }
@@ -112,6 +119,29 @@ export class Shop {
 
     set description(value: string) {
         this._description = value;
+    }
+
+    get discounts(): Map<number, DiscountComponent> {
+        return this._discounts;
+    }
+
+    get discountCounter(): number {
+        return this._discountCounter;
+    }
+    set discountCounter(value: number) {
+        this._discountCounter = value;
+    }
+
+    get purchasePolicies(): Map<number, ImmediatePurchasePolicyComponent> {
+        return this._purchasePolicies;
+    }
+
+    get purchaseCounter(): number {
+        this._purchaseCounter++;
+        return this._purchaseCounter--;
+    }
+    set purchaseCounter(value: number) {
+        this._purchaseCounter = value;
     }
 
     addProduct(productName: string, category: ProductCategory, fullPrice: number,quantity: number, productDesc?: string ): Product{
@@ -212,7 +242,7 @@ export class Shop {
     addPurchasePolicy(puPolicy: ImmediatePurchasePolicyComponent): number{
         this._purchasePolicies.set(this._purchaseCounter,puPolicy);
         this._purchaseCounter++;
-        return this._purchaseCounter--;
+        return this._purchaseCounter-1;
     }
 
     removePurchasePolicy(idPuPolicy: number){

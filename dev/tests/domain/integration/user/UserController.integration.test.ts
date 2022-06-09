@@ -1,6 +1,5 @@
 import { Guest } from "../../../../src/domain/user/Guest";
 import {Member} from "../../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 import {UserController} from "../../../../src/domain/user/UserController";
 import {Permissions} from "../../../../src/utilities/Permissions";
 import {Shop} from "../../../../src/domain/marketplace/Shop";

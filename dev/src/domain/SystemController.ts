@@ -9,7 +9,6 @@ import {PurchaseController} from "./purchase/PurchaseController";
 import {MessageController} from "./notifications/MessageController";
 import {NotificationController} from "./notifications/NotificationController";
 import {checkRes, Result} from "../utilities/Result";
-import {ShoppingCart} from "./user/ShoppingCart";
 import {UserController} from "./user/UserController";
 import {Guest} from "./user/Guest";
 import {logger} from "../helpers/logger";

@@ -1,7 +1,6 @@
 import { SimpleProduct } from "./marketplace/SimpleProduct";
 import {Product} from "../../domain/marketplace/Product";
 import { SimpleShop } from "./marketplace/SimpleShop";
-import { SimpleShopOrder } from "./purchase/SimpleShopOrder";
 import { SimpleGuest } from "./user/SimpleGuest";
 import { SimpleMember } from "./user/SimpleMember";
 import {SimpleShoppingCart} from "./user/SimpleShoppingCart";
