@@ -5,13 +5,16 @@ import {ProductCategory} from "../../../../src/utilities/Enums";
 
 
 let shoppingCart: ShoppingCart;
-let shop1: Shop = new Shop(1, "Super Shop", "Mario");
-let product1: Product = new Product("Pizza", 1, 0, ProductCategory.A, 15);
-let product11: Product = new Product("Pizza 2", 1, 0, ProductCategory.A, 15);
+let shop1: Shop ;
+let product1: Product;
+let product11: Product;
 
 describe("Shopping Cart - unit tests", function () {
     beforeEach(function () {
-        shoppingCart = new ShoppingCart();
+         shoppingCart = new ShoppingCart();
+         shop1= new Shop(1, "Super Shop", "Mario");
+         product1 = new Product("Pizza", 1, 0, ProductCategory.A, 15);
+         product11 = new Product("Pizza 2", 1, 1, ProductCategory.A, 15);
     })
 
     test("Add Product - valid input", () => {
@@ -38,9 +41,9 @@ describe("Shopping Cart - unit tests", function () {
         shoppingCart.addProduct(product1, quantity);
         shoppingCart.addProduct(product11, quantity);
 
-        shoppingCart.removeProduct(product1);
-        expect(shoppingCart.bags.get(shop1.id)?.products.get(product11.id)).toStrictEqual([product11, quantity]);
-        expect(shoppingCart.bags.get(shop1.id)?.products.get(product1.id)).toBeUndefined();
+        shoppingCart.removeProduct(product11);
+        expect(shoppingCart.bags.get(shop1.id).products.keys()).toContain(product1.id);
+        expect(shoppingCart.bags.get(shop1.id).products.keys()).not.toContain(product11.id);
     })
 
     test("Remove Product - invalid input non-existent product", () => {
@@ -50,8 +53,7 @@ describe("Shopping Cart - unit tests", function () {
         shoppingCart.addProduct(product11, quantity);
 
         shoppingCart.removeProduct(product1);
-        expect(shoppingCart.bags.get(shop1.id)?.products.get(product11.id)).toStrictEqual([product11, quantity]);
-        expect(shoppingCart.bags.get(shop1.id)?.products.get(product1.id)).toBeUndefined();
+        expect(shoppingCart.bags.get(shop1.id).products.get(product1.id)).toBeUndefined();
     })
 
 

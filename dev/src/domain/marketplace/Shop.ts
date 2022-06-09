@@ -149,9 +149,10 @@ export class Shop {
         let toAdd= new Product(productName, this.id, this._productsCounter, category, fullPrice, productDesc);
         if(!this.products.has(toAdd.id)){
             this.products.set(toAdd.id, [toAdd, quantity]);
+            this._productsCounter++;
             return toAdd;
         }
-        this._productsCounter++;
+
         return toAdd;
     }
 
