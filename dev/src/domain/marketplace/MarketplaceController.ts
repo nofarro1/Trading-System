@@ -115,7 +115,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
         }
-        let product = shop.addProduct(productName, shopId, productCategory, fullPrice, quantity, relatedSale, productDesc);
+        let product = shop.addProduct(productName, productCategory,  fullPrice, quantity, productDesc);
         logger.info(`${productName} was added to ${shop.name}.`);
         return new Result(true, product,undefined);
     }
@@ -349,6 +349,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     // visitShopStatusChangedEvent(msg: ShopStatusChangedMessage): void {
     //     console.log("Not interested in that event");
     // }
+    //
 
     notifySubscribers(message: ShopStatusChangedMessage): void {
     }
