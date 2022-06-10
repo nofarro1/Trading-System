@@ -27,13 +27,13 @@ import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/Discou
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
 
     private _shops: Map<number, Shop>;
-    private shopCounter: number;
+    private _shopCounter: number;
     private _products: Map<number, Product>
     subscriber: IMessageListener<ShopStatusChangedMessage> | null;
 
     constructor(){
         this._shops= new Map<number,Shop>();
-        this.shopCounter= 0;
+        this._shopCounter= 0;
         this._products= new Map<number, Product>();
         this.subscriber= null;
     }
@@ -60,6 +60,9 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
 
+    get shopCounter(): number {
+        return this._shopCounter;
+    }
 
     accept(v: IMessageListener<ShopStatusChangedMessage>, msg: ShopStatusChangedMessage) {
         v.visitShopStatusChangedEvent(msg);
@@ -83,8 +86,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
 
     setUpShop(userId: string, shopName: string): Result<Shop| void>{
-        let toAdd= new Shop(this.shopCounter, shopName, userId);
-        this.shopCounter++;
+        let toAdd= new Shop(this._shopCounter, shopName, userId);
+        this._shopCounter++;
         this._shops.set(toAdd.id, toAdd);
         logger.info(`The ${shopName} was opened in the market by ${userId}.`);
         return new Result(true, toAdd);
