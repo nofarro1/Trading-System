@@ -478,7 +478,7 @@ describe('system controller - integration', () => {
             });
 
             //act
-            let res = sys.updateProduct(username1, shop1.id, shop1.id, 6);
+            let res = sys.updateProductQuantity(username1, shop1.id, shop1.id, 6);
 
             //assert
             expect(res.ok).toBe(true);
@@ -503,7 +503,7 @@ describe('system controller - integration', () => {
             sys.login(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.updateProduct(username1, shop1.id, p1.id, 6);
+            let res = sys.updateProductQuantity(username1, shop1.id, p1.id, 6);
 
             //assert
             expect(res.ok).toBe(false);
@@ -518,7 +518,7 @@ describe('system controller - integration', () => {
             sys.setUpShop(username1, shop1.name);
 
             //act
-            let res = sys.updateProduct(username1, shop1.id, p1.id, 5);
+            let res = sys.updateProductQuantity(username1, shop1.id, p1.id, 5);
 
             //assert
             expect(res.ok).toBe(false);
@@ -920,7 +920,7 @@ describe('system controller - integration', () => {
         sys.setUpShop(username1, shop1.name);
 
         //act
-        let res = sys.getPersonnelInfo(username1, shop1.id);
+        let res = sys.getPersonnelInfoOfShop(username1, shop1.id);
 
         //assert
         expect(res.ok).toBe(true);

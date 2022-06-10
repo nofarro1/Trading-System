@@ -126,6 +126,8 @@ export class Service {
         return this.marketplaceService.getShopInfo(sessionID, shopID);
     }
 
+    //todo: Get shops (all or filtered for a number
+
     //Guest Payment - Use-Case 2
     searchProducts(sessionID: string, searchBy: SearchType, searchTerm: string, filters?: any): Promise<Result<void | SimpleProduct[]>> {
         logger.info(`${sessionID} has initiated a product search operation using the search term ${searchTerm}`);
@@ -133,6 +135,8 @@ export class Service {
             logger.info(`The search is initiated using the following filter details ${filters}`);
         return this.marketplaceService.searchProducts(sessionID, searchBy, searchTerm, filters);
     }
+
+    //todo: get products (provided list of ids)
 
     //Member Payment - Use-Case 2
     setUpShop(sessionID: string, username: string, shopName: string): Promise<Result<void | SimpleShop>> {
@@ -167,6 +171,8 @@ export class Service {
         logger.info(`${sessionID}: ${founderID} wants to close the shop ${shopID}`);
         return this.marketplaceService.closeShop(sessionID, shopID);
     }
+
+    //todo: missing reopen shop
 
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4

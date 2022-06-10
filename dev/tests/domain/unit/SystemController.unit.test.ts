@@ -775,7 +775,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, undefined, "mock success")
             })
-        let res = sys.updateProduct(username1, 0, 0, 5);
+        let res = sys.updateProductQuantity(username1, 0, 0, 5);
 
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
@@ -796,7 +796,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, undefined, "mock success")
             })
-        let res = sys.updateProduct(username1, 0, 0, 5);
+        let res = sys.updateProductQuantity(username1, 0, 0, 5);
 
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
@@ -815,7 +815,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(false, undefined, "mock success")
             })
-        let res = sys.updateProduct(username1, 0, 0, 5);
+        let res = sys.updateProductQuantity(username1, 0, 0, 5);
 
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
@@ -1381,7 +1381,7 @@ describe('system controller - unit', () => {
             return new Result(true, member1)
         })
 
-        let res = sys.getPersonnelInfo(username1, 0);
+        let res = sys.getPersonnelInfoOfShop(username1, 0);
 
         expect(res.ok).toBe(true);
         expect(res.data).toBeDefined()

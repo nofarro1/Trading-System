@@ -131,8 +131,9 @@ export class SystemController {
         return callback(userId);
     }
 
-    //SimpleGuest actions
+    /*------------------------------------Guest management actions----------------------------------------------*/
 
+    //General Guest - Use-Case 1
     accessMarketplace(session: string): Result<void | SimpleGuest> {
         let newGuest: Result<Guest> = this.uController.createGuest(session);
         if (!newGuest.ok) {
@@ -147,6 +148,7 @@ export class SystemController {
         return new Result(true, toSimpleGuest(guest));
     }
 
+    //General Member - Use-Case 1 //General Guest - Use-Case 2
     exitMarketplace(sessionId: string): Result<void> {
 
         const callback = (id: string) => {
@@ -181,7 +183,7 @@ export class SystemController {
     //
     //
     // }
-
+    //General Guest - Use-Case 4
     login(sessionId: string, d: LoginData): Result<void> {
         const secCallback = (id: string) => {
             //if success get the member_id
@@ -212,6 +214,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, secCallback);
     }
 
+    //General Member - Use-Case 1
     logout(sessionID: string): Result<SimpleGuest | void> {
         const secCallback = (id: string) => {
             // remove member and live notification
@@ -226,6 +229,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionID, secCallback);
     }
 
+    //General Guest - Use-Case 3
     registerMember(sessionID: string, newMember: RegisterMemberData): Result<void> {
         const secCallback = (id: string): Result<void> => {
             //register process
@@ -262,7 +266,7 @@ export class SystemController {
         return new Result(false, undefined, "could not Register");
     }
 
-//buyer actions
+    /*------------------------------------Marketplace Interaction actions----------------------------------------------*/
 
     getProduct(sessionID: string, productId: number): Result<SimpleProduct | void> {
         //market visitor authentication
@@ -297,6 +301,15 @@ export class SystemController {
     //     return this.mpController.getShop(shopid)
     // }
 
+    getShops(sessionId: string): Result<SimpleShop[] | void> {
+        return this.authenticateMarketVisitor(sessionId,(id) =>{
+            const shops: SimpleShop[]  = this.mpController.getShops().map(toSimpleShop);
+            return Result.Ok(shops);
+        })
+
+    }
+
+    //Guest Payment - Use-Case 2
     searchProducts(sessionId: string, searchBy: SearchType, searchTerm: string | ProductCategory, filter?: any): Result<SimpleProduct[] | void> {
         //market visitor authentication
         return this.authenticateMarketVisitor(sessionId, () => {
@@ -310,6 +323,7 @@ export class SystemController {
         })
     }
 
+    //Guest Payment - Use-Case 4.1
     addToCart(sessionId: string, productId: number, quantity: number): Result<void> {
 
         const authCallback = (id: string) => {
@@ -323,6 +337,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
+    //Guest Payment - Use-Case 4.2
     getCart(sessionId: string): Result<SimpleShoppingCart | void> {
 
         const authCallback = (id: string): Result<SimpleShoppingCart | void> => {
@@ -334,6 +349,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
+    //Guest Payment - Use-Case 4.4
     editCart(sessionId: string, product: number, quantity: number, additionalData?: any): Result<void> {
         const authCallback = (id: string) => {
             const productRes = this.mpController.getProduct(product);
@@ -346,6 +362,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
+    //Guest Payment - Use-Case 4.3
     removeProductFromCart(sessionId: string, product: number): Result<void> {
         const authCallback = (id: string) => {
             const productRes = this.mpController.getProduct(product);
@@ -357,6 +374,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
+    //Guest Payment - Use-Case 5
     checkout(sessionId: string, paymentDetails: any, deliveryDetails: any): Result<void> {
         return this.authenticateMarketVisitor(sessionId, (id) => {
             let result = this.uController.getGuest(id);
@@ -373,6 +391,9 @@ export class SystemController {
         })
     }
 
+    /*------------------------------------Marketplace Interaction actions----------------------------------------------*/
+
+    //Member Payment - Use-Case 2
     setUpShop(sessionId: string, shopName: string): Result<void> {
         const authCallback = (founderId: string): Result<void> => {
             const result = this.uController.getMember(founderId);
@@ -393,8 +414,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
-    //shop owner related
-
+    //Shop Owner - Use-Case 1.1
     addProduct(sessionId: string, p: NewProductData): Result<SimpleProduct | void> {
         const authCallback = (id: string) => {
             if (this.uController.checkPermission(id, p.shopId, Permissions.AddProduct).data) {
@@ -412,7 +432,8 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
-    updateProduct(sessionId: string, shop: number, product: number, quantity: number): Result<void> {
+    //Shop Owner - Use-Case 1.3
+    updateProductQuantity(sessionId: string, shop: number, product: number, quantity: number): Result<void> {
         const authCallback = (id: string): Result<void> => {
             if (this.uController.checkPermission(id, shop, Permissions.ModifyProduct).data) {
                 return this.mpController.updateProductQuantity(shop, product, quantity)
@@ -422,6 +443,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, authCallback);
     }
 
+    //Shop Owner - Use-Case 1.2
     deleteProduct(sessId: string, shop: number, product: number): Result<void> {
         const authCallback = (id: string): Result<void> => {
             if (this.uController.checkPermission(id, shop, Permissions.RemoveProduct).data) {
@@ -432,18 +454,32 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessId, authCallback);
     }
 
+    //Shop Owner - Use-Case 9
+    deactivateShop(sessId: string, shop: number): Result<void> {
+        return this.authenticateMarketVisitor(sessId, (id: string) => {
+            if (this.uController.checkPermission(id, shop, Permissions.CloseShop).data) {
+                return this.mpController.closeShop(id, shop)
+            }
+            return new Result(false, undefined, "no permission")
+        })
+    }
 
-    // //todo: missing method in controllers below
-    // addShopPolicy(user: string, shopId: UserID, policyDetails): Result<void> {
-    //     return new Result(false, undefined, "no implementation");
-    // }
-    //
-    // addShopSale(user: string, shopId: string, saleDetails): Result<void> {
-    //     return new Result(false, undefined, "no implementation");
-    // }
 
-    //shop management and ownership
-    //need to check if the tobe owner is not already a owner or manager od the shop
+    addDiscount(shopId: number, discount: DiscountData): Result<number | void> {
+    }
+
+    removeDiscount(shopId: number, idDisc: number): Result<void> {
+    }
+
+    addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchasePolicyComponent): Result<number | void> {
+    }
+
+    removePurchasePolicy(shopId: number, idPuPolicy: number): Result<void> {
+    }
+
+    /*-----------------------------------shop Personnel Actions actions----------------------------------------------*/
+
+    //Shop Owner - Use-Case 4
     appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
         const authCallback = (id: string) => {
             if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data) {
@@ -458,7 +494,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, authCallback)
     }
 
-
+    //Shop Owner - Use-Case 6
     appointShopManager(sessionId: string, r: NewRoleData): Result<void> {
         const authCallback = (appointerId: string) => {
             if (this.uController.checkPermission(appointerId, r.shopId, Permissions.AddShopManager).data) {
@@ -484,6 +520,8 @@ export class SystemController {
             return new Result(false, null, "no implementation");
         }
     */
+
+    //Shop Owner - Use-Case 7.1
     addShopManagerPermission(connectionId: string, manager: string, shop: number, permission: Permissions): Result<void> {
         const authCallback = (ownerId: string) => {
             if (this.uController.checkPermission(ownerId, shop, Permissions.AddPermission).data) {
@@ -495,6 +533,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(connectionId, authCallback)
     }
 
+    //Shop Owner - Use-Case 7.2
     removeShopManagerPermission(sessionId: string, manager: string, shop: number, permission: Permissions): Result<void> {
         const authCallback = (id: string) => {
             if (this.uController.checkPermission(id, shop, Permissions.RemovePermission).data) {
@@ -506,15 +545,6 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, authCallback)
     }
 
-    deactivateShop(sessId: string, shop: number): Result<void> {
-        return this.authenticateMarketVisitor(sessId, (id: string) => {
-            if (this.uController.checkPermission(id, shop, Permissions.CloseShop).data) {
-                return this.mpController.closeShop(id, shop)
-            }
-            return new Result(false, undefined, "no permission")
-        })
-    }
-
     reactivateShop(sessId: string, shop: number): Result<void> {
         return this.authenticateMarketVisitor(sessId, (id: string) => {
             if (this.uController.checkPermission(id, shop, Permissions.ReopenShop).data) {
@@ -524,7 +554,8 @@ export class SystemController {
         })
     }
 
-    getPersonnelInfo(sessId: string, shop: number): Result<SimpleMember[] | void> {
+    //Shop Owner - Use-Case 11
+    getPersonnelInfoOfShop(sessId: string, shop: number): Result<SimpleMember[] | void> {
         const callback = (id: string) => {
             if (!this.uController.checkPermission(id, shop, Permissions.RequestPersonnelInfo).data) {
                 return new Result(false, undefined, "no permission");
@@ -547,6 +578,8 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessId, callback);
     }
 
+    //Shop Owner - Use-Case 13
+    //System Admin - Use-Case 4
     getShopPurchases(sessId: string, shop: number, startDate: Date, endDate: Date, filter?: any): Result<string[] | void> {
 
         const callback = (id: string) => {
@@ -562,8 +595,10 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessId, callback);
     }
 
-    //System Admin actions
+    /*-----------------------------------shop Personnel Actions actions----------------------------------------------*/
 
+    //System Admin actions
+    //General Admin - Use-Case 0
     registerAsAdmin(sessionID: string, registrationData: RegisterMemberData, adminSecretKey?: string): Result<void> {
         if (adminSecretKey === null || adminSecretKey !== "Edan Rules") {
             return new Result(false, undefined, "admin key not correct");
@@ -612,11 +647,5 @@ export class SystemController {
 
     }
 
-    addDiscount(shopId: number, discount: DiscountData): Result<number | void>{}
 
-    removeDiscount(shopId: number, idDisc: number): Result<void>{}
-
-    addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchasePolicyComponent): Result<number | void>{}
-
-    removePurchasePolicy(shopId: number, idPuPolicy: number): Result<void>{}
 }
