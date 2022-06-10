@@ -1,24 +1,27 @@
 import {IMessageListener, IMessagePublisher} from "../notifications/IEventPublishers";
-import {ShopPurchaseMessage, ShopStatusChangedMessage} from "../notifications/Message";
+import {ShopStatusChangedMessage} from "../notifications/Message";
 import {Shop} from "./Shop";
 import {Result} from "../../utilities/Result";
 import {Product} from "./Product";
 import {Sale} from "./Sale";
 import {
-    FilterType, ProductCategory,
-    ProductRate, SearchType,
+    DiscountKinds,
+    FilterType,
+    ProductCategory,
+    ProductRate,
+    SearchType,
     ShopRate,
     ShopStatus,
-
 } from "../../utilities/Enums";
 import {Range} from "../../utilities/Range";
 import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
 import "reflect-metadata";
-import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
 import {
     ImmediatePurchasePolicyComponent
 } from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
+import {DiscountData} from "../../utilities/DataObjects";
+import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
 
 @injectable()
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
@@ -263,10 +266,10 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false, undefined, `Product with id: ${productId} was not found.`);
     }
 
-    addDiscount(shopId: number, disc: DiscountComponent): Result<number | void> {
+    addDiscount(shopId: number, discount: DiscountData): Result<number | void>{
         let shop = this._shops.get(shopId);
-        if (shop) {
-            let discId = shop.addDiscount(disc);
+        if(shop){
+            let discId: number =  shop.addDiscount(discount);
             logger.info(`Discount with id: ${discId} was added to Shop with id: ${shopId} successfully.`)
             return new Result(true, discId);
         } else {
@@ -274,13 +277,15 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    removeDiscount(shopId: number, idDisc: number): Result<void> {
+
+    removeDiscount(shopId: number, idDisc: number): Result<void>{
         let shop = this._shops.get(shopId);
-        if (shop) {
-            let discId = shop.removeDiscount(idDisc)
+        if(shop){
+            let discId =  shop.removeDiscount(idDisc)
             logger.info(`Discount with id: ${discId} was removed from Shop with id: ${shopId} successfully.`)
             return new Result(true, discId);
-        } else {
+        }
+        else{
             return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
         }
     }
@@ -324,7 +329,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     // }
 
     //status changed event;
-    subscribe(sub: IMessageListener<ShopPurchaseMessage>) {
+    subscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
         if (!this.subscribers.includes(sub)) {
             this.subscribers.push(sub)
             logger.debug(`subscriber ${sub.constructor.name} sunsctibe to ${this.constructor.name}`)

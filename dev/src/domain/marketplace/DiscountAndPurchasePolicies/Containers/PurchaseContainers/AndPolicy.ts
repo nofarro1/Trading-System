@@ -4,13 +4,17 @@ import {Answer} from "../../../../../utilities/Types";
 import {Guest} from "../../../../user/Guest";
 
 export class AndPolicy implements ImmediatePurchasePolicyComponent{
+    private _id: number;
     private purchasePolicies: ImmediatePurchasePolicyComponent[];
 
-    constructor() {
-        this.purchasePolicies = [];
+    constructor(id: number, policies: ImmediatePurchasePolicyComponent[]) {
+        this._id = id;
+        this.purchasePolicies = policies;
     }
 
-
+    get id(): number {
+        return this._id;
+    }
 
     addPurchasePolicy (toAdd: ImmediatePurchasePolicyComponent){
         this.purchasePolicies.push(toAdd);

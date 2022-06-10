@@ -10,3 +10,4 @@
 /**/*.log
 /dev/src/Client/client/.angular/
 /dev/src/Client/client/node_modules/
+/dev/src/Client/client/node_modules/**/*

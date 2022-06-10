@@ -3,9 +3,15 @@ import {Product} from "../../../../Product";
 
 export class AdditionDiscounts implements DiscountComponent{
     private discounts: DiscountComponent[];
+    private _id: number;
 
-    constructor() {
-        this.discounts= [];
+    constructor(id: number, discounts: DiscountComponent[]) {
+        this._id = id;
+        this.discounts= discounts;
+    }
+
+    get id(): number {
+        return this._id;
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {

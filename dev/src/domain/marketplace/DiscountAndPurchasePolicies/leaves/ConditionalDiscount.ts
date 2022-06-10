@@ -5,10 +5,14 @@ import {PredicateDiscountPolicy} from "../Predicates/PredicateDiscountPolicy";
 
 
 export class ConditionalDiscount implements DiscountComponent{
-
+    private _id: number;
     private _discount: SimpleDiscount;
     private _pred: PredicateDiscountPolicy;
 
+
+    get id(): number {
+        return this._id;
+    }
 
     get discount(): SimpleDiscount {
         return this._discount;
@@ -19,7 +23,8 @@ export class ConditionalDiscount implements DiscountComponent{
     }
 
 
-    constructor(discount: SimpleDiscount, predicat: PredicateDiscountPolicy) {
+    constructor(id: number, discount: SimpleDiscount, predicat: PredicateDiscountPolicy) {
+        this._id= id;
         this._discount = discount;
         this._pred = predicat;
     }
