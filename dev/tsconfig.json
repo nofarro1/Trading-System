@@ -6,6 +6,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "strict": false,
+    "typeRoots": ["./src/typings", "./node_modules/@types"],
     "noImplicitAny": true,
     "esModuleInterop": true,
     "types": ["reflect-metadata","jest"],

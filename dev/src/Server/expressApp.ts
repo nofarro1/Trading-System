@@ -19,6 +19,8 @@ router.get('/check', (req, res) => {
 })
 
 router.get('/', (req, res) => {
+    req.session.loggedIn = false;
+    req.session.username = "";
     res.sendFile(__dirname + '/index.html');
 });
 //access marketpalce - return the index.html in the future
@@ -128,8 +130,12 @@ router.post('/guest/login', async (req, res) => {
         let username = req.body.username;
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
+        req.session.username = username;
+        req.session.loggedIn = true;
         res.send(ans)
     } catch (e: any) {
+        req.session.username = "";
+        req.session.loggedIn = false;
         res.status(404)
         res.send(e.message)
     }
@@ -143,6 +149,8 @@ router.get('/member/logout/:username', async (req, res) => {
         let sessId = req.session.id;
         let username = req.params.username
         let ans = await service.logout(sessId, username)
+        req.session.loggedIn = false;
+        req.session.username = "";
         res.send(ans)
     } catch (e: any) {
         res.status(404)

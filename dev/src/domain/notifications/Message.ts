@@ -21,6 +21,20 @@ export abstract class Message {
 
 }
 
+export class SimpleMessage extends Message{
+    content: string;
+
+    constructor(recpt: Set<string>, content: string = "empty message") {
+        super(recpt);
+        this.content = content;
+        
+    }
+
+    getContent(): string {
+        return this.content;
+    }
+}
+
 
 export class ShopPurchaseMessage extends Message {
 

@@ -16,6 +16,7 @@ import {PurchaseController} from "../domain/purchase/PurchaseController";
 import {SecurityController} from "../domain/SecurityController";
 import {PaymentServiceAdaptor} from "../domain/external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "../domain/external_services/DeliveryServiceAdaptor";
+import { NotificationService } from "../service/NotificationService";
 
 
 const systemContainer = new Container();
@@ -26,6 +27,7 @@ systemContainer.bind<MarketplaceService>(TYPES.MarketplaceService).to(Marketplac
 systemContainer.bind<MemberService>(TYPES.MemberService).to(MemberService)
 systemContainer.bind<OrderService>(TYPES.OrderService).to(OrderService)
 systemContainer.bind<ShoppingCartService>(TYPES.ShoppingCartService).to(ShoppingCartService)
+systemContainer.bind<NotificationService>(TYPES.NotificationService).to(NotificationService)
 //controllers
 systemContainer.bind<SystemController>(TYPES.SystemController).to(SystemController).inSingletonScope()
 systemContainer.bind<ShoppingCartController>(TYPES.ShoppingCartController).to(ShoppingCartController)
