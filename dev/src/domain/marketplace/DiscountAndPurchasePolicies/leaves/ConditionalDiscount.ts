@@ -11,7 +11,7 @@ export class ConditionalDiscount implements DiscountComponent{
 
 
     get description(): string {
-        return this._discount.description+this._pred.description;
+        return this._discount.description+" "+ this._pred.description;
     }
 
     get id(): number {
@@ -31,7 +31,6 @@ export class ConditionalDiscount implements DiscountComponent{
         this._id= id;
         this._discount = discount;
         this._pred = predicat;
-        this._discount
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
