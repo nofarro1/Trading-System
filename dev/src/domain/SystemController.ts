@@ -18,11 +18,13 @@ import {PaymentServiceAdaptor} from "./external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "./external_services/DeliveryServiceAdaptor";
 
 import {
+    toSimpleDiscountDescriber,
     toSimpleGuest,
     toSimpleMember,
     toSimpleProduct,
     toSimpleProducts,
-    toSimpleShop, toSimpleShoppingCart
+    toSimpleShop,
+    toSimpleShoppingCart
 } from "../utilities/simple_objects/SimpleObjectFactory";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
@@ -35,6 +37,8 @@ import "reflect-metadata";
 import {
     ImmediatePurchasePolicyComponent
 } from "./marketplace/DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
+import {SimpleDiscountDescriber} from "../utilities/simple_objects/marketplace/SimpleDiscountDescriber";
+import {DiscountComponent} from "./marketplace/DiscountAndPurchasePolicies/Components/DiscountComponent";
 
 @injectable()
 export class SystemController {
@@ -302,8 +306,8 @@ export class SystemController {
     // }
 
     getShops(sessionId: string): Result<SimpleShop[] | void> {
-        return this.authenticateMarketVisitor(sessionId,(id) =>{
-            const shops: SimpleShop[]  = this.mpController.getShops().map(toSimpleShop);
+        return this.authenticateMarketVisitor(sessionId, (id) => {
+            const shops: SimpleShop[] = this.mpController.getShops().map(toSimpleShop);
             return Result.Ok(shops);
         })
 
@@ -464,17 +468,83 @@ export class SystemController {
         })
     }
 
+    getDiscounts(sessId: string, shopId: number): Result<SimpleDiscountDescriber[] | void> {
+        return this.authenticateMarketVisitor(sessId, () => {
+            const discounts: DiscountComponent[] = this.mpController.getDiscounts(shopId);
+            return Result.Ok(discounts.map(toSimpleDiscountDescriber))
+        })
 
-    addDiscount(shopId: number, discount: DiscountData): Result<number | void> {
     }
 
-    removeDiscount(shopId: number, idDisc: number): Result<void> {
+    addDiscount(sessId: string, shopId: number, discount: DiscountData): Result<number | void> {
+        return this.authenticateMarketVisitor(sessId, (userId) => {
+            if (this.uController.checkPermission(userId, shopId, Permissions.AddDiscount).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
+                const res = this.mpController.addDiscount(shopId, discount)
+                if (checkRes(res)) {
+                    return Result.Ok(res.data, `new discount add with Id ${res.data}`);
+                }
+                return Result.Fail("was unable to add the discount. reason: " + res.message);
+            }
+            return Result.Fail("No permissions to add discounts to shop " + shopId);
+        })
     }
 
-    addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchasePolicyComponent): Result<number | void> {
+    removeDiscount(sessId: string, shopId: number, idDisc: number): Result<void> {
+        return this.authenticateMarketVisitor(sessId, (userId) => {
+            if (this.uController.checkPermission(userId, shopId, Permissions.RemoveDiscount).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
+                const res: Result<void> = this.mpController.removeDiscount(shopId, idDisc)
+                if (checkRes(res)) {
+                    return Result.Ok(res.data, `new discount add with Id ${res.data}`);
+                }
+                return res;
+            }
+            return Result.Fail("No permissions to add discounts to shop " + shopId);
+        })
     }
 
-    removePurchasePolicy(shopId: number, idPuPolicy: number): Result<void> {
+    getPolicies(sessId: string, shopId: number): Result<ImmediatePurchasePolicyComponent[]> {
+        return this.authenticateMarketVisitor(sessId, (userId) => {
+            if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
+                const res = this.mpController.getPolicies(shopId);
+                if (checkRes(res)) {
+                    return Result.Ok(res.data, `new discount add with Id ${res.data}`);
+                }
+                return Result.Fail("was unable to add the discount. reason: " + res.message);
+            }
+            return Result.Fail("No permissions to add discounts to shop " + shopId);
+        })
+
+    }
+
+    addPurchasePolicy(sessId: string, shopId: number, puPolicy: ImmediatePurchasePolicyComponent): Result<number | void> {
+        return this.authenticateMarketVisitor(sessId, (userId) => {
+            if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
+                const res = this.mpController.addPurchasePolicy(shopId, puPolicy);
+                if (checkRes(res)) {
+                    return Result.Ok(res.data, `new discount add with Id ${res.data}`);
+                }
+                return Result.Fail("was unable to add the discount. reason: " + res.message);
+            }
+            return Result.Fail("No permissions to add discounts to shop " + shopId);
+        })
+    }
+
+    removePurchasePolicy(sessId: string, shopId: number, idPuPolicy: number): Result<void> {
+        return this.authenticateMarketVisitor(sessId, (userId) => {
+            if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
+                const res = this.mpController.removePurchasePolicy(shopId, idPuPolicy);
+                if (checkRes(res)) {
+                    return Result.Ok(res.data, `new discount add with Id ${res.data}`);
+                }
+                return res;
+            }
+            return Result.Fail("No permissions to add discounts to shop " + shopId);
+        })
     }
 
     /*-----------------------------------shop Personnel Actions actions----------------------------------------------*/
@@ -483,7 +553,7 @@ export class SystemController {
     appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
         const authCallback = (id: string) => {
             if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data) {
-                const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions))
+                const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions.concat(Permissions.ShopOwner)))
                 if (checkRes(result)) {
                     return this.mpController.appointShopOwner(r.member, r.shopId)
                 }

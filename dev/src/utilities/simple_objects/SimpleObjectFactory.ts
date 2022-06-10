@@ -8,6 +8,8 @@ import {Shop} from "../../domain/marketplace/Shop";
 import {Guest} from "../../domain/user/Guest";
 import {Member} from "../../domain/user/Member";
 import {ShoppingCart} from "../../domain/user/ShoppingCart";
+import {DiscountComponent} from "../../domain/marketplace/DiscountAndPurchasePolicies/Components/DiscountComponent";
+import {SimpleDiscountDescriber} from "./marketplace/SimpleDiscountDescriber";
 
 
 export function toSimpleProduct(product: Product): SimpleProduct{
@@ -58,4 +60,8 @@ export function toSimpleShoppingCart(userID: string, shoppingCart: ShoppingCart)
 
     }
     return new SimpleShoppingCart(userID, simpleProducts, 0);
+}
+
+export function toSimpleDiscountDescriber(discount: DiscountComponent): SimpleDiscountDescriber {
+    return new SimpleDiscountDescriber(discount.id,discount.description);
 }
