@@ -326,7 +326,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    removePurchasePolicy(shopId: number, idPuPolicy: number){
+    removePurchasePolicy(shopId: number, idPuPolicy: number): Result<void>{
         let shop = this._shops.get(shopId);
         if(shop){
             let puPurchaseId =  shop.removeDiscount(idPuPolicy)

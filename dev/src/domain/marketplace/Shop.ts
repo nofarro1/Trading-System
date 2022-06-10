@@ -284,15 +284,15 @@ export class Shop {
     private discData2Component (disc: DiscountData): DiscountComponent {
         if (isSimpleDiscount(disc)) {
             let discInf = {type: disc.discountType, object: disc.object}
-            return new SimpleDiscount(this._discountCounter, discInf, disc.discountPrecent);
+            return new SimpleDiscount(this._discountCounter, discInf, disc.discountPresent);
         } else if (isConditionalDiscount(disc)) {
             let discInf = {type: disc.discount.discountType, object: disc.discount.object}
-            let discount = new SimpleDiscount(this._discountCounter, discInf, disc.discount.discountPrecent);
+            let discount = new SimpleDiscount(this._discountCounter, discInf, disc.discount.discountPresent);
             let pred = new PredicateDiscountPolicy(disc.predTypeObject, disc.predObject, disc.predRelation, disc.predValue);
             return new ConditionalDiscount(this._discountCounter, discount, pred);
-        } else if (disc instanceof ContainerDiscountData) {
-            let callBack = (curr: DiscountData) => this.discData2Component(curr);
-            let discComponents = disc.discounts.map(callBack);
+        }
+        else if (disc instanceof ContainerDiscountData) {
+            let discComponents = disc.discounts.map(this.discData2Component);
             switch (disc.discountRelation) {
                 case DiscountRelation.And:
                     return new AndDiscounts(this.discountCounter, discComponents);
@@ -313,8 +313,7 @@ export class Shop {
                 return new SimplePurchase(this._purchaseCounter, puPolicy.policyType, puPolicy.object, puPolicy.predRelation, puPolicy.predValue, puPolicy.msg);
             }
             else if (puPolicy instanceof ContainerPurchaseData) {
-                let callBack = (curr: ImmediatePurchaseData) => this.policyData2Component(curr);
-                let policiesComponent = puPolicy.policies.map(callBack);
+                let policiesComponent = puPolicy.policies.map(this.policyData2Component);
                 switch (puPolicy.policiesRelation) {
                     case PurchasePoliciesRelation.And:
                         return new AndPolicy(this._purchaseCounter, policiesComponent);

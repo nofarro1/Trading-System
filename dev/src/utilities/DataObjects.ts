@@ -46,16 +46,17 @@ export interface NewRoleData {
     permissions: Permissions[];
 }
 
+
+// TODO constructors
 export interface DiscountData{
     kind: DiscountKinds
 }
 
 export class SimpleDiscountData implements DiscountData{
-
     kind: DiscountKinds = DiscountKinds.SimpleDiscount;
     discountType: DiscountType;
     object: number | ProductCategory | undefined;
-    discountPrecent: number;
+    discountPresent: number; // between 0-100
 }
 
 export class ConditionalDiscountData implements DiscountData{
