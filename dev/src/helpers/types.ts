@@ -9,7 +9,6 @@ export const TYPES = {
     ShoppingCartController: Symbol.for("ShoppingCartController"),
     MessageController: Symbol.for("MessageController"),
     UserController: Symbol.for("UserController"),
-    NotificationController: Symbol.for("NotificationController"),
     MarketplaceController: Symbol.for("MarketplaceController"),
     PurchaseController: Symbol.for("PurchaseController"),
     SecurityController: Symbol.for("SecurityController"),

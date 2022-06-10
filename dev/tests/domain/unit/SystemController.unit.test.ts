@@ -4,7 +4,6 @@ import {MarketplaceController} from "../../../src/domain/marketplace/Marketplace
 import {PurchaseController} from "../../../src/domain/purchase/PurchaseController";
 import {SecurityController} from "../../../src/domain/SecurityController";
 import {UserController} from "../../../src/domain/user/UserController";
-import {NotificationController} from "../../../src/domain/notifications/NotificationController";
 import {Result} from "../../../src/utilities/Result";
 import {Guest} from "../../../src/domain/user/Guest";
 import {Member} from "../../../src/domain/user/Member";
@@ -34,7 +33,6 @@ describe('system controller - unit', () => {
     let pController: PurchaseController;
     let scController: SecurityController;
     let uController: UserController;
-    let notificationsController: NotificationController;
 
     let mpControllerMockMethod: jest.SpyInstance<any, unknown[]>
     let mControllerMockMethod: jest.SpyInstance<any, unknown[]>
@@ -116,7 +114,6 @@ describe('system controller - unit', () => {
         pController = sys.pController
         scController = sys.securityController
         uController = sys.uController
-        notificationsController = sys.notifyController
     })
 
     beforeEach(() => {
@@ -149,7 +146,6 @@ describe('system controller - unit', () => {
         expect(sys.uController).toBeDefined();
         expect(sys.mController).toBeDefined();
         expect(sys.securityController).toBeDefined();
-        expect(sys.notifyController).toBeDefined();
         expect(mpControllerMockMethod).toBeCalledWith(mController);
         expect(mpControllerMockMethod).toBeCalled();
     })

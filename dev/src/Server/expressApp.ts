@@ -23,6 +23,8 @@ router.get('/', (req, res) => {
     req.session.username = "";
     res.sendFile(__dirname + '/index.html');
 });
+
+
 //access marketpalce - return the index.html in the future
 router.get('/access', async (req, res) => {
     let sessId = req.session.id;
@@ -290,7 +292,7 @@ router.get('/member/shopManagement/Personnel/:username/:shop', async (req, res) 
 // })
 
 
-//todo: on disconnect of session exit market place
+//todo: on disconnect of session exit marketplace
 /**
  * exit marketplace
  */

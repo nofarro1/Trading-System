@@ -33,7 +33,6 @@ systemContainer.bind<SystemController>(TYPES.SystemController).to(SystemControll
 systemContainer.bind<ShoppingCartController>(TYPES.ShoppingCartController).to(ShoppingCartController)
 systemContainer.bind<MessageController>(TYPES.MessageController).to(MessageController)
 systemContainer.bind<UserController>(TYPES.UserController).to(UserController)
-systemContainer.bind<NotificationController>(TYPES.NotificationController).to(NotificationController)
 systemContainer.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController).inSingletonScope()
 systemContainer.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController)
 systemContainer.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)

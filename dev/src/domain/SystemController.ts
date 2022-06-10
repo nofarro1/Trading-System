@@ -42,7 +42,6 @@ export class SystemController {
     pController: PurchaseController
     mController: MessageController
     securityController: SecurityController
-    notifyController: NotificationController
 
 
     constructor(@inject(TYPES.MarketplaceController) mpController: MarketplaceController,
@@ -50,8 +49,7 @@ export class SystemController {
                 @inject(TYPES.UserController) uController: UserController,
                 @inject(TYPES.PurchaseController) pController: PurchaseController,
                 @inject(TYPES.MessageController) msgController: MessageController,
-                @inject(TYPES.SecurityController) sController: SecurityController,
-                @inject(TYPES.NotificationController) notifyController: NotificationController) {
+                @inject(TYPES.SecurityController) sController: SecurityController,) {
 
         this.mpController = mpController;
         this.scController = scController;
@@ -59,7 +57,6 @@ export class SystemController {
         this.pController = pController;
         this.mController = msgController;
         this.securityController = sController;
-        this.notifyController = notifyController;
 
         const defaultAdmin = SystemController.createDefaultAdmin(this.securityController, this.uController, this.scController, this.mController, {
             username: "admin",
@@ -192,7 +189,6 @@ export class SystemController {
             if (checkRes(res)) {
                 const user: Member = res.data
                 user.session = sessionId;
-                this.notifyController.addActiveUser(user.username);
                 //delete the guest
                 const toExit = this.uController.getGuest(sessionId);
                 const delCart = this.scController.removeCart(sessionId);
@@ -214,7 +210,6 @@ export class SystemController {
             // remove member and live notification
             try {
                 this.securityController.logout(sessionID, id);
-                this.notifyController.removeActiveUser(sessionID);
                 return this.accessMarketplace(sessionID);
             } catch (e: any) {
                 return new Result(false, undefined, e.message)
@@ -362,6 +357,7 @@ export class SystemController {
             if (checkRes(result)) {
                 userObj = result.data;
                 return this.pController.checkout(userObj);
+
             } else if (checkRes(resultMm)) {
                 userObj = resultMm.data;
                 return this.pController.checkout(userObj);

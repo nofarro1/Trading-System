@@ -46,13 +46,14 @@ export class ShopPurchaseMessage extends Message {
     constructor(shopOrder: string, shopOwners: Set<string>, buyer: string) {
         super(shopOwners)
         this.purchase = shopOrder;
-        this.content = `hello Owner, member ${buyer}, has placed an order at your shop ${this.purchase}.\n
-        order details: ...`
+        this.content = `hello Owner, member ${buyer}, has placed an order at your shop\n order: ${this.purchase}.\n`
     }
 
     getContent(): string {
         return this.content;
     }
+
+
 }
 
 

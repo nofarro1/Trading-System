@@ -34,7 +34,7 @@ describe("networking tests - basic actions", () => {
 
 
     beforeAll((done) => {
-        server = new Server(app, systemContainer.get(TYPES.Service));
+        server = new Server(app, systemContainer.get(TYPES.Service),systemContainer.get(TYPES.NotificationService));
         server.start()
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = String(0); //allow self-signed certificate
         agent = request.agent(app)
