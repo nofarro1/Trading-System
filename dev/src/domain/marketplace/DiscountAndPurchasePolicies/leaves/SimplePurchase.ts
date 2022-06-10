@@ -8,14 +8,19 @@ import {PredicatePurchasePolicy} from "../Predicates/PredicatePurchasePolicy";
 
 
 export class SimplePurchase implements ImmediatePurchasePolicyComponent{
+    private _id: number;
     private _predicate: PredicatePurchasePolicy;
     private _answer: Answer;
 
-    constructor(type: SimplePolicyType, object: number | ProductCategory | Guest, relation: RelationType, value: number, msg: string ) {
+    constructor(id: number, type: SimplePolicyType, object: number | ProductCategory | Guest, relation: RelationType, value: number, msg: string ) {
+        this._id = id;
         this._predicate = new PredicatePurchasePolicy(type, object, relation, value);
         this._answer={ok: true, message: msg};
     }
 
+    get id(): number {
+        return this._id;
+    }
 
     CanMakePurchase(purchaseInfo: [ShoppingBag, Guest]): Answer {
         this._answer.ok = this._predicate.checkPredicate(purchaseInfo);

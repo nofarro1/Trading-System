@@ -7,7 +7,7 @@ export class MaxDiscounts implements DiscountComponent{
 
     constructor(id: number, discounts: DiscountComponent[]) {
        this._id = id;
-        this.discounts= [];
+        this.discounts= discounts;
     }
 
     get id(): number {

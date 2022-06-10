@@ -1,9 +1,18 @@
 // User Related Data Objects
 
 import {Sale} from "../domain/marketplace/Sale";
-import {DiscountKinds, DiscountRelation, DiscountType, ProductCategory, RelationType} from "./Enums";
+import {
+    DiscountKinds,
+    DiscountRelation,
+    DiscountType,
+    ProductCategory,
+    PurchasePoliciesRelation,
+    RelationType,
+    SimplePolicyType
+} from "./Enums";
 import {Permissions} from "./Permissions";
 import {Product} from "../domain/marketplace/Product";
+import {Guest} from "../domain/user/Guest";
 
 export interface LoginData {
     username: string;
@@ -43,7 +52,7 @@ export interface DiscountData{}
 export class SimpleDiscountData implements DiscountData{
 
     discountType: DiscountType;
-    object: Product | ProductCategory | undefined;
+    object: number | ProductCategory | undefined;
     discountPrecent: number;
 }
 
@@ -59,4 +68,21 @@ export class ContainerDiscountData implements DiscountData{
     //kind: DiscountKinds
     discountRelation: DiscountRelation
     discounts: DiscountData[]
+}
+
+export interface ImmediatePurchaseData {}
+
+export class SimplePurchaseData implements ImmediatePurchaseData{
+    policyType: SimplePolicyType;
+    object: number | ProductCategory | Guest;
+    predRelation: RelationType;
+    predValue: number;
+    msg: string;
+}
+
+export class ContainerPurchaseData implements ImmediatePurchaseData{
+    policiesRelation: PurchasePoliciesRelation;
+    policies: ImmediatePurchaseData[];
+    dependet?: ImmediatePurchaseData;
+    dependetOn?: ImmediatePurchaseData;
 }

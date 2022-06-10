@@ -26,7 +26,7 @@ export class SimpleDiscount implements DiscountComponent{
         if (this.info.type === DiscountType.Product) {
             let pInDisc = this.info.object;
             for (let [p, price, quantity] of products) {
-                if (p === pInDisc) {
+                if (p.id === pInDisc) {
                     discProductsPrice.push([p, price-(p.fullPrice* 0.01 * this.discountPercent), quantity]);
                 } else
                     discProductsPrice.push([p, price, quantity]);
