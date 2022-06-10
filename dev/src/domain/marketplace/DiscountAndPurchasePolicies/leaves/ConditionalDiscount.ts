@@ -8,7 +8,12 @@ export class ConditionalDiscount implements DiscountComponent{
     private _id: number;
     private _discount: SimpleDiscount;
     private _pred: PredicateDiscountPolicy;
+    private _description: string;
 
+
+    get description(): string {
+        return this._description;
+    }
 
     get id(): number {
         return this._id;
@@ -27,6 +32,7 @@ export class ConditionalDiscount implements DiscountComponent{
         this._id= id;
         this._discount = discount;
         this._pred = predicat;
+        this._discount
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {

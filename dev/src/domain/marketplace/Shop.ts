@@ -9,9 +9,16 @@ import {Answer} from "../../utilities/Types";
 import {Guest} from "../user/Guest";
 import {
     ConditionalDiscountData,
-    ContainerDiscountData, ContainerPurchaseData,
-    DiscountData, ImmediatePurchaseData, isConditionalDiscount, isSimpleDiscount,
-    SimpleDiscountData, SimplePurchaseData
+    ContainerDiscountData,
+    ContainerPurchaseData,
+    DiscountData,
+    ImmediatePurchaseData,
+    isConditionalDiscount,
+    isContainerDiscount, isContainerPurchaseData,
+    isSimpleDiscount,
+    isSimplePurchaseData,
+    SimpleDiscountData,
+    SimplePurchaseData
 } from "../../utilities/DataObjects";
 import {SimpleDiscount} from "./DiscountAndPurchasePolicies/leaves/SimpleDiscount";
 import {PredicateDiscountPolicy} from "./DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
@@ -155,6 +162,10 @@ export class Shop {
         return this._discounts;
     }
 
+    getDiscounts(): DiscountComponent[]{
+        return [...this._discounts.values()];
+    }
+
     get discountCounter(): number {
         return this._discountCounter;
     }
@@ -291,7 +302,7 @@ export class Shop {
             let pred = new PredicateDiscountPolicy(disc.predTypeObject, disc.predObject, disc.predRelation, disc.predValue);
             return new ConditionalDiscount(this._discountCounter, discount, pred);
         }
-        else if (disc instanceof ContainerDiscountData) {
+        else if (isContainerDiscount(disc)) {
             let discComponents = disc.discounts.map(this.discData2Component);
             switch (disc.discountRelation) {
                 case DiscountRelation.And:
@@ -309,10 +320,10 @@ export class Shop {
     }
 
     private policyData2Component (puPolicy: ImmediatePurchaseData): ImmediatePurchasePolicyComponent{
-            if (puPolicy instanceof SimplePurchaseData) {
+            if ( isSimplePurchaseData(puPolicy)) {
                 return new SimplePurchase(this._purchaseCounter, puPolicy.policyType, puPolicy.object, puPolicy.predRelation, puPolicy.predValue, puPolicy.msg);
             }
-            else if (puPolicy instanceof ContainerPurchaseData) {
+            else if (isContainerPurchaseData(puPolicy)) {
                 let policiesComponent = puPolicy.policies.map(this.policyData2Component);
                 switch (puPolicy.policiesRelation) {
                     case PurchasePoliciesRelation.And:

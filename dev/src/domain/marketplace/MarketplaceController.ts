@@ -20,7 +20,7 @@ import "reflect-metadata";
 import {
     ImmediatePurchasePolicyComponent
 } from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
-import {DiscountData} from "../../utilities/DataObjects";
+import {DiscountData, ImmediatePurchaseData} from "../../utilities/DataObjects";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
 
 @injectable()
@@ -38,6 +38,10 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         this.subscriber= null;
     }
 
+
+    get Shops(): Shop[] {
+        return [...this._shops.values()];
+    }
 
     get shops(): Map<number, Shop> {
         return this._shops;
@@ -314,7 +318,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchasePolicyComponent): Result<number | void>{
+    addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchaseData): Result<number | void>{
         let shop = this._shops.get(shopId);
         if(shop){
             let purchasePolicyId =  shop.addPurchasePolicy(puPolicy);

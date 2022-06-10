@@ -4,20 +4,36 @@ import {Product} from "../../Product";
 import {discountInf} from "../../../../utilities/Types";
 
 
-
 export class SimpleDiscount implements DiscountComponent{
     private _id: number;
     private info: discountInf;
     private discountPercent: number;
+    private _description: string;
 
     constructor(id: number, discountInf: discountInf, discountPercent: number) {
         this._id = id;
         this.info = discountInf;
         this.discountPercent = discountPercent;
+        let idMSG: string;
+        switch (this.info.type) {
+            case DiscountType.Product:
+                idMSG = `on products with id: ${this.info.object}.`;
+            case DiscountType.Category:
+                idMSG = `on products from ${this.info.object}.`;
+            case DiscountType.Bag:
+                idMSG = `on all products in the shop.`;
+        }
+
+        this._description = `${this.discountPercent}% discount ${idMSG}.`
     }
 
     get id(): number {
         return this._id;
+    }
+
+
+    get description(): string {
+        return this._description;
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
