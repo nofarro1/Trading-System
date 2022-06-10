@@ -65,7 +65,7 @@ export class ConditionalDiscountData implements DiscountData{
 }
 
 export class ContainerDiscountData implements DiscountData{
-    //kind: DiscountKinds
+    kind: DiscountKinds
     discountRelation: DiscountRelation
     discounts: DiscountData[]
 }
