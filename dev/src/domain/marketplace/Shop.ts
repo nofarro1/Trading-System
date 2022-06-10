@@ -10,7 +10,7 @@ import {Guest} from "../user/Guest";
 import {
     ConditionalDiscountData,
     ContainerDiscountData, ContainerPurchaseData,
-    DiscountData, ImmediatePurchaseData,
+    DiscountData, ImmediatePurchaseData, isConditionalDiscount, isSimpleDiscount,
     SimpleDiscountData, SimplePurchaseData
 } from "../../utilities/DataObjects";
 import {SimpleDiscount} from "./DiscountAndPurchasePolicies/leaves/SimpleDiscount";
@@ -282,10 +282,10 @@ export class Shop {
     }
 
     private discData2Component (disc: DiscountData): DiscountComponent {
-        if (disc instanceof SimpleDiscountData) {
+        if (isSimpleDiscount(disc)) {
             let discInf = {type: disc.discountType, object: disc.object}
             return new SimpleDiscount(this._discountCounter, discInf, disc.discountPrecent);
-        } else if (disc instanceof ConditionalDiscountData) {
+        } else if (isConditionalDiscount(disc)) {
             let discInf = {type: disc.discount.discountType, object: disc.discount.object}
             let discount = new SimpleDiscount(this._discountCounter, discInf, disc.discount.discountPrecent);
             let pred = new PredicateDiscountPolicy(disc.predTypeObject, disc.predObject, disc.predRelation, disc.predValue);

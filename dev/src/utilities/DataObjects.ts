@@ -11,7 +11,6 @@ import {
     SimplePolicyType
 } from "./Enums";
 import {Permissions} from "./Permissions";
-import {Product} from "../domain/marketplace/Product";
 import {Guest} from "../domain/user/Guest";
 
 export interface LoginData {
@@ -47,10 +46,13 @@ export interface NewRoleData {
     permissions: Permissions[];
 }
 
-export interface DiscountData{}
+export interface DiscountData{
+    kind: DiscountKinds
+}
 
 export class SimpleDiscountData implements DiscountData{
 
+    kind: DiscountKinds = DiscountKinds.SimpleDiscount;
     discountType: DiscountType;
     object: number | ProductCategory | undefined;
     discountPrecent: number;
@@ -62,13 +64,23 @@ export class ConditionalDiscountData implements DiscountData{
     predObject: number | ProductCategory | undefined;
     predRelation: RelationType;
     predValue: number;
+    kind: DiscountKinds = DiscountKinds.ConditionalDiscount;
 }
 
 export class ContainerDiscountData implements DiscountData{
-    kind: DiscountKinds
+    kind: DiscountKinds = DiscountKinds.ContainerDiscount;
     discountRelation: DiscountRelation
     discounts: DiscountData[]
 }
+
+export const isSimpleDiscount = (disc:DiscountData): disc is SimpleDiscountData =>{
+    return disc.kind === DiscountKinds.SimpleDiscount;
+}
+
+export const isConditionalDiscount = (disc:DiscountData): disc is ConditionalDiscountData =>{
+    return disc.kind === DiscountKinds.ConditionalDiscount;
+}
+//---------------------------purchase policy data object -------------------//
 
 export interface ImmediatePurchaseData {}
 
