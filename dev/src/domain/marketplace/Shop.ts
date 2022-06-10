@@ -56,12 +56,12 @@ export class Shop extends BaseEntity {
     private _productsCounter: number;
     @Column({type: "enum", enum: ShopRate})
     private _rate: ShopRate;
-    @Column({type: "int", array: true}) //TODO - Foreign Key constraint (One To Many)
-    private _discounts: Map<number, DiscountComponent>;
+    @Column({type: "int", array: true})
+    private readonly _discounts: Map<number, DiscountComponent>;
     @Column({type: "int"})
     private _discountCounter: number;
-    @Column({type: "int", array: true}) //TODO - Foreign Key constraint (One To Many)
-    private _purchasePolicies: Map<number, ImmediatePurchasePolicyComponent>;
+    @Column({type: "int", array: true})
+    private readonly _purchasePolicies: Map<number, ImmediatePurchasePolicyComponent>;
     @Column({type: "int"})
     private _purchaseCounter: number;
     @Column({type: "text", nullable: true})
