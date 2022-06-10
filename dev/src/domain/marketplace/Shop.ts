@@ -259,22 +259,22 @@ export class Shop {
         return productsList;
     }
 
-    addDiscount(disc: DiscountData): DiscountComponent{
+    addDiscount(disc: DiscountData): number{
         let toAdd:DiscountComponent = this.discData2Component(disc);
         this._discounts.set(this._discountCounter,toAdd);
         this._discountCounter++;
-        return toAdd;
+        return this._discountCounter--;
     }
 
     removeDiscount(idDisc: number): void{
         this._discounts.delete(idDisc);
     }
 
-    addPurchasePolicy(puPolicy: ImmediatePurchaseData): ImmediatePurchasePolicyComponent{
+    addPurchasePolicy(puPolicy: ImmediatePurchaseData): number{
         let toAdd:ImmediatePurchasePolicyComponent = this.policyData2Component(puPolicy);
         this._purchasePolicies.set(this._purchaseCounter,toAdd);
         this._purchaseCounter++;
-        return toAdd;
+        return this._purchaseCounter--;
     }
 
     removePurchasePolicy(idPuPolicy: number){
@@ -313,7 +313,7 @@ export class Shop {
                 return new SimplePurchase(this._purchaseCounter, puPolicy.policyType, puPolicy.object, puPolicy.predRelation, puPolicy.predValue, puPolicy.msg);
             }
             else if (puPolicy instanceof ContainerPurchaseData) {
-                let callBack = (curr: ImmediatePurchaseData) => this.addPurchasePolicy(curr);
+                let callBack = (curr: ImmediatePurchaseData) => this.policyData2Component(curr);
                 let policiesComponent = puPolicy.policies.map(callBack);
                 switch (puPolicy.policiesRelation) {
                     case PurchasePoliciesRelation.And:

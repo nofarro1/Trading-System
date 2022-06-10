@@ -292,9 +292,9 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     addDiscount(shopId: number, discount: DiscountData): Result<number | void>{
         let shop = this._shops.get(shopId);
         if(shop){
-            let disc: DiscountComponent =  shop.addDiscount(discount);
-            logger.info(`Discount with id: ${disc.id} was added to Shop with id: ${shopId} successfully.`)
-            return new Result(true, disc.id);
+            let discId: number =  shop.addDiscount(discount);
+            logger.info(`Discount with id: ${discId} was added to Shop with id: ${shopId} successfully.`)
+            return new Result(true, discId);
         }
         else{
             return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
