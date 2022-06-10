@@ -27,15 +27,15 @@ import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/Discou
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
 
     private _shops: Map<number, Shop>;
-    private shopCounter: number;
+    private _shopCounter: number;
     private _products: Map<number, Product>;
     subscribers: IMessageListener<ShopStatusChangedMessage>[];
 
-    constructor() {
-        this._shops = new Map<number, Shop>();
-        this.shopCounter = 0;
-        this._products = new Map<number, Product>();
-        this.subscribers = [];
+    constructor(){
+        this._shops= new Map<number,Shop>();
+        this._shopCounter= 0;
+        this._products= new Map<number, Product>();
+        this.subscribers= null;
     }
 
 
@@ -56,6 +56,9 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
 
+    get shopCounter(): number {
+        return this._shopCounter;
+    }
 
     setUpShop(userId: string, shopName: string): Result<Shop | void> {
         let toAdd = new Shop(this.shopCounter, shopName, userId);
@@ -268,7 +271,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     addDiscount(shopId: number, discount: DiscountData): Result<number | void>{
         let shop = this._shops.get(shopId);
-        if(shop){
+        if (shop) {
             let discId: number =  shop.addDiscount(discount);
             logger.info(`Discount with id: ${discId} was added to Shop with id: ${shopId} successfully.`)
             return new Result(true, discId);
@@ -278,14 +281,13 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
 
-    removeDiscount(shopId: number, idDisc: number): Result<void>{
+    removeDiscount(shopId: number, idDisc: number): Result<void> {
         let shop = this._shops.get(shopId);
-        if(shop){
-            let discId =  shop.removeDiscount(idDisc)
+        if (shop) {
+            let discId = shop.removeDiscount(idDisc)
             logger.info(`Discount with id: ${discId} was removed from Shop with id: ${shopId} successfully.`)
             return new Result(true, discId);
-        }
-        else{
+        } else {
             return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
         }
     }
