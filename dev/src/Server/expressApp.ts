@@ -159,9 +159,9 @@ router.post('/member/shopManagement/assignOwner', async (req, res) => {
 
     try {
         let sessId = req.session.id
-        let owner = req.body.owner.assigningOwnerId
+        let owner = req.body.owner
         let shopId = req.body.shopId
-        let newOwner = req.body.shopId
+        let newOwner = req.body.newOwnerId
         let title = req.body.title
         let ans = await service.appointShopOwner(sessId, newOwner, shopId, owner, title)
         res.send(ans)
@@ -185,9 +185,9 @@ router.post('/member/shopManagement/assignManager', async (req, res) => {
 
     try {
         let sessId = req.session.id
-        let owner = req.body.owner.assigner
+        let owner = req.body.owner
         let shopId = req.body.shopId
-        let newManager = req.body.shopId
+        let newManager = req.body.newManager
         let title = req.body.title
         let ans = await service.appointShopManager(sessId, newManager, shopId, owner, title)
         res.send(ans)
@@ -211,7 +211,7 @@ router.post('/member/shopManagement/Permissions', async (req, res) => {
 
     try {
         let sessId = req.session.id
-        let owner = req.body.owner.assigner
+        let owner = req.body.owner
         let shopId = req.body.shopId
         let permissions = req.body.permissions
         let managerId = req.body.manager
@@ -230,7 +230,7 @@ router.delete('/member/shopManagement/Permissions', async (req, res) => {
 
     try {
         let sessId = req.session.id
-        let owner = req.body.owner.assigner
+        let owner = req.body.owner
         let shopId = req.body.shopId
         let permissions = req.body.permissions
         let managerId = req.body.manager
@@ -389,10 +389,10 @@ router.post('/shop/', async (req, res) => {
 /**
  * get shop
  */
-router.get('/shop/:id/:shopId', async (req, res) => {
+router.get('/shop/:shopId', async (req, res) => {
 
     try {
-        let sessId = req.params.id;
+        let sessId = req.session.id;
         let shopId = Number(req.params.shopId);
 
         let ans = await service.getShopInfo(sessId, shopId)

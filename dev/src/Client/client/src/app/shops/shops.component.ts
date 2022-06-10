@@ -11,9 +11,7 @@ import {api} from "../../backendService/Service"
 })
 export class ShopsComponent implements OnInit {
   shops: Shop[] = [];
-
   constructor() {
-    const serv=new api();
     let shop1: Shop = {id: 123, name: 'myShop1', status: true, rate: 3};
     let shop2: Shop = {id: 124, name: 'myShop2', status: true, rate: 4};
     let shop3: Shop = {id: 125, name: 'myShop3', status: false, rate: 2};
@@ -23,6 +21,7 @@ export class ShopsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
   }
 
 }

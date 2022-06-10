@@ -1,8 +1,8 @@
-<div class="login">
-  <input type="text" placeholder="Username">
-  <input type="text" placeholder="Password">
+<div class="login" >
+  <input type="text" placeholder="Username" #Username>
+  <input type="password" placeholder="Password" #Password>
   <div class="btngroup">
-  <button name="loginbtn">Login</button>
+  <button name="loginbtn" (click)="loginClick(Username.value,Password.value)">Login</button>
     <a href="/signup"><button name="signupbtn">Sign-Up</button></a>
   <button name="initbtn">Init System</button>
   </div>

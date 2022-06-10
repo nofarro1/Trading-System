@@ -6,5 +6,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  isLoggedIn=false;
   title = 'client';
+
+  userLogged($event:boolean){
+    this.isLoggedIn=$event;
+  }
 }
+
+
