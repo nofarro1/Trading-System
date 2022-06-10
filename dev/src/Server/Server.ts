@@ -19,6 +19,8 @@ const port = process.env.PORT || 3000;
 const wrap = (middleware: express.RequestHandler) =>
     (socket: Socket, next: NextFunction): void => middleware(socket.request as Request, {} as Response, next as NextFunction);
 
+
+
 export class Server {
     private readonly httpsServer: https.Server
     private backendService: Service
@@ -46,6 +48,17 @@ export class Server {
         //         console.log(`client with session ${req.session.id} disconnect`);
         //     })
         // })
+
+        this.ioServer.on('connection', (socket)=>{
+            console.log("got new connection with" + socket.request.session.id);
+            socket.on('hello',()=>{
+                console.log("got hello back")
+            })
+            socket.on('disconnect',()=>{
+                console.log("client disconnected")
+            })
+            socket.emit("hello");
+        })
 
 
         this.httpsServer.listen(port, () => {

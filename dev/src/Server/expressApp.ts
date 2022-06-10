@@ -18,8 +18,11 @@ router.get('/check', (req, res) => {
 
 })
 
+router.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
 //access marketpalce - return the index.html in the future
-router.get('/', async (req, res) => {
+router.get('/access', async (req, res) => {
     let sessId = req.session.id;
     try {
         console.log("guest " + sessId + " accessed marketplace");
