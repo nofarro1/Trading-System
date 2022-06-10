@@ -3,9 +3,17 @@ import {Product} from "../../../../Product";
 
 export class OrDiscounts implements DiscountComponent{
     private discounts: DiscountComponent[];
+    private _id: number;
 
-    constructor(discount: DiscountComponent[]) {
+
+
+    constructor(id: number, discount: DiscountComponent[]) {
+        this._id = id;
         this.discounts= discount;
+    }
+
+    get id(): number {
+        return this._id;
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {

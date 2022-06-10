@@ -11,8 +11,8 @@ declare module "http" {
         session: Session
     }
 }
-const keyPath = "F:\\Repositories\\Trading-System\\dev\\src\\Server\\security\\local.key"
-const certPath = "F:\\Repositories\\Trading-System\\dev\\src\\Server\\security\\cert.crt"
+const keyPath = "/home/edan/WebstormProjects/Trading-system/dev/src/Server/security/local.key"
+const certPath = "/home/edan/WebstormProjects/Trading-system/dev/src/Server/security/cert.crt"
 const port = process.env.PORT || 3000;
 
 

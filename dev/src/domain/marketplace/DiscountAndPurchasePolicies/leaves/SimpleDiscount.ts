@@ -6,16 +6,19 @@ import {discountInf} from "../../../../utilities/Types";
 
 
 export class SimpleDiscount implements DiscountComponent{
-
+    private _id: number;
     private info: discountInf;
     private discountPercent: number;
 
-    constructor(discountInf: discountInf, discountPercent: number) {
+    constructor(id: number, discountInf: discountInf, discountPercent: number) {
+        this._id = id;
         this.info = discountInf;
         this.discountPercent = discountPercent;
     }
 
-
+    get id(): number {
+        return this._id;
+    }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
         let discProductsPrice: [Product, number, number][] = [];
@@ -23,7 +26,7 @@ export class SimpleDiscount implements DiscountComponent{
         if (this.info.type === DiscountType.Product) {
             let pInDisc = this.info.object;
             for (let [p, price, quantity] of products) {
-                if (p === pInDisc) {
+                if (p.id === pInDisc) {
                     discProductsPrice.push([p, price-(p.fullPrice* 0.01 * this.discountPercent), quantity]);
                 } else
                     discProductsPrice.push([p, price, quantity]);

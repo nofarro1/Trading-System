@@ -10,3 +10,6 @@ export enum SimplePolicyType {Product, Category, ShoppingBag, UserInfo}
 export enum LogicalPolicy {AndPolicy, OrPolicy, ConditionalPolicy}
 export enum JobType {Founder, Owner, Manager, admin}
 export enum RelationType {LessThen, LessThenOrEqual, Equal, GreaterThen, GreaterThenOrEqual, NotEqual }
+export enum DiscountKinds {SimpleDiscount, ConditionalDiscount, ContainerDiscount}
+export enum DiscountRelation {And, Or, Xor, Addition, Max}
+export enum PurchasePoliciesRelation { And, Conditional, Or}

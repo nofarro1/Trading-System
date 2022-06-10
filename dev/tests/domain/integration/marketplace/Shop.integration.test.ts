@@ -103,7 +103,7 @@ describe('SimpleShop- Appointed Members', function(){
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 2]);
         bag.products.set(1, [p2, 1]);
-        let discountInf: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
+        let discountInf: discountInf = {type:DiscountType.Product, object:p1.id} as discountInf;
         let disc1 = new SimpleDiscount(discountInf, 20);
         s1.addDiscount(disc1);
         let productsUpdatePrices= s1.calculateBagPrice(bag);

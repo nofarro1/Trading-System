@@ -4,13 +4,18 @@ import {Answer} from "../../../../../utilities/Types";
 import {Guest} from "../../../../user/Guest";
 
 export class OrPolicy implements ImmediatePurchasePolicyComponent{
+    private _id: number;
     private purchasePolicies: ImmediatePurchasePolicyComponent[];
 
-    constructor() {
-        this.purchasePolicies = [];
+    constructor(id: number, purchasePolicies: ImmediatePurchasePolicyComponent[]) {
+        this._id = id;
+        this.purchasePolicies = purchasePolicies;
     }
 
 
+    get id(): number {
+        return this._id;
+    }
 
     addPurchasePolicy (toAdd: ImmediatePurchasePolicyComponent){
         this.purchasePolicies.push(toAdd);

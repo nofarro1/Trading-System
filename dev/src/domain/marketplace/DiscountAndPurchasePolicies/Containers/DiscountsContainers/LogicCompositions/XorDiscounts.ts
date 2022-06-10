@@ -7,9 +7,16 @@ export function xor(a: boolean, b: boolean) {
 
 export class XorDiscounts implements DiscountComponent{
     private discounts: DiscountComponent[];
+    private _id: number;
 
-    constructor(discount: DiscountComponent[], pred1: (Products: [Product, number, number][])=> boolean, pred2: (Products: [Product, number, number][])=> boolean) {
-        this.discounts= discount;
+
+    constructor(id: number, discounts: DiscountComponent[]) {
+        this. _id = id;
+        this.discounts= discounts;
+    }
+
+    get id(): number {
+        return this._id;
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
