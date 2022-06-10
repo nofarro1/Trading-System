@@ -1,17 +1,14 @@
 {
   "name": "trading-system",
   "version": "1.0.0",
-  "engines": {
-    "node": "16.14.2"
-  },
   "description": "",
   "main": "app.ts",
   "scripts": {
     "test": "jest",
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc --project ./tsconfig.json",
     "start": "ts-node ./src/app.ts"
   },
-  "keywords": ["heroku"],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -47,6 +44,7 @@
     "reflect-metadata": "^0.1.13",
     "socket.io": "^4.5.1",
     "socket.io-client": "^4.5.1",
-    "typed-events": "^1.0.1"
+    "typed-events": "^1.0.1",
+    "typeorm": "^0.3.6"
   }
 }

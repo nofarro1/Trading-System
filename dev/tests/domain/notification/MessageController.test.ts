@@ -5,21 +5,12 @@ import {MessageController} from "../../../src/domain/notifications/MessageContro
 import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
 
 
-
 class TestMessage extends Message {
-
-    private content: string;
-
     constructor(recipients: Set<string>) {
-        super(recipients);
-        this.content = "i'm A test message"
+        super(recipients, "i'm A test message");
     }
-
-    getContent() {
-        return this.content;
-    }
-
 }
+
 const id1 = "u1"
 let cart1;
 let tu1: Member;
@@ -29,7 +20,7 @@ const sess1 = "1";
 const sess2 = "2";
 const id2 = "u2"
 let cart2 = new ShoppingCart();
-const tu2: Member = new Member(sess2,id2)
+const tu2: Member = new Member(sess2, id2)
 let mb2 = new MessageBox(id2);
 let controller: MessageController
 
@@ -42,7 +33,7 @@ describe('messageBox - test', function () {
 
     beforeEach(function () {
         cart1 = new ShoppingCart();
-        tu1 = new Member(sess1,id1)
+        tu1 = new Member(sess1, id1)
         mb1 = new MessageBox(id1);
         controller = new MessageController();
         controller.messageBoxes.set(id1, mb1)
@@ -89,13 +80,11 @@ describe('messageBox - test', function () {
         mb1.addMessage(tm1);
         controller.removeMessage(id1, tm1.id)
         expect(removeMessageMock).toBeCalledWith(tm1.id);
-
-
     })
 
-    test("add Message - to box",() => {
+    test("add Message - to box", () => {
         controller.addMessage(id1, tm1);
-        expect(mb1.unReadMessages).toContain(tm1)
+        expect(mb1.unreadMessages).toContain(tm1)
     })
 
     test("subscribe to box", () => {
@@ -106,9 +95,9 @@ describe('messageBox - test', function () {
         )
         const onEvent = jest.fn();
         let sub: ILLiveNotificationSubscriber = {
-            onNewMessages:onEvent
+            onNewMessages: onEvent
         } as ILLiveNotificationSubscriber;
-        controller.addSubscriberToBox(id1,sub);
+        controller.addSubscriberToBox(id1, sub);
         expect(subscribeMock).toBeCalledWith(sub);
     })
 
@@ -122,16 +111,13 @@ describe('messageBox - test', function () {
         )
         const onEvent = jest.fn();
         let sub: ILLiveNotificationSubscriber = {
-            onNewMessages:onEvent
+            onNewMessages: onEvent
         } as ILLiveNotificationSubscriber;
-        controller.addSubscriberToBox(id1,sub);
+        controller.addSubscriberToBox(id1, sub);
         expect(mb1.subs).toContain(sub);
         //act
-        controller.removeSubscriberFromBox(id1,sub);
+        controller.removeSubscriberFromBox(id1, sub);
         //check
         expect(unsubscribeMock).toBeCalledWith(sub);
     })
-
-
-
 });

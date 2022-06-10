@@ -1,35 +1,41 @@
 import {ProductCategory, ProductRate} from "../../utilities/Enums";
+import {BaseEntity, Column, Entity, ManyToOne, PrimaryColumn} from "typeorm";
 
-let productsCounter= 0;
+let productsCounter = 0;
 
-export class Product {
-
+@Entity()
+export class Product extends BaseEntity {
+    @PrimaryColumn({type: "int"})
     private _id: number;
+    @Column({type: "text"})
     private _name: string;
+    @Column({type: "int"}) //TODO - Foreign Key constraint (Many To One)
     private _shopId: number;
+    @Column({type: "enum", enum: ProductCategory})
     private _category: ProductCategory;
+    @Column({type: "enum", enum: ProductRate})
     private _rate: ProductRate;
+    @Column({type: "text"})
     private _description: string;
 
-
-
-    constructor(name: string, shopId: number, id: number, category: ProductCategory, fullPrice: number, description?: string){
-        this._id= productsCounter;
-        this._name= name;
-        this._shopId= shopId;
-        this._category= category;
-        this._rate= ProductRate.NotRated
-        if(description){
+    constructor(name: string, shopId: number, id: number, category: ProductCategory, fullPrice: number, description?: string) {
+        super();
+        this._id = productsCounter;
+        this._name = name;
+        this._shopId = shopId;
+        this._category = category;
+        this._rate = ProductRate.NotRated
+        if (description) {
             this._description = description;
-        }
-        else
-            this._description="";
-        this._fullPrice= fullPrice;
+        } else
+            this._description = "";
+        this._fullPrice = fullPrice;
     }
 
     public get id(): number {
         return this._id;
     }
+
     public set id(value: number) {
         this._id = value;
     }
@@ -37,6 +43,7 @@ export class Product {
     public get name(): string {
         return this._name;
     }
+
     public set name(value: string) {
         this._name = value;
     }
@@ -44,6 +51,7 @@ export class Product {
     public get shopId(): number {
         return this._shopId;
     }
+
     public set shopId(value: number) {
         this._shopId = value;
     }
@@ -51,6 +59,7 @@ export class Product {
     public get category(): ProductCategory {
         return this._category;
     }
+
     public set category(value: ProductCategory) {
         this._category = value;
     }
@@ -58,6 +67,7 @@ export class Product {
     public get rate(): ProductRate {
         return this._rate;
     }
+
     public set rate(value: ProductRate) {
         this._rate = value;
     }
@@ -65,6 +75,7 @@ export class Product {
     public get description(): string {
         return <string>this._description;
     }
+
     public set description(value: string) {
         this._description = value;
     }
@@ -73,10 +84,8 @@ export class Product {
     public get fullPrice(): number {
         return this._fullPrice;
     }
+
     public set fullPrice(value: number) {
         this._fullPrice = value;
     }
-
-
-
 }

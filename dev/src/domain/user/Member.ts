@@ -1,11 +1,14 @@
 import {Permissions} from "../../utilities/Permissions";
 import {Role} from "./Role";
 import {Guest} from "./Guest";
+import {Column, Entity, OneToMany, PrimaryColumn} from "typeorm";
 
-
+@Entity()
 export class Member extends Guest {
+    @PrimaryColumn({type: "text"})
     private _username: string;
-    private readonly _roles: Map<number, Role>;
+    @Column({type: "number", array: true}) //TODO - Foreign Key constraint (One To Many)
+    private readonly _roles: Map<number, Role>; //ShopID -> Role
 
     constructor(session: string, username: string) {
         super(session);

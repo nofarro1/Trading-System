@@ -1,12 +1,14 @@
 import {logger} from "../helpers/logger";
 import {injectable} from "inversify";
-import "reflect-metadata";
+import {Entity, PrimaryColumn} from "typeorm";
 
 @injectable()
+@Entity()
 export class SecurityController {
     private readonly _MINIMUM_PASSWORD_LENGTH = 8;
     private readonly _MAXIMUM_USERNAME_LENGTH = 31;
 
+    @PrimaryColumn("") //TODO
     private readonly _members: Map<string, string>; //Username <-> Password
     private readonly _activeGuests: Set<string>; //Session IDs
     private readonly _loggedInMembers: Map<string, string>; //Session ID <-> Username
@@ -38,7 +40,7 @@ export class SecurityController {
     }
 
     accessMarketplace(sessionID: string): void {
-        if(this.activeGuests.has(sessionID)) {
+        if (this.activeGuests.has(sessionID)) {
             logger.error(`There already exists a guest with ${sessionID} in the marketplace`);
             throw new Error(`There already exists a guest with ${sessionID} in the marketplace`);
         }
@@ -58,19 +60,19 @@ export class SecurityController {
     }
 
     register(sessionID: string, username: string, password: string): void {
-        if(!this.activeGuests.has(sessionID)) {
+        if (!this.activeGuests.has(sessionID)) {
             logger.error(`There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
         }
-        if(username.length > this.MAXIMUM_USERNAME_LENGTH || username.length === 0) {
+        if (username.length > this.MAXIMUM_USERNAME_LENGTH || username.length === 0) {
             logger.warn(`Username '${username}' cannot be empty or longer than 31 characters`);
             throw new Error(`Username '${username}' cannot be empty or longer than 31 characters`);
         }
-        if(this.members.has(username)) {
+        if (this.members.has(username)) {
             logger.warn(`A member with the username ${username} already exists`);
             throw new Error(`A member with the username ${username} already exists`);
         }
-        if(password.length < this.MINIMUM_PASSWORD_LENGTH) {
+        if (password.length < this.MINIMUM_PASSWORD_LENGTH) {
             logger.warn(`Password is too short and must contain at least ${this.MINIMUM_PASSWORD_LENGTH} characters`);
             throw new RangeError(`Password is too short and must contain at least ${this.MINIMUM_PASSWORD_LENGTH} characters`);
         }
@@ -80,19 +82,19 @@ export class SecurityController {
     }
 
     login(sessionID: string, username: string, password: string): void {
-        if(!this.activeGuests.has(sessionID)) {
+        if (!this.activeGuests.has(sessionID)) {
             logger.error(`There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
         }
-        if(!this.members.has(username)) {
+        if (!this.members.has(username)) {
             logger.warn(`A member with the username '${username}' does not exist`);
             throw new Error(`A member with the username '${username}' does not exist`);
         }
-        if(this.loggedInMembers.get(sessionID) == username) {
+        if (this.loggedInMembers.get(sessionID) == username) {
             logger.error(`The member ${username} is already logged into the system`);
             throw new Error(`The member ${username} is already logged into the system`);
         }
-        if(this.members.get(username) != password) {
+        if (this.members.get(username) != password) {
             logger.warn(`The password is invalid, please try again`);
             throw new Error(`The password is invalid, please try again`);
         }
@@ -103,15 +105,15 @@ export class SecurityController {
     }
 
     logout(sessionID: string, username: string): void {
-        if(!this.activeGuests.has(sessionID)) {
+        if (!this.activeGuests.has(sessionID)) {
             logger.error(`There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
         }
-        if(!this.members.has(username)) {
+        if (!this.members.has(username)) {
             logger.error(`A member with the username '${username}' does not exist`);
             throw new Error(`A member with the username '${username}' does not exist`);
         }
-        if(this.loggedInMembers.get(sessionID) != username) {
+        if (this.loggedInMembers.get(sessionID) != username) {
             logger.error(`${sessionID}: The member ${username} is not currently logged in`);
             throw new Error(`The member ${username} is not currently logged in`);
         }
@@ -123,9 +125,9 @@ export class SecurityController {
 
     hasActiveSession(sessionID: string): string {
         logger.info(`Checking whether ${sessionID} is associated with a logged in member or active guest`);
-        if(this.activeGuests.has(sessionID))
+        if (this.activeGuests.has(sessionID))
             return sessionID;
-        if(this.loggedInMembers.has(sessionID)) {
+        if (this.loggedInMembers.has(sessionID)) {
             // @ts-ignore
             return this.loggedInMembers.get(sessionID);
         }

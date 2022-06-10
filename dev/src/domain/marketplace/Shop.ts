@@ -2,41 +2,58 @@ import {Product} from "./Product";
 import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
 import {ShoppingBag} from "../user/ShoppingBag";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
-import {ImmediatePurchasePolicyComponent} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
+import {
+    ImmediatePurchasePolicyComponent
+} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 import {Answer} from "../../utilities/Types";
 import {Guest} from "../user/Guest";
+import {BaseEntity, Column, Entity, OneToMany, OneToOne, PrimaryColumn} from "typeorm";
 
-
-export class Shop {
-
+@Entity()
+export class Shop extends BaseEntity {
+    @PrimaryColumn({type: "int"})
     private _id: number;
+    @Column({type: "text"})
     private _name: string;
+    @Column({type: "enum", enum: ShopStatus})
     private _status: ShopStatus;
+    @Column({type: "text"}) //TODO - Foreign Key constraint (One To One)
     private _shopFounder: string;
+    @Column({type: "text", array: true}) //TODO - Foreign Key constraint (One To Many)
     private _shopOwners: Set<string>;
+    @Column({type: "text", array: true}) //TODO - Foreign Key constraint (One To Many)
     private _shopManagers: Set<string>;
+    @Column({type: "int", array: true}) //TODO - Foreign Key constraint (One To Many)
     private _products: Map<number, [Product, number]>;
+    @Column({type: "int"})
     private _productsCounter: number;
+    @Column({type: "enum", enum: ShopRate})
     private _rate: ShopRate;
+    @Column({type: "int", array: true}) //TODO - Foreign Key constraint (One To Many)
     private _discounts: Map<number, DiscountComponent>;
+    @Column({type: "int"})
     private _discountCounter: number;
-    private _purchasePolicies: Map <number, ImmediatePurchasePolicyComponent>;
+    @Column({type: "int", array: true}) //TODO - Foreign Key constraint (One To Many)
+    private _purchasePolicies: Map<number, ImmediatePurchasePolicyComponent>;
+    @Column({type: "int"})
     private _purchaseCounter: number;
+    @Column({type: "text", nullable: true})
     private _description?: string;
 
-    constructor(id: number, name: string, shopFounder: string, description?: string){
-        this._id= id;
-        this._name= name;
-        this._status= ShopStatus.open;
-        this._shopFounder= shopFounder;
-        this._shopOwners= new Set<string>([shopFounder]);
-        this._shopManagers= new Set<string>();
-        this._products= new Map<number, [Product, number]>();
+    constructor(id: number, name: string, shopFounder: string, description?: string) {
+        super();
+        this._id = id;
+        this._name = name;
+        this._status = ShopStatus.open;
+        this._shopFounder = shopFounder;
+        this._shopOwners = new Set<string>([shopFounder]);
+        this._shopManagers = new Set<string>();
+        this._products = new Map<number, [Product, number]>();
         this._productsCounter = 0;
-        this._rate= ShopRate.NotRated;
-        this._discounts= new Map<number, DiscountComponent>();
-        this._discountCounter= 0;
-        this._purchasePolicies = new Map <number, ImmediatePurchasePolicyComponent>();
+        this._rate = ShopRate.NotRated;
+        this._discounts = new Map<number, DiscountComponent>();
+        this._discountCounter = 0;
+        this._purchasePolicies = new Map<number, ImmediatePurchasePolicyComponent>();
         this._purchaseCounter = 0;
         this._description = description;
     }
@@ -105,6 +122,7 @@ export class Shop {
     get productsCounter(): number {
         return this._productsCounter;
     }
+
     set productsCounter(value: number) {
         this._productsCounter = value;
     }
@@ -128,6 +146,7 @@ export class Shop {
     get discountCounter(): number {
         return this._discountCounter;
     }
+
     set discountCounter(value: number) {
         this._discountCounter = value;
     }
@@ -140,13 +159,14 @@ export class Shop {
         this._purchaseCounter++;
         return this._purchaseCounter--;
     }
+
     set purchaseCounter(value: number) {
         this._purchaseCounter = value;
     }
 
-    addProduct(productName: string, category: ProductCategory, fullPrice: number,quantity: number, productDesc?: string ): Product{
-        let toAdd= new Product(productName, this.id, this._productsCounter, category, fullPrice, productDesc);
-        if(!this.products.has(toAdd.id)){
+    addProduct(productName: string, category: ProductCategory, fullPrice: number, quantity: number, productDesc?: string): Product {
+        let toAdd = new Product(productName, this.id, this._productsCounter, category, fullPrice, productDesc);
+        if (!this.products.has(toAdd.id)) {
             this.products.set(toAdd.id, [toAdd, quantity]);
             return toAdd;
         }
@@ -154,59 +174,59 @@ export class Shop {
         return toAdd;
     }
 
-    getProductQuantity(productId: number): number{
-        let product= this.products.get(productId);
-        if(!product)
-            throw new Error ("Failed to return product quantity in shop because the product map of the shop is undefined");
+    getProductQuantity(productId: number): number {
+        let product = this.products.get(productId);
+        if (!product)
+            throw new Error("Failed to return product quantity in shop because the product map of the shop is undefined");
         return product[1];
     }
 
     //Delete a product from the store catalog
-    removeProduct(productId: number): void{
-        if(!this.products.delete(productId))
+    removeProduct(productId: number): void {
+        if (!this.products.delete(productId))
             throw new Error(`Failed to remove product, because product id: ${productId} was not found`);
     }
 
-    updateProductQuantity(productId: number, quantity: number): void{
+    updateProductQuantity(productId: number, quantity: number): void {
         let product = this.products.get(productId);
-        if(!product)
+        if (!product)
             throw new Error("Failed to update product quantity in shop because the product isn't exist in shop")
-        if(quantity < 0)
-            quantity= 0;
-        this.products.set(productId, [product[0],quantity]);
+        if (quantity < 0)
+            quantity = 0;
+        this.products.set(productId, [product[0], quantity]);
     }
 
-    getProduct(productId: number): Product{
-        if(!this.products)
+    getProduct(productId: number): Product {
+        if (!this.products)
             throw new Error("Failed to search product in shop because the product map of the shop is undefined");
-        let toReturnPair= this.products.get(productId);
-        if(toReturnPair)
+        let toReturnPair = this.products.get(productId);
+        if (toReturnPair)
             return toReturnPair[0];
         throw new Error(`Product with id: ${productId} was not found.`);
     }
 
-    appointShopOwner(ownerId: string): void{
-        if(this.shopOwners?.has(ownerId))
+    appointShopOwner(ownerId: string): void {
+        if (this.shopOwners?.has(ownerId))
             throw new Error("Failed to appoint owner because the member is already a owner of the shop")
         this.shopOwners?.add(ownerId);
     }
 
-    appointShopManager(managerId: string): void{
-        if(this.shopManagers?.has(managerId))
+    appointShopManager(managerId: string): void {
+        if (this.shopManagers?.has(managerId))
             throw new Error("Failed to appoint owner because the member is already a owner of the shop")
         this.shopManagers?.add(managerId);
     }
 
-    calculateBagPrice(bag: ShoppingBag): [Product, number, number][]{
+    calculateBagPrice(bag: ShoppingBag): [Product, number, number][] {
 
         let productsList = this.extractProducts(bag.products);
         let productsInfo: [Product, number, number][] = [];
-        for(let [p, quantity] of bag.products.values()){
+        for (let [p, quantity] of bag.products.values()) {
             productsInfo.push([p, p.fullPrice, quantity]);
         }
-        if(this._discounts.size>0){
-            for( let disc of this._discounts.values()){
-                if(disc.predicate(productsInfo))
+        if (this._discounts.size > 0) {
+            for (let disc of this._discounts.values()) {
+                if (disc.predicate(productsInfo))
                     productsInfo = disc.calculateProductsPrice(productsInfo);
             }
         }
@@ -214,38 +234,40 @@ export class Shop {
         return productsInfo;
     }
 
-    canMakePurchase(purchaseInfo:[ bag: ShoppingBag, user: Guest]): Answer {
+    canMakePurchase(purchaseInfo: [bag: ShoppingBag, user: Guest]): Answer {
         let policies = Array.from(this._purchasePolicies.values());
         let callBack = (acc: Answer, currPolicy: ImmediatePurchasePolicyComponent): Answer => {
-                            let ans = currPolicy.CanMakePurchase(purchaseInfo);
-                            return acc = {ok: acc.ok && ans.ok, message: acc.message + '\n' + ans.message}
-                        };
-        return policies.reduce(callBack, {ok:true, message:"Couldn't make purchase because:"});
+            let ans = currPolicy.CanMakePurchase(purchaseInfo);
+            return acc = {ok: acc.ok && ans.ok, message: acc.message + '\n' + ans.message}
+        };
+        return policies.reduce(callBack, {ok: true, message: "Couldn't make purchase because:"});
     }
 
-    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
+    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[] {
         let productsList = [];
-        for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
+        for (let tuple of shopProducts) {
+            productsList.push(tuple[1][0])
+        }
         return productsList;
     }
 
-    addDiscount(disc: DiscountComponent): number{
-        this._discounts.set(this._discountCounter,disc);
+    addDiscount(disc: DiscountComponent): number {
+        this._discounts.set(this._discountCounter, disc);
         this._discountCounter++;
-        return this._discountCounter-1;
+        return this._discountCounter - 1;
     }
 
-    removeDiscount(idDisc: number): void{
+    removeDiscount(idDisc: number): void {
         this._discounts.delete(idDisc);
     }
 
-    addPurchasePolicy(puPolicy: ImmediatePurchasePolicyComponent): number{
-        this._purchasePolicies.set(this._purchaseCounter,puPolicy);
+    addPurchasePolicy(puPolicy: ImmediatePurchasePolicyComponent): number {
+        this._purchasePolicies.set(this._purchaseCounter, puPolicy);
         this._purchaseCounter++;
-        return this._purchaseCounter-1;
+        return this._purchaseCounter - 1;
     }
 
-    removePurchasePolicy(idPuPolicy: number){
+    removePurchasePolicy(idPuPolicy: number) {
         this._purchasePolicies.delete(idPuPolicy);
     }
 

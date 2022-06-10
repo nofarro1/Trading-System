@@ -5,19 +5,11 @@ import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
 import {MessageController} from "../../../src/domain/notifications/MessageController";
 
 class TestMessage extends Message {
-
-    private content: string;
-
     constructor(recipients: Set<string>) {
-        super(recipients);
-        this.content = "i'm A test message"
+        super(recipients, "i'm A test message");
     }
-
-    getContent() {
-        return this.content;
-    }
-
 }
+
 const id1 = "u1"
 let cart1;
 let tu1: Member;
@@ -27,7 +19,7 @@ const sess1 = "1";
 const sess2 = "2";
 const id2 = "u2"
 let cart2 = new ShoppingCart();
-const tu2: Member = new Member(sess2,id2)
+const tu2: Member = new Member(sess2, id2)
 let mb2 = new MessageBox(id2);
 let controller: MessageController
 
@@ -44,9 +36,9 @@ describe('messageBox - test', function () {
 
     test("added massage to box", () => {
         mb1.addMessage(tm1);
-        expect(mb1.unReadMessages).toContain(tm1);
+        expect(mb1.unreadMessages).toContain(tm1);
         expect(mb1.messages.length).toBe(0);
-        expect(mb1.unReadMessages.length).toBe(1);
+        expect(mb1.unreadMessages.length).toBe(1);
     })
 
     test("get massage from box", () => {
@@ -57,7 +49,7 @@ describe('messageBox - test', function () {
         expect(message).toEqual(tm1);
         expect(mb1.messages).toContain(tm1);
         expect(mb1.messages.length).toBe(1);
-        expect(mb1.unReadMessages.length).toBe(0);
+        expect(mb1.unreadMessages.length).toBe(0);
     })
 
     test("get message - should throw", () => {
@@ -70,43 +62,41 @@ describe('messageBox - test', function () {
         mb1.addMessage(tm1);
         mb1.addMessage(tm2);
         mb1.addMessage(tm3);
-        expect(mb1.unReadMessages.length).toBe(3);
+        expect(mb1.unreadMessages.length).toBe(3);
         expect(mb1.messages.length).toBe(0);
 
         let messages = mb1.getAllMessages();
         expect(messages.length).toBe(3);
-        expect(mb1.unReadMessages.length).toBe(0);
-
+        expect(mb1.unreadMessages.length).toBe(0);
     })
 
     test("remove message form box - in unread message", () => {
         mb1.addMessage(tm1);
         const mId = tm1.id;
-        expect(mb1.unReadMessages).toContain(tm1);
-        expect(mb1.unReadMessages.length).toBe(1);
+        expect(mb1.unreadMessages).toContain(tm1);
+        expect(mb1.unreadMessages.length).toBe(1);
 
         mb1.removeMessage(mId);
-        expect(mb1.unReadMessages).not.toContain(tm1);
-        expect(mb1.unReadMessages.length).toBe(0);
-
+        expect(mb1.unreadMessages).not.toContain(tm1);
+        expect(mb1.unreadMessages.length).toBe(0);
     })
 
     test("remove message from - in messages", () => {
         mb1.addMessage(tm1);
         const mId = tm1.id;
-        expect(mb1.unReadMessages).toContain(tm1);
-        expect(mb1.unReadMessages.length).toBe(1);
+        expect(mb1.unreadMessages).toContain(tm1);
+        expect(mb1.unreadMessages.length).toBe(1);
         const message = mb1.getMessage(mId);
         mb1.removeMessage(mId);
         expect(mb1.messages).not.toContain(tm1);
-        expect(mb1.unReadMessages.length).toBe(0);
+        expect(mb1.unreadMessages.length).toBe(0);
         expect(mb1.messages.length).toBe(0);
     })
 
     test("subscribe to mailbox and notify", () => {
         const onEvent = jest.fn();
         let sub: ILLiveNotificationSubscriber = {
-            onNewMessages:onEvent
+            onNewMessages: onEvent
         } as ILLiveNotificationSubscriber;
 
         mb1.subscribe(sub);
@@ -120,7 +110,7 @@ describe('messageBox - test', function () {
     test("no sub unsub", () => {
         const onEvent = jest.fn();
         let sub: ILLiveNotificationSubscriber = {
-            onNewMessages:onEvent
+            onNewMessages: onEvent
         } as ILLiveNotificationSubscriber;
         mb1.subscribe(sub);
         mb1.unsubscribe(sub);
@@ -128,6 +118,4 @@ describe('messageBox - test', function () {
         mb1.addMessage(tm1)
         expect(onEvent).not.toBeCalledWith()
     })
-
-
 });

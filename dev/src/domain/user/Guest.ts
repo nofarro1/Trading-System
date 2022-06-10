@@ -1,11 +1,14 @@
 import {ShoppingCart} from "./ShoppingCart";
+import {BaseEntity, JoinColumn, OneToOne} from "typeorm";
 
-
-export class Guest {
+export class Guest extends BaseEntity {
     private _session: string;
+    @OneToOne(() => ShoppingCart)
+    @JoinColumn()
     private _shoppingCart: ShoppingCart;
 
     constructor(id: string) {
+        super();
         this._session = id;
     }
 

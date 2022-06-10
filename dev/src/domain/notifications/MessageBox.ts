@@ -1,48 +1,42 @@
 import {Message} from "./Message";
 
 
-
-
 export interface ILLiveNotificationSubscriber {
-    onNewMessages(msgs: Message[]):void
-
+    onNewMessages(msgs: Message[]): void;
 }
 
 export interface ILiveNotificationPublisher {
-    subs:ILLiveNotificationSubscriber[]
-    subscribe(l:ILLiveNotificationSubscriber):void
-    unsubscribe(l:ILLiveNotificationSubscriber):void
-    notifySubscribers(messages: Message[]):void
+    subs: ILLiveNotificationSubscriber[];
+
+    subscribe(l: ILLiveNotificationSubscriber): void;
+    unsubscribe(l: ILLiveNotificationSubscriber): void;
+    notifySubscribers(messages: Message[]): void;
 }
 
 
-
-
-export class MessageBox implements ILiveNotificationPublisher{
-
+export class MessageBox implements ILiveNotificationPublisher {
     private memberId: string
     messages: Message[]
-    unReadMessages: Message[]
+    unreadMessages: Message[]
     subs: ILLiveNotificationSubscriber[]
 
-
-    constructor(member:string) {
+    constructor(member: string) {
         this.messages = [];
-        this.unReadMessages = []
+        this.unreadMessages = []
         this.subs = []
         this.memberId = member
     }
 
     addMessage(message: Message): void {
-        this.unReadMessages.push(message);
-        this.notifySubscribers(this.unReadMessages);
+        this.unreadMessages.push(message);
+        this.notifySubscribers(this.unreadMessages);
     }
 
-    removeMessage(messageId:string): void {
-        let index = this.messages.findIndex(m=> m.id === messageId);
-        let indexUnread = this.unReadMessages.findIndex(m=> m.id === messageId);
+    removeMessage(messageId: string): void {
+        let index = this.messages.findIndex(m => m.id === messageId);
+        let indexUnread = this.unreadMessages.findIndex(m => m.id === messageId);
         index !== -1 ? this.messages.splice(index, 1) : this.messages;
-        indexUnread !== -1 ? this.unReadMessages.splice(indexUnread, 1) : this.messages;
+        indexUnread !== -1 ? this.unreadMessages.splice(indexUnread, 1) : this.messages;
     }
 
     getAllMessages(): Message[] {
@@ -50,38 +44,37 @@ export class MessageBox implements ILiveNotificationPublisher{
         return this.messages
     }
 
-    getMessage(message:string): Message {
+    getMessage(message: string): Message {
         let from_messages = this.messages.find(m => m.id === message);
         if (from_messages !== undefined) {
             return from_messages
         } else {
-            let from_messagesUnread = this.unReadMessages.find(m => m.id === message);
+            let from_messagesUnread = this.unreadMessages.find(m => m.id === message);
             if (from_messagesUnread !== undefined) {
-                this.unReadMessages.splice(this.unReadMessages.indexOf(from_messagesUnread),1);
+                this.unreadMessages.splice(this.unreadMessages.indexOf(from_messagesUnread), 1);
                 this.messages.push(from_messagesUnread);
                 return from_messagesUnread;
             } else {
                 throw new Error(`no message with id ${message} was found`);
             }
         }
-
     }
 
-    private updateUnreadMessages():void {
+    private updateUnreadMessages(): void {
         this.messages.forEach(m => m.setIsRead(true))
-       this.messages.push(...this.unReadMessages)
-        this.unReadMessages = []
+        this.messages.push(...this.unreadMessages)
+        this.unreadMessages = []
     }
 
     notifySubscribers(messages: Message[]): void {
-        if(this.subs.length > 0) {
+        if (this.subs.length > 0) {
             this.subs.forEach(sub => sub.onNewMessages(this.messages));
             this.updateUnreadMessages();
         }
     }
 
     subscribe(l: ILLiveNotificationSubscriber): void {
-        if(!this.subs.includes(l)){
+        if (!this.subs.includes(l)) {
             this.subs.push(l);
         }
     }
@@ -91,5 +84,4 @@ export class MessageBox implements ILiveNotificationPublisher{
         index !== -1 ? this.subs.splice(index, 1) : this.subs;
 
     }
-
 }
