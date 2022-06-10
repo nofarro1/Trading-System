@@ -8,15 +8,20 @@ export function xor(a: boolean, b: boolean) {
 export class XorDiscounts implements DiscountComponent{
     private discounts: DiscountComponent[];
     private _id: number;
-
+    private _description: string;
 
     constructor(id: number, discounts: DiscountComponent[]) {
         this. _id = id;
         this.discounts= discounts;
+        this._description = this.discounts.reduce((acc:string, curr:DiscountComponent)=>{return acc+"\n"+ curr.description}, `There is eligibility for each of the discounts and provided that exactly one condition is met. Discounts:`)
     }
 
     get id(): number {
         return this._id;
+    }
+
+    get description(): string {
+        return this._description;
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {

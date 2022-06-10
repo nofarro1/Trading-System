@@ -10,12 +10,22 @@ export class PredicateDiscountPolicy {
     object: number | ProductCategory | undefined; //0 => tomatoes id
     relation: RelationType; // <=
     value: number;// 5
-
+    description: string;
     constructor(type: DiscountType, object: number | ProductCategory | undefined, relation: RelationType, value: number) {
         this.type = type;
         this.object = object;
         this.relation = relation;
         this.value = value;
+        let idMSG: string;
+        switch (this.type) {
+            case DiscountType.Product:
+                idMSG = `products with id: ${this.object}.`;
+            case DiscountType.Category:
+                idMSG = `products from ${this.object}.`;
+            case DiscountType.Bag:
+                idMSG = ``;
+        }
+        this.description = `if there is ${this.relation} ${this.value} in bag.`;
     }
 
     checkPredicate(products: [Product, number, number][]): boolean {

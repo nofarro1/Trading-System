@@ -281,6 +281,10 @@ export class Shop {
         this._discounts.delete(idDisc);
     }
 
+    getDiscount (id2return: number): DiscountComponent{
+        return this.discounts.get(id2return);
+    }
+
     addPurchasePolicy(puPolicy: ImmediatePurchaseData): number{
         let toAdd:ImmediatePurchasePolicyComponent = this.policyData2Component(puPolicy);
         this._purchasePolicies.set(this._purchaseCounter,toAdd);
@@ -290,6 +294,10 @@ export class Shop {
 
     removePurchasePolicy(idPuPolicy: number){
         this._purchasePolicies.delete(idPuPolicy);
+    }
+
+    getPurchasePolicy (id2return: number): ImmediatePurchasePolicyComponent{
+        return this._purchasePolicies.get(id2return);
     }
 
     private discData2Component (disc: DiscountData): DiscountComponent {

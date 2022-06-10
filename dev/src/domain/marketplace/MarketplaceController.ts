@@ -318,6 +318,24 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
+    getDiscount(shopId: number, id2return: number){
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let disc =  shop.getDiscount(id2return);
+            if(disc){
+                logger.info(`Discount with id: ${id2return} was returned from Shop with id: ${shopId} successfully.`)
+                return new Result(true, disc);
+            }
+            else{
+                logger.info(`Failed to return discount with id: ${id2return} from Shop with id: ${shopId}.`)
+                return new Result(false, undefined, `Discount with id: ${id2return} was not found in Shop with id: ${shopId}.`);
+            }
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
     addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchaseData): Result<number | void>{
         let shop = this._shops.get(shopId);
         if(shop){
@@ -336,6 +354,24 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             let puPurchaseId =  shop.removeDiscount(idPuPolicy)
             logger.info(`Purchase policy with id: ${puPurchaseId} was removed from Shop with id: ${shopId} successfully.`)
             return new Result(true, puPurchaseId);
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
+    getPurchase(shopId: number, id2return: number){
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let policy =  shop.getPurchasePolicy(id2return);
+            if(policy){
+                logger.info(`Purchase policy with id: ${id2return} was returned from Shop with id: ${shopId} successfully.`)
+                return new Result(true, policy);
+            }
+            else{
+                logger.info(`Failed to return Purchase policy with id: ${id2return} from Shop with id: ${shopId}.`)
+                return new Result(false, undefined, `Purchase policy with id: ${id2return} was not found in Shop with id: ${shopId}.`);
+            }
         }
         else{
             return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);

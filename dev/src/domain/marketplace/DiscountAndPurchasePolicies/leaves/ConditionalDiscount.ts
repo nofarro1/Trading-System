@@ -8,11 +8,10 @@ export class ConditionalDiscount implements DiscountComponent{
     private _id: number;
     private _discount: SimpleDiscount;
     private _pred: PredicateDiscountPolicy;
-    private _description: string;
 
 
     get description(): string {
-        return this._description;
+        return this._discount.description+this._pred.description;
     }
 
     get id(): number {

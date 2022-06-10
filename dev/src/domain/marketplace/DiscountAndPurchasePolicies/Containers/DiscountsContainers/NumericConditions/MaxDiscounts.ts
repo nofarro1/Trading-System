@@ -4,14 +4,20 @@ import {Product} from "../../../../Product";
 export class MaxDiscounts implements DiscountComponent{
     private _id: number;
     private discounts: DiscountComponent[];
+    private _description: string;
 
     constructor(id: number, discounts: DiscountComponent[]) {
        this._id = id;
-        this.discounts= discounts;
+       this.discounts= discounts;
+        this._description = this.discounts.reduce((acc:string, curr:DiscountComponent)=>{return acc+"\n"+ curr.description}, `The discount that will apply is the one with maximum value. Discounts:`)
     }
 
     get id(): number {
         return this._id;
+    }
+
+    get description(): string {
+        return this._description;
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {

@@ -24,7 +24,7 @@ export class SimpleDiscount implements DiscountComponent{
                 idMSG = `on all products in the shop.`;
         }
 
-        this._description = `${this.discountPercent}% discount ${idMSG}.`
+        this._description = `Simple discount of ${this.discountPercent}% ${idMSG}.`
     }
 
     get id(): number {
