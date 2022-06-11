@@ -1,17 +1,21 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
 import {Product} from "../../../../Product";
+import {ContainerDiscountComponent} from "../ContainerDiscountComponent";
 
-export class AdditionDiscounts implements DiscountComponent{
-    private discounts: DiscountComponent[];
-    private _id: number;
+export class AdditionDiscounts extends ContainerDiscountComponent{
 
     constructor(id: number, discounts: DiscountComponent[]) {
-        this._id = id;
-        this.discounts= discounts;
+        super(id, discounts);
+        this._description = this.discounts.reduce((acc:string, curr:DiscountComponent)=>{return acc+"\n"+ curr.description}, `There is eligibility for each of the discounts described below. Discounts:`)
     }
 
     get id(): number {
         return this._id;
+    }
+
+
+    get description(): string {
+        return this._description;
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {

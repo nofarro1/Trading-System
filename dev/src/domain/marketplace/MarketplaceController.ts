@@ -20,24 +20,31 @@ import "reflect-metadata";
 import {
     ImmediatePurchasePolicyComponent
 } from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
-import {DiscountData} from "../../utilities/DataObjects";
+import {DiscountData, ImmediatePurchaseData} from "../../utilities/DataObjects";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
+import {
+    ContainerDiscountComponent
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 
 @injectable()
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
 
     private _shops: Map<number, Shop>;
-    private shopCounter: number;
+    private _shopCounter: number;
     private _products: Map<number, Product>
     subscriber: IMessageListener<ShopStatusChangedMessage> | null;
 
     constructor(){
         this._shops= new Map<number,Shop>();
-        this.shopCounter= 0;
+        this._shopCounter= 0;
         this._products= new Map<number, Product>();
         this.subscriber= null;
     }
 
+
+    get Shops(): Shop[] {
+        return [...this._shops.values()];
+    }
 
     get shops(): Map<number, Shop> {
         return this._shops;
@@ -56,6 +63,9 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
 
+    get shopCounter(): number {
+        return this._shopCounter;
+    }
 
     accept(v: IMessageListener<ShopStatusChangedMessage>, msg: ShopStatusChangedMessage) {
         v.visitShopStatusChangedEvent(msg);
@@ -79,8 +89,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
 
     setUpShop(userId: string, shopName: string): Result<Shop| void>{
-        let toAdd= new Shop(this.shopCounter, shopName, userId);
-        this.shopCounter++;
+        let toAdd= new Shop(this._shopCounter, shopName, userId);
+        this._shopCounter++;
         this._shops.set(toAdd.id, toAdd);
         logger.info(`The ${shopName} was opened in the market by ${userId}.`);
         return new Result(true, toAdd);
@@ -314,7 +324,38 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchasePolicyComponent): Result<number | void>{
+    addSubDiscount(shopId: number, discId: number, toAdd: DiscountData): Result<void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            shop.addSubDiscount(discId, toAdd);
+            //Todo fix logs and result
+            logger.info(`Discount with id: ${discId} was removed from Shop with id: ${shopId} successfully.`)
+            return new Result(true, undefined);
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
+    getDiscount(shopId: number, id2return: number){
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let disc =  shop.getDiscount(id2return);
+            if(disc){
+                logger.info(`Discount with id: ${id2return} was returned from Shop with id: ${shopId} successfully.`)
+                return new Result(true, disc);
+            }
+            else{
+                logger.info(`Failed to return discount with id: ${id2return} from Shop with id: ${shopId}.`)
+                return new Result(false, undefined, `Discount with id: ${id2return} was not found in Shop with id: ${shopId}.`);
+            }
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
+    addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchaseData): Result<number | void>{
         let shop = this._shops.get(shopId);
         if(shop){
             let purchasePolicyId =  shop.addPurchasePolicy(puPolicy);
@@ -326,12 +367,30 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    removePurchasePolicy(shopId: number, idPuPolicy: number){
+    removePurchasePolicy(shopId: number, idPuPolicy: number): Result<void>{
         let shop = this._shops.get(shopId);
         if(shop){
             let puPurchaseId =  shop.removeDiscount(idPuPolicy)
             logger.info(`Purchase policy with id: ${puPurchaseId} was removed from Shop with id: ${shopId} successfully.`)
             return new Result(true, puPurchaseId);
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
+    getPurchase(shopId: number, id2return: number){
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let policy =  shop.getPurchasePolicy(id2return);
+            if(policy){
+                logger.info(`Purchase policy with id: ${id2return} was returned from Shop with id: ${shopId} successfully.`)
+                return new Result(true, policy);
+            }
+            else{
+                logger.info(`Failed to return Purchase policy with id: ${id2return} from Shop with id: ${shopId}.`)
+                return new Result(false, undefined, `Purchase policy with id: ${id2return} was not found in Shop with id: ${shopId}.`);
+            }
         }
         else{
             return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
