@@ -71,7 +71,7 @@ export class MemberService {
     requestShopPersonnelInfo(sessionID: string, shopID: number): Promise<Result<void | SimpleMember[]>> {
 
         return new Promise<Result<void | SimpleMember[]>>((resolve, reject) => {
-            let result: Result<void | SimpleMember[]> = this.systemController.getPersonnelInfo(sessionID, shopID);
+            let result: Result<void | SimpleMember[]> = this.systemController.getPersonnelInfoOfShop(sessionID, shopID);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
