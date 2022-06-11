@@ -12,6 +12,7 @@ import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
 import {Shop} from "../marketplace/Shop";
+import {Offer} from "../user/Offer";
 
 
 @injectable()
@@ -101,9 +102,12 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         v.visitPurchaseEvent(msg)
     }
 
-    checkout(user: Guest): Result<void> {
+    checkout(user: Guest): Result<void | [Offer[], Offer[]]> {
         let forUpdate: [[Shop, number, number]];
         let shoppingCart = user.shoppingCart;
+        let offersStatus = shoppingCart.checksOffers();
+        if(offersStatus[0].length>0 || offersStatus[1].length>0)
+            return new Result(false, offersStatus, "Could not continue purchase because there are offers that rejected or still waiting for approve.");
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
         shoppingCart.bags.forEach((bag: ShoppingBag) => {
@@ -163,4 +167,5 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         else
             return new Result(false, undefined, "Purchase wasn't successful");
     }
+
 }

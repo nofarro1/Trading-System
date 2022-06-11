@@ -1,18 +1,14 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
 import {Product} from "../../../../Product";
+import {ContainerDiscountComponent} from "../ContainerDiscountComponent";
 
 export function xor(a: boolean, b: boolean) {
     return !!a !== !!b;
 }
 
-export class XorDiscounts implements DiscountComponent{
-    private discounts: DiscountComponent[];
-    private _id: number;
-    private _description: string;
-
+export class XorDiscounts extends ContainerDiscountComponent{
     constructor(id: number, discounts: DiscountComponent[]) {
-        this. _id = id;
-        this.discounts= discounts;
+        super(id, discounts);
         this._description = this.discounts.reduce((acc:string, curr:DiscountComponent)=>{return acc+"\n"+ curr.description}, `There is eligibility for each of the discounts and provided that exactly one condition is met. Discounts:`)
     }
 

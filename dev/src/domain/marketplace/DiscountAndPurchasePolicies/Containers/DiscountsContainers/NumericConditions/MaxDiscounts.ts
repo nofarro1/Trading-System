@@ -1,14 +1,11 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
 import {Product} from "../../../../Product";
+import {ContainerDiscountComponent} from "../ContainerDiscountComponent";
 
-export class MaxDiscounts implements DiscountComponent{
-    private _id: number;
-    private discounts: DiscountComponent[];
-    private _description: string;
+export class MaxDiscounts extends ContainerDiscountComponent{
 
     constructor(id: number, discounts: DiscountComponent[]) {
-       this._id = id;
-       this.discounts= discounts;
+       super(id, discounts);
         this._description = this.discounts.reduce((acc:string, curr:DiscountComponent)=>{return acc+"\n"+ curr.description}, `The discount that will apply is the one with maximum value. Discounts:`)
     }
 
@@ -42,13 +39,7 @@ export class MaxDiscounts implements DiscountComponent{
         return totalPrice;
     }
 
-    addDiscountElement(toAdd: DiscountComponent){
-        this.discounts.push(toAdd);
-    }
-    removeDiscountElement(toRemove: DiscountComponent){
-        let i = this.discounts.indexOf(toRemove);
-        this.discounts.splice(i, 1);
-    }
+
 
     predicate(products: [Product, number, number][]): boolean {
         return true;

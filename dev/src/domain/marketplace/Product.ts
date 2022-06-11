@@ -1,7 +1,6 @@
 import {ProductCategory, ProductRate} from "../../utilities/Enums";
 import {BaseEntity, Column, Entity, ManyToOne, PrimaryColumn} from "typeorm";
 
-let productsCounter = 0;
 
 @Entity()
 export class Product extends BaseEntity {
@@ -18,14 +17,15 @@ export class Product extends BaseEntity {
     @Column({type: "text"})
     private _description: string;
 
-    constructor(name: string, shopId: number, id: number, category: ProductCategory, fullPrice: number, description?: string) {
-        super();
-        this._id = productsCounter;
-        this._name = name;
-        this._shopId = shopId;
-        this._category = category;
-        this._rate = ProductRate.NotRated
-        if (description) {
+
+
+    constructor(name: string, shopId: number, id: number, category: ProductCategory, fullPrice: number, description?: string){
+        this._id= id;
+        this._name= name;
+        this._shopId= shopId;
+        this._category= category;
+        this._rate= ProductRate.NotRated
+        if(description){
             this._description = description;
         } else
             this._description = "";

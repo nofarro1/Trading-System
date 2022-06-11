@@ -1,6 +1,7 @@
 /dev/package-lock.json
 /dev/node_modules/
 /node_modules/
+/dev/src/Client/client/.angular
 # Default ignored files
 /shelf/
 /workspace.xml

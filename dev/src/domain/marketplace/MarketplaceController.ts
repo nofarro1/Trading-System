@@ -19,17 +19,21 @@ import {injectable} from "inversify";
 import {ImmediatePurchasePolicyComponent} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 import {DiscountData} from "../../utilities/DataObjects";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
+import {
+    ContainerDiscountComponent
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
+import {Offer} from "../user/Offer";
 
 @injectable()
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
     private _shops: Map<number, Shop>;
-    private shopCounter: number;
+    private _shopCounter: number;
     private _products: Map<number, Product>
     subscriber: IMessageListener<ShopStatusChangedMessage> | null;
 
     constructor() {
         this._shops = new Map<number, Shop>();
-        this.shopCounter = 0;
+        this._shopCounter = 0;
         this._products = new Map<number, Product>();
         this.subscriber = null;
     }
@@ -55,6 +59,11 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         this._products = value;
     }
 
+
+    get shopCounter(): number {
+        return this._shopCounter;
+    }
+
     accept(v: IMessageListener<ShopStatusChangedMessage>, msg: ShopStatusChangedMessage) {
         v.visitShopStatusChangedEvent(msg);
     }
@@ -76,7 +85,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     setUpShop(userId: string, shopName: string): Result<Shop | void> {
         let toAdd = new Shop(this.shopCounter, shopName, userId);
-        this.shopCounter++;
+        this._shopCounter++;
         this._shops.set(toAdd.id, toAdd);
         logger.info(`The ${shopName} was opened in the market by ${userId}.`);
         return new Result(true, toAdd);
@@ -168,6 +177,20 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     }
 
+    removeShopOwner(shopId: number, ownerId: string){
+        let shop= this._shops.get(shopId);
+        if(!shop) {
+            logger.error(`Failed to remove an owner with id: ${ownerId} from shop with id: ${shopId}, because the shop does not exist.`)
+            return new Result(false, undefined, "Failed to remove owner because the shop wasn't found.");
+        }
+        else{
+            shop.removeShopOwner(ownerId);
+                shop.removeShopOwner(ownerId);
+                logger.info(`${ownerId} is no longer a owner of ${shop.name} .`)
+                return new Result(true, undefined);
+        }
+    }
+
     appointShopManager(managerId: string, shopId: number): Result<void> {
         let shop = this._shops.get(shopId);
         if (!shop) {
@@ -181,6 +204,19 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         } catch (error: any) {
             logger.error(`In marketPlaceController-> appointShopManager(${managerId}, ${shopId}): ${error.any}`)
             return new Result(false, undefined, error.message);
+        }
+    }
+
+    removeShopManager(shopId: number, managerId: string): Result<void>{
+        let shop= this._shops.get(shopId);
+        if(!shop) {
+            logger.error(`Failed to remove a manager with id: ${managerId} from shop with id: ${shopId}, because the shop does not exist.`)
+            return new Result(false, undefined, "Failed to remove manager because the shop wasn't found.");
+        }
+        else{
+            shop.removeShopOwner(managerId);
+            logger.info(`${managerId} is no longer a manager in ${shop.name} .`)
+            return new Result(true, undefined);
         }
     }
 
@@ -305,6 +341,19 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
+    addSubDiscount(shopId: number, discId: number, toAdd: DiscountData): Result<void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            shop.addSubDiscount(discId, toAdd);
+            //Todo fix logs and result
+            logger.info(`Discount with id: ${discId} was removed from Shop with id: ${shopId} successfully.`)
+            return new Result(true, undefined);
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
     getDiscount(shopId: number, id2return: number){
         let shop = this._shops.get(shopId);
         if(shop){
@@ -361,6 +410,56 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         else{
             return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
         }
+    }
+
+    addOffer2Product(shopId: number, userId: string, pId: number, offeredPrice: number ): Result<number | void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let offerId = shop.addOfferPrice2Product(userId, pId, offeredPrice);
+            logger.info(`User with id: ${userId} submitted an price offer on product with id: ${pId}.`)
+            return new Result(true, offerId);
+        }
+        logger.error(`Couldn't submit offer to shop with id: ${shopId} because the shop not found in market`);
+        return new Result (false, undefined, `Couldn't submit offer to shop with id: ${shopId} because the shop not found in market`)
+    }
+
+    getOffer(shopId: number, offerId: number): Result< Offer | void> {
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let offer = shop.getOffer(offerId);
+            if(offer){
+                logger.info(`Offer with id: ${offerId} was return successfully from shop with id: ${shopId}.`);
+                return new Result(true, offer);
+            }
+            else {
+                logger.error(`Offer with id: ${offerId} was not found in shop with id: ${shopId}.`);
+                return new Result(false, undefined, `Offer with id: ${offerId} was not found in shop with id: ${shopId}.`);
+            }
+        }
+        logger.error(`Couldn't returned offer to shop with id: ${shopId} because the shop not found in market`);
+        return new Result (false, undefined, `Couldn't returned offer to shop with id: ${shopId} because the shop not found in market`)
+    }
+
+    approveOffer(shopId: number, offerId: number, ownerId: string, answer: boolean): Result<void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+                try{
+                    let res = shop.answerOffer(offerId, ownerId, answer);
+                    if(res){
+                        logger.info(`User with id: ${ownerId} was answer successfully on Offer with id: ${offerId} in shop with id: ${shopId}.`);
+                        return new Result(true, undefined);
+                    }
+                    else{
+                        logger.info( `Offer with id: ${offerId} was not answered because it was not found in shop with id: ${shopId}.`);
+                        return new Result(true, undefined);
+                    }
+                }
+                catch(error: any){
+                    return new Result(false, undefined, error.message);
+                }
+        }
+        logger.error(`Couldn't approve offer to shop with id: ${shopId} because the shop not found in market`);
+        return new Result (false, undefined, `Couldn't returned offer to shop with id: ${shopId} because the shop not found in market`)
     }
 
 

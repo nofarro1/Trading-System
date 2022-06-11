@@ -69,4 +69,27 @@ export class ShoppingCart extends BaseEntity {
         // this._totalPrice= this._totalPrice - bag.totalPrice + bag.updateProductQuantity(toUpdate, quantity);
         bag.updateProductQuantity(toUpdate, quantity);
     }
+
+    addOffer(offer: Offer){
+        this._offers.push(offer);
+    }
+
+    removeOffer(offer: Offer){
+       this._offers = this._offers.filter((curr: Offer)=> curr != offer);
+    }
+
+    checksOffers(): [Offer[], Offer[]]{
+        let waitings: Offer[] = [];
+        let rejected: Offer[] = [];
+
+        for (let offer of this._offers) {
+            if(offer.isDone()){
+                if(!offer.answer)
+                    rejected.push(offer);
+            }
+            waitings.push(offer);
+            return [waitings, rejected];
+        }
+
+    }
 }
