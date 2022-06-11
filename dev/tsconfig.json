@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "es2021",
+    "target": "es2015",
     "sourceMap": true,
     "outDir": "dist",
     "strict": false,
@@ -15,9 +15,8 @@
     "skipLibCheck": true,
 //    "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "lib": [
-      "es2021",
-    ]
+    "lib": ["es2018", "dom"],
+    "importHelpers": true
   },
   "exclude": [
     "node_modules"

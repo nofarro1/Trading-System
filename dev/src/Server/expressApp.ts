@@ -4,6 +4,7 @@ import {Service} from "../service/Service";
 import {systemContainer} from "../helpers/inversify.config";
 import {TYPES} from "../helpers/types";
 import {Result} from "../utilities/Result";
+import { logger } from "../helpers/logger";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
@@ -54,6 +55,8 @@ router.get('/', async (req, res) => {
  */
 router.post('/guest/register', async (req, res) => {
     try {
+        logger.info("dfdf");
+        console.log(`register`);
         let sessId = req.session.id;
         let username = req.body.username;
         let password = req.body.password;
