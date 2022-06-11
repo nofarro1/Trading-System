@@ -9,9 +9,16 @@ import {Answer} from "../../utilities/Types";
 import {Guest} from "../user/Guest";
 import {
     ConditionalDiscountData,
-    ContainerDiscountData, ContainerPurchaseData,
-    DiscountData, ImmediatePurchaseData,
-    SimpleDiscountData, SimplePurchaseData
+    ContainerDiscountData,
+    ContainerPurchaseData,
+    DiscountData,
+    ImmediatePurchaseData,
+    isConditionalDiscount,
+    isContainerDiscount, isContainerPurchaseData,
+    isSimpleDiscount,
+    isSimplePurchaseData,
+    SimpleDiscountData,
+    SimplePurchaseData
 } from "../../utilities/DataObjects";
 import {SimpleDiscount} from "./DiscountAndPurchasePolicies/leaves/SimpleDiscount";
 import {PredicateDiscountPolicy} from "./DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
@@ -35,6 +42,9 @@ import {OrPolicy} from "./DiscountAndPurchasePolicies/Containers/PurchaseContain
 import {
     ConditioningPurchasePolicies
 } from "./DiscountAndPurchasePolicies/Containers/PurchaseContainers/ConditionalPolicy";
+import {
+    ContainerDiscountComponent
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 
 
 export class Shop {
@@ -155,6 +165,10 @@ export class Shop {
         return this._discounts;
     }
 
+    getDiscounts(): DiscountComponent[]{
+        return [...this._discounts.values()];
+    }
+
     get discountCounter(): number {
         return this._discountCounter;
     }
@@ -254,21 +268,30 @@ export class Shop {
         return policies.reduce(callBack, {ok:true, message:"Couldn't make purchase because:"});
     }
 
-    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
-        let productsList = [];
-        for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
-        return productsList;
-    }
+
 
     addDiscount(disc: DiscountData): number{
         let toAdd:DiscountComponent = this.discData2Component(disc);
         this._discounts.set(this._discountCounter,toAdd);
-        this._discountCounter++;
-        return this._discountCounter--;
+        this._discountCounter = this._discountCounter+1;
+        return this._discountCounter-1;
     }
+
+    addSubDiscount(discId: number, toAdd: DiscountData) {
+        let disc:DiscountComponent = this.discounts.get(discId);
+        if(disc instanceof ContainerDiscountComponent){
+            let toAddComponent = this.discData2Component(toAdd);
+            disc.addDiscountElement(toAddComponent);
+        }
+    }
+
 
     removeDiscount(idDisc: number): void{
         this._discounts.delete(idDisc);
+    }
+
+    getDiscount (id2return: number): DiscountComponent{
+        return this.discounts.get(id2return);
     }
 
     addPurchasePolicy(puPolicy: ImmediatePurchaseData): number{
@@ -282,18 +305,32 @@ export class Shop {
         this._purchasePolicies.delete(idPuPolicy);
     }
 
+    getPurchasePolicy (id2return: number): ImmediatePurchasePolicyComponent{
+        return this._purchasePolicies.get(id2return);
+    }
+
+
+    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
+        let productsList = [];
+        for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
+        return productsList;
+    }
+
     private discData2Component (disc: DiscountData): DiscountComponent {
-        if (disc instanceof SimpleDiscountData) {
+        if (isSimpleDiscount(disc)) {
             let discInf = {type: disc.discountType, object: disc.object}
-            return new SimpleDiscount(this._discountCounter, discInf, disc.discountPrecent);
-        } else if (disc instanceof ConditionalDiscountData) {
+            return new SimpleDiscount(this._discountCounter, discInf, disc.discountPresent);
+        } else if (isConditionalDiscount(disc)) {
             let discInf = {type: disc.discount.discountType, object: disc.discount.object}
-            let discount = new SimpleDiscount(this._discountCounter, discInf, disc.discount.discountPrecent);
+            let simpDisc = new SimpleDiscount(this.discountCounter, discInf, disc.discount.discountPresent);
             let pred = new PredicateDiscountPolicy(disc.predTypeObject, disc.predObject, disc.predRelation, disc.predValue);
-            return new ConditionalDiscount(this._discountCounter, discount, pred);
-        } else if (disc instanceof ContainerDiscountData) {
-            let callBack = (curr: DiscountData) => this.discData2Component(curr);
-            let discComponents = disc.discounts.map(callBack);
+            return new ConditionalDiscount(this._discountCounter, simpDisc, pred);
+        }
+        else if (isContainerDiscount(disc)) {
+            let discComponents: DiscountComponent[] = [];
+            for (let toAdd of disc.discounts){
+                discComponents.push(this.discData2Component(toAdd))
+            }
             switch (disc.discountRelation) {
                 case DiscountRelation.And:
                     return new AndDiscounts(this.discountCounter, discComponents);
@@ -310,24 +347,31 @@ export class Shop {
     }
 
     private policyData2Component (puPolicy: ImmediatePurchaseData): ImmediatePurchasePolicyComponent{
-            if (puPolicy instanceof SimplePurchaseData) {
+            if ( isSimplePurchaseData(puPolicy)) {
                 return new SimplePurchase(this._purchaseCounter, puPolicy.policyType, puPolicy.object, puPolicy.predRelation, puPolicy.predValue, puPolicy.msg);
             }
-            else if (puPolicy instanceof ContainerPurchaseData) {
-                let callBack = (curr: ImmediatePurchaseData) => this.policyData2Component(curr);
-                let policiesComponent = puPolicy.policies.map(callBack);
+            else if (isContainerPurchaseData(puPolicy)) {
+                let policiesComponent: ImmediatePurchasePolicyComponent[] = [];
+                for (let toAdd of puPolicy.policies){
+                    policiesComponent.push(this.policyData2Component(toAdd))
+                }
                 switch (puPolicy.policiesRelation) {
                     case PurchasePoliciesRelation.And:
                         return new AndPolicy(this._purchaseCounter, policiesComponent);
+                        break;
                     case PurchasePoliciesRelation.Or:
                         return new OrPolicy(this._purchaseCounter, policiesComponent);
+                        break;
                     case PurchasePoliciesRelation.Conditional:
                         if (puPolicy.dependet && puPolicy.dependetOn) {
                             let dependet = this.policyData2Component(puPolicy.dependet);
                             let dependetOn = this.policyData2Component(puPolicy.dependetOn);
                             return new ConditioningPurchasePolicies(this._purchaseCounter, dependet, dependetOn);
                         }
+                        break;
                 }
             }
         }
+
+
 }

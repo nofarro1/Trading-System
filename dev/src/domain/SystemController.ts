@@ -1,6 +1,6 @@
 import {SecurityController} from "./SecurityController";
 
-import {LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
+import {DiscountData, LoginData, NewProductData, NewRoleData, RegisterMemberData} from "../utilities/DataObjects";
 import {Member} from "./user/Member";
 import {ExternalServiceType} from "../utilities/Utils";
 import {MarketplaceController} from "./marketplace/MarketplaceController";
@@ -32,6 +32,9 @@ import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../helpers/types";
 import "reflect-metadata";
+import {
+    ImmediatePurchasePolicyComponent
+} from "./marketplace/DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 
 @injectable()
 export class SystemController {
@@ -604,4 +607,12 @@ export class SystemController {
         })
 
     }
+
+    addDiscount(shopId: number, discount: DiscountData): Result<number | void>{}
+
+    removeDiscount(shopId: number, idDisc: number): Result<void>{}
+
+    addPurchasePolicy(shopId: number, puPolicy: ImmediatePurchasePolicyComponent): Result<number | void>{}
+
+    removePurchasePolicy(shopId: number, idPuPolicy: number): Result<void>{}
 }

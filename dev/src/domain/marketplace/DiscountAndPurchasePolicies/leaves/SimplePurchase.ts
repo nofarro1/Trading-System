@@ -27,6 +27,10 @@ export class SimplePurchase implements ImmediatePurchasePolicyComponent{
         return this._answer;
     }
 
+    get description(): string {
+        return this._predicate.description;
+    }
+
 
 
 }
