@@ -323,10 +323,11 @@ export class Shop {
         return this._purchasePolicies.get(id2return);
     }
 
-    addOfferPrice2Product( userId: string, pId: number, offeredPrice: number): number{
-        this._offers.set(this.offerCounter, new Offer(this.offerCounter,userId, pId, offeredPrice, this.shopOwners));
+    addOfferPrice2Product( userId: string, pId: number, offeredPrice: number): Offer{
+        let offer = new Offer(this.offerCounter,userId, this.id, pId, offeredPrice, this.shopOwners)
+        this._offers.set(this.offerCounter, offer);
         this.offerCounter= this.offerCounter+1;
-        return this.offerCounter-1;
+        return offer;
     }
 
     getOffer(offerId: number){

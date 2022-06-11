@@ -1,14 +1,16 @@
 export class Offer{
     private readonly _id: number;
     private readonly _user: string;
+    private readonly _shopId: number;
     private readonly _pId: number;
     private readonly _price: number;
     private _approvers: Map<string, boolean>;
     private _answer: boolean;
 
-    constructor(id: number, userId: string,  pId: number, price: number, approvers: Set<string>){
+    constructor(id: number, userId: string, shopId: number,  pId: number, price: number, approvers: Set<string>){
         this._id= id;
         this._user= userId;
+        this._shopId = shopId;
         this._pId= pId;
         this._price= price;
         this._approvers = new Map<string, boolean>();
