@@ -16,12 +16,18 @@ export class SimpleDiscount implements DiscountComponent{
         this.discountPercent = discountPercent;
         let idMSG: string;
         switch (this.info.type) {
-            case DiscountType.Product:
-                idMSG = `on products with id: ${this.info.object}.`;
-            case DiscountType.Category:
-                idMSG = `on products from ${this.info.object}.`;
-            case DiscountType.Bag:
-                idMSG = `on all products in the shop.`;
+            case DiscountType.Product: {
+                idMSG = `on products with id: ${this.info.object}`;
+                break;
+            }
+            case DiscountType.Category: {
+                idMSG = `on products from ${this.info.object}`;
+                break;
+            }
+            case DiscountType.Bag: {
+                idMSG = `on all products in the shop`;
+                break;
+            }
         }
 
         this._description = `Simple discount of ${this.discountPercent}% ${idMSG}.`

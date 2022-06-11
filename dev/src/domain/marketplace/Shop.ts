@@ -277,8 +277,8 @@ export class Shop {
     addDiscount(disc: DiscountData): number{
         let toAdd:DiscountComponent = this.discData2Component(disc);
         this._discounts.set(this._discountCounter,toAdd);
-        this._discountCounter++;
-        return this._discountCounter--;
+        this._discountCounter = this._discountCounter+1;
+        return this._discountCounter-1;
     }
 
     addSubDiscount(discId: number, toAdd: DiscountData) {
@@ -319,12 +319,15 @@ export class Shop {
             return new SimpleDiscount(this._discountCounter, discInf, disc.discountPresent);
         } else if (isConditionalDiscount(disc)) {
             let discInf = {type: disc.discount.discountType, object: disc.discount.object}
-            let discount = new SimpleDiscount(this._discountCounter, discInf, disc.discount.discountPresent);
+            let simpDisc = new SimpleDiscount(this.discountCounter, discInf, disc.discount.discountPresent);
             let pred = new PredicateDiscountPolicy(disc.predTypeObject, disc.predObject, disc.predRelation, disc.predValue);
-            return new ConditionalDiscount(this._discountCounter, discount, pred);
+            return new ConditionalDiscount(this._discountCounter, simpDisc, pred);
         }
         else if (isContainerDiscount(disc)) {
-            let discComponents = disc.discounts.map(this.discData2Component);
+            let discComponents: DiscountComponent[] = [];
+            for (let toAdd of disc.discounts){
+                discComponents.push(this.discData2Component(toAdd))
+            }
             switch (disc.discountRelation) {
                 case DiscountRelation.And:
                     return new AndDiscounts(this.discountCounter, discComponents);
@@ -345,7 +348,10 @@ export class Shop {
                 return new SimplePurchase(this._purchaseCounter, puPolicy.policyType, puPolicy.object, puPolicy.predRelation, puPolicy.predValue, puPolicy.msg);
             }
             else if (isContainerPurchaseData(puPolicy)) {
-                let policiesComponent = puPolicy.policies.map(this.policyData2Component);
+                let policiesComponent: ImmediatePurchasePolicyComponent[] = [];
+                for (let toAdd of puPolicy.policies){
+                    policiesComponent.push(this.policyData2Component(toAdd))
+                }
                 switch (puPolicy.policiesRelation) {
                     case PurchasePoliciesRelation.And:
                         return new AndPolicy(this._purchaseCounter, policiesComponent);
