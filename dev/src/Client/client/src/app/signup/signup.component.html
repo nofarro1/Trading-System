@@ -21,8 +21,9 @@
       <input class="form-control" type="text" formControlName="email" placeholder="Enter Email" id="email" required>
   
       <label for="country"><b>Country</b></label>
-      <input class="form-control" type="text" formControlName="country" placeholder="Enter Country" id="country" required>
-
+      <div></div>
+      <p-dropdown class="form-control" formControlName="country" [options]="countries" [(ngModel)]="selectedCountry" placeholder="Select a Country" optionLabel="name" [showClear]="true"></p-dropdown>
+      
       <button class="btn btn-primary" type="submit" class="registerbtn">Register</button>
   </div>
 </form>

@@ -12,10 +12,13 @@ import { CartComponent } from './cart/cart.component';
 import { TableModule } from 'primeng/table';
 import { DataViewModule } from 'primeng/dataview';
 import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
 import { LogoutComponent } from './logout/logout.component';
 import { SignupComponent } from './signup/signup.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MultiSelectModule} from 'primeng/multiselect';
+import { HttpClientModule} from '@angular/common/http';
 
 
 @NgModule({
@@ -38,7 +41,10 @@ import { HttpClientModule } from '@angular/common/http';
     DataViewModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    DropdownModule,
+    BrowserAnimationsModule,
+    MultiSelectModule,
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
