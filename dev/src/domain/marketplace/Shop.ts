@@ -42,6 +42,9 @@ import {OrPolicy} from "./DiscountAndPurchasePolicies/Containers/PurchaseContain
 import {
     ConditioningPurchasePolicies
 } from "./DiscountAndPurchasePolicies/Containers/PurchaseContainers/ConditionalPolicy";
+import {
+    ContainerDiscountComponent
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 
 
 export class Shop {
@@ -278,6 +281,15 @@ export class Shop {
         return this._discountCounter--;
     }
 
+    addSubDiscount(discId: number, toAdd: DiscountData) {
+        let disc:DiscountComponent = this.discounts.get(discId);
+        if(disc instanceof ContainerDiscountComponent){
+            let toAddComponent = this.discData2Component(toAdd);
+            disc.addDiscountElement(toAddComponent);
+        }
+    }
+
+
     removeDiscount(idDisc: number): void{
         this._discounts.delete(idDisc);
     }
@@ -348,4 +360,6 @@ export class Shop {
                 }
             }
         }
+
+
 }

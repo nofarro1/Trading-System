@@ -22,6 +22,9 @@ import {
 } from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 import {DiscountData, ImmediatePurchaseData} from "../../utilities/DataObjects";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
+import {
+    ContainerDiscountComponent
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 
 @injectable()
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
@@ -315,6 +318,19 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             let discId =  shop.removeDiscount(idDisc)
             logger.info(`Discount with id: ${discId} was removed from Shop with id: ${shopId} successfully.`)
             return new Result(true, discId);
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
+        }
+    }
+
+    addSubDiscount(shopId: number, discId: number, toAdd: DiscountData): Result<void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            shop.addSubDiscount(discId, toAdd);
+            //Todo fix logs and result
+            logger.info(`Discount with id: ${discId} was removed from Shop with id: ${shopId} successfully.`)
+            return new Result(true, undefined);
         }
         else{
             return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);

@@ -1,6 +1,12 @@
 import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Product} from "../../../../src/domain/marketplace/Product";
-import {DiscountType, ProductCategory, RelationType, SimplePolicyType} from "../../../../src/utilities/Enums";
+import {
+    DiscountRelation,
+    DiscountType,
+    ProductCategory,
+    RelationType,
+    SimplePolicyType
+} from "../../../../src/utilities/Enums";
 import {ShoppingBag} from "../../../../src/domain/user/ShoppingBag";
 import {SimpleDiscount} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimpleDiscount";
 import {discountInf} from "../../../../src/utilities/Types";
@@ -10,9 +16,6 @@ import {
 import {
     ConditionalDiscount
 } from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/ConditionalDiscount";
-import {
-    AndDiscounts
-} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicCompositions/AndDiscounts";
 import {
     OrDiscounts
 } from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicCompositions/OrDiscounts";
@@ -25,6 +28,11 @@ import {
 import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 import {Guest} from "../../../../src/domain/user/Guest";
 import {SimplePurchase} from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimplePurchase";
+import {
+    ConditionalDiscountData,
+    ContainerDiscountData,
+    SimpleDiscountData, SimplePurchaseData
+} from "../../../../src/utilities/DataObjects";
 
 const mockInstance = (dependency: string) => {
     jest.mock(dependency)
@@ -103,8 +111,7 @@ describe('SimpleShop- Appointed Members', function(){
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 2]);
         bag.products.set(1, [p2, 1]);
-        let discountInf: discountInf = {type:DiscountType.Product, object:p1.id} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf, 20);
+        let disc1 = new SimpleDiscountData( DiscountType.Product, p1.id, 20);
         s1.addDiscount(disc1);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -118,11 +125,9 @@ describe('SimpleShop- Appointed Members', function(){
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 2]);
         bag.products.set(1, [p2, 1]);
-        let discountInf1: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 20);
+        let disc1 = new SimpleDiscountData(DiscountType.Product, p1.id, 20);
         s1.addDiscount(disc1);
-        let discountInf2: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc2 = new SimpleDiscount(discountInf2, 10);
+        let disc2 = new SimpleDiscountData(DiscountType.Bag, undefined, 10);
         s1.addDiscount(disc2);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -136,15 +141,11 @@ describe('SimpleShop- Appointed Members', function(){
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 2]);
         bag.products.set(1, [p2, 1]);
-        let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
-        let discountInf2: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
-        let disc2 = new SimpleDiscount(discountInf2, 5);
-        let pred1 = new PredicateDiscountPolicy(DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
-        let pred2 = new PredicateDiscountPolicy(DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
-        let cond1 = new ConditionalDiscount(disc1, pred1);
-        let cond2 = new ConditionalDiscount(disc2, pred2);
-        let andDisc = new AndDiscounts([cond1, cond2]);
+        let disc1 = new SimpleDiscountData(DiscountType.Bag, undefined, 5);
+        let disc2 = new SimpleDiscountData(DiscountType.Product, p1.id, 5);
+        let cond1 = new ConditionalDiscountData(disc1, DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
+        let cond2 = new ConditionalDiscountData(disc2, DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
+        let andDisc = new ContainerDiscountData(DiscountRelation.And, [cond1, cond2]);
         s1.addDiscount(andDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -158,15 +159,11 @@ describe('SimpleShop- Appointed Members', function(){
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 1]);
-        let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
-        let discountInf2: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
-        let disc2 = new SimpleDiscount(discountInf2, 5);
-        let pred1 = new PredicateDiscountPolicy(DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
-        let pred2 = new PredicateDiscountPolicy(DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
-        let cond1 = new ConditionalDiscount(disc1, pred1);
-        let cond2 = new ConditionalDiscount(disc2, pred2);
-        let andDisc = new AndDiscounts([cond1, cond2]);
+        let disc1 = new SimpleDiscountData(DiscountType.Bag, undefined, 5);
+        let disc2 = new SimpleDiscountData(DiscountType.Product, p1.id,5);
+        let cond1 = new ConditionalDiscountData(disc1, DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
+        let cond2 = new ConditionalDiscountData(disc2, DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
+        let andDisc = new ContainerDiscountData(DiscountRelation.And, [cond1, cond2]);
         s1.addDiscount(andDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -180,15 +177,11 @@ describe('SimpleShop- Appointed Members', function(){
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 1]);
-        let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
-        let pred1 = new PredicateDiscountPolicy(DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
-        let discountInf2: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
-        let cond1 = new ConditionalDiscount(disc1, pred1);
-        let disc2 = new SimpleDiscount(discountInf2, 5);
-        let pred2 = new PredicateDiscountPolicy(DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
-        let cond2 = new ConditionalDiscount(disc2, pred2);
-        let OrDisc = new OrDiscounts([cond1, cond2]);
+        let disc1 = new SimpleDiscountData(DiscountType.Bag, undefined, 5);
+        let cond1 = new ConditionalDiscountData(disc1, DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
+        let disc2 = new SimpleDiscountData(DiscountType.Category, ProductCategory.A, 5);
+        let cond2 = new ConditionalDiscountData(disc2, DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
+        let OrDisc = new ContainerDiscountData(DiscountRelation.Or, [cond1, cond2]);
         s1.addDiscount(OrDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -202,15 +195,11 @@ describe('SimpleShop- Appointed Members', function(){
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 0]);
-        let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
-        let pred1 = new PredicateDiscountPolicy(DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
-        let discountInf2: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
-        let cond1 = new ConditionalDiscount(disc1, pred1);
-        let disc2 = new SimpleDiscount(discountInf2, 5);
-        let pred2 = new PredicateDiscountPolicy(DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
-        let cond2 = new ConditionalDiscount(disc2, pred2);
-        let OrDisc = new OrDiscounts([cond1, cond2]);
+        let disc1 = new SimpleDiscountData(DiscountType.Bag, undefined, 5);
+        let cond1 = new ConditionalDiscountData(disc1, DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
+        let disc2 = new SimpleDiscountData(DiscountType.Category, ProductCategory.A, 5);
+        let cond2 = new ConditionalDiscountData(disc2, DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
+        let OrDisc = new ContainerDiscountData(DiscountRelation.Or,[cond1, cond2]);
         s1.addDiscount(OrDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -224,13 +213,10 @@ describe('SimpleShop- Appointed Members', function(){
         let bag = new ShoppingBag(0);
         bag.products.set(0,[p1, 1]);
         bag.products.set(1, [p2, 1]);
-        let discountInf1: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
-        let discountInf2: discountInf = {type:DiscountType.Category, object:ProductCategory.B} as discountInf;
-        let disc2 = new SimpleDiscount(discountInf2, 10);
-        let maxDisc = new MaxDiscounts();
-        maxDisc.addDiscountElement(disc1);
-        maxDisc.addDiscountElement(disc2);
+        let disc1 = new SimpleDiscountData(DiscountType.Category, ProductCategory.A, 5);
+        let disc2 = new SimpleDiscountData(DiscountType.Category, ProductCategory.B, 10);
+        let maxDisc = new ContainerDiscountData(DiscountRelation.Max, []);
+
         s1.addDiscount(maxDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -265,7 +251,7 @@ describe('SimpleShop- Appointed Members', function(){
         cart.addProduct(p1, 2);
         let bag = cart.bags.get(0);
         let user = new Guest("1");
-        let simplePolicy = new SimplePurchase(SimplePolicyType.Product, p1.id, RelationType.LessThenOrEqual, 5,"Couldn't continue with checkout because the quantity of 'ski' cheese is more the 5.");
+        let simplePolicy = new SimplePurchaseData(SimplePolicyType.Product, p1.id, RelationType.LessThenOrEqual, 5,"Couldn't continue with checkout because the quantity of 'ski' cheese is more the 5.");
         s1.addPurchasePolicy(simplePolicy);
         let ans = s1.canMakePurchase([bag, user]);
         expect(ans.ok).toBe(true);
@@ -276,7 +262,7 @@ describe('SimpleShop- Appointed Members', function(){
         cart.addProduct(p1, 6);
         let bag = cart.bags.get(0);
         let user = new Guest("1");
-        let simplePolicy = new SimplePurchase(SimplePolicyType.Product, p1.id, RelationType.LessThenOrEqual, 5, "The quantity of 'ski' cheese is more the 5.");
+        let simplePolicy = new SimplePurchaseData(SimplePolicyType.Product, p1.id, RelationType.LessThenOrEqual, 5, "The quantity of 'ski' cheese is more the 5.");
         s1.addPurchasePolicy(simplePolicy);
         let ans = s1.canMakePurchase([bag, user]);
         expect(ans.ok).toBe(false);
@@ -288,7 +274,7 @@ describe('SimpleShop- Appointed Members', function(){
         cart.addProduct(p1, 5);
         let bag = cart.bags.get(0);
         let user = new Guest("1");
-        let simplePolicy = new SimplePurchase(SimplePolicyType.Category, p1.category, RelationType.Equal, 5,"The quantity of 'ski' cheese is more the 5.");
+        let simplePolicy = new SimplePurchaseData(SimplePolicyType.Category, p1.category, RelationType.Equal, 5,"The quantity of 'ski' cheese is more the 5.");
         s1.addPurchasePolicy(simplePolicy);
         let ans = s1.canMakePurchase([bag, user]);
         expect(ans.ok).toBe(true);
