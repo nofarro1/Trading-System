@@ -45,6 +45,7 @@ import {
 import {
     ContainerDiscountComponent
 } from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
+import {Offer} from "../user/Offer";
 
 
 export class Shop {
@@ -63,6 +64,8 @@ export class Shop {
     private _purchasePolicies: Map <number, ImmediatePurchasePolicyComponent>;
     private _purchaseCounter: number;
     private _description?: string;
+    private _offers: Map<number, Offer>
+    private offerCounter: number;
 
     constructor(id: number, name: string, shopFounder: string, description?: string){
         this._id= id;
@@ -79,6 +82,7 @@ export class Shop {
         this._purchasePolicies = new Map <number, ImmediatePurchasePolicyComponent>();
         this._purchaseCounter = 0;
         this._description = description;
+        this.offerCounter = 0;
     }
 
 
@@ -236,10 +240,21 @@ export class Shop {
         this.shopOwners?.add(ownerId);
     }
 
+    removeShopOwner (ownerId: string): boolean{
+        for (let offer of this._offers.values()){
+            offer.approvers.delete(ownerId);
+        }
+        return this._shopOwners.delete(ownerId);
+    }
+
     appointShopManager(managerId: string): void{
         if(this.shopManagers?.has(managerId))
             throw new Error("Failed to appoint owner because the member is already a owner of the shop")
         this.shopManagers?.add(managerId);
+    }
+
+    removeShopManager (managerId: string){
+        return this.shopManagers.delete(managerId);
     }
 
     calculateBagPrice(bag: ShoppingBag): [Product, number, number][]{
@@ -267,7 +282,6 @@ export class Shop {
                         };
         return policies.reduce(callBack, {ok:true, message:"Couldn't make purchase because:"});
     }
-
 
 
     addDiscount(disc: DiscountData): number{
@@ -309,12 +323,32 @@ export class Shop {
         return this._purchasePolicies.get(id2return);
     }
 
+    addOfferPrice2Product( userId: string, pId: number, offeredPrice: number): number{
+        this._offers.set(this.offerCounter, new Offer(this.offerCounter,userId, pId, offeredPrice, this.shopOwners));
+        this.offerCounter= this.offerCounter+1;
+        return this.offerCounter-1;
+    }
+
+    getOffer(offerId: number){
+            return this._offers.get(offerId);
+    }
+
+    answerOffer(offerId: number, ownerId: string, answer: boolean): boolean{
+        let offer = this._offers.get(offerId);
+        if(offer){
+            offer.setAnswer(ownerId, answer);
+            return true;
+        }
+        return false;
+    }
 
     private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
         let productsList = [];
         for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
         return productsList;
     }
+
+
 
     private discData2Component (disc: DiscountData): DiscountComponent {
         if (isSimpleDiscount(disc)) {
