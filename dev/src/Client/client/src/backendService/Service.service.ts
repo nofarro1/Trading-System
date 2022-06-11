@@ -19,12 +19,12 @@ import { catchError, retry } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class api {
-  baseUrl: string = 'https://localhost:3000';
+  // base: string = 'https://localhost:3000';
 
   constructor(
     private http: HttpClient,
-    // @Inject('https://localhost:3000')
-    // private baseUrl: string
+    @Inject('https://localhost:3000')
+    private baseUrl: string
   ) {
     // const agent = new Agent({ rejectUnauthorized: false });
     // axios.defaults.httpsAgent(agent);
@@ -38,8 +38,6 @@ export class api {
 
   register(username: string, password: string, firstName: string, lastName: string, email: string, country: string) {
     console.log('in register in service');
-    console.log(`${this.baseUrl}/guest/register`);
-
     return this.http.post(`${this.baseUrl}/guest/register`, {username, password, firstName, lastName, email, country});
   }
 
