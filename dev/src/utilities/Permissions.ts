@@ -12,7 +12,9 @@ export enum Permissions {
     RemovePermission,
     CloseShop,
     ReopenShop,
-    AdminControl
-
-
+    AdminControl,
+    AddDiscount,
+    RemoveDiscount,
+    AddPurchasePolicy,
+    RemovePurchasePolicy
 }

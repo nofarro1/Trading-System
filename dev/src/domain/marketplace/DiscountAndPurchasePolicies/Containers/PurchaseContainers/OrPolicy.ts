@@ -6,15 +6,22 @@ import {Guest} from "../../../../user/Guest";
 export class OrPolicy implements ImmediatePurchasePolicyComponent{
     private _id: number;
     private purchasePolicies: ImmediatePurchasePolicyComponent[];
+    private _description: string;
 
     constructor(id: number, purchasePolicies: ImmediatePurchasePolicyComponent[]) {
         this._id = id;
         this.purchasePolicies = purchasePolicies;
+        this._description = this.purchasePolicies.reduce((acc:string, curr:ImmediatePurchasePolicyComponent)=>{return acc+"\n"+ curr.description}, `The purchase can only be made if one od the described below is met.`)
     }
 
 
     get id(): number {
         return this._id;
+    }
+
+
+    get description(): string {
+        return this._description;
     }
 
     addPurchasePolicy (toAdd: ImmediatePurchasePolicyComponent){
