@@ -268,11 +268,7 @@ export class Shop {
         return policies.reduce(callBack, {ok:true, message:"Couldn't make purchase because:"});
     }
 
-    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
-        let productsList = [];
-        for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
-        return productsList;
-    }
+
 
     addDiscount(disc: DiscountData): number{
         let toAdd:DiscountComponent = this.discData2Component(disc);
@@ -311,6 +307,13 @@ export class Shop {
 
     getPurchasePolicy (id2return: number): ImmediatePurchasePolicyComponent{
         return this._purchasePolicies.get(id2return);
+    }
+
+
+    private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
+        let productsList = [];
+        for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
+        return productsList;
     }
 
     private discData2Component (disc: DiscountData): DiscountComponent {
