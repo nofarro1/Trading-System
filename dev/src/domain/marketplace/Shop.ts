@@ -355,14 +355,17 @@ export class Shop {
                 switch (puPolicy.policiesRelation) {
                     case PurchasePoliciesRelation.And:
                         return new AndPolicy(this._purchaseCounter, policiesComponent);
+                        break;
                     case PurchasePoliciesRelation.Or:
                         return new OrPolicy(this._purchaseCounter, policiesComponent);
+                        break;
                     case PurchasePoliciesRelation.Conditional:
                         if (puPolicy.dependet && puPolicy.dependetOn) {
                             let dependet = this.policyData2Component(puPolicy.dependet);
                             let dependetOn = this.policyData2Component(puPolicy.dependetOn);
                             return new ConditioningPurchasePolicies(this._purchaseCounter, dependet, dependetOn);
                         }
+                        break;
                 }
             }
         }

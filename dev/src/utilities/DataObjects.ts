@@ -150,7 +150,7 @@ export class ContainerPurchaseData implements ImmediatePurchaseData{
 }
 
 export const isSimplePurchaseData = (policy: ImmediatePurchaseData): policy is SimplePurchaseData=>{
-    return policy.kind === PurchasePoliciesKinds.ContainerPurchasePolicy;
+    return policy.kind === PurchasePoliciesKinds.SimplePurchase;
 }
 
 export const isContainerPurchaseData = (policy: ImmediatePurchaseData): policy is ContainerPurchaseData=>{

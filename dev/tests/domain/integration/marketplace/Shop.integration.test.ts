@@ -239,7 +239,7 @@ describe('SimpleShop- Appointed Members', function(){
         for( let [p, price, quantity] of productsUpdatePrices){
             totalPrice += price* quantity;
         }
-        expect(totalPrice).toBeCloseTo(10.174);
+        expect(totalPrice).toBeCloseTo(10.115);
     })
 
     test('camMakePurchase- simplePurchase. Could make purchase.', ()=>{
@@ -256,6 +256,7 @@ describe('SimpleShop- Appointed Members', function(){
 
     test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
         let cart = new ShoppingCart();
+        p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         cart.addProduct(p1, 6);
         let bag = cart.bags.get(0);
         let user = new Guest("1");
