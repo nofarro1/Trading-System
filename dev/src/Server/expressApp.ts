@@ -13,13 +13,19 @@ export const router = express.Router();
 router.get('/check', (req, res) => {
     let sessId = req.session.id;
     console.log(sessId + " have been activated");
-    res.status(200);
-    res.send({message: "hello, your id is " + sessId});
+    res.status(200).send({message: "hello, your id is " + sessId});
 
 })
 
+router.get('/', (req, res) => {
+    req.session.loggedIn = false;
+    req.session.username = "";
+    res.sendFile(__dirname + '/index.html');
+});
+
+
 //access marketpalce - return the index.html in the future
-router.get('/', async (req, res) => {
+router.get('/access', async (req, res) => {
     let sessId = req.session.id;
     try {
         console.log("guest " + sessId + " accessed marketplace");
@@ -125,8 +131,12 @@ router.post('/guest/login', async (req, res) => {
         let username = req.body.username;
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
+        req.session.username = username;
+        req.session.loggedIn = true;
         res.send(ans)
     } catch (e: any) {
+        req.session.username = "";
+        req.session.loggedIn = false;
         res.status(404)
         res.send(e.message)
     }
@@ -140,6 +150,8 @@ router.get('/member/logout/:username', async (req, res) => {
         let sessId = req.session.id;
         let username = req.params.username
         let ans = await service.logout(sessId, username)
+        req.session.loggedIn = false;
+        req.session.username = "";
         res.send(ans)
     } catch (e: any) {
         res.status(404)
@@ -279,7 +291,7 @@ router.get('/member/shopManagement/Personnel/:username/:shop', async (req, res) 
 // })
 
 
-//todo: on disconnect of session exit market place
+//todo: on disconnect of session exit marketplace
 /**
  * exit marketplace
  */

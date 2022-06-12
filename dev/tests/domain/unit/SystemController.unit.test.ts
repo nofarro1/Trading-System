@@ -4,7 +4,6 @@ import {MarketplaceController} from "../../../src/domain/marketplace/Marketplace
 import {PurchaseController} from "../../../src/domain/purchase/PurchaseController";
 import {SecurityController} from "../../../src/domain/SecurityController";
 import {UserController} from "../../../src/domain/user/UserController";
-import {NotificationController} from "../../../src/domain/notifications/NotificationController";
 import {Result} from "../../../src/utilities/Result";
 import {Guest} from "../../../src/domain/user/Guest";
 import {Member} from "../../../src/domain/user/Member";
@@ -34,7 +33,6 @@ describe('system controller - unit', () => {
     let pController: PurchaseController;
     let scController: SecurityController;
     let uController: UserController;
-    let notificationsController: NotificationController;
 
     let mpControllerMockMethod: jest.SpyInstance<any, unknown[]>
     let mControllerMockMethod: jest.SpyInstance<any, unknown[]>
@@ -116,7 +114,6 @@ describe('system controller - unit', () => {
         pController = sys.pController
         scController = sys.securityController
         uController = sys.uController
-        notificationsController = sys.notifyController
     })
 
     beforeEach(() => {
@@ -149,7 +146,6 @@ describe('system controller - unit', () => {
         expect(sys.uController).toBeDefined();
         expect(sys.mController).toBeDefined();
         expect(sys.securityController).toBeDefined();
-        expect(sys.notifyController).toBeDefined();
         expect(mpControllerMockMethod).toBeCalledWith(mController);
         expect(mpControllerMockMethod).toBeCalled();
     })
@@ -775,7 +771,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, undefined, "mock success")
             })
-        let res = sys.updateProduct(username1, 0, 0, 5);
+        let res = sys.updateProductQuantity(username1, 0, 0, 5);
 
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
@@ -796,7 +792,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, undefined, "mock success")
             })
-        let res = sys.updateProduct(username1, 0, 0, 5);
+        let res = sys.updateProductQuantity(username1, 0, 0, 5);
 
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
@@ -815,7 +811,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(false, undefined, "mock success")
             })
-        let res = sys.updateProduct(username1, 0, 0, 5);
+        let res = sys.updateProductQuantity(username1, 0, 0, 5);
 
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
@@ -1381,7 +1377,7 @@ describe('system controller - unit', () => {
             return new Result(true, member1)
         })
 
-        let res = sys.getPersonnelInfo(username1, 0);
+        let res = sys.getPersonnelInfoOfShop(username1, 0);
 
         expect(res.ok).toBe(true);
         expect(res.data).toBeDefined()

@@ -31,14 +31,14 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     private _shops: Map<number, Shop>;
     private _shopCounter: number;
-    private _products: Map<number, Product>
-    subscriber: IMessageListener<ShopStatusChangedMessage> | null;
+    private _products: Map<number, Product>;
+    subscribers: IMessageListener<ShopStatusChangedMessage>[];
 
     constructor(){
         this._shops= new Map<number,Shop>();
         this._shopCounter= 0;
         this._products= new Map<number, Product>();
-        this.subscriber= null;
+        this.subscribers= [];
     }
 
 
@@ -67,29 +67,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return this._shopCounter;
     }
 
-    accept(v: IMessageListener<ShopStatusChangedMessage>, msg: ShopStatusChangedMessage) {
-        v.visitShopStatusChangedEvent(msg);
-    }
-
-    notify(message: ShopStatusChangedMessage) {
-        if(this.subscriber !== null)
-            this.accept(this.subscriber, message);
-        else
-            throw new Error("No one to get the message");
-    }
-
-    subscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
-        this.subscriber = sub;
-    }
-
-    unsub(sub: IMessageListener<ShopStatusChangedMessage>) {
-        this.subscriber = null;
-    }
-
-
-
-    setUpShop(userId: string, shopName: string): Result<Shop| void>{
-        let toAdd= new Shop(this._shopCounter, shopName, userId);
+    setUpShop(userId: string, shopName: string): Result<Shop | void> {
+        let toAdd = new Shop(this.shopCounter, shopName, userId);
         this._shopCounter++;
         this._shops.set(toAdd.id, toAdd);
         logger.info(`The ${shopName} was opened in the market by ${userId}.`);
@@ -367,7 +346,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    removePurchasePolicy(shopId: number, idPuPolicy: number): Result<void>{
+    removePurchasePolicy(shopId: number, idPuPolicy: number) {
         let shop = this._shops.get(shopId);
         if(shop){
             let puPurchaseId =  shop.removeDiscount(idPuPolicy)
@@ -413,9 +392,36 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     //     console.log("Not interested in that event");
     // }
 
-    notifySubscribers(message: ShopStatusChangedMessage): void {
+    //status changed event;
+    subscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
+        if (!this.subscribers.includes(sub)) {
+            this.subscribers.push(sub)
+            logger.debug(`subscriber ${sub.constructor.name} sunsctibe to ${this.constructor.name}`)
+        } else {
+            logger.warn(`subscriber ${sub.constructor.name} already subscribed to ${this.constructor.name}`)
+        }
     }
 
-    unsubscribe(sub: IMessageListener<ShopStatusChangedMessage>): void {
+    unsubscribe(sub: IMessageListener<ShopStatusChangedMessage>) {
+        if (this.subscribers.includes(sub)) {
+            const inx = this.subscribers.findIndex((o) => o === sub)
+            this.subscribers.splice(inx, inx + 1)
+            logger.debug(`subscriber ${sub.constructor.name} unsubscribed to ${this.constructor.name}`)
+        } else {
+            logger.warn(`subscriber ${sub.constructor.name} already subscribed to ${this.constructor.name}`)
+        }
+    }
+
+    notifySubscribers(message: ShopStatusChangedMessage) {
+        if (this.subscribers !== null)
+            for (let sub of this.subscribers) {
+                this.accept(sub, message);
+            } else
+            throw new Error("No one to get the message");
+
+    }
+
+    accept(v: IMessageListener<ShopStatusChangedMessage>, msg: ShopStatusChangedMessage) {
+        v.visitShopStatusChangedEvent(msg);
     }
 } 

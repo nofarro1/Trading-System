@@ -85,7 +85,7 @@ export class MarketplaceService {
     //Shop Owner - Use-Case 1.3
     modifyProductQuantityInShop(sessionID: string, shopID: number, productID: number, productQuantity: number): Promise<Result<void>> {
         return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.updateProduct(sessionID, shopID, productID, productQuantity);
+            let result: Result<void> = this.systemController.updateProductQuantity(sessionID, shopID, productID, productQuantity);
             result.ok ? resolve(result) : reject(result.message);
         });
     }

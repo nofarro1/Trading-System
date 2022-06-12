@@ -1,4 +1,4 @@
-import {Result} from "../../utilities/Result";
+import {checkRes, Result} from "../../utilities/Result";
 import {DeliveryServiceAdaptor} from "../external_services/DeliveryServiceAdaptor";
 import {PaymentServiceAdaptor} from "../external_services/PaymentServiceAdaptor";
 import {ShoppingBag} from "../user/ShoppingBag";
@@ -26,7 +26,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     private _marketPlaceController: MarketplaceController;
 
 
-    constructor(@inject(TYPES.PaymentServiceAdaptor) paymentService: PaymentServiceAdaptor, @inject(TYPES.DeliveryServiceAdaptor) deliveryService: DeliveryServiceAdaptor, @inject(TYPES.MarketplaceController)marketPlaceController: MarketplaceController) {
+    constructor(@inject(TYPES.PaymentServiceAdaptor) paymentService: PaymentServiceAdaptor, @inject(TYPES.DeliveryServiceAdaptor) deliveryService: DeliveryServiceAdaptor, @inject(TYPES.MarketplaceController) marketPlaceController: MarketplaceController) {
         this.subscribers = [];
         this._buyerOrders = new Map<string, Set<string>>();
         this._shopOrders = new Map<number, Set<string>>();
@@ -102,7 +102,12 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     }
 
     checkout(user: Guest): Result<void> {
-        let forUpdate: [[Shop, number, number]];
+        let forUpdate: [Shop, number, number][] = [];
+        //for notification
+        let shopsToNotify: {
+            shop: number,
+            order: string
+        }[] = [];
         let shoppingCart = user.shoppingCart;
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
@@ -111,21 +116,20 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             let shopOrder = `Shop Order Number: ${this.shopOrderCounter} \nProduct: \nProduct Id,  Product Name, Full Price, Final Price `;
             this.shopOrderCounter++;
             let shop = this._marketPlaceController.shops.get(bag.shopId);
-            if(shop) {
+            if (shop) {
                 let answer = shop.canMakePurchase([bag, user]);
                 if (answer.ok) {
                     let productsInfo = shop.calculateBagPrice(bag);
-                    for( let [p, price, quantity] of productsInfo){
-                        totalBagPrice += price* quantity;
+                    for (let [p, price, quantity] of productsInfo) {
+                        totalBagPrice += price * quantity;
                         shopOrder += `${p.id}, ${p.name}, ${p.fullPrice}, price\n`;
-                        let oldQuantity =shop.products.get(p.id)[1];
-                        forUpdate.push([shop,p.id, oldQuantity-quantity]);
+                        let oldQuantity = shop.products.get(p.id)[1];
+                        forUpdate.push([shop, p.id, oldQuantity - quantity]);
                         //shop.updateProductQuantity(p.id, oldQuantity-quantity);
 
                     }
-                    totalCartPrice+= totalBagPrice;
-                }
-                else
+                    totalCartPrice += totalBagPrice;
+                } else
                     return new Result(false, undefined, answer.message);
             }
             shopOrder += `Total Shop Order Price: ${totalBagPrice} \n`;
@@ -138,6 +142,10 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             }
             orders.add(shopOrder);
             this.shopOrders.set(bag.shopId, orders);
+            shopsToNotify.push({
+                shop: bag.shopId, order: shopOrder
+            });
+
         });
         buyerOrder += `Total Cart Price: ${totalCartPrice}\n`;
         buyerOrder += `Purchase Date: ${new Date().toLocaleString()}\n`;
@@ -154,13 +162,24 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             this.buyerOrderCounter++;
         } else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
-        if(this.paymentService.makePayment(undefined).ok && this.deliveryService.makeDelivery(undefined).ok) {
+        if (this.paymentService.makePayment(undefined).ok && this.deliveryService.makeDelivery(undefined).ok) {
             forUpdate.forEach((toUpdate) => {
                 toUpdate[0].updateProductQuantity(toUpdate[1], toUpdate[2]);
             });
+            shopsToNotify.forEach((notify: { shop: number, order: string }) => {
+                this.createAndSendNotify(user.getIdentifier(), notify.shop, notify.order)
+            })
             return new Result(true, undefined, "Purchase made successfully");
-        }
-        else
+        } else
             return new Result(false, undefined, "Purchase wasn't successful");
+    }
+
+    private createAndSendNotify(buyer: string, shopId: number, order: string) {
+        const shopRes = this._marketPlaceController.getShopInfo(shopId);
+        if(checkRes(shopRes)){
+            const owners =  shopRes.data.shopOwners;
+            const message = new ShopPurchaseMessage(order,owners,buyer)
+            this.notifySubscribers(message);
+        }
     }
 }

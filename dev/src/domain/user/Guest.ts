@@ -24,4 +24,7 @@ export class Guest {
     set shoppingCart(value: ShoppingCart) {
         this._shoppingCart = value;
     }
+    public getIdentifier(){
+        return this.session;
+    }
 }
