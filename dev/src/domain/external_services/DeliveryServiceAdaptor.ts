@@ -4,19 +4,21 @@ import {inject, injectable} from "inversify";
 import {DeliveryDetails, IDeliveryService} from "./IDeliveryService";
 import {ServiceSettings} from "../../utilities/Types";
 import axios from "axios";
+import {TYPES} from "../../helpers/types";
 
 @injectable()
 export class DeliveryServiceAdaptor implements IDeliveryService {
-    readonly _name: string;
-    _settings: ServiceSettings;
+    private readonly _name: string;
+    private _settings: ServiceSettings;
     private real: IDeliveryService | null;
 
     constructor(@inject("DeliveryServiceName") name: string,
+                @inject(TYPES.realDeliveryService) real: IDeliveryService | null,
                 settings: ServiceSettings = {
                     min: 10000,
                     max: 100000,
                     url: "https://cs-bgu-wsep.herokuapp.com/"
-                }, real: IDeliveryService | null) {
+                }) {
         this._name = name;
         this._settings = settings;
         this.real = real;
@@ -51,7 +53,7 @@ export class DeliveryServiceAdaptor implements IDeliveryService {
             if (handshake) {
                 return this.real.cancelSupply(transactionId);
             } else {
-                return Promise.reject(Result.Fail("failed to connect to delivery Service", -1));
+                return Promise.reject(Result.Fail("failed to cancel delivery", -1));
             }
         }
 

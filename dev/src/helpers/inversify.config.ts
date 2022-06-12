@@ -17,6 +17,11 @@ import {SecurityController} from "../domain/SecurityController";
 import {PaymentServiceAdaptor} from "../domain/external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "../domain/external_services/DeliveryServiceAdaptor";
 import { NotificationService } from "../service/NotificationService";
+import {IDeliveryService} from "../domain/external_services/IDeliveryService";
+import {getEnvironmentData} from "worker_threads";
+import {DeliveryService} from "../domain/external_services/DeliveryService";
+import {IPaymentService} from "../domain/external_services/IPaymentService";
+import {PaymentService} from "../domain/external_services/PaymentService";
 
 
 const systemContainer = new Container();
@@ -39,6 +44,14 @@ systemContainer.bind<SecurityController>(TYPES.SecurityController).to(SecurityCo
 //external services
 systemContainer.bind<PaymentServiceAdaptor>(TYPES.PaymentServiceAdaptor).to(PaymentServiceAdaptor)
 systemContainer.bind<DeliveryServiceAdaptor>(TYPES.DeliveryServiceAdaptor).to(DeliveryServiceAdaptor)
+
+if(getEnvironmentData("mode") === "testing"){
+    systemContainer.bind<IDeliveryService | null>(TYPES.realDeliveryService).toConstantValue(null);
+    systemContainer.bind<IPaymentService | null>(TYPES.realPaymentService).toConstantValue(null);
+} else {
+    systemContainer.bind<IDeliveryService | null>(TYPES.realDeliveryService).to(DeliveryService);
+    systemContainer.bind<IPaymentService | null>(TYPES.realPaymentService).to(PaymentService);
+}
 systemContainer.bind<string>("PaymentServiceName").toConstantValue("default payment service")
 systemContainer.bind<string>("DeliveryServiceName").toConstantValue("default delivery service")
 

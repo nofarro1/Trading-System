@@ -4,10 +4,19 @@ import {ServiceSettings} from "../../utilities/Types";
 import axios from "axios";
 
 
-
-export class DeliveryService implements IDeliveryService{
+export class DeliveryService implements IDeliveryService {
     readonly _name: string;
     _settings: ServiceSettings;
+
+    constructor(name: string, settings: ServiceSettings = {
+        min: 10000,
+        max: 100000,
+        url: "https://cs-bgu-wsep.herokuapp.com/"
+    }) {
+        this._name = name;
+        this._settings = settings;
+    }
+
     get name(): string {
         return this._name;
     }
@@ -24,8 +33,17 @@ export class DeliveryService implements IDeliveryService{
         this.settings = settings;
     }
 
-    cancelSupply(transactionId: string): Promise<Result<boolean>> {
-        return Promise.resolve(undefined);
+    async cancelSupply(transactionId: string): Promise<Result<boolean>> {
+        try {
+            const res = await axios.post(this.settings.url,
+                {
+                    action_type: "cancel_supply",
+                    transaction_id: transactionId
+                });
+            return Result.Ok(res.data, "supplement cancelled");
+        } catch {
+            return Promise.reject(Result.Fail("failed to cancel delivery", -1));
+        }
     }
 
     async handshake(): Promise<boolean> {

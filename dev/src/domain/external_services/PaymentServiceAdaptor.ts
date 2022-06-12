@@ -11,11 +11,12 @@ export class PaymentServiceAdaptor implements IPaymentService {
     private real: IPaymentService | null;
 
     constructor(@inject("PaymentServiceName") name: string,
+                real: IPaymentService | null,
                 settings: ServiceSettings = {
                     min: 10000,
                     max: 100000,
                     url: "https://cs-bgu-wsep.herokuapp.com/"
-                }, real: IPaymentService | null) {
+                }) {
         this._name = name;
         this._settings = settings;
         this.real = real;
@@ -63,7 +64,7 @@ export class PaymentServiceAdaptor implements IPaymentService {
         }
     }
 
-    pay(paymentDetails: PaymentDetails):Promise< Result<number>> {
+    pay(paymentDetails: PaymentDetails): Promise<Result<number>> {
         if (this.real === null) {
             return Promise.resolve(this.makePayment(paymentDetails))
         } else {

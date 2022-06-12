@@ -46,6 +46,9 @@ import {
 } from "./marketplace/DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 import {SimpleDiscountDescriber} from "../utilities/simple_objects/marketplace/SimpleDiscountDescriber";
 import {DiscountComponent} from "./marketplace/DiscountAndPurchasePolicies/Components/DiscountComponent";
+import {ServiceSettings} from "../utilities/Types";
+import {PaymentService} from "./external_services/PaymentService";
+import {DeliveryService} from "./external_services/DeliveryService";
 
 @injectable()
 export class SystemController {
@@ -688,7 +691,7 @@ export class SystemController {
     }
 
 
-    editConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, settings: any): Result<void> {
+    editConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, settings: ServiceSettings): Result<void> {
         return this.authenticateMarketVisitor(admin, (id: string) => {
             if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
@@ -709,9 +712,9 @@ export class SystemController {
                 return new Result(false, undefined, "no admin Privileges");
             }
             if (type === ExternalServiceType.Delivery)
-                this.pController.swapDeliveryService(new DeliveryServiceAdaptor(newServiceName, undefined));
+                this.pController.swapDeliveryService(new DeliveryServiceAdaptor(newServiceName, new DeliveryService(newServiceName)));
             else
-                this.pController.swapPaymentService(new PaymentServiceAdaptor(newServiceName, undefined))
+                this.pController.swapPaymentService(new PaymentServiceAdaptor(newServiceName, new PaymentService(newServiceName)))
 
             return new Result(true, undefined, "services swapped");
 
