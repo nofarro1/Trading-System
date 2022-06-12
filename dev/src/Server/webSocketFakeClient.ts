@@ -1,12 +1,13 @@
 
 import {io, Socket} from 'socket.io-client'
+import {SimpleMessage} from "../domain/notifications/Message";
 
 class LiveNotificationClient {
     private ioClient: Socket;
 
 
     constructor() {
-        this.ioClient = io()
+        this.ioClient = io({rejectUnauthorized:false})
 
         this.ioClient.on('connection', (socket:Socket)=>{
             console.log("connection to server established")
@@ -22,7 +23,11 @@ class LiveNotificationClient {
 
     }
 
-    registerCallbackForEvent(event:string, callback:(socket:Socket)=>void):void{
+    registerCallbackForServerEvent(event:string, callback:(socket:Socket)=>void):void{
         this.ioClient.on(event,callback);
+    }
+
+    sendMessage(event:string, data:SimpleMessage){
+       this.ioClient.emit(event,data);
     }
 }
