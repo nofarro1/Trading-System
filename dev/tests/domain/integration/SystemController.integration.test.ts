@@ -4,7 +4,6 @@ import {MarketplaceController} from "../../../src/domain/marketplace/Marketplace
 import {PurchaseController} from "../../../src/domain/purchase/PurchaseController";
 import {SecurityController} from "../../../src/domain/SecurityController";
 import {UserController} from "../../../src/domain/user/UserController";
-import {NotificationController} from "../../../src/domain/notifications/NotificationController";
 import {Guest} from "../../../src/domain/user/Guest";
 import {Member} from "../../../src/domain/user/Member";
 import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
@@ -33,7 +32,6 @@ describe('system controller - integration', () => {
     let pController: PurchaseController;
     let scController: SecurityController;
     let uController: UserController;
-    let notificationsController: NotificationController;
 
     const sess1 = "1";
     let guest1: Guest;
@@ -77,7 +75,6 @@ describe('system controller - integration', () => {
         pController = sys.pController
         scController = sys.securityController
         uController = sys.uController
-        notificationsController = sys.notifyController
     })
 
     beforeEach(() => {
@@ -106,7 +103,6 @@ describe('system controller - integration', () => {
         expect(sys.uController).toBeDefined();
         expect(sys.mController).toBeDefined();
         expect(sys.securityController).toBeDefined();
-        expect(sys.notifyController).toBeDefined();
     })
 
     test("access marketplace test", () => {
@@ -478,7 +474,7 @@ describe('system controller - integration', () => {
             });
 
             //act
-            let res = sys.updateProduct(username1, shop1.id, shop1.id, 6);
+            let res = sys.updateProductQuantity(username1, shop1.id, shop1.id, 6);
 
             //assert
             expect(res.ok).toBe(true);
@@ -503,7 +499,7 @@ describe('system controller - integration', () => {
             sys.login(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.updateProduct(username1, shop1.id, p1.id, 6);
+            let res = sys.updateProductQuantity(username1, shop1.id, p1.id, 6);
 
             //assert
             expect(res.ok).toBe(false);
@@ -518,7 +514,7 @@ describe('system controller - integration', () => {
             sys.setUpShop(username1, shop1.name);
 
             //act
-            let res = sys.updateProduct(username1, shop1.id, p1.id, 5);
+            let res = sys.updateProductQuantity(username1, shop1.id, p1.id, 5);
 
             //assert
             expect(res.ok).toBe(false);
@@ -920,7 +916,7 @@ describe('system controller - integration', () => {
         sys.setUpShop(username1, shop1.name);
 
         //act
-        let res = sys.getPersonnelInfo(username1, shop1.id);
+        let res = sys.getPersonnelInfoOfShop(username1, shop1.id);
 
         //assert
         expect(res.ok).toBe(true);

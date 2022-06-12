@@ -5,6 +5,8 @@ import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
 import "reflect-metadata";
 
+
+//version 1 implementation
 @injectable()
 export class NotificationController implements ILLiveNotificationSubscriber {
 

@@ -60,5 +60,8 @@ export class Member extends Guest {
                 role.removePermission(perm);
         })
     }
+    public getIdentifier(): string {
+        return this.username;
+    }
 }
 
