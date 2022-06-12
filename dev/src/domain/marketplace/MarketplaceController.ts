@@ -38,7 +38,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         this._shops= new Map<number,Shop>();
         this._shopCounter= 0;
         this._products= new Map<number, Product>();
-        this.subscribers= null;
+        this.subscribers= [];
     }
 
 

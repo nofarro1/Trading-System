@@ -7,7 +7,7 @@ import express, {Express, NextFunction, Request, Response} from "express";
 import {Service} from "../service/Service";
 import {SimpleMessage} from "../domain/notifications/Message";
 import {LiveNotificationSubscriber, NotificationService} from "../service/NotificationService";
-
+import {logger} from "../helpers/logger"
 
 declare module "express-session" {
     interface Session {
@@ -50,23 +50,17 @@ export class Server {
             key: fs.readFileSync(keyPath),
             cert: fs.readFileSync(certPath)
         }, app)
-
-    }
-
-    start() {
+        logger.info("https Server is initialized")
         this.ioServer = new io.Server(this.httpsServer, {
             cors: {origin: "*/*"}
         })
         this.ioServer.listen(this.httpsServer)
         this.ioServer.use(wrap(sessionMiddleware));
-        // this.httpsServer.on('connect', (req)=>{
-        //     console.log(`client with session ${req.session.id} connected`);
-        //     req.socket.on('close', () => {
-        //         console.log(`client with session ${req.session.id} disconnect`);
-        //     })
-        // })
-        this.setupEvents()
+        logger.info("WebSocketServer is initialized")
+    }
 
+    start() {
+        this.setupEvents()
         this.httpsServer.listen(port, () => {
             console.log("server started. listening on port " + port)
         });
@@ -77,13 +71,14 @@ export class Server {
     }
 
     private setupEvents() {
+        logger.info("setting up socketIO live notification event")
         this.setupConnectionEvent();
         this.setupDisconnectEvent();
     }
 
     private setupDisconnectEvent() {
         this.ioServer.on('disconnect', (socket) => {
-            //try to wait for reconnection
+            //todo: try to wait for reconnection
             const session = socket.session;
             if (session.loggedIn && session.sessionSubscriber) {
                 this.notificationService.unsubscribeToBox(session.sessionSubscriber).then(() => {
@@ -95,7 +90,7 @@ export class Server {
 
     private setupConnectionEvent(){
         this.ioServer.on('connection', (socket) => {
-            console.log("got new connection with" + socket.request.session.id);
+            logger.info("got new connection with" + socket.request.session.id);
             let session = socket.request.session;
             //check if this session is logged in
             if (session.loggedIn) {

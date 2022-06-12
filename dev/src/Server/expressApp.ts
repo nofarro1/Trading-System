@@ -13,8 +13,7 @@ export const router = express.Router();
 router.get('/check', (req, res) => {
     let sessId = req.session.id;
     console.log(sessId + " have been activated");
-    res.status(200);
-    res.send({message: "hello, your id is " + sessId});
+    res.status(200).send({message: "hello, your id is " + sessId});
 
 })
 

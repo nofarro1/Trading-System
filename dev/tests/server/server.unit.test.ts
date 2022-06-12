@@ -34,15 +34,16 @@ describe("networking tests - basic actions", () => {
 
 
     beforeAll((done) => {
-        server = new Server(app, systemContainer.get(TYPES.Service),systemContainer.get(TYPES.NotificationService));
+        server = new Server(app, systemContainer.get(TYPES.Service), systemContainer.get(TYPES.NotificationService));
         server.start()
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = String(0); //allow self-signed certificate
         agent = request.agent(app)
-
+        done()
         //access the marketplace before each test
-        agent.get("/").end((err, res) => {
+        agent.get("/access").send().then((res) => {
             activeSession = res.body.data._guestID;
-            done()
+            console.log("requested new session")
+            done();
         })
 
     })
@@ -247,7 +248,7 @@ describe("networking tests - basic actions", () => {
     })
 
     test("GET - shopping cart", (done) => {
-        serviceMockMethod = mockServiceMethod('checkShoppingCart', new SimpleShoppingCart("myusername",new Map(), 0))
+        serviceMockMethod = mockServiceMethod('checkShoppingCart', new SimpleShoppingCart("myusername", new Map(), 0))
         getRequest(`/cart`, 200, (body) => {
             expect(body.ok).toBe(true);
             expect(body.data._userId).toBe("myusername");
