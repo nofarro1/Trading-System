@@ -34,7 +34,8 @@ export class PaymentServiceAdaptor implements IPaymentService {
         this._settings = value;
     }
 
-    editServiceSettings(settings: any): void {
+    editServiceSettings(settings: ServiceSettings): void {
+        if(this.real !== null) this.real.editServiceSettings(settings);
         this.settings = settings;
     }
 
@@ -56,21 +57,21 @@ export class PaymentServiceAdaptor implements IPaymentService {
         }
     }
 
-    handshake(): Promise<boolean> {
+    async handshake(): Promise<boolean> {
         if (this.real === null) {
             return Promise.resolve(true);
         } else {
-            return this.real.handshake();
+            return await this.real.handshake();
         }
     }
 
-    pay(paymentDetails: PaymentDetails): Promise<Result<number>> {
+    async pay(paymentDetails: PaymentDetails): Promise<Result<number>> {
         if (this.real === null) {
             return Promise.resolve(this.makePayment(paymentDetails))
         } else {
-            const handshake = this.real.handshake();
+            const handshake = await this.real.handshake();
             if (handshake) {
-                return this.real.pay(paymentDetails)
+                return await this.real.pay(paymentDetails)
             } else {
                 return Promise.reject(Result.Fail("failed to connect to payment Service", -1));
             }

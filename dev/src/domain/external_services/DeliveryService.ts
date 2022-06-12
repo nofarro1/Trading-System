@@ -40,6 +40,9 @@ export class DeliveryService implements IDeliveryService {
                     action_type: "cancel_supply",
                     transaction_id: transactionId
                 });
+            if(res.data === -1){
+                return Promise.reject(Result.Fail("failed to cancel delivery", -1));
+            }
             return Result.Ok(res.data, "supplement cancelled");
         } catch {
             return Promise.reject(Result.Fail("failed to cancel delivery", -1));
@@ -55,8 +58,17 @@ export class DeliveryService implements IDeliveryService {
         }
     }
 
-    supply(deliveryDetails: DeliveryDetails): Promise<Result<number>> {
-        return Promise.resolve(undefined);
+    async supply(deliveryDetails: DeliveryDetails): Promise<Result<number>> {
+        try {
+            const handshake = await this.handshake();
+            if (handshake) {
+                return await axios.post(this.settings.url, deliveryDetails)
+            } else {
+                return Promise.reject(Result.Fail("failed to connect to payment Service", -1));
+            }
+        } catch (e) {
+            return Promise.reject(Result.Fail("failed to complete payment", -1));
+        }
     }
 
 }

@@ -34,8 +34,20 @@ export class PaymentService implements IPaymentService {
         this.settings = settings;
     }
 
-    cancelPay(transactionId: string): Promise<Result<boolean>> {
-        return Promise.resolve(undefined);
+    async cancelPay(transactionId: string): Promise<Result<boolean>> {
+        try {
+            const res = await axios.post(this.settings.url,
+                {
+                    action_type: "cancel_pay",
+                    transaction_id: transactionId
+                });
+            if(res.data === -1){
+                return Promise.reject(Result.Fail("failed to cancel payment", false));
+            }
+            return Result.Ok(true, "supplement cancelled");
+        } catch {
+            return Promise.resolve(Result.Fail("failed to cancel delivery", false));
+        }
     }
 
     async handshake(): Promise<boolean> {
@@ -43,16 +55,24 @@ export class PaymentService implements IPaymentService {
             const res = await axios.post(this.settings.url, {action_type: "handshake"});
             return res.data === "OK";
         } catch {
-            return Promise.resolve(false);
+            return Promise.reject(false);
         }
 
 
     }
 
     async pay(paymentDetails: PaymentDetails): Promise<Result<number>> {
+        try{
+            const handshake = await this.handshake();
+            if (handshake) {
+                return await axios.post(this.settings.url, paymentDetails)
+            } else {
+                return Promise.resolve(Result.Fail("failed to connect to payment Service", -1));
+            }
+        } catch (e) {
+            return Promise.resolve(Result.Fail("failed to complete payment", -1));
+        }
 
-
-        return Promise.resolve(undefined);
     }
 
 

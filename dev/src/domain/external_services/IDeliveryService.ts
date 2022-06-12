@@ -9,6 +9,7 @@ export type DeliveryDetails = {
     zip: string
 };
 export interface IDeliveryService {
+    editServiceSettings(settings: any);
     handshake(): Promise<boolean>;
     supply(deliveryDetails: DeliveryDetails):Promise<Result<number>>;
     cancelSupply(transactionId:string):Promise<Result<boolean>>;

@@ -1,4 +1,5 @@
 import {Result} from "../../utilities/Result";
+import { ServiceSettings } from "../../utilities/Types";
 
 export type PaymentDetails = {
     action_type:"pay",
@@ -11,6 +12,7 @@ export type PaymentDetails = {
 };
 
 export interface IPaymentService {
+    editServiceSettings(settings: ServiceSettings):void;
 
     handshake(): Promise<boolean>;
     pay(paymentDetails: PaymentDetails): Promise<Result<number>>;

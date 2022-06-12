@@ -36,7 +36,8 @@ export class DeliveryServiceAdaptor implements IDeliveryService {
         this._settings = value;
     }
 
-    editServiceSettings(settings: any): void {
+    editServiceSettings(settings: ServiceSettings): void {
+        if(this.real !== null) this.real.editServiceSettings(settings);
         this.settings = settings;
     }
 

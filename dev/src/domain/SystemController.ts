@@ -49,6 +49,8 @@ import {DiscountComponent} from "./marketplace/DiscountAndPurchasePolicies/Compo
 import {ServiceSettings} from "../utilities/Types";
 import {PaymentService} from "./external_services/PaymentService";
 import {DeliveryService} from "./external_services/DeliveryService";
+import {PaymentDetails} from "./external_services/IPaymentService";
+import {DeliveryDetails} from "./external_services/IDeliveryService";
 
 @injectable()
 export class SystemController {
@@ -134,7 +136,7 @@ export class SystemController {
         return new Result(false, undefined, "could not Register");
     }
 
-    private authenticateMarketVisitor<T>(sessionId: string, callback: (id: string) => Result<T>) {
+    private authenticateMarketVisitor<T>(sessionId: string, callback: (id: string) => T) {
         const userId: string = this.securityController.hasActiveSession(sessionId);
         if (userId.length === 0) {
             return new Result(false, undefined, "this is not one of our visitors!");
@@ -384,21 +386,21 @@ export class SystemController {
     }
 
     //Guest Payment - Use-Case 5
-    checkout(sessionId: string, paymentDetails: any, deliveryDetails: any): Result<void> {
-        return this.authenticateMarketVisitor(sessionId, (id) => {
+    async checkout(sessionId: string, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void>> {
+        return Promise.resolve(this.authenticateMarketVisitor(sessionId, async (id) => {
             let result = this.uController.getGuest(id);
             let resultMm = this.uController.getMember(id);
             let userObj: Guest;
             if (checkRes(result)) {
                 userObj = result.data;
-                return this.pController.checkout(userObj);
+                return await this.pController.checkout(userObj, deliveryDetails, paymentDetails);
 
             } else if (checkRes(resultMm)) {
                 userObj = resultMm.data;
-                return this.pController.checkout(userObj);
+                return await this.pController.checkout(userObj, deliveryDetails, paymentDetails);
             }
             return new Result(false, undefined, "Unable to check out this user");
-        })
+        }));
     }
 
     /*------------------------------------Marketplace Interaction actions----------------------------------------------*/
