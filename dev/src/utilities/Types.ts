@@ -8,6 +8,6 @@ export type Answer = {
 
 export type discountInf = {
     type: DiscountType;
-    object: Product | ProductCategory | undefined;
+    object: number | ProductCategory | undefined;
 };
 

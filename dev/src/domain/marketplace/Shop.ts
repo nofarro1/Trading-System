@@ -1,10 +1,50 @@
 import {Product} from "./Product";
-import {ProductCategory, ShopRate, ShopStatus} from "../../utilities/Enums";
+import {PurchasePoliciesRelation, ProductCategory, ShopRate, ShopStatus, DiscountRelation} from "../../utilities/Enums";
 import {ShoppingBag} from "../user/ShoppingBag";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
-import {ImmediatePurchasePolicyComponent} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
+import {
+    ImmediatePurchasePolicyComponent
+} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 import {Answer} from "../../utilities/Types";
 import {Guest} from "../user/Guest";
+import {
+    ConditionalDiscountData,
+    ContainerDiscountData,
+    ContainerPurchaseData,
+    DiscountData,
+    ImmediatePurchaseData,
+    isConditionalDiscount,
+    isContainerDiscount, isContainerPurchaseData,
+    isSimpleDiscount,
+    isSimplePurchaseData,
+    SimpleDiscountData,
+    SimplePurchaseData
+} from "../../utilities/DataObjects";
+import {SimpleDiscount} from "./DiscountAndPurchasePolicies/leaves/SimpleDiscount";
+import {PredicateDiscountPolicy} from "./DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
+import {ConditionalDiscount} from "./DiscountAndPurchasePolicies/leaves/ConditionalDiscount";
+import {
+    AndDiscounts
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicCompositions/AndDiscounts";
+import {OrDiscounts} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicCompositions/OrDiscounts";
+import {
+    XorDiscounts
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/LogicCompositions/XorDiscounts";
+import {
+    AdditionDiscounts
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts";
+import {
+    MaxDiscounts
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/MaxDiscounts";
+import {SimplePurchase} from "./DiscountAndPurchasePolicies/leaves/SimplePurchase";
+import {AndPolicy} from "./DiscountAndPurchasePolicies/Containers/PurchaseContainers/AndPolicy";
+import {OrPolicy} from "./DiscountAndPurchasePolicies/Containers/PurchaseContainers/OrPolicy";
+import {
+    ConditioningPurchasePolicies
+} from "./DiscountAndPurchasePolicies/Containers/PurchaseContainers/ConditionalPolicy";
+import {
+    ContainerDiscountComponent
+} from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 
 
 export class Shop {
@@ -125,6 +165,10 @@ export class Shop {
         return this._discounts;
     }
 
+    getDiscounts(): DiscountComponent[]{
+        return [...this._discounts.values()];
+    }
+
     get discountCounter(): number {
         return this._discountCounter;
     }
@@ -148,9 +192,10 @@ export class Shop {
         let toAdd= new Product(productName, this.id, this._productsCounter, category, fullPrice, productDesc);
         if(!this.products.has(toAdd.id)){
             this.products.set(toAdd.id, [toAdd, quantity]);
+            this._productsCounter++;
             return toAdd;
         }
-        this._productsCounter++;
+
         return toAdd;
     }
 
@@ -223,30 +268,110 @@ export class Shop {
         return policies.reduce(callBack, {ok:true, message:"Couldn't make purchase because:"});
     }
 
+
+
+    addDiscount(disc: DiscountData): number{
+        let toAdd:DiscountComponent = this.discData2Component(disc);
+        this._discounts.set(this._discountCounter,toAdd);
+        this._discountCounter = this._discountCounter+1;
+        return this._discountCounter-1;
+    }
+
+    addSubDiscount(discId: number, toAdd: DiscountData) {
+        let disc:DiscountComponent = this.discounts.get(discId);
+        if(disc instanceof ContainerDiscountComponent){
+            let toAddComponent = this.discData2Component(toAdd);
+            disc.addDiscountElement(toAddComponent);
+        }
+    }
+
+
+    removeDiscount(idDisc: number): void{
+        this._discounts.delete(idDisc);
+    }
+
+    getDiscount (id2return: number): DiscountComponent{
+        return this.discounts.get(id2return);
+    }
+
+    addPurchasePolicy(puPolicy: ImmediatePurchaseData): number{
+        let toAdd:ImmediatePurchasePolicyComponent = this.policyData2Component(puPolicy);
+        this._purchasePolicies.set(this._purchaseCounter,toAdd);
+        this._purchaseCounter++;
+        return this._purchaseCounter--;
+    }
+
+    removePurchasePolicy(idPuPolicy: number){
+        this._purchasePolicies.delete(idPuPolicy);
+    }
+
+    getPurchasePolicy (id2return: number): ImmediatePurchasePolicyComponent{
+        return this._purchasePolicies.get(id2return);
+    }
+
+
     private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
         let productsList = [];
         for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
         return productsList;
     }
 
-    addDiscount(disc: DiscountComponent): number{
-        this._discounts.set(this._discountCounter,disc);
-        this._discountCounter++;
-        return this._discountCounter-1;
+    private discData2Component (disc: DiscountData): DiscountComponent {
+        if (isSimpleDiscount(disc)) {
+            let discInf = {type: disc.discountType, object: disc.object}
+            return new SimpleDiscount(this._discountCounter, discInf, disc.discountPresent);
+        } else if (isConditionalDiscount(disc)) {
+            let discInf = {type: disc.discount.discountType, object: disc.discount.object}
+            let simpDisc = new SimpleDiscount(this.discountCounter, discInf, disc.discount.discountPresent);
+            let pred = new PredicateDiscountPolicy(disc.predTypeObject, disc.predObject, disc.predRelation, disc.predValue);
+            return new ConditionalDiscount(this._discountCounter, simpDisc, pred);
+        }
+        else if (isContainerDiscount(disc)) {
+            let discComponents: DiscountComponent[] = [];
+            for (let toAdd of disc.discounts){
+                discComponents.push(this.discData2Component(toAdd))
+            }
+            switch (disc.discountRelation) {
+                case DiscountRelation.And:
+                    return new AndDiscounts(this.discountCounter, discComponents);
+                case DiscountRelation.Or:
+                    return new OrDiscounts(this.discountCounter, discComponents);
+                case DiscountRelation.Xor:
+                    return new XorDiscounts(this.discountCounter, discComponents);
+                case DiscountRelation.Addition:
+                    return new AdditionDiscounts(this.discountCounter, discComponents);
+                case DiscountRelation.Max:
+                    return new MaxDiscounts(this.discountCounter, discComponents);
+            }
+        }
     }
 
-    removeDiscount(idDisc: number): void{
-        this._discounts.delete(idDisc);
-    }
+    private policyData2Component (puPolicy: ImmediatePurchaseData): ImmediatePurchasePolicyComponent{
+            if ( isSimplePurchaseData(puPolicy)) {
+                return new SimplePurchase(this._purchaseCounter, puPolicy.policyType, puPolicy.object, puPolicy.predRelation, puPolicy.predValue, puPolicy.msg);
+            }
+            else if (isContainerPurchaseData(puPolicy)) {
+                let policiesComponent: ImmediatePurchasePolicyComponent[] = [];
+                for (let toAdd of puPolicy.policies){
+                    policiesComponent.push(this.policyData2Component(toAdd))
+                }
+                switch (puPolicy.policiesRelation) {
+                    case PurchasePoliciesRelation.And:
+                        return new AndPolicy(this._purchaseCounter, policiesComponent);
+                        break;
+                    case PurchasePoliciesRelation.Or:
+                        return new OrPolicy(this._purchaseCounter, policiesComponent);
+                        break;
+                    case PurchasePoliciesRelation.Conditional:
+                        if (puPolicy.dependet && puPolicy.dependetOn) {
+                            let dependet = this.policyData2Component(puPolicy.dependet);
+                            let dependetOn = this.policyData2Component(puPolicy.dependetOn);
+                            return new ConditioningPurchasePolicies(this._purchaseCounter, dependet, dependetOn);
+                        }
+                        break;
+                }
+            }
+        }
 
-    addPurchasePolicy(puPolicy: ImmediatePurchasePolicyComponent): number{
-        this._purchasePolicies.set(this._purchaseCounter,puPolicy);
-        this._purchaseCounter++;
-        return this._purchaseCounter-1;
-    }
-
-    removePurchasePolicy(idPuPolicy: number){
-        this._purchasePolicies.delete(idPuPolicy);
-    }
 
 }

@@ -2,15 +2,27 @@ import {ImmediatePurchasePolicyComponent} from "../../Components/ImmediatePurcha
 import {ShoppingBag} from "../../../../user/ShoppingBag";
 import {Answer} from "../../../../../utilities/Types";
 import {Guest} from "../../../../user/Guest";
+import {DiscountComponent} from "../../Components/DiscountComponent";
 
 export class AndPolicy implements ImmediatePurchasePolicyComponent{
+    private _id: number;
     private purchasePolicies: ImmediatePurchasePolicyComponent[];
+    private _description: string;
 
-    constructor() {
-        this.purchasePolicies = [];
+    constructor(id: number, policies: ImmediatePurchasePolicyComponent[]) {
+        this._id = id;
+        this.purchasePolicies = policies;
+        this._description = this.purchasePolicies.reduce((acc:string, curr:ImmediatePurchasePolicyComponent)=>{return acc+"\n"+ curr.description}, `The purchase can only be made if everything described below is met.`)
+    }
+
+    get id(): number {
+        return this._id;
     }
 
 
+    get description(): string {
+        return this._description;
+    }
 
     addPurchasePolicy (toAdd: ImmediatePurchasePolicyComponent){
         this.purchasePolicies.push(toAdd);
@@ -32,4 +44,6 @@ export class AndPolicy implements ImmediatePurchasePolicyComponent{
         let ans: Answer ={ok:true, message: "Couldn't make purchase because:\n"};
         return this.purchasePolicies.reduce(pred, ans);
     }
+
+
 }
