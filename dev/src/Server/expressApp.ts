@@ -4,6 +4,7 @@ import {Service} from "../service/Service";
 import {systemContainer} from "../helpers/inversify.config";
 import {TYPES} from "../helpers/types";
 import {Result} from "../utilities/Result";
+import cors from "cors"
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
@@ -582,6 +583,7 @@ router.post('/admin/services/edit', async (req, res) => {
 
 export const app = express();
 export const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
+app.use(cors())
 app.use(sessionMiddleware);
 app.use(express.json())
 app.use(router);

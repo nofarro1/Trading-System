@@ -48,7 +48,8 @@ export class Server {
         this.notificationService = notificationService;
         this.httpsServer = https.createServer({
             key: fs.readFileSync(keyPath),
-            cert: fs.readFileSync(certPath)
+            cert: fs.readFileSync(certPath),
+            rejectUnauthorized: false
         }, app)
         logger.info("https Server is initialized")
         this.ioServer = new io.Server(this.httpsServer, {

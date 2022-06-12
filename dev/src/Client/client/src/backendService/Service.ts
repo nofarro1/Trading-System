@@ -10,13 +10,22 @@ import {SimpleProduct} from "../../../../utilities/simple_objects/marketplace/Si
 import {ProductCategory} from "../../../../utilities/Enums";
 import {SimpleShoppingCart} from "../../../../utilities/simple_objects/user/SimpleShoppingCart";
 
-const base="https://localhost:4200/";
+const base="https://localhost:3000";
 export class api {
 
+  constructor() {
+    axios.defaults.httpsAgent = {rejectUnauthorized: false};
+  }
+
   async accessMarketPlace(){
-    const res = await axios.get(base);
-    const data: Result<void | SimpleGuest> = res.data
-    return data.data?.guestID
+    try{
+      const res = await axios.get(base + "/access");
+      const data: Result<void | SimpleGuest> = res.data
+      return data.data?._guestID;
+    }catch(e:any){
+      console.log("error in accessing");
+      return undefined;
+    }
   }
 
 
