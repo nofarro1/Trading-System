@@ -51,3 +51,6 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+/dev/src/Client/client/.angular/
+/dev/src/Client/client/.vscode/
+/dev/src/Client/client/node_modules/
