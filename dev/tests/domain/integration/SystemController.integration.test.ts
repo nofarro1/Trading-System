@@ -23,7 +23,27 @@ import {
 import {ExternalServiceType} from "../../../src/utilities/Utils";
 import {systemContainer} from "../../../src/helpers/inversify.config";
 import {TYPES} from "../../../src/helpers/types";
+import {PaymentDetails} from "../../../src/domain/external_services/IPaymentService";
+import {DeliveryDetails} from "../../../src/domain/external_services/IDeliveryService";
 
+
+const paymentDetails: PaymentDetails = {
+    action_type: "pay",
+    card_number: "1234567891011",
+    month: "12",
+    year: "2025",
+    holder: "me",
+    ccv: "123",
+    id: "123456"
+}
+const deliveryDetails: DeliveryDetails = {
+    action_type: "supply",
+    name: "me",
+    address: "Bilbo house",
+    city: "Shire",
+    country: "Middle Earth",
+    zip: "123456",
+}
 
 describe('system controller - integration', () => {
     let sys: SystemController;
@@ -277,27 +297,27 @@ describe('system controller - integration', () => {
             expect(res.data).not.toBeDefined();
         })
 
-        test("checkout - success", () => {
+        test("checkout - success", async() => {
             //prepare
             sys.accessMarketplace(sess1);
             sys.addToCart(username1, p1.id, 2);
 
             //act
-            let res = sys.checkout(username1, "Pure gold", "please give me products")
+            let res = await sys.checkout(username1, paymentDetails, deliveryDetails)
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
         })
 
-        test("checkout - failure", () => {
+        test("checkout - failure", async(done) => {
             //prepare
             sys.accessMarketplace(sess1);
             sys.addToCart(username1, p1.id, 2);
             sys.removeProductFromCart(username1, p1.id);
 
             //act
-            let res = sys.checkout(username1, "Pure gold", "please give me products")
+            let res = await sys.checkout(username1, paymentDetails, deliveryDetails)
 
             //assert
             expect(res.ok).toBe(false);

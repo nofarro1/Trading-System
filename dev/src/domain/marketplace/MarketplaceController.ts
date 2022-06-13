@@ -219,7 +219,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false, undefined, "Failed to show the shop products because the shop wasn't found");
     }
 
-    searchProduct(searchBy: SearchType, searchInput: String | ProductCategory): Result<Product[]>{
+    searchProduct(searchBy: SearchType, searchInput: string | ProductCategory): Result<Product[]>{
         let shopsArray: Shop[] = Array.from(this._shops.values());
         let allProductsInMarket: Product[] = [];
         for (let shop of shopsArray) {
@@ -496,4 +496,12 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     accept(v: IMessageListener<ShopStatusChangedMessage>, msg: ShopStatusChangedMessage) {
         v.visitShopStatusChangedEvent(msg);
     }
-} 
+
+    getDiscounts(shopId: number) {
+        return [];
+    }
+
+    getPolicies(shopId: number) {
+        return null
+    }
+}

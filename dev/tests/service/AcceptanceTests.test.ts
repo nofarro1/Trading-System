@@ -9,6 +9,8 @@ import {SimpleShoppingCart} from "../../src/utilities/simple_objects/user/Simple
 import {ProductCategory, SearchType} from "../../src/utilities/Enums";
 import {TYPES} from "../../src/helpers/types";
 import {systemContainer} from "../../src/helpers/inversify.config";
+import {PaymentDetails} from "../../src/domain/external_services/IPaymentService";
+import {DeliveryDetails} from "../../src/domain/external_services/IDeliveryService";
 
 
 let service: Service;
@@ -26,6 +28,23 @@ let adminUsername: string;
 let memberPassword: string;
 let adminPassword: string;
 
+const paymentDetails: PaymentDetails = {
+    action_type: "pay",
+    card_number: "1234567891011",
+    month: "12",
+    year: "2025",
+    holder: "me",
+    ccv: "123",
+    id: "123456"
+}
+const deliveryDetails: DeliveryDetails = {
+    action_type: "supply",
+    name: "me",
+    address: "Bilbo house",
+    city: "Shire",
+    country: "Middle Earth",
+    zip: "123456",
+}
 
 describe('System dis/connections-tests', function () {
     beforeAll(() => {
@@ -595,14 +614,14 @@ describe('Shopping cart-tests', function () {
     //User2.5
     test('checkout-success', async (done) => {
         if (testMember instanceof SimpleMember) {
-            expect((await service.checkout(testMember.username, 'payment', 'address')).ok).toBe(true);
+            expect((await service.checkout(testMember.username, paymentDetails, deliveryDetails)).ok).toBe(true);
         } else fail('expected testMember to be SimpleMember');
         done();
     })
 
     test('checkout-fail', async (done) => {
         if (testMember instanceof SimpleMember) {
-            expect((await service.checkout("-1", 'payment', 'address')).ok).toBe(false);
+            expect((await service.checkout("-1", paymentDetails, deliveryDetails)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember');
         done();
     })

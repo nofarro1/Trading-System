@@ -1,4 +1,5 @@
 import {Result} from "../../utilities/Result";
+import { ServiceSettings } from "../../utilities/Types";
 
 export type DeliveryDetails = {
     action_type: "supply";
@@ -9,7 +10,7 @@ export type DeliveryDetails = {
     zip: string
 };
 export interface IDeliveryService {
-    editServiceSettings(settings: any);
+    editServiceSettings(settings: ServiceSettings): void;
     handshake(): Promise<boolean>;
     supply(deliveryDetails: DeliveryDetails):Promise<Result<number>>;
     cancelSupply(transactionId:string):Promise<Result<boolean>>;
