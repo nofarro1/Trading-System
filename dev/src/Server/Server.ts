@@ -48,7 +48,8 @@ export class Server {
         this.notificationService = notificationService;
         this.httpsServer = https.createServer({
             key: fs.readFileSync(keyPath),
-            cert: fs.readFileSync(certPath)
+            cert: fs.readFileSync(certPath),
+            rejectUnauthorized: false
         }, app)
         logger.info("https Server is initialized")
         this.ioServer = new io.Server(this.httpsServer, {
@@ -60,10 +61,11 @@ export class Server {
     }
 
     start() {
-        this.setupEvents()
+        this.setupEvents();
         this.httpsServer.listen(port, () => {
             console.log("server started. listening on port " + port)
         });
+        console.log("done")
     }
 
     shutdown() {

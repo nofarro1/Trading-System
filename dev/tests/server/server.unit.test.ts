@@ -38,9 +38,9 @@ describe("networking tests - basic actions", () => {
         server.start()
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = String(0); //allow self-signed certificate
         agent = request.agent(app)
-        done()
+        // done()
         //access the marketplace before each test
-        agent.get("/access").send().then((res) => {
+        agent.get("/api/access").send().then((res) => {
             activeSession = res.body.data._guestID;
             console.log("requested new session")
             done();
@@ -60,7 +60,7 @@ describe("networking tests - basic actions", () => {
 
 
     const getRequest = (path: string, expectedStatus: number, testBody: (body: any) => void): void => {
-        const res = agent.get(path);
+        const res = agent.get( "/api"+path);
         res.then((response: Response) => {
             expect(response.status).toBe(expectedStatus)
             testBody(response.body);
@@ -68,7 +68,7 @@ describe("networking tests - basic actions", () => {
     }
 
     const postRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
-        const res = agent.post(path).set("accept", "application/json")
+        const res = agent.post("/api"+path).set("accept", "application/json")
         res.send(body).then((response: Response) => {
             expect(response.status).toBe(expectedStatus)
             testBody(response.body);
@@ -76,7 +76,7 @@ describe("networking tests - basic actions", () => {
     }
 
     const patchRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
-        agent.patch(path).set("accept", "application/json").send(body).then((response: Response) => {
+        agent.patch("/api"+path).set("accept", "application/json").send(body).then((response: Response) => {
             expect(response.status).toBe(expectedStatus)
             testBody(response.body);
 
@@ -84,7 +84,7 @@ describe("networking tests - basic actions", () => {
     }
 
     const deleteRequest = (path: string, expectedStatus: number, body: any, testBody: (body: any) => void): void => {
-        agent.delete(path).then((response: Response) => {
+        agent.delete("/api"+path).then((response: Response) => {
             expect(response.status).toBe(expectedStatus)
             testBody(response.body);
 
@@ -227,7 +227,7 @@ describe("networking tests - basic actions", () => {
     test("GET - get shop", (done) => {
         serviceMockMethod = mockServiceMethod('getShopInfo', new SimpleShop(0, "super shop", ShopStatus.open, new Map()))
 
-        getRequest(`/shop/${activeSession}/${shopId}`, 200, (body) => {
+        getRequest(`/shop/${shopId}`, 200, (body) => {
             expect(body.ok).toBe(true);
             expect(body.data._ID).toBe(shopId);
             expect(body.data._name).toBe("super shop");

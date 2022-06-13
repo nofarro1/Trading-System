@@ -1,0 +1,30 @@
+.header {
+  padding: 20px;
+  text-align: center;
+  background: lightsteelblue;
+  color: white;
+  font-size: 12px;
+}
+.checkout{
+  padding-left: 20px;
+}
+button {
+  background-color: #607D8B;
+  border: 1px solid darkslategray;
+  color: white;
+  padding: 10px 24px;
+  cursor: pointer;
+}
+
+
+/* Clear floats (clearfix hack) */
+button:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Add a background color on hover */
+button:hover {
+  background-color: #505050;
+}

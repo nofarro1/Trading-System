@@ -1,0 +1,25 @@
+<div class="header">
+  <h1>**ShopName**</h1>
+</div>
+<p-table [value]="products">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Rate</th>
+      <th>Description</th>
+      <th>Price</th>
+      <th style="color: white;"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-Product class="body-line !important">
+    <tr>
+      <td class="font-bold ml-2 !important">{{Product.name}}</td>
+      <td>{{Product.category}}</td>
+      <td>{{Product.rate}}</td>
+      <td>{{Product.description}}</td>
+      <td>{{Product.discountPrice}}</td>
+      <button pButton type="button" class="p-button-secondary" label="Add to cart" routerLink="/shops/{{Product.id}}"></button>
+    </tr>
+  </ng-template>
+</p-table>
