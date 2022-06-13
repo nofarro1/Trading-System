@@ -3,6 +3,7 @@ import {Result} from "../../utilities/Result";
 import {inject, injectable} from "inversify";
 import {IPaymentService, PaymentDetails} from "./IPaymentService";
 import {ServiceSettings} from "../../utilities/Types";
+import {TYPES} from "../../helpers/types";
 
 @injectable()
 export class PaymentServiceAdaptor implements IPaymentService {
@@ -11,7 +12,7 @@ export class PaymentServiceAdaptor implements IPaymentService {
     private real: IPaymentService | null;
 
     constructor(@inject("PaymentServiceName") name: string,
-                real: IPaymentService | null,
+                @inject(TYPES.realPaymentService) real: IPaymentService | null,
                 settings: ServiceSettings = {
                     min: 10000,
                     max: 100000,
@@ -35,7 +36,7 @@ export class PaymentServiceAdaptor implements IPaymentService {
     }
 
     editServiceSettings(settings: ServiceSettings): void {
-        if(this.real !== null) this.real.editServiceSettings(settings);
+        if (this.real !== null) this.real.editServiceSettings(settings);
         this.settings = settings;
     }
 

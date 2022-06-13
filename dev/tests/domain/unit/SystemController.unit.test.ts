@@ -561,12 +561,25 @@ describe('system controller - unit', () => {
         clearMocks(removeProdMM)
     })
 
-    test("checkout - success", () => {
+    test("checkout - success", async (done) => {
         let perchMM = mockMethod(PurchaseController.prototype, "checkout", () => {
             return new Result(true, undefined);
         })
 
-        let res = sys.checkout(username1, "Pure gold", "please give me products")
+        let res = await sys.checkout(username1, { action_type:"pay",
+            card_number: "1234567891011",
+            month: "12",
+            year: "2025",
+            holder:"me",
+            ccv:"123",
+            id:"123456"}, {
+            action_type: "supply",
+            name: "me",
+            address: "Bilbo house",
+            city: "Shire",
+            country: "Middle Earth",
+            zip: "123456",
+        })
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
         expect(perchMM).toBeCalled()
@@ -575,17 +588,30 @@ describe('system controller - unit', () => {
 
     })
 
-    test("checkout - failure", () => {
+    test("checkout - failure", async(done) => {
         let perchMM = mockMethod(PurchaseController.prototype, "checkout", () => {
             return new Result(false, undefined);
         })
 
-        let res = sys.checkout(username1, "Pure gold", "please give me products")
+        let res = await sys.checkout(username1, { action_type:"pay",
+            card_number: "1234567891011",
+            month: "12",
+            year: "2025",
+            holder:"me",
+            ccv:"123",
+            id:"123456"}, {
+            action_type: "supply",
+            name: "me",
+            address: "Bilbo house",
+            city: "Shire",
+            country: "Middle Earth",
+            zip: "123456",
+        })
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
         expect(perchMM).toBeCalled()
         clearMocks(perchMM);
-
+        done()
     })
 
     test("setup shop", () => {

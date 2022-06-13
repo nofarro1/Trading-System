@@ -14,7 +14,7 @@ export class Result<T> {
         return new Result(true, data, message);
     }
 
-    public static Fail<T>(message: string,data?:T): Result<T> {
+    public static Fail(message: string,data?:any): Result<any> {
         return new Result(false, data, message);
     }
 }
