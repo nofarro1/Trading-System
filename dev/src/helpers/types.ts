@@ -14,6 +14,7 @@ export const TYPES = {
     SecurityController: Symbol.for("SecurityController"),
     PaymentServiceAdaptor: Symbol.for("PaymentServiceAdaptor"),
     DeliveryServiceAdaptor: Symbol.for("DeliveryServiceAdaptor"),
-    NotificationService: Symbol.for("NotificationService")
-
+    NotificationService: Symbol.for("NotificationService"),
+    realPaymentService: Symbol.for("PaymentService"),
+    realDeliveryService: Symbol.for("DeliveryService"),
 }

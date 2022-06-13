@@ -16,6 +16,8 @@ import {logger} from "../helpers/logger";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../helpers/types";
 import "reflect-metadata";
+import {DeliveryDetails} from "../domain/external_services/IDeliveryService";
+import {PaymentDetails} from "../domain/external_services/IPaymentService";
 
 @injectable()
 export class Service {
@@ -212,7 +214,7 @@ export class Service {
     }
 
     //Guest Payment - Use-Case 5
-    checkout(sessionID: string, paymentDetails: any, deliveryDetails: any): Promise<Result<void>> {
+    checkout(sessionID: string, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void>> {
         logger.info(`${sessionID} would like to perform a checkout operation using the following payment details: ${paymentDetails} and delivery details: ${deliveryDetails}`);
         return this.shoppingCartService.checkout(sessionID, paymentDetails, deliveryDetails);
     }

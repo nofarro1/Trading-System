@@ -4,6 +4,8 @@ import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppin
 import {inject, injectable} from "inversify";
 import {TYPES} from "../helpers/types";
 import "reflect-metadata";
+import {PaymentDetails} from "../domain/external_services/IPaymentService";
+import {DeliveryDetails} from "../domain/external_services/IDeliveryService";
 
 @injectable()
 export class ShoppingCartService {
@@ -46,9 +48,9 @@ export class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 5
-    checkout(sessionID: string, paymentDetails: any, deliveryDetails: any): Promise<Result<void>> {
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.checkout(sessionID, paymentDetails, deliveryDetails);
+    checkout(sessionID: string, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void>> {
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.checkout(sessionID, paymentDetails, deliveryDetails);
             result.ok ? resolve(result) : reject(result.message);
         });
     }

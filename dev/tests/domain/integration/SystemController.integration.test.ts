@@ -957,7 +957,8 @@ describe('system controller - integration', () => {
         sys.registerAsAdmin(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.editConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment, "settings");
+        let res = sys.editConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment,
+                                                {min:1,max:10,url:"google.com"});
 
         //assert
         expect(res.ok).toBeTruthy();
