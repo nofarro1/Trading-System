@@ -61,10 +61,11 @@ export class Server {
     }
 
     start() {
-        this.setupEvents()
+        this.setupEvents();
         this.httpsServer.listen(port, () => {
             console.log("server started. listening on port " + port)
         });
+        console.log("done")
     }
 
     shutdown() {
