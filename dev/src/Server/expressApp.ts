@@ -5,6 +5,7 @@ import {systemContainer} from "../helpers/inversify.config";
 import {TYPES} from "../helpers/types";
 import {Result} from "../utilities/Result";
 import cors from "cors"
+import {PaymentService} from "../domain/external_services/PaymentService";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
@@ -418,6 +419,16 @@ router.get('/shop/:shopId', async (req, res) => {
     }
 })
 
+router.get('/shop/all', async (req, res)=>{
+    try {
+        let sessId = req.session.id;
+        let ans = await service.getAllShopsInfo(sessId)
+
+    } catch (e:any){
+        res.status(404).send(e.message)
+    }
+})
+
 /**
  * close shop
  */
@@ -579,6 +590,16 @@ router.post('/admin/services/edit', async (req, res) => {
     } catch (e: any) {
         res.status(402)
         res.send(e.message)
+    }
+})
+
+router.get('/messages/:memberId', async (req, res) =>{
+    try {
+        let sess = req.session.id;
+        let ans = await service.getMessages(sess)
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message);
     }
 })
 

@@ -106,4 +106,11 @@ export class MarketplaceService {
             result.ok ? resolve(result) : reject(result.message);
         });
     }
+
+    getAllShopInfo(sessionID: string) {
+        return new Promise<Result<void | SimpleShop[]>>((resolve, reject) => {
+            let result: Result<void | SimpleShop[]> = this.systemController.getShops(sessionID);
+            result.ok ? resolve(result) : reject(result.message);
+        });
+    }
 }

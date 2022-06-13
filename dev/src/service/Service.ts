@@ -232,4 +232,14 @@ export class Service {
         logger.info(`${sessionID}: The connection with the ${type} service is being modified using the following settings: ${settings}`);
         return this.orderService.editConnectionWithExternalService(sessionID, adminUsername, type, settings);
     }
+
+    async getAllShopsInfo(sessionID: string) {
+        logger.info(`${sessionID} is requesting All shops`);
+        return this.marketplaceService.getAllShopInfo(sessionID);
+    }
+
+    async getMessages(sessionId: string) {
+        return this.memberService.getMessages(sessionId)
+
+    }
 }

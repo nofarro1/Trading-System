@@ -475,6 +475,7 @@ export class SystemController {
             return new Result(false, undefined, "no permission")
         })
     }
+
     // todo; undo commet  when missing the methods in marketplace controller are declared
     // getDiscounts(sessId: string, shopId: number): Result<SimpleDiscountDescriber[] | void> {
     //     return this.authenticateMarketVisitor(sessId, () => {
@@ -527,7 +528,7 @@ export class SystemController {
     //
     // }
 
-    addPurchasePolicy(sessId: string, shopId: number, puPolicy:  ImmediatePurchaseData): Result<number | void> {
+    addPurchasePolicy(sessId: string, shopId: number, puPolicy: ImmediatePurchaseData): Result<number | void> {
         return this.authenticateMarketVisitor(sessId, (userId) => {
             if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
                 this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
@@ -726,4 +727,9 @@ export class SystemController {
     }
 
 
+    getMessages(sessionId: string) {
+        return this.authenticateMarketVisitor(sessionId, (id) => {
+            return this.mController.getMessages(id);
+        })
+    }
 }
