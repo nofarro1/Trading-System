@@ -1,19 +1,18 @@
 import {Result} from "../../utilities/Result";
 import {logger} from "../../helpers/logger";
-import {inject, injectable} from "inversify";
+import {inject, injectable, optional} from "inversify";
 import {DeliveryDetails, IDeliveryService} from "./IDeliveryService";
 import {ServiceSettings} from "../../utilities/Types";
-import axios from "axios";
 import {TYPES} from "../../helpers/types";
 
 @injectable()
 export class DeliveryServiceAdaptor implements IDeliveryService {
-    private readonly _name: string;
+    private _name: string;
     private _settings: ServiceSettings;
     private real: IDeliveryService | null;
 
-    constructor(@inject("DeliveryServiceName") name: string,
-                @inject(TYPES.realDeliveryService) real: IDeliveryService | null,
+    constructor(@inject("delivery") name: string,
+                @inject(TYPES.DeliveryService) @optional() real: IDeliveryService | null = null,
                 settings: ServiceSettings = {
                     min: 10000,
                     max: 100000,

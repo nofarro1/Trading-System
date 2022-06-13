@@ -1,18 +1,18 @@
 import {logger} from "../../helpers/logger";
 import {Result} from "../../utilities/Result";
-import {inject, injectable} from "inversify";
+import {inject, injectable, optional} from "inversify";
 import {IPaymentService, PaymentDetails} from "./IPaymentService";
 import {ServiceSettings} from "../../utilities/Types";
 import {TYPES} from "../../helpers/types";
 
 @injectable()
 export class PaymentServiceAdaptor implements IPaymentService {
-    private readonly _name: string;
+    private _name: string;
     private _settings: ServiceSettings;
     private real: IPaymentService | null;
 
-    constructor(@inject("PaymentServiceName") name: string,
-                @inject(TYPES.realPaymentService) real: IPaymentService | null,
+    constructor(@inject("payment") name: string,
+                @inject(TYPES.PaymentService) @optional() real: IPaymentService | null = null,
                 settings: ServiceSettings = {
                     min: 10000,
                     max: 100000,

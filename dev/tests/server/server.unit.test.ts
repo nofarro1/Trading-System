@@ -36,7 +36,7 @@ describe("networking tests - basic actions", () => {
     beforeAll((done) => {
         server = new Server(app, systemContainer.get(TYPES.Service), systemContainer.get(TYPES.NotificationService));
         server.start()
-        process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = String(0); //allow self-signed certificate
+        process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = "0"; //allow self-signed certificate
         agent = request.agent(app)
         // done()
         //access the marketplace before each test

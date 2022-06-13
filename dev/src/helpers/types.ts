@@ -1,3 +1,5 @@
+import { PaymentService } from "../domain/external_services/PaymentService";
+
 export const TYPES = {
     SystemController: Symbol.for("SystemController"),
     Service: Symbol.for("Service"),
@@ -15,6 +17,7 @@ export const TYPES = {
     PaymentServiceAdaptor: Symbol.for("PaymentServiceAdaptor"),
     DeliveryServiceAdaptor: Symbol.for("DeliveryServiceAdaptor"),
     NotificationService: Symbol.for("NotificationService"),
-    realPaymentService: Symbol.for("PaymentService"),
-    realDeliveryService: Symbol.for("DeliveryService"),
+    PaymentService: Symbol.for("PaymentService"),
+    DeliveryService: Symbol.for("DeliveryService"),
+    ServiceName: Symbol.for("string"),
 }

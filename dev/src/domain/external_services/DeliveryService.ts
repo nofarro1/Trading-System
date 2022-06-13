@@ -2,14 +2,14 @@ import {DeliveryDetails, IDeliveryService} from "./IDeliveryService";
 import {Result} from "../../utilities/Result";
 import {ServiceSettings} from "../../utilities/Types";
 import axios from "axios";
-import { injectable } from "inversify";
+import {inject, injectable} from "inversify";
 
 @injectable()
 export class DeliveryService implements IDeliveryService {
     readonly _name: string;
     _settings: ServiceSettings;
 
-    constructor(name: string, settings: ServiceSettings = {
+    constructor(@inject("RealDelivery") name: string, settings: ServiceSettings = {
         min: 10000,
         max: 100000,
         url: "https://cs-bgu-wsep.herokuapp.com/"

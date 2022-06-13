@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest",
     "build": "tsc --project ./tsconfig.json",
-    "start": "NODE_ENV=prod ts-node ./src/app.ts ",
-    "start:dev": "NODE_ENV=dev ts-node ./src/app.ts "
+    "start": "SET NODE_ENV=prod && ts-node ./src/app.ts ",
+    "start:dev": "SET NODE_ENV=dev&& ts-node ./src/app.ts "
   },
   "keywords": [],
   "author": "",

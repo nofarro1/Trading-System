@@ -2,7 +2,7 @@ import {IPaymentService, PaymentDetails} from "./IPaymentService";
 import {Result} from "../../utilities/Result";
 import {ServiceSettings} from "../../utilities/Types";
 import axios from 'axios';
-import { injectable } from "inversify";
+import {inject, injectable} from "inversify";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -10,7 +10,7 @@ export class PaymentService implements IPaymentService {
     _settings: ServiceSettings;
 
 
-    constructor(name: string, settings: ServiceSettings = {
+    constructor(@inject("RealPayment") name: string, settings: ServiceSettings = {
         min: 10000,
         max: 100000,
         url: "https://cs-bgu-wsep.herokuapp.com/"
