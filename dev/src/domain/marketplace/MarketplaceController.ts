@@ -425,12 +425,12 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    addOffer2Product(shopId: number, userId: string, pId: number, offeredPrice: number ): Result<number | void>{
+    addOffer2Product(shopId: number, userId: string, pId: number, offeredPrice: number ): Result<Offer | void>{
         let shop = this._shops.get(shopId);
         if(shop){
-            let offerId = shop.addOfferPrice2Product(userId, pId, offeredPrice);
+            let offer = shop.addOfferPrice2Product(userId, pId, offeredPrice);
             logger.info(`User with id: ${userId} submitted an price offer on product with id: ${pId}.`)
-            return new Result(true, offerId);
+            return new Result(true, offer);
         }
         logger.error(`Couldn't submit offer to shop with id: ${shopId} because the shop not found in market`);
         return new Result (false, undefined, `Couldn't submit offer to shop with id: ${shopId} because the shop not found in market`)
