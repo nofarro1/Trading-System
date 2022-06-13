@@ -4,10 +4,9 @@ import {MarketplaceController} from "../../../src/domain/marketplace/Marketplace
 import {PurchaseController} from "../../../src/domain/purchase/PurchaseController";
 import {SecurityController} from "../../../src/domain/SecurityController";
 import {UserController} from "../../../src/domain/user/UserController";
-import {NotificationController} from "../../../src/domain/notifications/NotificationController";
 import {Guest} from "../../../src/domain/user/Guest";
 import {Member} from "../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../src/domain/marketplace/ShoppingCart";
+import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
 import {MessageBox} from "../../../src/domain/notifications/MessageBox";
 import {Product} from "../../../src/domain/marketplace/Product";
 import {JobType, ProductCategory, SearchType} from "../../../src/utilities/Enums";
@@ -22,7 +21,29 @@ import {
     toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
 import {ExternalServiceType} from "../../../src/utilities/Utils";
+import {systemContainer} from "../../../src/helpers/inversify.config";
+import {TYPES} from "../../../src/helpers/types";
+import {PaymentDetails} from "../../../src/domain/external_services/IPaymentService";
+import {DeliveryDetails} from "../../../src/domain/external_services/IDeliveryService";
 
+
+const paymentDetails: PaymentDetails = {
+    action_type: "pay",
+    card_number: "1234567891011",
+    month: "12",
+    year: "2025",
+    holder: "me",
+    ccv: "123",
+    id: "123456"
+}
+const deliveryDetails: DeliveryDetails = {
+    action_type: "supply",
+    name: "me",
+    address: "Bilbo house",
+    city: "Shire",
+    country: "Middle Earth",
+    zip: "123456",
+}
 
 describe('system controller - integration', () => {
     let sys: SystemController;
@@ -31,7 +52,6 @@ describe('system controller - integration', () => {
     let pController: PurchaseController;
     let scController: SecurityController;
     let uController: UserController;
-    let notificationsController: NotificationController;
 
     const sess1 = "1";
     let guest1: Guest;
@@ -61,39 +81,38 @@ describe('system controller - integration', () => {
 
     const shop1 = new Shop(0, "_name", username1, "this is my shop");
 
-    const p1 = new Product("ps1", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p2 = new Product("ps2", 0, ProductCategory.A, 10, 10, undefined,"description");
-    const p3 = new Product("ps3", 0, ProductCategory.A, 10, 10, undefined,"description");
+    const p1 = new Product("ps1", 0, ProductCategory.A, 10, undefined,"description");
+    const p2 = new Product("ps2", 0, ProductCategory.A, 10, undefined,"description");
+    const p3 = new Product("ps3", 0, ProductCategory.A, 10, undefined,"description");
 
     const role1 = new Role(0, "title", JobType.Owner, new Set())
     const role2 = new Role(0, "title", JobType.Manager, new Set())
 
     beforeAll(() => {
-        sys = SystemController.initialize();
+        sys = systemContainer.get(TYPES.SystemController)
         mpController = sys.mpController
         mController = sys.mController
         pController = sys.pController
         scController = sys.securityController
         uController = sys.uController
-        notificationsController = sys.notifyController
     })
 
     beforeEach(() => {
         cart1 = new ShoppingCart();
-        guest1 = new Guest(sess1, cart1);
+        guest1 = new Guest(sess1);
 
         cart2 = new ShoppingCart();
-        guest2 = new Guest(sess2, cart2);
+        guest2 = new Guest(sess2);
 
         cart3 = new ShoppingCart();
-        guest3 = new Guest(sess3, cart3);
+        guest3 = new Guest(sess3);
 
         cart4 = new ShoppingCart();
-        member1 = new Member(sess4, username1, cart4)
+        member1 = new Member(sess4, username1)
         box1 = new MessageBox(username1);
 
         cart5 = new ShoppingCart();
-        member2 = new Member(sess5, username2, cart5)
+        member2 = new Member(sess5, username2)
         box2 = new MessageBox(username1);
     })
 
@@ -104,7 +123,6 @@ describe('system controller - integration', () => {
         expect(sys.uController).toBeDefined();
         expect(sys.mController).toBeDefined();
         expect(sys.securityController).toBeDefined();
-        expect(sys.notifyController).toBeDefined();
     })
 
     test("access marketplace test", () => {
@@ -279,27 +297,27 @@ describe('system controller - integration', () => {
             expect(res.data).not.toBeDefined();
         })
 
-        test("checkout - success", () => {
+        test("checkout - success", async() => {
             //prepare
             sys.accessMarketplace(sess1);
             sys.addToCart(username1, p1.id, 2);
 
             //act
-            let res = sys.checkout(username1, "Pure gold", "please give me products")
+            let res = await sys.checkout(username1, paymentDetails, deliveryDetails)
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
         })
 
-        test("checkout - failure", () => {
+        test("checkout - failure", async(done) => {
             //prepare
             sys.accessMarketplace(sess1);
             sys.addToCart(username1, p1.id, 2);
             sys.removeProductFromCart(username1, p1.id);
 
             //act
-            let res = sys.checkout(username1, "Pure gold", "please give me products")
+            let res = await sys.checkout(username1, paymentDetails, deliveryDetails)
 
             //assert
             expect(res.ok).toBe(false);
@@ -476,7 +494,7 @@ describe('system controller - integration', () => {
             });
 
             //act
-            let res = sys.updateProduct(username1, shop1.id, shop1.id, 6);
+            let res = sys.updateProductQuantity(username1, shop1.id, shop1.id, 6);
 
             //assert
             expect(res.ok).toBe(true);
@@ -501,7 +519,7 @@ describe('system controller - integration', () => {
             sys.login(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.updateProduct(username1, shop1.id, p1.id, 6);
+            let res = sys.updateProductQuantity(username1, shop1.id, p1.id, 6);
 
             //assert
             expect(res.ok).toBe(false);
@@ -516,7 +534,7 @@ describe('system controller - integration', () => {
             sys.setUpShop(username1, shop1.name);
 
             //act
-            let res = sys.updateProduct(username1, shop1.id, p1.id, 5);
+            let res = sys.updateProductQuantity(username1, shop1.id, p1.id, 5);
 
             //assert
             expect(res.ok).toBe(false);
@@ -918,7 +936,7 @@ describe('system controller - integration', () => {
         sys.setUpShop(username1, shop1.name);
 
         //act
-        let res = sys.getPersonnelInfo(username1, shop1.id);
+        let res = sys.getPersonnelInfoOfShop(username1, shop1.id);
 
         //assert
         expect(res.ok).toBe(true);
@@ -959,7 +977,8 @@ describe('system controller - integration', () => {
         sys.registerAsAdmin(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.editConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment, "settings");
+        let res = sys.editConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment,
+                                                {min:1,max:10,url:"google.com"});
 
         //assert
         expect(res.ok).toBeTruthy();

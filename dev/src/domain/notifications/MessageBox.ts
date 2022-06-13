@@ -3,27 +3,27 @@ import {Message} from "./Message";
 
 
 
-export interface IIncomingMessageSubscriber {
+export interface ILLiveNotificationSubscriber {
     onNewMessages(msgs: Message[]):void
 
 }
 
-export interface IIncomingMessagePublisher {
-    subs:IIncomingMessageSubscriber[]
-    subscribe(l:IIncomingMessageSubscriber):void
-    unsubscribe(l:IIncomingMessageSubscriber):void
+export interface ILiveNotificationPublisher {
+    subs:ILLiveNotificationSubscriber[]
+    subscribe(l:ILLiveNotificationSubscriber):void
+    unsubscribe(l:ILLiveNotificationSubscriber):void
     notifySubscribers(messages: Message[]):void
 }
 
 
 
 
-export class MessageBox implements IIncomingMessagePublisher{
+export class MessageBox implements ILiveNotificationPublisher{
 
     private memberId: string
     messages: Message[]
     unReadMessages: Message[]
-    subs: IIncomingMessageSubscriber[]
+    subs: ILLiveNotificationSubscriber[]
 
 
     constructor(member:string) {
@@ -80,13 +80,13 @@ export class MessageBox implements IIncomingMessagePublisher{
         }
     }
 
-    subscribe(l: IIncomingMessageSubscriber): void {
+    subscribe(l: ILLiveNotificationSubscriber): void {
         if(!this.subs.includes(l)){
             this.subs.push(l);
         }
     }
 
-    unsubscribe(sub: IIncomingMessageSubscriber): void {
+    unsubscribe(sub: ILLiveNotificationSubscriber): void {
         let index = this.subs.findIndex((l) => sub === l);
         index !== -1 ? this.subs.splice(index, 1) : this.subs;
 

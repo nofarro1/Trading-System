@@ -1,5 +1,3 @@
-import {Result} from "./Result";
-
 export const UUIDGenerator = (): string => {
     const head:string = Date.now().toString();
     const tail:string = Math.random().toString().substring(2);

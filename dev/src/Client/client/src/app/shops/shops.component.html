@@ -1,0 +1,21 @@
+<div class="header">
+  <h1>Shops</h1>
+</div>
+<p-table [value]="shops">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Rate</th>
+            <th style="color: white;"></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-shop class="body-line !important">
+        <tr>
+            <td class="font-bold ml-2 !important">{{shop.name}}</td>
+            <td>{{shop.status}}</td>
+            <td>{{shop.rate}}</td>
+            <button pButton type="button" class="p-button-secondary" label="Show products" routerLink="/shops/{{shop.id}}"></button>
+        </tr>
+    </ng-template>
+</p-table>

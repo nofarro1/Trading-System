@@ -1,12 +1,14 @@
-import {IIncomingMessageSubscriber} from "./MessageBox";
+import {ILLiveNotificationSubscriber} from "./MessageBox";
 import {Message} from "./Message";
 import {Result} from "../../utilities/Result";
 import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
+import "reflect-metadata";
 
 
+//version 1 implementation
 @injectable()
-export class NotificationController implements IIncomingMessageSubscriber {
+export class NotificationController implements ILLiveNotificationSubscriber {
 
     private activeMembers: Map<string,(m:Message) => void>
 

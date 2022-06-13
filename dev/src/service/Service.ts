@@ -3,7 +3,6 @@ import {MemberService} from "./MemberService";
 import {ShoppingCartService} from "./ShoppingCartService";
 import {MarketplaceService} from "./MarketplaceService";
 import {OrderService} from "./OrderService";
-import {SystemController} from "../domain/SystemController";
 import {Result} from "../utilities/Result";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
@@ -11,12 +10,14 @@ import {Permissions} from "../utilities/Permissions";
 import {ExternalServiceType} from "../utilities/Utils";
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
-import {SimpleShopOrder} from "../utilities/simple_objects/purchase/SimpleShopOrder";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {ProductCategory, SearchType} from "../utilities/Enums";
 import {logger} from "../helpers/logger";
 import {inject, injectable} from "inversify";
-import {TYPES} from "../../types";
+import {TYPES} from "../helpers/types";
+import "reflect-metadata";
+import {DeliveryDetails} from "../domain/external_services/IDeliveryService";
+import {PaymentDetails} from "../domain/external_services/IPaymentService";
 
 @injectable()
 export class Service {
@@ -127,6 +128,8 @@ export class Service {
         return this.marketplaceService.getShopInfo(sessionID, shopID);
     }
 
+    //todo: Get shops (all or filtered for a number
+
     //Guest Payment - Use-Case 2
     searchProducts(sessionID: string, searchBy: SearchType, searchTerm: string, filters?: any): Promise<Result<void | SimpleProduct[]>> {
         logger.info(`${sessionID} has initiated a product search operation using the search term ${searchTerm}`);
@@ -134,6 +137,8 @@ export class Service {
             logger.info(`The search is initiated using the following filter details ${filters}`);
         return this.marketplaceService.searchProducts(sessionID, searchBy, searchTerm, filters);
     }
+
+    //todo: get products (provided list of ids)
 
     //Member Payment - Use-Case 2
     setUpShop(sessionID: string, username: string, shopName: string): Promise<Result<void | SimpleShop>> {
@@ -143,7 +148,7 @@ export class Service {
 
     //Shop Owner - Use-Case 1.1
     addProductToShop(sessionID: string, username: string, shopID: number, category: ProductCategory, name: string,
-                     price: number, quantity: number, description?: string): Promise<Result<void>> {
+                     price: number, quantity: number, description?: string): Promise<Result<SimpleProduct | void>> {
         logger.info(`${sessionID}:  user ${username} wants to add a new product to shop ${shopID}`);
         logger.info(`The product contains the following details - category: ${category}, name: ${name}, price: ${price}, quantity: ${quantity}`);
         if(description)
@@ -169,9 +174,11 @@ export class Service {
         return this.marketplaceService.closeShop(sessionID, shopID);
     }
 
+    //todo: missing reopen shop
+
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
-    getShopPurchaseHistory(sessionID: string, ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | SimpleShopOrder[]>> {
+    getShopPurchaseHistory(sessionID: string, ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | string[]>> {
         logger.info(`${sessionID}: ${ownerID} would like to view the purchase history of ${shopID} from ${startDate} to ${endDate}`);
         if(filters)
             logger.info(`The request is made with the following filters: ${filters}`);
@@ -207,7 +214,7 @@ export class Service {
     }
 
     //Guest Payment - Use-Case 5
-    checkout(sessionID: string, paymentDetails: any, deliveryDetails: any): Promise<Result<void>> {
+    checkout(sessionID: string, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void>> {
         logger.info(`${sessionID} would like to perform a checkout operation using the following payment details: ${paymentDetails} and delivery details: ${deliveryDetails}`);
         return this.shoppingCartService.checkout(sessionID, paymentDetails, deliveryDetails);
     }
@@ -224,5 +231,15 @@ export class Service {
     editConnectionWithExternalService(sessionID: string, adminUsername: string, type: ExternalServiceType, settings: any): Promise<Result<void>> {
         logger.info(`${sessionID}: The connection with the ${type} service is being modified using the following settings: ${settings}`);
         return this.orderService.editConnectionWithExternalService(sessionID, adminUsername, type, settings);
+    }
+
+    async getAllShopsInfo(sessionID: string) {
+        logger.info(`${sessionID} is requesting All shops`);
+        return this.marketplaceService.getAllShopInfo(sessionID);
+    }
+
+    async getMessages(sessionId: string) {
+        return this.memberService.getMessages(sessionId)
+
     }
 }

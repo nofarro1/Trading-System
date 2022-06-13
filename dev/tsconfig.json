@@ -6,7 +6,8 @@
     "sourceMap": true,
     "outDir": "dist",
     "strict": false,
-    "noImplicitAny": true,
+    "typeRoots": ["./src/typings", "./node_modules/@types"],
+    "noImplicitAny": false,
     "esModuleInterop": true,
     "types": ["reflect-metadata","jest"],
     "experimentalDecorators": true,
@@ -17,6 +18,7 @@
     "allowSyntheticDefaultImports": true,
     "lib": [
       "es2021",
+      "dom"
     ]
   },
   "exclude": [

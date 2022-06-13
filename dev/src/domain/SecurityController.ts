@@ -1,5 +1,6 @@
 import {logger} from "../helpers/logger";
 import {injectable} from "inversify";
+import "reflect-metadata";
 
 @injectable()
 export class SecurityController {
@@ -102,7 +103,7 @@ export class SecurityController {
     }
 
     logout(sessionID: string, username: string): void {
-        if(!this.activeGuests.has(sessionID)) {
+        if(!this.activeGuests.has(sessionID) && !this._loggedInMembers.has(sessionID)) {
             logger.error(`There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
         }
@@ -117,7 +118,6 @@ export class SecurityController {
 
         logger.info(`Member ${username} has logged out successfully`);
         this.loggedInMembers.delete(username);
-        this.activeGuests.add(sessionID);
     }
 
     hasActiveSession(sessionID: string): string {

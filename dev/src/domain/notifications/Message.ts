@@ -1,6 +1,4 @@
 import {UUIDGenerator} from "../../utilities/Utils";
-import {ShopOrder} from "../purchase/ShopOrder";
-import {logger} from "../../helpers/logger"
 
 export abstract class Message {
     id: string
@@ -23,24 +21,39 @@ export abstract class Message {
 
 }
 
-
-export class ShopPurchaseMessage extends Message {
-
-
+export class SimpleMessage extends Message{
     content: string;
-    purchase: ShopOrder
 
-    //todo: format content;
-    constructor(shopOrder: ShopOrder, shopOwners: Set<string>, buyer: string) {
-        super(shopOwners)
-        this.purchase = shopOrder;
-        this.content = `hello Owner, member ${buyer}, has placed an order at your shop ${this.purchase}.\n
-        order details: ...`
+    constructor(recpt: Set<string>, content: string = "empty message") {
+        super(recpt);
+        this.content = content;
+        
     }
 
     getContent(): string {
         return this.content;
     }
+}
+
+
+export class ShopPurchaseMessage extends Message {
+
+
+    content: string;
+    purchase: string
+
+    //todo: format content;
+    constructor(shopOrder: string, shopOwners: Set<string>, buyer: string) {
+        super(shopOwners)
+        this.purchase = shopOrder;
+        this.content = `hello Owner, member ${buyer}, has placed an order at your shop\n order: ${this.purchase}.\n`
+    }
+
+    getContent(): string {
+        return this.content;
+    }
+
+
 }
 
 
