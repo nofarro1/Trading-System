@@ -11,6 +11,8 @@ const service = systemContainer.get<Service>(TYPES.Service)
 export const router = express.Router();
 
 
+//set routes to api
+
 router.get('/check', (req, res) => {
     let sessId = req.session.id;
     console.log(sessId + " have been activated");
@@ -387,7 +389,7 @@ router.patch('/product/:shopId/:productId', async (req, res) => {
 })
 
 //setup shop
-router.post('/shop/', async (req, res) => {
+router.post('/shop', async (req, res) => {
     try {
         let sessId = req.session.id;
         let username = req.body.username;
@@ -580,11 +582,20 @@ router.post('/admin/services/edit', async (req, res) => {
     }
 })
 
+// configure the express app
 
+
+const _app_folder = './src/Client/client/dist/client'
 export const app = express();
 export const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
 app.use(cors())
 app.use(sessionMiddleware);
 app.use(express.json())
-app.use(router);
+
+app.use('/', express.static(_app_folder))
+app.all('*', function (req, res) {
+    res.status(200).sendFile('/', {root: _app_folder})
+})
+
+app.use('/api',router);
 
