@@ -85,7 +85,7 @@ export class MarketplaceService {
     //Shop Owner - Use-Case 1.3
     modifyProductQuantityInShop(sessionID: string, shopID: number, productID: number, productQuantity: number): Promise<Result<void>> {
         return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.updateProduct(sessionID, shopID, productID, productQuantity);
+            let result: Result<void> = this.systemController.updateProductQuantity(sessionID, shopID, productID, productQuantity);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -103,6 +103,13 @@ export class MarketplaceService {
     getShopPurchaseHistory(sessionID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | string[]>> {
         return new Promise<Result<void | string[]>>((resolve, reject) => {
             let result: Result<void | string[]> = this.systemController.getShopPurchases(sessionID, shopID, startDate, endDate, filters);
+            result.ok ? resolve(result) : reject(result.message);
+        });
+    }
+
+    getAllShopInfo(sessionID: string) {
+        return new Promise<Result<void | SimpleShop[]>>((resolve, reject) => {
+            let result: Result<void | SimpleShop[]> = this.systemController.getShops(sessionID);
             result.ok ? resolve(result) : reject(result.message);
         });
     }

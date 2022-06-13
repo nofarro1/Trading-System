@@ -1,8 +1,8 @@
-import {MessageBox, ILLiveNotificationSubscriber} from "../../../src/domain/notifications/MessageBox";
-import {Message} from "../../../src/domain/notifications/Message";
-import {Member} from "../../../src/domain/user/Member";
-import {ShoppingCart} from "../../../src/domain/user/ShoppingCart";
-import {MessageController} from "../../../src/domain/notifications/MessageController";
+import {MessageBox, ILLiveNotificationSubscriber} from "../../../../src/domain/notifications/MessageBox";
+import {Message} from "../../../../src/domain/notifications/Message";
+import {Member} from "../../../../src/domain/user/Member";
+import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
+import {MessageController} from "../../../../src/domain/notifications/MessageController";
 
 class TestMessage extends Message {
     constructor(recipients: Set<string>) {
@@ -112,8 +112,8 @@ describe('messageBox - test', function () {
         let sub: ILLiveNotificationSubscriber = {
             onNewMessages: onEvent
         } as ILLiveNotificationSubscriber;
-        mb1.subscribe(sub);
-        mb1.unsubscribe(sub);
+        // mb1.subscribe(sub);
+        // mb1.unsubscribe(sub);
         expect(mb1.subs).toHaveLength(0);
         mb1.addMessage(tm1)
         expect(onEvent).not.toBeCalledWith()

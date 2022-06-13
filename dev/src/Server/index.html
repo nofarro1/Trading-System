@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello world</title>
+</head>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+    let count = 1;
+    const socket = io({secure:true, protocol});
+    socket.on('hello', () => {
+        console.log("got from server");
+        socket.emit("hello")
+
+    })
+</script>
+<body>Hello</body>
+</html>

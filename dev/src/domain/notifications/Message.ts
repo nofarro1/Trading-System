@@ -31,6 +31,20 @@ export abstract class Message extends BaseEntity {
     }
 }
 
+export class SimpleMessage extends Message{
+    content: string;
+
+    constructor(recpt: Set<string>, content: string = "empty message") {
+        super(recpt);
+        this.content = content;
+
+    }
+
+    getContent(): string {
+        return this.content;
+    }
+}
+
 
 export class ShopPurchaseMessage extends Message {
     purchase: string
@@ -40,6 +54,11 @@ export class ShopPurchaseMessage extends Message {
         super(shopOwners, `hello Owner, member ${buyer}, has placed an order at your shop ${shopOrder}.\n
         order details: ...`);
         this.purchase = shopOrder;
+        this.content = `hello Owner, member ${buyer}, has placed an order at your shop\n order: ${this.purchase}.\n`
+    }
+
+    getContent(): string {
+        return this.content;
     }
 }
 

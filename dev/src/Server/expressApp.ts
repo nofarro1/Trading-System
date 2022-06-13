@@ -4,22 +4,32 @@ import {Service} from "../service/Service";
 import {systemContainer} from "../helpers/inversify.config";
 import {TYPES} from "../helpers/types";
 import {Result} from "../utilities/Result";
+import cors from "cors"
+import {PaymentService} from "../domain/external_services/PaymentService";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
 export const router = express.Router();
 
 
+//set routes to api
+
 router.get('/check', (req, res) => {
     let sessId = req.session.id;
     console.log(sessId + " have been activated");
-    res.status(200);
-    res.send({message: "hello, your id is " + sessId});
+    res.status(200).send({message: "hello, your id is " + sessId});
 
 })
 
+router.get('/', (req, res) => {
+    req.session.loggedIn = false;
+    req.session.username = "";
+    res.sendFile(__dirname + '/index.html');
+});
+
+
 //access marketpalce - return the index.html in the future
-router.get('/', async (req, res) => {
+router.get('/access', async (req, res) => {
     let sessId = req.session.id;
     try {
         console.log("guest " + sessId + " accessed marketplace");
@@ -125,8 +135,12 @@ router.post('/guest/login', async (req, res) => {
         let username = req.body.username;
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
+        req.session.username = username;
+        req.session.loggedIn = true;
         res.send(ans)
     } catch (e: any) {
+        req.session.username = "";
+        req.session.loggedIn = false;
         res.status(404)
         res.send(e.message)
     }
@@ -140,6 +154,8 @@ router.get('/member/logout/:username', async (req, res) => {
         let sessId = req.session.id;
         let username = req.params.username
         let ans = await service.logout(sessId, username)
+        req.session.loggedIn = false;
+        req.session.username = "";
         res.send(ans)
     } catch (e: any) {
         res.status(404)
@@ -159,9 +175,9 @@ router.post('/member/shopManagement/assignOwner', async (req, res) => {
 
     try {
         let sessId = req.session.id
-        let owner = req.body.owner.assigningOwnerId
+        let owner = req.body.owner
         let shopId = req.body.shopId
-        let newOwner = req.body.shopId
+        let newOwner = req.body.newOwnerId
         let title = req.body.title
         let ans = await service.appointShopOwner(sessId, newOwner, shopId, owner, title)
         res.send(ans)
@@ -185,9 +201,9 @@ router.post('/member/shopManagement/assignManager', async (req, res) => {
 
     try {
         let sessId = req.session.id
-        let owner = req.body.owner.assigner
+        let owner = req.body.owner
         let shopId = req.body.shopId
-        let newManager = req.body.shopId
+        let newManager = req.body.newManager
         let title = req.body.title
         let ans = await service.appointShopManager(sessId, newManager, shopId, owner, title)
         res.send(ans)
@@ -211,7 +227,7 @@ router.post('/member/shopManagement/Permissions', async (req, res) => {
 
     try {
         let sessId = req.session.id
-        let owner = req.body.owner.assigner
+        let owner = req.body.owner
         let shopId = req.body.shopId
         let permissions = req.body.permissions
         let managerId = req.body.manager
@@ -230,7 +246,7 @@ router.delete('/member/shopManagement/Permissions', async (req, res) => {
 
     try {
         let sessId = req.session.id
-        let owner = req.body.owner.assigner
+        let owner = req.body.owner
         let shopId = req.body.shopId
         let permissions = req.body.permissions
         let managerId = req.body.manager
@@ -279,7 +295,7 @@ router.get('/member/shopManagement/Personnel/:username/:shop', async (req, res) 
 // })
 
 
-//todo: on disconnect of session exit market place
+//todo: on disconnect of session exit marketplace
 /**
  * exit marketplace
  */
@@ -374,7 +390,7 @@ router.patch('/product/:shopId/:productId', async (req, res) => {
 })
 
 //setup shop
-router.post('/shop/', async (req, res) => {
+router.post('/shop', async (req, res) => {
     try {
         let sessId = req.session.id;
         let username = req.body.username;
@@ -389,10 +405,10 @@ router.post('/shop/', async (req, res) => {
 /**
  * get shop
  */
-router.get('/shop/:id/:shopId', async (req, res) => {
+router.get('/shop/:shopId', async (req, res) => {
 
     try {
-        let sessId = req.params.id;
+        let sessId = req.session.id;
         let shopId = Number(req.params.shopId);
 
         let ans = await service.getShopInfo(sessId, shopId)
@@ -400,6 +416,16 @@ router.get('/shop/:id/:shopId', async (req, res) => {
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
+    }
+})
+
+router.get('/shop/all', async (req, res)=>{
+    try {
+        let sessId = req.session.id;
+        let ans = await service.getAllShopsInfo(sessId)
+
+    } catch (e:any){
+        res.status(404).send(e.message)
     }
 })
 
@@ -567,10 +593,30 @@ router.post('/admin/services/edit', async (req, res) => {
     }
 })
 
+router.get('/messages/:memberId', async (req, res) =>{
+    try {
+        let sess = req.session.id;
+        let ans = await service.getMessages(sess)
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message);
+    }
+})
 
+// configure the express app
+
+
+const _app_folder = './src/Client/client/dist/client'
 export const app = express();
 export const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
+app.use(cors())
 app.use(sessionMiddleware);
 app.use(express.json())
-app.use(router);
+
+app.use('/', express.static(_app_folder))
+app.all('*', function (req, res) {
+    res.status(200).sendFile('/', {root: _app_folder})
+})
+
+app.use('/api',router);
 

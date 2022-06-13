@@ -23,6 +23,7 @@ export const mockDependencies = {
     MaxDiscounts: "../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/MaxDiscounts",
     AdditionDiscounts: "../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts",
     SimplePurchase: "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimplePurchase",
+    Service: "../src/service/Service"
 }
 export const mockInstance = (dependency: string) => {
     jest.mock(dependency)
@@ -34,6 +35,6 @@ export const mockMethod = <T extends {}, E>(obj: T, method: any, todoInstead: ((
 
 export const clearMocks = (...mocks: jest.SpyInstance<any, unknown[]>[]) => {
     for (const mock of mocks) {
-        mock.mockClear()
+        mock.mockReset();
     }
 }

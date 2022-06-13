@@ -27,4 +27,7 @@ export class Guest extends BaseEntity {
     set shoppingCart(value: ShoppingCart) {
         this._shoppingCart = value;
     }
+    public getIdentifier(){
+        return this.session;
+    }
 }

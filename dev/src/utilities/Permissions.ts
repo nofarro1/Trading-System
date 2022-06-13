@@ -16,5 +16,6 @@ export enum Permissions {
     AddDiscount,
     RemoveDiscount,
     AddPurchasePolicy,
-    RemovePurchasePolicy
+    RemovePurchasePolicy,
+    ShopOwner
 }

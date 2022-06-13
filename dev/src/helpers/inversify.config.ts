@@ -16,6 +16,12 @@ import {PurchaseController} from "../domain/purchase/PurchaseController";
 import {SecurityController} from "../domain/SecurityController";
 import {PaymentServiceAdaptor} from "../domain/external_services/PaymentServiceAdaptor";
 import {DeliveryServiceAdaptor} from "../domain/external_services/DeliveryServiceAdaptor";
+import { NotificationService } from "../service/NotificationService";
+import {IDeliveryService} from "../domain/external_services/IDeliveryService";
+import {getEnvironmentData} from "worker_threads";
+import {DeliveryService} from "../domain/external_services/DeliveryService";
+import {IPaymentService} from "../domain/external_services/IPaymentService";
+import {PaymentService} from "../domain/external_services/PaymentService";
 
 
 const systemContainer = new Container();
@@ -26,18 +32,26 @@ systemContainer.bind<MarketplaceService>(TYPES.MarketplaceService).to(Marketplac
 systemContainer.bind<MemberService>(TYPES.MemberService).to(MemberService)
 systemContainer.bind<OrderService>(TYPES.OrderService).to(OrderService)
 systemContainer.bind<ShoppingCartService>(TYPES.ShoppingCartService).to(ShoppingCartService)
+systemContainer.bind<NotificationService>(TYPES.NotificationService).to(NotificationService)
 //controllers
 systemContainer.bind<SystemController>(TYPES.SystemController).to(SystemController).inSingletonScope()
 systemContainer.bind<ShoppingCartController>(TYPES.ShoppingCartController).to(ShoppingCartController)
 systemContainer.bind<MessageController>(TYPES.MessageController).to(MessageController)
 systemContainer.bind<UserController>(TYPES.UserController).to(UserController)
-systemContainer.bind<NotificationController>(TYPES.NotificationController).to(NotificationController)
 systemContainer.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController).inSingletonScope()
 systemContainer.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController)
 systemContainer.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)
 //external services
 systemContainer.bind<PaymentServiceAdaptor>(TYPES.PaymentServiceAdaptor).to(PaymentServiceAdaptor)
 systemContainer.bind<DeliveryServiceAdaptor>(TYPES.DeliveryServiceAdaptor).to(DeliveryServiceAdaptor)
+
+if(getEnvironmentData("mode") === "testing"){
+    systemContainer.bind<IDeliveryService | null>(TYPES.realDeliveryService).toConstantValue(null);
+    systemContainer.bind<IPaymentService | null>(TYPES.realPaymentService).toConstantValue(null);
+} else {
+    systemContainer.bind<IDeliveryService | null>(TYPES.realDeliveryService).to(DeliveryService);
+    systemContainer.bind<IPaymentService | null>(TYPES.realPaymentService).to(PaymentService);
+}
 systemContainer.bind<string>("PaymentServiceName").toConstantValue("default payment service")
 systemContainer.bind<string>("DeliveryServiceName").toConstantValue("default delivery service")
 

@@ -4,5 +4,5 @@ import {TYPES} from "./helpers/types";
 import {Server} from "./Server/Server";
 import 'reflect-metadata';
 
-const theServer = new Server(app,systemContainer.get(TYPES.Service));
+const theServer = new Server(app,systemContainer.get(TYPES.Service),systemContainer.get(TYPES.NotificationService));
 theServer.start()
