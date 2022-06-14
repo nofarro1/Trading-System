@@ -3,39 +3,46 @@ import {io, Socket} from 'socket.io-client'
 import {SimpleMessage} from "../domain/notifications/Message";
 
 export class LiveNotificationClient {
-    private ioClient: Socket;
+    get ioClient(): Socket {
+        return this._ioClient;
+    }
 
+    private _ioClient: Socket;
 
     constructor(address?: string) {
-        this.ioClient = io(address,{rejectUnauthorized:false})
+        this._ioClient = io(address,{rejectUnauthorized:false})
 
-        this.ioClient.on('connection', (socket:Socket)=>{
+        this._ioClient.on('connection', (socket:Socket)=>{
             console.log("connection to server established")
         });
 
-        this.ioClient.on('NewMessage', (socket:Socket)=>{
+        this._ioClient.on('NewMessage', (socket:Socket)=>{
             console.log("received new message from server");
         })
 
-        this.ioClient.on('disconnect', ()=>{
+        this._ioClient.on('disconnect', ()=>{
             console.log("live notification disabled")
         })
 
     }
 
+    get connected(): boolean {
+        return this._ioClient.connected
+    }
+
     connect(){
-        this.ioClient.connect()
+        this._ioClient.connect()
     }
 
     disconnect(){
-        this.ioClient.disconnect();
+        this._ioClient.disconnect();
     }
     //newMessages
     registerCallbackForServerEvent(event:string, callback:(socket:Socket)=>void):void{
-        this.ioClient.on(event,callback);
+        this._ioClient.on(event,callback);
     }
 
     sendMessage(event:string, data:SimpleMessage){
-       this.ioClient.emit(event,data);
+       this._ioClient.emit(event,data);
     }
 }

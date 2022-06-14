@@ -6,6 +6,9 @@ import {ILLiveNotificationSubscriber} from "../domain/notifications/MessageBox";
 import {Socket} from "socket.io";
 
 export class LiveNotificationSubscriber implements ILLiveNotificationSubscriber {
+    get sessionId(): string {
+        return this._sessionId;
+    }
 
     private socket: Socket;
     private readonly _username: string;
@@ -19,9 +22,6 @@ export class LiveNotificationSubscriber implements ILLiveNotificationSubscriber 
     }
 
 
-    get username(): string {
-        return this._username;
-    }
 
     onNewMessages(msgs: Message[]): void {
         this.socket.emit("NewMessages", msgs)
@@ -39,17 +39,15 @@ export class NotificationService {
 
 
     subscribeToBox(sub:LiveNotificationSubscriber){
-
         return new Promise((resolve, reject)=> {
-            const res = this.messageController.addSubscriberToBox(sub.username, sub);
+            const res = this.messageController.addSubscriberToBox(sub.sessionId, sub);
             res.ok ? resolve(res) : reject(res.message)
         })
-
     }
 
     unsubscribeToBox(sub:LiveNotificationSubscriber){
         return new Promise((resolve, reject)=> {
-            const res = this.messageController.removeSubscriberFromBox(sub.username, sub);
+            const res = this.messageController.removeSubscriberFromBox(sub.sessionId, sub);
             res.ok ? resolve(res) : reject(res.message)
         })
 
