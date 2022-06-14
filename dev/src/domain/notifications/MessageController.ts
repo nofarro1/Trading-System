@@ -9,11 +9,9 @@ import "reflect-metadata";
 export class MessageController implements IMessageListener<Message> {
 
     messageBoxes: Map<string, MessageBox>
-
     constructor() {
         this.messageBoxes = new Map<string, MessageBox>();
     }
-
 
     addMessageBox(memberId: string): Result<MessageBox | undefined> {
         if (!this.messageBoxes.has(memberId)) {

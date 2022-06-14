@@ -4,13 +4,13 @@ import {
 import {ConditionalDiscount} from "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/ConditionalDiscount";
 
 export const mockDependencies = {
-    SecurityController: "../../../src/domain/SecurityController",
-    MessageController: "../../../src/domain/notifications/MessageController",
-    MarketplaceController: "../../../src/domain/marketplace/MarketplaceController",
-    PurchaseController: "../../../src/domain/purchase/PurchaseController",
-    UserController: "../../../src/domain/user/UserController",
-    NotificationController: "../../../src/domain/notifications/NotificationController",
-    SystemController: "../../../src/domain/SystemController",
+    SecurityController: "../src/domain/SecurityController",
+    MessageController: "../src/domain/notifications/MessageController",
+    MarketplaceController: "../src/domain/marketplace/MarketplaceController",
+    PurchaseController: "../src/domain/purchase/PurchaseController",
+    UserController: "../src/domain/user/UserController",
+    NotificationController: "../src/domain/notifications/NotificationController",
+    SystemController: "../src/domain/SystemController",
     Shop: "../src/domain/marketplace/Shop",
     ShoppingBag: "../src/domain/user/ShoppingBag",
     ShoppingCart: "../src/domain/user/ShoppingCart",
@@ -23,7 +23,9 @@ export const mockDependencies = {
     MaxDiscounts: "../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/MaxDiscounts",
     AdditionDiscounts: "../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts",
     SimplePurchase: "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimplePurchase",
-    Service: "../src/service/Service"
+    Service: "../src/service/Service",
+    NotificationService: "../src/service/NotificationService"
+
 }
 export const mockInstance = (dependency: string) => {
     jest.mock(dependency)

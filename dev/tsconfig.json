@@ -6,7 +6,8 @@
     "sourceMap": true,
     "outDir": "dist",
     "strict": false,
-    "typeRoots": ["./src/typings", "./node_modules/@types"],
+    "typeRoots": [
+      "./src/utilities/Types", "./node_modules/@types"],
     "noImplicitAny": false,
     "esModuleInterop": true,
     "types": ["reflect-metadata","jest"],
@@ -19,6 +20,9 @@
     "lib": ["es2018", "dom"],
     "importHelpers": true,
     "strictPropertyInitialization": false
+  },
+  "ts-node": {
+    "files": true
   },
   "exclude": [
     "node_modules"
