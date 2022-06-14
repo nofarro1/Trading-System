@@ -8,6 +8,7 @@ import {SimpleMessage} from "../domain/notifications/Message";
 import {LiveNotificationSubscriber, NotificationService} from "../service/NotificationService";
 import {logger} from "../helpers/logger"
 import config from "../config";
+import { Session } from 'inspector';
 
 
 
@@ -28,13 +29,23 @@ import config from "../config";
 //     }
 // }
 
+declare module "express-session" {
+    interface Session {
+        username: string;
+        loggedIn: boolean;
+        sessionSubscriber?:LiveNotificationSubscriber;
+    }
+}
 
-
+// declare module "http" {
+//   interface IncomingMessage {
+//     session: Session;
+//   }
+// }
 
 const keyPath = __dirname + "/security/key.pem";
 const certPath = __dirname + "/security/cert.pem";
 const port = process.env.PORT || config.app.port;
-
 
 const wrap = (middleware: express.RequestHandler) =>
     (socket: Socket, next: NextFunction): void => middleware(socket.request as Request , {} as Response, next as NextFunction);
@@ -119,6 +130,3 @@ export class Server {
     }
 
 }
-
-
-

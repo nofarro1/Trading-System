@@ -9,6 +9,9 @@
 \.idea
 /dev/dist/
 /**/*.log
+/dev/src/Client/client/.angular/
+/dev/src/Client/client/node_modules/
+/dev/src/Client/client/node_modules/**/*
 
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 

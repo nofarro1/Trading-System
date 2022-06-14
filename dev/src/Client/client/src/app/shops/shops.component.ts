@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {TableModule} from 'primeng/table';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CartComponent } from '../cart/cart.component';
-import {api} from "../../backendService/Service"
+import {api} from "../../backendService/Service.service"
 
 @Component({
   selector: 'app-shops',
