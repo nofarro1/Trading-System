@@ -12,6 +12,9 @@ import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
 import {Shop} from "../marketplace/Shop";
+import {DeliveryService} from "../external_services/DeliveryService";
+import {PaymentDetails} from "../external_services/IPaymentService";
+import {DeliveryDetails} from "../external_services/IDeliveryService";
 
 
 @injectable()
@@ -101,7 +104,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         v.visitPurchaseEvent(msg)
     }
 
-    checkout(user: Guest): Result<void> {
+    async checkout(user: Guest, deliveryDetails: DeliveryDetails, paymentDetails: PaymentDetails): Promise<Result<void>> {
         let forUpdate: [Shop, number, number][] = [];
         //for notification
         let shopsToNotify: {
@@ -162,23 +165,45 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             this.buyerOrderCounter++;
         } else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
-        if (this.paymentService.makePayment(undefined).ok && this.deliveryService.makeDelivery(undefined).ok) {
-            forUpdate.forEach((toUpdate) => {
-                toUpdate[0].updateProductQuantity(toUpdate[1], toUpdate[2]);
-            });
-            shopsToNotify.forEach((notify: { shop: number, order: string }) => {
-                this.createAndSendNotify(user.getIdentifier(), notify.shop, notify.order)
-            })
-            return new Result(true, undefined, "Purchase made successfully");
-        } else
+
+        let payRes = Result.Fail("placeHolder", false);
+        let delRes = Result.Fail("placeHolder", false);
+        try {
+            const [payRes, delRes] = await Promise.all([this.paymentService.pay(paymentDetails), this.deliveryService.supply(deliveryDetails)])
+            if (payRes.ok && delRes.ok) {
+                forUpdate.forEach((toUpdate) => {
+                    toUpdate[0].updateProductQuantity(toUpdate[1], toUpdate[2]);
+                });
+                shopsToNotify.forEach((notify: { shop: number, order: string }) => {
+                    this.createAndSendNotify(user.getIdentifier(), notify.shop, notify.order)
+                })
+                return new Result(true, undefined, "Purchase made successfully");
+            } else {
+                //todo: need to rollback the purchase
+                if (!payRes.ok)
+                    await this.paymentService.cancelPay(payRes.data.toString())
+                if (!delRes.ok)
+                    await this.deliveryService.cancelSupply(delRes.data.toString())
+                return new Result(false, undefined, "Purchase wasn't successful");
+            }
+        } catch (e: any) {
+            //todo: rollback purchase dou to fail
+            if (!payRes.ok)
+                await this.paymentService.cancelPay(payRes.data.toString())
+            if (!delRes.ok)
+                await this.deliveryService.cancelSupply(delRes.data.toString())
             return new Result(false, undefined, "Purchase wasn't successful");
+        } finally {
+
+        }
+
     }
 
     private createAndSendNotify(buyer: string, shopId: number, order: string) {
         const shopRes = this._marketPlaceController.getShopInfo(shopId);
-        if(checkRes(shopRes)){
-            const owners =  shopRes.data.shopOwners;
-            const message = new ShopPurchaseMessage(order,owners,buyer)
+        if (checkRes(shopRes)) {
+            const owners = shopRes.data.shopOwners;
+            const message = new ShopPurchaseMessage(order, owners, buyer)
             this.notifySubscribers(message);
         }
     }

@@ -6,6 +6,7 @@ import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../helpers/types";
 import "reflect-metadata";
+import {Message} from "../domain/notifications/Message";
 
 @injectable()
 export class MemberService {
@@ -72,6 +73,13 @@ export class MemberService {
 
         return new Promise<Result<void | SimpleMember[]>>((resolve, reject) => {
             let result: Result<void | SimpleMember[]> = this.systemController.getPersonnelInfoOfShop(sessionID, shopID);
+            result.ok ? resolve(result) : reject(result.message);
+        });
+    }
+
+    getMessages(sessionId: string) {
+        return new Promise<Result<void | Message[]>>((resolve, reject) => {
+            let result: Result<void | Message[]> = this.systemController.getMessages(sessionId);
             result.ok ? resolve(result) : reject(result.message);
         });
     }

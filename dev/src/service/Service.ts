@@ -16,6 +16,8 @@ import {logger} from "../helpers/logger";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../helpers/types";
 import "reflect-metadata";
+import {DeliveryDetails} from "../domain/external_services/IDeliveryService";
+import {PaymentDetails} from "../domain/external_services/IPaymentService";
 
 @injectable()
 export class Service {
@@ -212,7 +214,7 @@ export class Service {
     }
 
     //Guest Payment - Use-Case 5
-    checkout(sessionID: string, paymentDetails: any, deliveryDetails: any): Promise<Result<void>> {
+    checkout(sessionID: string, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void>> {
         logger.info(`${sessionID} would like to perform a checkout operation using the following payment details: ${paymentDetails} and delivery details: ${deliveryDetails}`);
         return this.shoppingCartService.checkout(sessionID, paymentDetails, deliveryDetails);
     }
@@ -229,5 +231,15 @@ export class Service {
     editConnectionWithExternalService(sessionID: string, adminUsername: string, type: ExternalServiceType, settings: any): Promise<Result<void>> {
         logger.info(`${sessionID}: The connection with the ${type} service is being modified using the following settings: ${settings}`);
         return this.orderService.editConnectionWithExternalService(sessionID, adminUsername, type, settings);
+    }
+
+    async getAllShopsInfo(sessionID: string) {
+        logger.info(`${sessionID} is requesting All shops`);
+        return this.marketplaceService.getAllShopInfo(sessionID);
+    }
+
+    async getMessages(sessionId: string) {
+        return this.memberService.getMessages(sessionId)
+
     }
 }

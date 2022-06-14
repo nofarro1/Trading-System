@@ -5,11 +5,14 @@ import {systemContainer} from "../helpers/inversify.config";
 import {TYPES} from "../helpers/types";
 import {Result} from "../utilities/Result";
 import cors from "cors"
+import {PaymentService} from "../domain/external_services/PaymentService";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
 export const router = express.Router();
 
+
+//set routes to api
 
 router.get('/check', (req, res) => {
     let sessId = req.session.id;
@@ -18,12 +21,9 @@ router.get('/check', (req, res) => {
 
 })
 
-router.get('/', (req, res) => {
-    req.session.loggedIn = false;
-    req.session.username = "";
-    res.sendFile(__dirname + '/index.html');
-});
 
+
+//set routes to api
 
 //access marketpalce - return the index.html in the future
 router.get('/access', async (req, res) => {
@@ -387,7 +387,7 @@ router.patch('/product/:shopId/:productId', async (req, res) => {
 })
 
 //setup shop
-router.post('/shop/', async (req, res) => {
+router.post('/shop', async (req, res) => {
     try {
         let sessId = req.session.id;
         let username = req.body.username;
@@ -413,6 +413,26 @@ router.get('/shop/:shopId', async (req, res) => {
     } catch (e: any) {
         res.status(404)
         res.send(e.message)
+    }
+})
+
+router.get('/shop/all', async (req, res)=>{
+    try {
+        let sessId = req.session.id;
+        let ans = await service.getAllShopsInfo(sessId)
+
+    } catch (e:any){
+        res.status(404).send(e.message)
+    }
+})
+
+router.get('/shop/all', async (req, res)=>{
+    try {
+        let sessId = req.session.id;
+        let ans = await service.getAllShopsInfo(sessId)
+
+    } catch (e:any){
+        res.status(404).send(e.message)
     }
 })
 
@@ -580,11 +600,45 @@ router.post('/admin/services/edit', async (req, res) => {
     }
 })
 
+router.get('/messages/:memberId', async (req, res) =>{
+    try {
+        let sess = req.session.id;
+        let ans = await service.getMessages(sess)
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message);
+    }
+})
 
+router.get('/messages/:memberId', async (req, res) =>{
+    try {
+        let sess = req.session.id;
+        let ans = await service.getMessages(sess)
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message);
+    }
+})
+
+router.get('/', (req, res) => {
+    req.session.loggedIn = false;
+    req.session.username = "";
+    res.sendFile(__dirname + '/index.html');
+});
+
+// configure the express app
+
+
+const _app_folder = './src/Client/client/dist/client'
 export const app = express();
 export const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
 app.use(cors())
 app.use(sessionMiddleware);
 app.use(express.json())
-app.use(router);
+
+app.use('/', express.static(_app_folder))
+app.all('*', function (req, res) {
+    res.status(200).sendFile('/', {root: _app_folder})
+})
+app.use('/api',router);
 
