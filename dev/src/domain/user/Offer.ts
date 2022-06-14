@@ -25,6 +25,10 @@ export class Offer{
         return this._id;
     }
 
+    get shopId(): number {
+        return this._shopId;
+    }
+
     get pId(): number {
         return this._pId;
     }

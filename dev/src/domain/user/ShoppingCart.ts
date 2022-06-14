@@ -28,7 +28,15 @@ export class ShoppingCart {
         this._bags = value;
     }
 
-    //When adding a product to the shopping cart,
+    get offers(): Offer[] {
+        return this._offers;
+    }
+
+    set offers(value: Offer[]) {
+        this._offers = value;
+    }
+
+//When adding a product to the shopping cart,
     //check if there is a discount to be included on the product.
     //If there is, update the total price accordingly.
 

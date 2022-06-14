@@ -116,6 +116,11 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         let offersStatus = shoppingCart.checksOffers();
         if(offersStatus[0].length>0 || offersStatus[1].length>0)
             return new Result(false, offersStatus, "Could not continue purchase because there are offers that rejected or still waiting for approve.");
+        //delete all cart offers from there shop
+        shoppingCart.offers.forEach((curr: Offer)=> this._marketPlaceController.shops.get(curr.shopId).removeOffer(curr.id))
+        //delete all offers from cart
+        shoppingCart.offers= [];
+
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
         shoppingCart.bags.forEach((bag: ShoppingBag) => {
