@@ -12,10 +12,10 @@ import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
 import {Shop} from "../marketplace/Shop";
+import {Offer} from "../user/Offer";
 import {DeliveryService} from "../external_services/DeliveryService";
 import {PaymentDetails} from "../external_services/IPaymentService";
 import {DeliveryDetails} from "../external_services/IDeliveryService";
-import {Offer} from "../user/Offer";
 
 
 @injectable()
@@ -105,7 +105,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         v.visitPurchaseEvent(msg)
     }
 
-    async checkout(user: Guest, deliveryDetails: DeliveryDetails, paymentDetails: PaymentDetails): Promise<Result<void>> {
+    async checkout(user: Guest, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void | [Offer[], Offer[]]>> {
         let forUpdate: [Shop, number, number][] = [];
         //for notification
         let shopsToNotify: {
@@ -183,7 +183,6 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 })
                 return new Result(true, undefined, "Purchase made successfully");
             } else {
-                //todo: need to rollback the purchase
                 if (!payRes.ok)
                     await this.paymentService.cancelPay(payRes.data.toString())
                 if (!delRes.ok)
@@ -191,7 +190,6 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 return new Result(false, undefined, "Purchase wasn't successful");
             }
         } catch (e: any) {
-            //todo: rollback purchase dou to fail
             if (!payRes.ok)
                 await this.paymentService.cancelPay(payRes.data.toString())
             if (!delRes.ok)
