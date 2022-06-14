@@ -12,6 +12,7 @@ import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
 import {Shop} from "../marketplace/Shop";
+import {Offer} from "../user/Offer";
 import {DeliveryService} from "../external_services/DeliveryService";
 import {PaymentDetails} from "../external_services/IPaymentService";
 import {DeliveryDetails} from "../external_services/IDeliveryService";
@@ -104,7 +105,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         v.visitPurchaseEvent(msg)
     }
 
-    async checkout(user: Guest, deliveryDetails: DeliveryDetails, paymentDetails: PaymentDetails): Promise<Result<void>> {
+    async checkout(user: Guest, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Result<void | [Offer[], Offer[]]> {
         let forUpdate: [Shop, number, number][] = [];
         //for notification
         let shopsToNotify: {
@@ -112,6 +113,9 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             order: string
         }[] = [];
         let shoppingCart = user.shoppingCart;
+        let offersStatus = shoppingCart.checksOffers();
+        if(offersStatus[0].length>0 || offersStatus[1].length>0)
+            return new Result(false, offersStatus, "Could not continue purchase because there are offers that rejected or still waiting for approve.");
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
         shoppingCart.bags.forEach((bag: ShoppingBag) => {
@@ -207,4 +211,5 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             this.notifySubscribers(message);
         }
     }
+
 }
