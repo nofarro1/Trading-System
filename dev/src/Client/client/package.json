@@ -19,12 +19,10 @@
     "@angular/platform-browser": "~13.3.0",
     "@angular/platform-browser-dynamic": "~13.3.0",
     "@angular/router": "~13.3.0",
-<<<<<<< HEAD
     "@types/axios": "^0.14.0",
-=======
->>>>>>> dev3.0
     "axios": "^0.27.2",
     "font-awesome": "^4.7.0",
+    "formBuilder": "^3.8.3",
     "ngx-socket-io": "^4.2.0",
     "primeng": "^13.4.1",
     "rxjs": "~7.5.0",
