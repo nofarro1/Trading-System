@@ -89,14 +89,14 @@ describe('SimpleShop- products', function() {
     })
 
     test('calculateBagPrice- simple scenario with one discount', ()=>{
-        let discountInf: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf, 20);
+        let discountInf: discountInf = {type:DiscountType.Product, object:p1.id} as discountInf;
+        let disc1 = new SimpleDiscount(0,discountInf, 20);
 
-        const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", ()=> {
-            s1.discounts.set(s1.discountCounter, disc1)
-        })
-        s1.addDiscount(disc1);
-
+        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", ()=> {
+        //     s1.discounts.set(s1.discountCounter, disc1)
+        // })
+        // s1.addDiscount(disc1);
+        s1.discounts.set(disc1.id, disc1);
         const mock_calc = mockMethod(SimpleDiscount.prototype, "calculateProductsPrice", ()=> [[p1, 4.72, 2], [p2, 6, 1]])
         const mock_addProduct = mockMethod(ShoppingBag.prototype, "addProduct", (p, quantity)=>{bag.products.set(s1.productsCounter,[p, quantity]);})
         let bag = new ShoppingBag(0);
@@ -109,7 +109,7 @@ describe('SimpleShop- products', function() {
         }
         expect(totalPrice).toBeCloseTo(15.44, 4);
 
-        clearMocks(mock_calc, mock_addDiscount, mock_addProduct);
+        clearMocks(mock_calc, mock_addProduct);
     })
 
     test('calculateBagPrice- simple scenario with 2 discounts', ()=>{
@@ -123,18 +123,18 @@ describe('SimpleShop- products', function() {
         bag.addProduct(p1, 2);
         bag.addProduct(p2, 1);
 
-        let discountInf1: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 20);
+        let discountInf1: discountInf = {type:DiscountType.Product, object:p1.id} as discountInf;
+        let disc1 = new SimpleDiscount(0,discountInf1, 20);
 
         let discountInf2: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc2 = new SimpleDiscount(discountInf2, 10);
+        let disc2 = new SimpleDiscount(1,discountInf2, 10);
 
-        const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-            s1.discounts.set(s1.discountCounter, disc)
-            s1.discountCounter++;
-        })
-        s1.addDiscount(disc1);
-        s1.addDiscount(disc2);
+        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
+        //     s1.discounts.set(s1.discountCounter, disc)
+        //     s1.discountCounter++;
+        // })
+        s1.discounts.set(disc1.id, disc1);
+        s1.discounts.set(disc2.id, disc2);
 
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -142,7 +142,7 @@ describe('SimpleShop- products', function() {
             totalPrice += price* quantity;
         }
         expect(totalPrice).toBeCloseTo(13.66 );
-        clearMocks(mock_calc, mock_addDiscount, mock_addProduct);
+        clearMocks(mock_calc, mock_addProduct);
     })
 
     test('calculateBagPrice- AndDiscount, needs to apply', ()=>{
@@ -152,32 +152,32 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-            s1.discounts.set(s1.discountCounter, disc)
-            return s1.discountCounter++;
-        })
+        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
+        //     s1.discounts.set(s1.discountCounter, disc)
+        //     return s1.discountCounter++;
+        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 2);
         bag.addProduct(p2, 1);
 
-        let discountInf1: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 20);
+        let discountInf1: discountInf = {type:DiscountType.Product, object:p1.id} as discountInf;
+        let disc1 = new SimpleDiscount(0, discountInf1, 20);
         let discountInf2: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc2 = new SimpleDiscount(discountInf2, 10);
+        let disc2 = new SimpleDiscount(1, discountInf2, 10);
         let pred1 = new PredicateDiscountPolicy(DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
         let pred2 = new PredicateDiscountPolicy(DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
-        let cond1 = new ConditionalDiscount(disc1, pred1);
-        let cond2 = new ConditionalDiscount(disc2, pred2);
-        let andDisc = new AndDiscounts([cond1, cond2]);
-        s1.addDiscount(andDisc);
+        let cond1 = new ConditionalDiscount(3, disc1, pred1);
+        let cond2 = new ConditionalDiscount(4,disc2, pred2);
+        let andDisc = new AndDiscounts(5, [cond1, cond2]);
+        s1.discounts.set(andDisc.id, andDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
         for( let [p, price, quantity] of productsUpdatePrices){
             totalPrice += price* quantity;
         }
         expect(totalPrice).toBeCloseTo(13.66);
-        clearMocks(mock_calc, mock_addDiscount, mock_addProduct);
+        clearMocks(mock_calc, mock_addProduct);
     })
 
     test('calculateBagPrice- AndDiscount, does not need to apply', ()=>{
@@ -187,25 +187,25 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-            s1.discounts.set(s1.discountCounter, disc)
-            return s1.discountCounter++;
-        })
+        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
+        //     s1.discounts.set(s1.discountCounter, disc)
+        //     return s1.discountCounter++;
+        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 1);
 
         let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
-        let discountInf2: discountInf = {type:DiscountType.Product, object:p1} as discountInf;
-        let disc2 = new SimpleDiscount(discountInf2, 5);
+        let disc1 = new SimpleDiscount(0, discountInf1, 5);
+        let discountInf2: discountInf = {type:DiscountType.Product, object:p1.id} as discountInf;
+        let disc2 = new SimpleDiscount(1, discountInf2, 5);
         let pred1 = new PredicateDiscountPolicy(DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
         let pred2 = new PredicateDiscountPolicy(DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
-        let cond1 = new ConditionalDiscount(disc1, pred1);
-        let cond2 = new ConditionalDiscount(disc2, pred2);
-        let andDisc = new AndDiscounts([cond1, cond2]);
-        s1.addDiscount(andDisc);
+        let cond1 = new ConditionalDiscount(3, disc1, pred1);
+        let cond2 = new ConditionalDiscount(4, disc2, pred2);
+        let andDisc = new AndDiscounts(5, [cond1, cond2]);
+        s1.discounts.set(andDisc.id, andDisc);
 
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -213,7 +213,7 @@ describe('SimpleShop- products', function() {
             totalPrice += price* quantity;
         }
         expect(totalPrice).toBeCloseTo(11.9);
-        clearMocks(mock_calc, mock_addDiscount, mock_addProduct);
+        clearMocks(mock_calc, mock_addProduct);
     })
 
     test('calculateBagPrice- OrDiscount, needs to apply', ()=>{
@@ -223,33 +223,33 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-            s1.discounts.set(s1.discountCounter, disc)
-            return s1.discountCounter++;
-        })
+        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
+        //     s1.discounts.set(s1.discountCounter, disc)
+        //     return s1.discountCounter++;
+        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 1);
         let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(0, discountInf1, 5);
         let pred1 = new PredicateDiscountPolicy(DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
 
         let discountInf2: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
-        let cond1 = new ConditionalDiscount(disc1, pred1);
-        let disc2 = new SimpleDiscount(discountInf2, 5);
+        let cond1 = new ConditionalDiscount(1, disc1, pred1);
+        let disc2 = new SimpleDiscount(2, discountInf2, 5);
         let pred2 = new PredicateDiscountPolicy(DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
 
-        let cond2 = new ConditionalDiscount(disc2, pred2);
-        let OrDisc = new OrDiscounts([cond1, cond2]);
-        s1.addDiscount(OrDisc);
+        let cond2 = new ConditionalDiscount(4, disc2, pred2);
+        let OrDisc = new OrDiscounts(5, [cond1, cond2]);
+        s1.discounts.set(OrDisc.id, OrDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
         for( let [p, price, quantity] of productsUpdatePrices){
             totalPrice += price* quantity;
         }
         expect(totalPrice).toBeCloseTo(11.01);
-        clearMocks(mock_calc, mock_addDiscount, mock_addProduct);
+        clearMocks(mock_calc, mock_addProduct);
     })
 
     test('calculateBagPrice- OrDiscount, does not need to apply', ()=>{
@@ -259,32 +259,32 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-            s1.discounts.set(s1.discountCounter, disc)
-            return s1.discountCounter++;
-        })
+        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
+        //     s1.discounts.set(s1.discountCounter, disc)
+        //     return s1.discountCounter++;
+        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 0);
 
         let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(0, discountInf1, 5);
         let pred1 = new PredicateDiscountPolicy(DiscountType.Product, p1.id, RelationType.GreaterThenOrEqual, 2);
         let discountInf2: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
-        let cond1 = new ConditionalDiscount(disc1, pred1);
-        let disc2 = new SimpleDiscount(discountInf2, 5);
+        let cond1 = new ConditionalDiscount(1,disc1, pred1);
+        let disc2 = new SimpleDiscount(2, discountInf2, 5);
         let pred2 = new PredicateDiscountPolicy(DiscountType.Product, p2.id, RelationType.GreaterThenOrEqual, 1);
-        let cond2 = new ConditionalDiscount(disc2, pred2);
-        let OrDisc = new OrDiscounts([cond1, cond2]);
-        s1.addDiscount(OrDisc);
+        let cond2 = new ConditionalDiscount(3, disc2, pred2);
+        let OrDisc = new OrDiscounts(4, [cond1, cond2]);
+        s1.discounts.set(OrDisc.id, OrDisc);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
         for( let [p, price, quantity] of productsUpdatePrices){
             totalPrice += price* quantity;
         }
         expect(totalPrice).toBeCloseTo(5.9);
-        clearMocks(mock_calc, mock_addDiscount, mock_addProduct);
+        clearMocks(mock_calc, mock_addProduct);
     })
 
     test('calculateBagPrice- MaxDiscount', ()=>{
@@ -294,23 +294,23 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-            s1.discounts.set(s1.discountCounter, disc)
-            return s1.discountCounter++;
-        })
+        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
+        //     s1.discounts.set(s1.discountCounter, disc)
+        //     return s1.discountCounter++;
+        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 1);
 
         let discountInf1: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(0, discountInf1, 5);
         let discountInf2: discountInf = {type:DiscountType.Category, object:ProductCategory.B} as discountInf;
-        let disc2 = new SimpleDiscount(discountInf2, 10);
-        let maxDisc = new MaxDiscounts();
+        let disc2 = new SimpleDiscount(1, discountInf2, 10);
+        let maxDisc = new MaxDiscounts(2, []);
         maxDisc.addDiscountElement(disc1);
         maxDisc.addDiscountElement(disc2);
-        s1.addDiscount(maxDisc);
+        s1.discounts.set(maxDisc.id, maxDisc);
 
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         let totalPrice=0;
@@ -318,7 +318,7 @@ describe('SimpleShop- products', function() {
             totalPrice += price* quantity;
         }
         expect(totalPrice).toBeCloseTo(11.3, 1);
-        clearMocks(mock_calc, mock_addDiscount, mock_addProduct);
+        clearMocks(mock_calc, mock_addProduct);
     })
 
     test('calculateBagPrice- AdditionDiscount', ()=>{
@@ -328,30 +328,30 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-            s1.discounts.set(s1.discountCounter, disc)
-            return s1.discountCounter++;
-        })
+        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
+        //     s1.discounts.set(s1.discountCounter, disc)
+        //     return s1.discountCounter++;
+        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 1);
 
         let discountInf1: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
-        let disc1 = new SimpleDiscount(discountInf1, 5);
+        let disc1 = new SimpleDiscount(0, discountInf1, 5);
         let discountInf2: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
-        let disc2 = new SimpleDiscount(discountInf2, 10);
-        let additionDisc = new AdditionDiscounts();
+        let disc2 = new SimpleDiscount(1, discountInf2, 10);
+        let additionDisc = new AdditionDiscounts(2, []);
         additionDisc.addDiscountElement(disc1);
         additionDisc.addDiscountElement(disc2);
-        s1.addDiscount(additionDisc);
+        s1.discounts.set(additionDisc.id, additionDisc);
         let totalPrice=0;
         let productsUpdatePrices= s1.calculateBagPrice(bag);
         for( let [p, price, quantity] of productsUpdatePrices){
             totalPrice += price* quantity;
         }
         expect(totalPrice).toBeCloseTo(10.415, 4);
-        clearMocks(mock_calc, mock_addDiscount, mock_addProduct);
+        clearMocks(mock_calc, mock_addProduct);
     })
 
     test('camMakePurchase- simplePurchase. Could make purchase.', ()=>{
@@ -365,21 +365,21 @@ describe('SimpleShop- products', function() {
             cart.bags.set(p.shopId,bag);
             return p;
         })
-        const mock_addPurchase = mockMethod(Shop.prototype, "addPurchasePolicy", (purchase)=> {
-            s1.purchasePolicies.set(s1.productsCounter, purchase)
-            return s1.purchaseCounter++;
-        })
+        // const mock_addPurchase = mockMethod(Shop.prototype, "addPurchasePolicy", (purchase)=> {
+        //     s1.purchasePolicies.set(s1.productsCounter, purchase)
+        //     return s1.purchaseCounter++;
+        // })
 
         let cart = new ShoppingCart();
         cart.addProduct(p1, 2);
         let bag = cart.bags.get(0);
         let user = new Guest("1");
-        let simplePolicy = new SimplePurchase(SimplePolicyType.Product, p1.id, RelationType.LessThenOrEqual, 5,"Couldn't continue with checkout because the quantity of 'ski' cheese is more the 5.");
-        s1.addPurchasePolicy(simplePolicy);
+        let simplePolicy = new SimplePurchase(0, SimplePolicyType.Product, p1.id, RelationType.LessThenOrEqual, 5,"Couldn't continue with checkout because the quantity of 'ski' cheese is more the 5.");
+        s1.purchasePolicies.set(simplePolicy.id, simplePolicy);
 
         let ans = s1.canMakePurchase([bag, user]);
         expect(ans.ok).toBe(true);
-        clearMocks(mock_can, mock_addProduct, mock_addPurchase);
+        clearMocks(mock_can, mock_addProduct);
     })
 
     test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
@@ -393,21 +393,21 @@ describe('SimpleShop- products', function() {
             cart.bags.set(p.shopId,bag);
             return p;
         })
-        const mock_addPurchase = mockMethod(Shop.prototype, "addPurchasePolicy", (purchase)=> {
-            s1.purchasePolicies.set(s1.productsCounter, purchase)
-            return s1.purchaseCounter++;
-        })
+        // const mock_addPurchase = mockMethod(Shop.prototype, "addPurchasePolicy", (purchase)=> {
+        //     s1.purchasePolicies.set(s1.productsCounter, purchase)
+        //     return s1.purchaseCounter++;
+        // })
 
         let cart = new ShoppingCart();
         cart.addProduct(p1, 6);
         let bag = cart.bags.get(0);
         let user = new Guest("1");
-        let simplePolicy = new SimplePurchase(SimplePolicyType.Product, p1.id, RelationType.LessThenOrEqual, 5, "The quantity of 'ski' cheese is more the 5.");
-        s1.addPurchasePolicy(simplePolicy);
+        let simplePolicy = new SimplePurchase(0, SimplePolicyType.Product, p1.id, RelationType.LessThenOrEqual, 5, "The quantity of 'ski' cheese is more the 5.");
+        s1.purchasePolicies.set(simplePolicy.id, simplePolicy);
         let ans = s1.canMakePurchase([bag, user]);
         expect(ans.ok).toBe(false);
         expect(ans.message).toBe("Couldn't make purchase because:\nThe quantity of 'ski' cheese is more the 5.");
-        clearMocks(mock_can, mock_addProduct, mock_addPurchase);
+        clearMocks(mock_can, mock_addProduct);
     })
 
     // test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{

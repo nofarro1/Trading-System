@@ -1,4 +1,4 @@
-import {Result} from "../../utilities/Result";
+import {checkRes, Result} from "../../utilities/Result";
 import {DeliveryServiceAdaptor} from "../external_services/DeliveryServiceAdaptor";
 import {PaymentServiceAdaptor} from "../external_services/PaymentServiceAdaptor";
 import {ShoppingBag} from "../user/ShoppingBag";
@@ -12,6 +12,10 @@ import {TYPES} from "../../helpers/types";
 import "reflect-metadata";
 import {MarketplaceController} from "../marketplace/MarketplaceController";
 import {Shop} from "../marketplace/Shop";
+import {Offer} from "../user/Offer";
+import {DeliveryService} from "../external_services/DeliveryService";
+import {PaymentDetails} from "../external_services/IPaymentService";
+import {DeliveryDetails} from "../external_services/IDeliveryService";
 
 
 @injectable()
@@ -26,7 +30,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
     private _marketPlaceController: MarketplaceController;
 
 
-    constructor(@inject(TYPES.PaymentServiceAdaptor) paymentService: PaymentServiceAdaptor, @inject(TYPES.DeliveryServiceAdaptor) deliveryService: DeliveryServiceAdaptor, @inject(TYPES.MarketplaceController)marketPlaceController: MarketplaceController) {
+    constructor(@inject(TYPES.PaymentServiceAdaptor) paymentService: PaymentServiceAdaptor, @inject(TYPES.DeliveryServiceAdaptor) deliveryService: DeliveryServiceAdaptor, @inject(TYPES.MarketplaceController) marketPlaceController: MarketplaceController) {
         this.subscribers = [];
         this._buyerOrders = new Map<string, Set<string>>();
         this._shopOrders = new Map<number, Set<string>>();
@@ -101,9 +105,22 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         v.visitPurchaseEvent(msg)
     }
 
-    checkout(user: Guest): Result<void> {
-        let forUpdate: [[Shop, number, number]];
+    async checkout(user: Guest, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void | [Offer[], Offer[]]>> {
+        let forUpdate: [Shop, number, number][] = [];
+        //for notification
+        let shopsToNotify: {
+            shop: number,
+            order: string
+        }[] = [];
         let shoppingCart = user.shoppingCart;
+        let offersStatus = shoppingCart.checksOffers();
+        if(offersStatus[0].length>0 || offersStatus[1].length>0)
+            return new Result(false, offersStatus, "Could not continue purchase because there are offers that rejected or still waiting for approve.");
+        //delete all cart offers from there shop
+        shoppingCart.offers.forEach((curr: Offer)=> this._marketPlaceController.shops.get(curr.shopId).removeOffer(curr.id))
+        //delete all offers from cart
+        shoppingCart.offers= [];
+
         let totalCartPrice = 0;
         let buyerOrder = `Buyer Order Number: ${this.buyerOrderCounter} \nShopOrders: \n`;
         shoppingCart.bags.forEach((bag: ShoppingBag) => {
@@ -111,21 +128,20 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             let shopOrder = `Shop Order Number: ${this.shopOrderCounter} \nProduct: \nProduct Id,  Product Name, Full Price, Final Price `;
             this.shopOrderCounter++;
             let shop = this._marketPlaceController.shops.get(bag.shopId);
-            if(shop) {
+            if (shop) {
                 let answer = shop.canMakePurchase([bag, user]);
                 if (answer.ok) {
                     let productsInfo = shop.calculateBagPrice(bag);
-                    for( let [p, price, quantity] of productsInfo){
-                        totalBagPrice += price* quantity;
+                    for (let [p, price, quantity] of productsInfo) {
+                        totalBagPrice += price * quantity;
                         shopOrder += `${p.id}, ${p.name}, ${p.fullPrice}, price\n`;
-                        let oldQuantity =shop.products.get(p.id)[1];
-                        forUpdate.push([shop,p.id, oldQuantity-quantity]);
+                        let oldQuantity = shop.products.get(p.id)[1];
+                        forUpdate.push([shop, p.id, oldQuantity - quantity]);
                         //shop.updateProductQuantity(p.id, oldQuantity-quantity);
 
                     }
-                    totalCartPrice+= totalBagPrice;
-                }
-                else
+                    totalCartPrice += totalBagPrice;
+                } else
                     return new Result(false, undefined, answer.message);
             }
             shopOrder += `Total Shop Order Price: ${totalBagPrice} \n`;
@@ -138,6 +154,10 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             }
             orders.add(shopOrder);
             this.shopOrders.set(bag.shopId, orders);
+            shopsToNotify.push({
+                shop: bag.shopId, order: shopOrder
+            });
+
         });
         buyerOrder += `Total Cart Price: ${totalCartPrice}\n`;
         buyerOrder += `Purchase Date: ${new Date().toLocaleString()}\n`;
@@ -154,13 +174,45 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
             this.buyerOrderCounter++;
         } else
             logger.info(`Guest ${user.session} made purchase. order#: ${this.buyerOrderCounter}`);
-        if(this.paymentService.makePayment(undefined).ok && this.deliveryService.makeDelivery(undefined).ok) {
-            forUpdate.forEach((toUpdate) => {
-                toUpdate[0].updateProductQuantity(toUpdate[1], toUpdate[2]);
-            });
-            return new Result(true, undefined, "Purchase made successfully");
-        }
-        else
+
+        let payRes = Result.Fail("placeHolder", false);
+        let delRes = Result.Fail("placeHolder", false);
+        try {
+            const [payRes, delRes] = await Promise.all([this.paymentService.pay(paymentDetails), this.deliveryService.supply(deliveryDetails)])
+            if (payRes.ok && delRes.ok) {
+                forUpdate.forEach((toUpdate) => {
+                    toUpdate[0].updateProductQuantity(toUpdate[1], toUpdate[2]);
+                });
+                shopsToNotify.forEach((notify: { shop: number, order: string }) => {
+                    this.createAndSendNotify(user.getIdentifier(), notify.shop, notify.order)
+                })
+                return new Result(true, undefined, "Purchase made successfully");
+            } else {
+                if (!payRes.ok)
+                    await this.paymentService.cancelPay(payRes.data.toString())
+                if (!delRes.ok)
+                    await this.deliveryService.cancelSupply(delRes.data.toString())
+                return new Result(false, undefined, "Purchase wasn't successful");
+            }
+        } catch (e: any) {
+            if (!payRes.ok)
+                await this.paymentService.cancelPay(payRes.data.toString())
+            if (!delRes.ok)
+                await this.deliveryService.cancelSupply(delRes.data.toString())
             return new Result(false, undefined, "Purchase wasn't successful");
+        } finally {
+
+        }
+
     }
+
+    private createAndSendNotify(buyer: string, shopId: number, order: string) {
+        const shopRes = this._marketPlaceController.getShopInfo(shopId);
+        if (checkRes(shopRes)) {
+            const owners = shopRes.data.shopOwners;
+            const message = new ShopPurchaseMessage(order, owners, buyer)
+            this.notifySubscribers(message);
+        }
+    }
+
 }

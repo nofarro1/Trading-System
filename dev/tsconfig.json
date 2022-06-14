@@ -6,7 +6,8 @@
     "sourceMap": true,
     "outDir": "dist",
     "strict": false,
-    "noImplicitAny": true,
+    "typeRoots": ["./src/typings", "./node_modules/@types"],
+    "noImplicitAny": false,
     "esModuleInterop": true,
     "types": ["reflect-metadata","jest"],
     "experimentalDecorators": true,
@@ -15,8 +16,15 @@
     "skipLibCheck": true,
 //    "allowJs": true,
     "allowSyntheticDefaultImports": true,
+<<<<<<< HEAD
     "lib": ["es2018", "dom"],
     "importHelpers": true
+=======
+    "lib": [
+      "es2021",
+      "dom"
+    ]
+>>>>>>> dev3.0
   },
   "exclude": [
     "node_modules"

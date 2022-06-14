@@ -4,6 +4,7 @@ import {Guest} from "../../../user/Guest";
 
 
 export interface ImmediatePurchasePolicyComponent {
-
+    get id(): number ;
+    get description(): string;
     CanMakePurchase(purchaseInfo: [ShoppingBag, Guest]): Answer;
 }

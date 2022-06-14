@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { api } from '../../backendService/Service';
 
 @Component({
   selector: 'app-main',
@@ -10,7 +11,7 @@ export class MainComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-
+    new api().accessMarketPlace().then(r => console.log("success " + r))
   }
 
 }

@@ -1,16 +1,20 @@
+import {
+    PredicateDiscountPolicy
+} from "../src/domain/marketplace/DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
+import {ConditionalDiscount} from "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/ConditionalDiscount";
+
 export const mockDependencies = {
-    SecurityController: "../src/domain/SecurityController",
-    MessageController: "../src/domain/notifications/MessageController",
-    MarketplaceController: "../src/domain/marketplace/MarketplaceController",
-    PurchaseController: "../src/domain/purchase/PurchaseController",
-    UserController: "../src/domain/user/UserController",
-    NotificationController: "../src/domain/notifications/NotificationController",
-    SystemController: "../src/domain/SystemController",
+    SecurityController: "../../../src/domain/SecurityController",
+    MessageController: "../../../src/domain/notifications/MessageController",
+    MarketplaceController: "../../../src/domain/marketplace/MarketplaceController",
+    PurchaseController: "../../../src/domain/purchase/PurchaseController",
+    UserController: "../../../src/domain/user/UserController",
+    NotificationController: "../../../src/domain/notifications/NotificationController",
+    SystemController: "../../../src/domain/SystemController",
     Shop: "../src/domain/marketplace/Shop",
-    ShoppingBag: "../src/domain/marketplace/ShoppingBag",
-    ShoppingCart: "../src/domain/marketplace/ShoppingCart",
-    Product: "../src/domain/marketplace/Product",
-    Service: "../src/service/Service",
+    ShoppingBag: "../src/domain/user/ShoppingBag",
+    ShoppingCart: "../src/domain/user/ShoppingCart",
+    Product: "../../src/domain/marketplace/Product",
     SimpleDiscount: "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimpleDiscount",
     PredicateDiscountPolicy: "../src/domain/marketplace/DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy",
     ConditionalDiscount: "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/ConditionalDiscount",
@@ -19,6 +23,7 @@ export const mockDependencies = {
     MaxDiscounts: "../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/MaxDiscounts",
     AdditionDiscounts: "../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts",
     SimplePurchase: "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimplePurchase",
+    Service: "../src/service/Service"
 }
 export const mockInstance = (dependency: string) => {
     jest.mock(dependency)
@@ -30,6 +35,6 @@ export const mockMethod = <T extends {}, E>(obj: T, method: any, todoInstead: ((
 
 export const clearMocks = (...mocks: jest.SpyInstance<any, unknown[]>[]) => {
     for (const mock of mocks) {
-        mock.mockClear()
+        mock.mockReset();
     }
 }

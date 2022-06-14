@@ -8,12 +8,26 @@ export class PredicatePurchasePolicy {
     object: number | ProductCategory | Guest; //0 => tomatoes id
     relation: RelationType; // <=
     value: number;// 5
+    description: string;
 
     constructor(type: SimplePolicyType, object: number | ProductCategory | Guest, relation: RelationType, value: number) {
         this.type = type;
         this.object = object;
         this.relation = relation;
         this.value = value;
+        let idMSG: string;
+        switch (this.type) {
+            case SimplePolicyType.Product:
+                idMSG = `the number of products with id: ${this.object} `;
+            case SimplePolicyType.Category:
+                idMSG = `the number of products from ${this.object} `;
+            case SimplePolicyType.ShoppingBag:
+                idMSG = `the number of products in the bag `;
+            case SimplePolicyType.UserInfo:
+                idMSG = `the name of the user `
+
+        }
+        this.description = `The purchase can only be made if ${idMSG} is ${this.relation} then ${this.value}.`
     }
 
     checkPredicate(purchaseInfo: [ShoppingBag, Guest]): boolean {

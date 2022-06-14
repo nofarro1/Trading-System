@@ -1,5 +1,4 @@
 import {DiscountType, ProductCategory} from "./Enums";
-import {Product} from "../domain/marketplace/Product";
 
 export type Answer = {
     ok: boolean;
@@ -8,6 +7,16 @@ export type Answer = {
 
 export type discountInf = {
     type: DiscountType;
-    object: Product | ProductCategory | undefined;
+    object: number | ProductCategory | undefined;
 };
+
+
+
+
+export type ServiceSettings = {
+    min: number;
+    max: number;
+    url: string;
+
+}
 

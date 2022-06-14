@@ -1,15 +1,23 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
 import {Product} from "../../../../Product";
+import {ContainerDiscountComponent} from "../ContainerDiscountComponent";
 
 export function xor(a: boolean, b: boolean) {
     return !!a !== !!b;
 }
 
-export class XorDiscounts implements DiscountComponent{
-    private discounts: DiscountComponent[];
+export class XorDiscounts extends ContainerDiscountComponent{
+    constructor(id: number, discounts: DiscountComponent[]) {
+        super(id, discounts);
+        this._description = this.discounts.reduce((acc:string, curr:DiscountComponent)=>{return acc+"\n"+ curr.description}, `There is eligibility for each of the discounts and provided that exactly one condition is met. Discounts:`)
+    }
 
-    constructor(discount: DiscountComponent[], pred1: (Products: [Product, number, number][])=> boolean, pred2: (Products: [Product, number, number][])=> boolean) {
-        this.discounts= discount;
+    get id(): number {
+        return this._id;
+    }
+
+    get description(): string {
+        return this._description;
     }
 
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {

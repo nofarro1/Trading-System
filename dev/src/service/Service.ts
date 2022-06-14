@@ -16,6 +16,8 @@ import {logger} from "../helpers/logger";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../helpers/types";
 import "reflect-metadata";
+import {DeliveryDetails} from "../domain/external_services/IDeliveryService";
+import {PaymentDetails} from "../domain/external_services/IPaymentService";
 
 @injectable()
 export class Service {
@@ -126,6 +128,8 @@ export class Service {
         return this.marketplaceService.getShopInfo(sessionID, shopID);
     }
 
+    //todo: Get shops (all or filtered for a number
+
     //Guest Payment - Use-Case 2
     searchProducts(sessionID: string, searchBy: SearchType, searchTerm: string, filters?: any): Promise<Result<void | SimpleProduct[]>> {
         logger.info(`${sessionID} has initiated a product search operation using the search term ${searchTerm}`);
@@ -133,6 +137,8 @@ export class Service {
             logger.info(`The search is initiated using the following filter details ${filters}`);
         return this.marketplaceService.searchProducts(sessionID, searchBy, searchTerm, filters);
     }
+
+    //todo: get products (provided list of ids)
 
     //Member Payment - Use-Case 2
     setUpShop(sessionID: string, username: string, shopName: string): Promise<Result<void | SimpleShop>> {
@@ -167,6 +173,8 @@ export class Service {
         logger.info(`${sessionID}: ${founderID} wants to close the shop ${shopID}`);
         return this.marketplaceService.closeShop(sessionID, shopID);
     }
+
+    //todo: missing reopen shop
 
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
@@ -206,7 +214,7 @@ export class Service {
     }
 
     //Guest Payment - Use-Case 5
-    checkout(sessionID: string, paymentDetails: any, deliveryDetails: any): Promise<Result<void>> {
+    checkout(sessionID: string, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void>> {
         logger.info(`${sessionID} would like to perform a checkout operation using the following payment details: ${paymentDetails} and delivery details: ${deliveryDetails}`);
         return this.shoppingCartService.checkout(sessionID, paymentDetails, deliveryDetails);
     }
@@ -223,5 +231,15 @@ export class Service {
     editConnectionWithExternalService(sessionID: string, adminUsername: string, type: ExternalServiceType, settings: any): Promise<Result<void>> {
         logger.info(`${sessionID}: The connection with the ${type} service is being modified using the following settings: ${settings}`);
         return this.orderService.editConnectionWithExternalService(sessionID, adminUsername, type, settings);
+    }
+
+    async getAllShopsInfo(sessionID: string) {
+        logger.info(`${sessionID} is requesting All shops`);
+        return this.marketplaceService.getAllShopInfo(sessionID);
+    }
+
+    async getMessages(sessionId: string) {
+        return this.memberService.getMessages(sessionId)
+
     }
 }
