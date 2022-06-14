@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {TableModule} from 'primeng/table';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { CartComponent } from '../cart/cart.component';
-import {api} from "../../backendService/Service.service"
+import {api} from "../../backendService/Service"
 
 @Component({
   selector: 'app-shops',
@@ -11,7 +11,7 @@ import {api} from "../../backendService/Service.service"
 })
 export class ShopsComponent implements OnInit {
   shops: Shop[] = [];
-  constructor() {
+  constructor(private service: api) {
     let shop1: Shop = {id: 123, name: 'myShop1', status: true, rate: 3};
     let shop2: Shop = {id: 124, name: 'myShop2', status: true, rate: 4};
     let shop3: Shop = {id: 125, name: 'myShop3', status: false, rate: 2};

@@ -1,6 +1,6 @@
 import axios from "axios";
 import {checkRes, Result} from "../../../../utilities/Result";
-import {interfaces} from "inversify";
+import {inject, injectable, interfaces} from "inversify";
 import SimpleFactory = interfaces.SimpleFactory;
 import {SimpleGuest} from "../../../../utilities/simple_objects/user/SimpleGuest";
 import {SimpleShop} from "../../../../utilities/simple_objects/marketplace/SimpleShop";
@@ -9,12 +9,17 @@ import {Permissions} from "../../../../utilities/Permissions";
 import {SimpleProduct} from "../../../../utilities/simple_objects/marketplace/SimpleProduct";
 import {ProductCategory} from "../../../../utilities/Enums";
 import {SimpleShoppingCart} from "../../../../utilities/simple_objects/user/SimpleShoppingCart";
+import { Injectable } from "@angular/core";
 
-const base="https://localhost:3000";
+
+const base="https://localhost:3000/api";
+@Injectable({
+  providedIn: "root",
+})
 export class api {
 
   constructor() {
-    axios.defaults.httpsAgent = {rejectUnauthorized: false};
+    axios.defaults.httpsAgent = { rejectUnauthorized: false };
   }
 
   async accessMarketPlace(){
@@ -31,18 +36,24 @@ export class api {
 
 
   async register(username: string, password: string, firstName: string, lastName: string, email: string, country: string){
-    const res = await axios.post(base + "guest/register", {
-      data: {
-        username: username,
-        password: password,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        country: country
-      }
-    });
-    const data: Result<void | SimpleMember> = res.data
-    return data.data
+    try{
+      const res = await axios.post(base + "/guest/register", {
+        data: {
+          username: username,
+          password: password,
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          country: country
+        }
+      });
+      const data: Result<void | SimpleMember> = res.data
+      return data.data
+    }
+    catch(e:any){
+      console.log(`error in register: ${e.message}`);
+      return undefined;
+    }
   }
 
   async adminRegister(username: string, password: string, firstName: string, lastName: string, email: string, country: string){
@@ -61,7 +72,7 @@ export class api {
   }
 
   async login(username: string, password: string){
-    const res = await axios.post(base + "guest/login", {
+    const res = await axios.post(base + "/guest/login", {
       data: {
         username: username,
         password: password

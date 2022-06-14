@@ -19,6 +19,13 @@ export class SignupComponent implements OnInit, OnDestroy {
   countries: any = countries;
   selectedCountry: Country;
 
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  country: string;
+
 
   constructor(
     private service: api,
@@ -43,14 +50,15 @@ export class SignupComponent implements OnInit, OnDestroy {
   register(){
     this.submitted = true;
     console.log('register');
-    this.service.register(
-      this.form.get("username")?.value, 
-      this.form.get("password")?.value, 
-      this.form.get("firstname")?.value, 
-      this.form.get("lastname")?.value, 
-      this.form.get("email")?.value, 
-      this.form.get("country")?.value);
-  }
+    this.username = this.form.get('username')?.value;
+    this.password = this.form.get('password')?.value;
+    this.firstName = this.form.get('firstName')?.value;
+    this.lastName = this.form.get('lastName')?.value;
+    this.email = this.form.get('email')?.value;
+    this.country = this.form.get('country')?.value;
+
+    this.service.register(this.username, this.password, this.firstName, this.lastName, this.email, this.country)
+  };
 
   ngOnDestroy() {
     this.destroyed$.next(true);

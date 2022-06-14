@@ -1,5 +1,5 @@
 import { Component, OnInit,Output,EventEmitter } from '@angular/core';
-import {api} from "../../backendService/Service.service";
+import {api} from "../../backendService/Service";
 import {SimpleMember} from "../../../../../utilities/simple_objects/user/SimpleMember";
 
 
