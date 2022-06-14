@@ -11,7 +11,6 @@ import { Country, countries } from '../../models/countries_data'
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss']
 })
-
 export class SignupComponent implements OnInit, OnDestroy {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   form: FormGroup;
@@ -44,11 +43,11 @@ export class SignupComponent implements OnInit, OnDestroy {
     this.submitted = true;
     console.log('register');
     this.service.register(
-      this.form.get("username")?.value, 
-      this.form.get("password")?.value, 
-      this.form.get("firstname")?.value, 
-      this.form.get("lastname")?.value, 
-      this.form.get("email")?.value, 
+      this.form.get("username")?.value,
+      this.form.get("password")?.value,
+      this.form.get("firstname")?.value,
+      this.form.get("lastname")?.value,
+      this.form.get("email")?.value,
       this.form.get("country")?.value);
   }
 

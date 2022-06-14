@@ -2,15 +2,19 @@ import {MessageBox, ILLiveNotificationSubscriber} from "./MessageBox";
 import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message";
 import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
-import {injectable} from "inversify";
+import {inject, injectable} from "inversify";
 import "reflect-metadata";
+import {TYPES} from "../../helpers/types";
+import { SecurityController } from "../SecurityController";
 
 @injectable()
 export class MessageController implements IMessageListener<Message> {
 
     messageBoxes: Map<string, MessageBox>
-    constructor() {
+    securityController:SecurityController;
+    constructor(@inject(TYPES.SecurityController) securityController:SecurityController) {
         this.messageBoxes = new Map<string, MessageBox>();
+        this.securityController = securityController
     }
 
     addMessageBox(memberId: string): Result<MessageBox | undefined> {
@@ -22,9 +26,10 @@ export class MessageController implements IMessageListener<Message> {
         return new Result(false, undefined, "user already has a message box")
     }
 
-    addSubscriberToBox(memberId: string, subscriber: ILLiveNotificationSubscriber): Result<void> {
+    addSubscriberToBox(session: string, subscriber: ILLiveNotificationSubscriber): Result<void> {
         try {
-            let box = this.getMessageBox(memberId);
+            let username = this.securityController.hasActiveSession(session);
+            let box = this.getMessageBox(username);
             box.subscribe(subscriber);
             return new Result<void>(true, undefined);
         } catch (e: any) {
@@ -33,9 +38,10 @@ export class MessageController implements IMessageListener<Message> {
         }
     }
 
-    removeSubscriberFromBox(memberId: string, subscriber: ILLiveNotificationSubscriber): Result<void> {
+    removeSubscriberFromBox(session: string, subscriber: ILLiveNotificationSubscriber): Result<void> {
         try {
-            let box = this.getMessageBox(memberId);
+            let username = this.securityController.hasActiveSession(session)
+            let box = this.getMessageBox(username);
             box.unsubscribe(subscriber);
             return new Result<void>(true, undefined);
         } catch (e) {
