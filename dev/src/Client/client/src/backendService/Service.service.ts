@@ -11,20 +11,24 @@ import { SimpleProduct } from '../../../../utilities/simple_objects/marketplace/
 import { ProductCategory } from '../../../../utilities/Enums';
 import { SimpleShoppingCart } from '../../../../utilities/simple_objects/user/SimpleShoppingCart';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
+import { Socket } from 'ngx-socket-io';  
+import { catchError } from 'rxjs';
+import {io} from 'socket.io-client'
+
+//const socket = io('http://localhost:3000');
 
 
 @Injectable({
   providedIn: 'root',
 })
 export class api {
-  // base: string = 'https://localhost:3000';
+  baseUrl: string = 'https://localhost:3000';
 
   constructor(
     private http: HttpClient,
-    @Inject('https://localhost:3000')
-    private baseUrl: string
+    // private socket: Socket
+    // @Inject('https://localhost:3000')
+    // private baseUrl: string
   ) {
     // const agent = new Agent({ rejectUnauthorized: false });
     // axios.defaults.httpsAgent(agent);
@@ -38,6 +42,9 @@ export class api {
 
   register(username: string, password: string, firstName: string, lastName: string, email: string, country: string) {
     console.log('in register in service');
+    console.log(`${this.baseUrl}/guest/register`);
+    const test = this.http.post(`${this.baseUrl}/guest/register`, {username, password, firstName, lastName, email, country}).pipe();
+    console.log(`test: ${test}`);
     return this.http.post(`${this.baseUrl}/guest/register`, {username, password, firstName, lastName, email, country});
   }
 

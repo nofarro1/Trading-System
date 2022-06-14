@@ -19,8 +19,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MultiSelectModule} from 'primeng/multiselect';
 import { HttpClientModule} from '@angular/common/http';
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import { environment } from 'src/environments/environment';
 
+const apiConfig: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
+const config: SocketIoConfig = {
+	url: environment.socketUrl, // socket server url;
+	options: {
+		transports: ['websocket']
+	}
+}
 @NgModule({
   declarations: [
     AppComponent,
@@ -45,6 +54,7 @@ import { HttpClientModule} from '@angular/common/http';
     BrowserAnimationsModule,
     MultiSelectModule,
     HttpClientModule,
+    SocketIoModule.forRoot(apiConfig)
   ],
   providers: [],
   bootstrap: [AppComponent]

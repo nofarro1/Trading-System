@@ -1,18 +1,19 @@
 import https from "https";
 import fs from "fs";
-import io, { Socket } from "socket.io";
+import { Socket } from "socket.io";
 import { sessionMiddleware } from "./expressApp";
 import { Session } from "express-session";
 import express, { Express, NextFunction, Request, Response } from "express";
 import { Service } from "../service/Service";
 import { logger } from "../helpers/logger";
-
+import { Server as SocketServer } from "socket.io";
 
 declare module "http" {
   interface IncomingMessage {
     session: Session;
   }
 }
+var ioServer: SocketServer;
 // const keyPath =
 //   "/home/edan/WebstormProjects/Trading-system/dev/src/Server/security/local.key";
 // const certPath =
@@ -32,7 +33,7 @@ const wrap =
 export class Server {
   private readonly httpsServer: https.Server;
   private backendService: Service;
-  private ioServer: io.Server;
+//   private ioServer: io.Server;
 
   constructor(app: Express, service: Service) {
     this.backendService = service;
@@ -46,11 +47,29 @@ export class Server {
   }
 
   start() {
-    this.ioServer = new io.Server(this.httpsServer, {
+    // this.ioServer = new io.Server(this.httpsServer, {
+    //   cors: { origin: "*" },
+    // });
+    // this.ioServer.listen(this.httpsServer);
+    // this.ioServer.use(wrap(sessionMiddleware));
+
+    // this.ioServer.on("connection", socket => {
+    //   console.log("connection has made");
+    //   socket.on("getDoc", docId => {
+    //   });
+
+    // });
+    ioServer = new SocketServer(this.httpsServer, {
       cors: { origin: "*" },
     });
-    this.ioServer.listen(this.httpsServer);
-    this.ioServer.use(wrap(sessionMiddleware));
+    ioServer.listen(this.httpsServer);
+    ioServer.use(wrap(sessionMiddleware));
+    ioServer.on("connection", (socket: Socket) => {
+      console.log("connection has made");
+      socket.on("register", (args) => {
+        console.log(`finally in register in server: ${args.username}`);
+      });
+    });
 
     // this.httpsServer.on('connect', (req)=>{
     //     console.log(`client with session ${req.session.id} connected`);

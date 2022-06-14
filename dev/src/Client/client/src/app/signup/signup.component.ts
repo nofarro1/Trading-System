@@ -41,6 +41,7 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   register(){
     this.submitted = true;
+    console.log('register');
     this.service.register(
       this.form.get("username")?.value, 
       this.form.get("password")?.value, 
