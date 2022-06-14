@@ -1,6 +1,5 @@
 // User Related Data Objects
 
-import {Sale} from "../domain/marketplace/Sale";
 import {
     DiscountKinds,
     DiscountRelation,
@@ -35,7 +34,6 @@ export interface NewProductData {
     quantity: number,
     fullPrice: number,
     discountPrice?: number,
-    relatedSale?: Sale,
     productDesc?: string
 }
 

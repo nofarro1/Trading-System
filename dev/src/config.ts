@@ -1,5 +1,5 @@
 
-const env = process.env.NODE_ENV;
+const env = process.env.NODE_ENV.trim();
 console.log("running in environment: " + env)
 const dev = {
     env: "dev",
@@ -33,7 +33,7 @@ const prod = {
     db: {
         host: process.env.DEV_DB_HOST || 'some-url',
         port: parseInt(process.env.DEV_DB_PORT) || 5432,
-        name: process.env.DEV_DB_NAME || 'devDB',
+        name: process.env.DEV_DB_NAME || 'prodDB',
         apiKey: "some-api-key"
     }
 };

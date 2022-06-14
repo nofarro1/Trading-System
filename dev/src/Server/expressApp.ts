@@ -129,6 +129,7 @@ router.post('/guest/login', async (req, res) => {
 
     try {
         let sessId = req.session.id;
+        console.log("attempt to login with session id: " + sessId)
         let username = req.body.username;
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
@@ -631,14 +632,15 @@ router.get('/', (req, res) => {
 
 const _app_folder = './src/Client/client/dist/client'
 export const app = express();
-export const sessionMiddleware = session({secret: "this is a secret", resave: false, saveUninitialized: true})
+export const sessionConfig = {secret: "this is a secret", resave: true, saveUninitialized: true, cookie: {secure:false}}
+export const sessionMiddleware = session(sessionConfig)
 app.use(cors())
 app.use(sessionMiddleware);
 app.use(express.json())
 
 app.use('/', express.static(_app_folder))
-app.all('*', function (req, res) {
-    res.status(200).sendFile('/', {root: _app_folder})
-})
+// app.all('/*', function (req, res) {
+//     res.status(200).sendFile('/', {root: _app_folder})
+// })
 app.use('/api',router);
 

@@ -1,36 +1,43 @@
 import https from 'https'
 import fs from 'fs'
 import io, {Socket} from 'socket.io';
-import {sessionMiddleware} from './expressApp'
-import {Session} from "express-session";
+import { sessionMiddleware} from './expressApp'
 import express, {Express, NextFunction, Request, Response} from "express";
 import {Service} from "../service/Service";
 import {SimpleMessage} from "../domain/notifications/Message";
 import {LiveNotificationSubscriber, NotificationService} from "../service/NotificationService";
 import {logger} from "../helpers/logger"
+import config from "../config";
 
-declare module "express-session" {
-    interface Session {
-        username: string;
-        loggedIn: boolean;
-        sessionSubscriber?:LiveNotificationSubscriber;
-    }
-}
 
-declare module "http" {
-    interface IncomingMessage {
-        session: Session
-    }
-}
+
+
+// declare module "express-session" {
+//     interface Session {
+//         username: string;
+//         loggedIn: boolean;
+//         sessionSubscriber?:LiveNotificationSubscriber;
+//     }
+// }
+//
+// declare module "http" {
+//     interface IncomingMessage {
+//         session: Session
+//         username: string;
+//         loggedIn: boolean;
+//     }
+// }
+
+
 
 
 const keyPath = __dirname + "/security/key.pem";
 const certPath = __dirname + "/security/cert.pem";
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || config.app.port;
 
 
 const wrap = (middleware: express.RequestHandler) =>
-    (socket: Socket, next: NextFunction): void => middleware(socket.request as Request, {} as Response, next as NextFunction);
+    (socket: Socket, next: NextFunction): void => middleware(socket.request as Request , {} as Response, next as NextFunction);
 
 
 
@@ -56,7 +63,10 @@ export class Server {
             cors: {origin: "*/*"}
         })
         this.ioServer.listen(this.httpsServer)
-        this.ioServer.use(wrap(sessionMiddleware));
+        this.ioServer.use((socket,next)=>{
+            socket.client.request.session
+            sessionMiddleware(socket.client.request as Request,{} as Response, next as NextFunction)
+        });
         logger.info("WebSocketServer is initialized")
     }
 
@@ -65,7 +75,6 @@ export class Server {
         this.httpsServer.listen(port, () => {
             console.log("server started. listening on port " + port)
         });
-        console.log("done")
     }
 
     shutdown() {
@@ -91,17 +100,15 @@ export class Server {
     }
 
     private setupConnectionEvent(){
-        this.ioServer.on('connection', (socket) => {
-            logger.info("got new connection with" + socket.request.session.id);
-            let session = socket.request.session;
+        this.ioServer.on('connection', (socket:Socket) => {
+            logger.info("got new connection with " + socket.request.session.id);
             //check if this session is logged in
-            if (session.loggedIn) {
-                session.sessionSubscriber = new LiveNotificationSubscriber(socket);
-                this.notificationService.subscribeToBox(session.sessionSubscriber).then(()=>{
+               let sub = new LiveNotificationSubscriber(socket);
+                this.notificationService.subscribeToBox(sub).then(()=>{
                     console.log("live notification subscription success");
                 });
                 this.setupGeneralMessageEvent(socket);
-            }
+
         })
     }
 

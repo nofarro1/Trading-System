@@ -51,6 +51,7 @@ import {PaymentService} from "./external_services/PaymentService";
 import {DeliveryService} from "./external_services/DeliveryService";
 import {PaymentDetails} from "./external_services/IPaymentService";
 import {DeliveryDetails} from "./external_services/IDeliveryService";
+import {Offer} from "./user/Offer";
 
 @injectable()
 export class SystemController {
@@ -393,11 +394,11 @@ export class SystemController {
             let userObj: Guest;
             if (checkRes(result)) {
                 userObj = result.data;
-                return await this.pController.checkout(userObj, deliveryDetails, paymentDetails);
+                return await this.pController.checkout(userObj, paymentDetails, deliveryDetails);
 
             } else if (checkRes(resultMm)) {
                 userObj = resultMm.data;
-                return await this.pController.checkout(userObj, deliveryDetails, paymentDetails);
+                return await this.pController.checkout(userObj, paymentDetails, deliveryDetails);
             }
             return new Result(false, undefined, "Unable to check out this user");
         }));
@@ -433,7 +434,7 @@ export class SystemController {
 
                 let res = this.mpController.addProductToShop(
                     p.shopId, p.productCategory, p.productName,
-                    p.quantity, p.fullPrice, p.relatedSale, p.productDesc);
+                    p.quantity, p.fullPrice, p.productDesc);
 
                 if (checkRes(res)) {
                     return new Result(true, toSimpleProduct(res.data), res.message)
@@ -730,6 +731,15 @@ export class SystemController {
     getMessages(sessionId: string) {
         return this.authenticateMarketVisitor(sessionId, (id) => {
             return this.mController.getMessages(id);
+        })
+    }
+
+    addOffer2Shop(sessionId, userName: string, shopId: number, pId: number, price: number) : Result<void>{
+        return this.authenticateMarketVisitor(sessionId, (username) => {
+            let offer: Result<void | Offer> = this.mpController.addOffer2Product(shopId, userName, pId, price);
+            if(checkRes(offer)){
+                return this.scController.addOffer2cart(username, offer.data);
+            }
         })
     }
 }
