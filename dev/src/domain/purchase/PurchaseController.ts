@@ -105,7 +105,7 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
         v.visitPurchaseEvent(msg)
     }
 
-    async checkout(user: Guest, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Result<void | [Offer[], Offer[]]> {
+    async checkout(user: Guest, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void | [Offer[], Offer[]]>> {
         let forUpdate: [Shop, number, number][] = [];
         //for notification
         let shopsToNotify: {
@@ -183,7 +183,6 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 })
                 return new Result(true, undefined, "Purchase made successfully");
             } else {
-                //todo: need to rollback the purchase
                 if (!payRes.ok)
                     await this.paymentService.cancelPay(payRes.data.toString())
                 if (!delRes.ok)
@@ -191,7 +190,6 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 return new Result(false, undefined, "Purchase wasn't successful");
             }
         } catch (e: any) {
-            //todo: rollback purchase dou to fail
             if (!payRes.ok)
                 await this.paymentService.cancelPay(payRes.data.toString())
             if (!delRes.ok)
