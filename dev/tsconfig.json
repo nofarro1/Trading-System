@@ -16,15 +16,9 @@
     "skipLibCheck": true,
 //    "allowJs": true,
     "allowSyntheticDefaultImports": true,
-<<<<<<< HEAD
     "lib": ["es2018", "dom"],
-    "importHelpers": true
-=======
-    "lib": [
-      "es2021",
-      "dom"
-    ]
->>>>>>> dev3.0
+    "importHelpers": true,
+    "strictPropertyInitialization": false
   },
   "exclude": [
     "node_modules"
