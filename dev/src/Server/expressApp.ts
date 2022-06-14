@@ -639,7 +639,7 @@ app.use(sessionMiddleware);
 app.use(express.json())
 
 app.use('/', express.static(_app_folder))
-// app.all('*', function (req, res) {
+// app.all('/*', function (req, res) {
 //     res.status(200).sendFile('/', {root: _app_folder})
 // })
 app.use('/api',router);
