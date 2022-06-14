@@ -92,7 +92,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('calculateBagPrice- simple scenario with one discount', ()=>{
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         p2= s1.addProduct("ski", ProductCategory.A, 6,  1, "Yami chees");
         bag.addProduct(p1, 2);
@@ -108,7 +108,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('calculateBagPrice- simple scenario with 2 discounts', ()=>{
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         p2= s1.addProduct("ski", ProductCategory.A, 6,  1, "Yami chees");
         bag.addProduct(p1, 2);
@@ -126,7 +126,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('calculateBagPrice- AndDiscount, needs to apply', ()=>{
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         p2= s1.addProduct("ski", ProductCategory.A, 6,  1, "Yami chees");
         bag.addProduct(p1, 2);
@@ -146,7 +146,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('calculateBagPrice- AndDiscount, does not need to apply', ()=>{
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         p2= s1.addProduct("ski", ProductCategory.A, 6,  1, "Yami chees");
         bag.addProduct(p1, 1);
@@ -166,7 +166,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('calculateBagPrice- OrDiscount, needs to apply', ()=>{
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         p2= s1.addProduct("ski", ProductCategory.A, 6,  1, "Yami chees");
         bag.addProduct(p1, 1);
@@ -186,7 +186,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('calculateBagPrice- OrDiscount, does not need to apply', ()=>{
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         p2= s1.addProduct("ski", ProductCategory.A, 6,  1, "Yami chees");
         bag.addProduct(p1, 1);
@@ -206,7 +206,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('calculateBagPrice- MaxDiscount', ()=>{
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         p2= s1.addProduct("ski", ProductCategory.A, 6,  1, "Yami chees");
         bag.addProduct(p1, 1);
@@ -225,7 +225,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('calculateBagPrice- AdditionDiscount', ()=>{
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         p2= s1.addProduct("ski", ProductCategory.A, 6,  1, "Yami chees");
         bag.addProduct(p1, 1);
@@ -243,7 +243,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('camMakePurchase- simplePurchase. Could make purchase.', ()=>{
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("username");
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         cart.addProduct(p1, 2);
         let bag = cart.bags.get(0);
@@ -255,7 +255,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("username");
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         cart.addProduct(p1, 6);
         let bag = cart.bags.get(0);
@@ -268,7 +268,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("username");
         cart.addProduct(p1, 5);
         let bag = cart.bags.get(0);
         let user = new Guest("1");

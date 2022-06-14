@@ -3,7 +3,6 @@ import { Product } from "../marketplace/Product";
 import { ShoppingCart } from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
-import "reflect-metadata";
 
 @injectable()
 export class ShoppingCartController {
@@ -76,7 +75,7 @@ export class ShoppingCartController {
     }
 
     addCart(username: string): Result<ShoppingCart>{
-        this.carts.set(username, new ShoppingCart());
+        this.carts.set(username, new ShoppingCart(username));
         logger.info(`New cart was created for ${username}`);
         return new Result(true, this.carts.get(username),undefined);
     }

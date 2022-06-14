@@ -1,31 +1,32 @@
 import {ProductCategory, ProductRate} from "../../utilities/Enums";
-import {BaseEntity, Column, Entity, ManyToOne, PrimaryColumn} from "typeorm";
+import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn} from "typeorm";
 
 
 @Entity()
 export class Product extends BaseEntity {
-    @PrimaryColumn({type: "int"})
+    @PrimaryColumn({type: "int", name: "id"})
     private _id: number;
-    @Column({type: "text"})
+    @Column({type: "text", name: "name"})
     private _name: string;
-    @Column({type: "int"}) //TODO - Foreign Key constraint (Many To One)
+    // @ManyToOne(() => Shop, (shop) => shop.product)
+    // @JoinColumn({name: "shopId"})
+    @Column({type: "int", name: "shopId"}) //TODO FK
     private _shopId: number;
-    @Column({type: "enum", enum: ProductCategory})
+    @Column({type: "enum", enum: ProductCategory, name: "category"})
     private _category: ProductCategory;
-    @Column({type: "enum", enum: ProductRate})
+    @Column({type: "enum", enum: ProductRate, name: "rate"})
     private _rate: ProductRate;
-    @Column({type: "text"})
+    @Column({type: "text", name: "description"})
     private _description: string;
 
-
-
-    constructor(name: string, shopId: number, id: number, category: ProductCategory, fullPrice: number, description?: string){
-        this._id= id;
-        this._name= name;
-        this._shopId= shopId;
-        this._category= category;
-        this._rate= ProductRate.NotRated
-        if(description){
+    constructor(name: string, shopId: number, id: number, category: ProductCategory, fullPrice: number, description?: string) {
+        super();
+        this._id = id;
+        this._name = name;
+        this._shopId = shopId;
+        this._category = category;
+        this._rate = ProductRate.NotRated
+        if (description) {
             this._description = description;
         } else
             this._description = "";

@@ -3,8 +3,8 @@ import {BaseEntity, JoinColumn, OneToOne} from "typeorm";
 
 export class Guest extends BaseEntity {
     private _session: string;
-    @OneToOne(() => ShoppingCart)
-    @JoinColumn()
+    // @OneToOne(() => ShoppingCart)
+    // @JoinColumn()
     private _shoppingCart: ShoppingCart;
 
     constructor(id: string) {

@@ -5,7 +5,7 @@ import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/Discou
 import {ImmediatePurchasePolicyComponent} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 import {Answer} from "../../utilities/Types";
 import {Guest} from "../user/Guest";
-import {BaseEntity, Column, Entity, OneToMany, OneToOne, PrimaryColumn} from "typeorm";
+import {BaseEntity, Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryColumn} from "typeorm";
 import {
     ConditionalDiscountData,
     ContainerDiscountData,
@@ -46,36 +46,43 @@ import {
 } from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 import {Offer} from "../user/Offer";
 
+// const pullDiscounts = (ids: number[]) => {
+//     ids.map(async (id: number) => {
+//         let product = await Product.findOneBy({id: id});
+//         return [id, product];
+//     })
+// }
 
 @Entity()
 export class Shop extends BaseEntity {
-    @PrimaryColumn({type: "int"})
+    @PrimaryColumn({type: "int", name: "id"})
     private _id: number;
-    @Column({type: "text"})
+    @Column({type: "text", name: "name"})
     private _name: string;
-    @Column({type: "enum", enum: ShopStatus})
+    @Column({type: "enum", enum: ShopStatus, name: "status"})
     private _status: ShopStatus;
-    @Column({type: "text"}) //TODO - Foreign Key constraint (One To One)
+    @Column({type: "text", name: "shop_founder"}) //TODO - Foreign Key constraint (One To One)
     private _shopFounder: string;
-    @Column({type: "text", array: true}) //TODO - Foreign Key constraint (One To Many)
+    @Column({type: "text", array: true, name: "shop_owners", transformer: {from: (value: string[]) => new Set<string>(value), to: (value: Set<string>) => Array.from(value)}}) //TODO - Foreign Key constraint (One To Many)
     private _shopOwners: Set<string>;
-    @Column({type: "text", array: true}) //TODO - Foreign Key constraint (One To Many)
+    @Column({type: "text", array: true, name: "shop_managers", transformer: {from: (value: string[]) => new Set<string>(value), to: (value: Set<string>) => Array.from(value)}}) //TODO - Foreign Key constraint (One To Many)
     private _shopManagers: Set<string>;
-    @Column({type: "int", array: true}) //TODO - Foreign Key constraint (One To Many)
-    private _products: Map<number, [Product, number]>;
-    @Column({type: "int"})
+    // @OneToMany(() => Product, (product) => this)
+    @Column({type: "int"}) ////////////////////////////////////////TODO
+    private _products: Map<number, [Product, number]>; //ProductID -> [Product, Quantity]
+    // @Column({type: "int"})
     private _productsCounter: number;
-    @Column({type: "enum", enum: ShopRate})
+    @Column({type: "enum", enum: ShopRate, name: "rate"})
     private _rate: ShopRate;
-    @Column({type: "int", array: true})
+    @Column({type: "int", array: true, name: "discounts", transformer: {from: (value: number[]) => new Map<number, DiscountComponent>(), to: (value: Map<number, DiscountComponent>) => [...value.keys()]}}) //TODO - Foreign Key constraint (One To Many)
     private readonly _discounts: Map<number, DiscountComponent>;
-    @Column({type: "int"})
+    // @Column({type: "int"})
     private _discountCounter: number;
-    @Column({type: "int", array: true})
+    @Column({type: "int", array: true, name: "purchase_policies"}) //TODO - Foreign Key constraint (One To Many)
     private readonly _purchasePolicies: Map<number, ImmediatePurchasePolicyComponent>;
-    @Column({type: "int"})
+    // @Column({type: "int"})
     private _purchaseCounter: number;
-    @Column({type: "text", nullable: true})
+    @Column({type: "text", nullable: true, name: "description"})
     private _description?: string;
     private _offers: Map<number, Offer>
     private offerCounter: number;
@@ -97,6 +104,7 @@ export class Shop extends BaseEntity {
         this._purchaseCounter = 0;
         this._description = description;
         this.offerCounter = 0;
+        this._offers = new Map<number, Offer>();
     }
 
 
@@ -129,7 +137,7 @@ export class Shop extends BaseEntity {
     }
 
     get description(): string {
-        return this._description;
+        return this._description ?? "";
     }
 
     set shopFounder(value: string) {
@@ -341,7 +349,7 @@ export class Shop extends BaseEntity {
     }
 
     addOfferPrice2Product( userId: string, pId: number, offeredPrice: number): Offer{
-        let offer = new Offer(this.offerCounter,userId, this.id, pId, offeredPrice, this.shopOwners)
+        let offer: Offer = new Offer(this.offerCounter,userId, this.id, pId, offeredPrice, this.shopOwners)
         this._offers.set(this.offerCounter, offer);
         this.offerCounter= this.offerCounter+1;
         return offer;

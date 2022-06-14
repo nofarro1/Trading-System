@@ -1,16 +1,20 @@
 import {JobType} from "../../utilities/Enums";
 import {Permissions} from "../../utilities/Permissions";
-import {BaseEntity, Column, Entity, OneToOne} from "typeorm";
+import {BaseEntity, Column, Entity, ManyToOne, OneToOne, PrimaryColumn} from "typeorm";
+import {Member} from "./Member";
 
 @Entity()
 export class Role extends BaseEntity {
-    @Column({type: "int"}) //TODO - Foreign Key constraint (One To One)
+    @PrimaryColumn({type: "int", name: "shopId"}) //TODO - Foreign Key constraint (One To One)
     private readonly _shopId: number;
-    @Column({type: "text"})
+    @PrimaryColumn({type: "text", name: "username"})
+    @ManyToOne(() => Member)
+    member: Member;
+    @Column({type: "text", name: "title"})
     private _title: string;
-    @Column({type: "enum", enum: JobType})
+    @Column({type: "enum", enum: JobType, name: "job_type"})
     private _jobType: JobType;
-    @Column({type: "enum", enum: Permissions, array: true})
+    @Column({type: "enum", enum: Permissions, name: "permissions", transformer: {from: (value: number[]) => new Set<number>(value), to: (value: Set<number>) => Array.from(value)}})
     private _permissions: Set<Permissions>;
 
     constructor(shopId: number, title: string, type: JobType, permissions: Set<Permissions>) {

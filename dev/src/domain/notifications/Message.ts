@@ -3,14 +3,15 @@ import {BaseEntity, Column, Entity, ManyToMany, PrimaryColumn} from "typeorm";
 
 @Entity()
 export abstract class Message extends BaseEntity {
-    @PrimaryColumn({type: "int"})
+    @PrimaryColumn({type: "int", name: "id"})
     id: string;
-    @Column({type: "int"})
+    @Column({type: "int", name: "timestamp"})
     timestamp: number;
-    @Column({type: "boolean"})
+    @Column({type: "boolean", name: "is_read"})
     isRead: boolean;
-    @Column({type: "text"}) private _content: string;
-    @Column({type: "text", array: true}) //TODO - Foreign Key constraint (Many To Many)
+    @Column({type: "text", name: "content"})
+    private _content: string;
+    @Column({type: "text", array: true, name: "recipients", transformer: {from: (value: string[]) => new Set<string>(value), to: (value: Set<string>) => Array.from(value)}}) //TODO - Foreign Key constraint (Many To Many)
     recipients: Set<string>;
 
     protected constructor(recpt: Set<string>, content: string) {
@@ -32,16 +33,8 @@ export abstract class Message extends BaseEntity {
 }
 
 export class SimpleMessage extends Message{
-    content: string;
-
     constructor(recpt: Set<string>, content: string = "empty message") {
-        super(recpt);
-        this.content = content;
-
-    }
-
-    getContent(): string {
-        return this.content;
+        super(recpt, content);
     }
 }
 
@@ -51,14 +44,9 @@ export class ShopPurchaseMessage extends Message {
 
     //todo: format content;
     constructor(shopOrder: string, shopOwners: Set<string>, buyer: string) {
-        super(shopOwners, `hello Owner, member ${buyer}, has placed an order at your shop ${shopOrder}.\n
+        super(shopOwners, `hello Owner, member ${buyer}, has placed an order at your shop\n order: ${shopOrder}.\n'
         order details: ...`);
         this.purchase = shopOrder;
-        this.content = `hello Owner, member ${buyer}, has placed an order at your shop\n order: ${this.purchase}.\n`
-    }
-
-    getContent(): string {
-        return this.content;
     }
 }
 

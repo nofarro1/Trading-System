@@ -98,20 +98,20 @@ describe('system controller - integration', () => {
     })
 
     beforeEach(() => {
-        cart1 = new ShoppingCart();
+        cart1 = new ShoppingCart(sess1);
         guest1 = new Guest(sess1);
 
-        cart2 = new ShoppingCart();
+        cart2 = new ShoppingCart(sess2);
         guest2 = new Guest(sess2);
 
-        cart3 = new ShoppingCart();
+        cart3 = new ShoppingCart(sess3);
         guest3 = new Guest(sess3);
 
-        cart4 = new ShoppingCart();
+        cart4 = new ShoppingCart(username1);
         member1 = new Member(sess4, username1)
         box1 = new MessageBox(username1);
 
-        cart5 = new ShoppingCart();
+        cart5 = new ShoppingCart(username2);
         member2 = new Member(sess5, username2)
         box2 = new MessageBox(username1);
     })
@@ -310,7 +310,7 @@ describe('system controller - integration', () => {
             expect(res.data).not.toBeDefined();
         })
 
-        test("checkout - failure", async(done) => {
+        test("checkout - failure", async (done) => {
             //prepare
             sys.accessMarketplace(sess1);
             sys.addToCart(username1, p1.id, 2);

@@ -9,7 +9,7 @@ import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../../../m
 let cart: ShoppingCart;
 let shop1: Shop = new Shop(1, "Super Shop", "Mario");
 let shop2: Shop = new Shop(2, "Mega Shop", "Luigi");
-let bag1: ShoppingBag = new ShoppingBag(1);
+let bag1: ShoppingBag;
 let product1: Product ;
 let product11: Product = new Product("Sparkling Water", 1,1, ProductCategory.A, 7);
 
@@ -20,7 +20,8 @@ describe("Shopping Cart - unit tests", ()=> {
     })
 
     beforeEach(()=>{
-      cart = new ShoppingCart();
+      cart = new ShoppingCart("username");
+      bag1 = new ShoppingBag(1, cart);
       product1  = new Product("Pizza", 1, 0, ProductCategory.A, 15);
     })
 

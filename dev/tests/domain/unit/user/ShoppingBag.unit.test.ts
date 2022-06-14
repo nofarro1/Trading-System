@@ -1,6 +1,7 @@
 import {ShoppingBag} from "../../../../src/domain/user/ShoppingBag";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {ProductCategory} from "../../../../src/utilities/Enums";
+import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 
 
 describe('SecurityController - tests', function () {
@@ -11,7 +12,7 @@ describe('SecurityController - tests', function () {
     const newQuantity: number = 10;
 
     beforeEach(function () {
-        bag = new ShoppingBag(shopID);
+        bag = new ShoppingBag(shopID, new ShoppingCart("username"));
     })
 
     test("Add Product - valid input", () => {

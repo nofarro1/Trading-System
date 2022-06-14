@@ -314,7 +314,7 @@ export class SystemController {
 
     getShops(sessionId: string): Result<SimpleShop[] | void> {
         return this.authenticateMarketVisitor(sessionId, (id) => {
-            const shops: SimpleShop[] = this.mpController.Shops.map(toSimpleShop);
+            const shops: SimpleShop[] = this.mpController.getShops().map(toSimpleShop);
             return Result.Ok(shops);
         })
 

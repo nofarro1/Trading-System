@@ -99,7 +99,7 @@ describe('SimpleShop- products', function() {
         s1.discounts.set(disc1.id, disc1);
         const mock_calc = mockMethod(SimpleDiscount.prototype, "calculateProductsPrice", ()=> [[p1, 4.72, 2], [p2, 6, 1]])
         const mock_addProduct = mockMethod(ShoppingBag.prototype, "addProduct", (p, quantity)=>{bag.products.set(s1.productsCounter,[p, quantity]);})
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         bag.addProduct(p1,2)
         bag.addProduct(p2,1);
         let productsUpdatePrices= s1.calculateBagPrice(bag);
@@ -119,7 +119,7 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
         })
 
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         bag.addProduct(p1, 2);
         bag.addProduct(p2, 1);
 
@@ -157,7 +157,7 @@ describe('SimpleShop- products', function() {
         //     return s1.discountCounter++;
         // })
 
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         bag.addProduct(p1, 2);
         bag.addProduct(p2, 1);
 
@@ -192,7 +192,7 @@ describe('SimpleShop- products', function() {
         //     return s1.discountCounter++;
         // })
 
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 1);
 
@@ -228,7 +228,7 @@ describe('SimpleShop- products', function() {
         //     return s1.discountCounter++;
         // })
 
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 1);
         let discountInf1: discountInf = {type:DiscountType.Bag, object:undefined} as discountInf;
@@ -264,7 +264,7 @@ describe('SimpleShop- products', function() {
         //     return s1.discountCounter++;
         // })
 
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 0);
 
@@ -299,7 +299,7 @@ describe('SimpleShop- products', function() {
         //     return s1.discountCounter++;
         // })
 
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 1);
 
@@ -333,7 +333,7 @@ describe('SimpleShop- products', function() {
         //     return s1.discountCounter++;
         // })
 
-        let bag = new ShoppingBag(0);
+        let bag = new ShoppingBag(0, new ShoppingCart("username"));
         bag.addProduct(p1, 1);
         bag.addProduct(p2, 1);
 
@@ -359,7 +359,7 @@ describe('SimpleShop- products', function() {
             return {ok: true, message: "Couldn't continue with checkout because the quantity of 'ski' cheese is more the 5."}
         })
         const mock_addProduct = mockMethod(ShoppingCart.prototype, "addProduct", (p: Product, quantity)=>{
-            let bag = new ShoppingBag(p.shopId);
+            let bag = new ShoppingBag(p.shopId, new ShoppingCart("username"));
             bag.products.set(s1.productsCounter,[p, quantity]);
             s1.productsCounter++;
             cart.bags.set(p.shopId,bag);
@@ -370,7 +370,7 @@ describe('SimpleShop- products', function() {
         //     return s1.purchaseCounter++;
         // })
 
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("username");
         cart.addProduct(p1, 2);
         let bag = cart.bags.get(0);
         let user = new Guest("1");
@@ -387,7 +387,7 @@ describe('SimpleShop- products', function() {
             return {ok: false, message: "The quantity of 'ski' cheese is more the 5."}
         })
         const mock_addProduct = mockMethod(ShoppingCart.prototype, "addProduct", (p: Product, quantity)=>{
-            let bag = new ShoppingBag(p.shopId);
+            let bag = new ShoppingBag(p.shopId, new ShoppingCart("username"));
             bag.products.set(s1.productsCounter,[p, quantity]);
             s1.productsCounter++;
             cart.bags.set(p.shopId,bag);
@@ -398,7 +398,7 @@ describe('SimpleShop- products', function() {
         //     return s1.purchaseCounter++;
         // })
 
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("username");
         cart.addProduct(p1, 6);
         let bag = cart.bags.get(0);
         let user = new Guest("1");
@@ -411,7 +411,7 @@ describe('SimpleShop- products', function() {
     })
 
     // test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
-    //     let cart = new ShoppingCart();
+    //     let cart = new ShoppingCart("username");
     //     cart.addProduct(p1, 5);
     //     let bag = cart.bags.get(0);
     //     let user = new Guest("1");

@@ -3,7 +3,6 @@ import {ShopStatusChangedMessage} from "../notifications/Message";
 import {Shop} from "./Shop";
 import {Result} from "../../utilities/Result";
 import {Product} from "./Product";
-import {Sale} from "./Sale";
 import {
     DiscountKinds,
     FilterType,
@@ -17,12 +16,13 @@ import {Range} from "../../utilities/Range";
 import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
 import {ImmediatePurchasePolicyComponent} from "./DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
-import {DiscountData} from "../../utilities/DataObjects";
+import {DiscountData, ImmediatePurchaseData} from "../../utilities/DataObjects";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
 import {
     ContainerDiscountComponent
 } from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 import {Offer} from "../user/Offer";
+import {AppDataSource} from "../../dal/AppDataSource";
 
 @injectable()
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
@@ -38,8 +38,18 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         this.subscribers= [];
     }
 
+    private async setCurrentShopCounter(): Promise<void> {
+        this._shopCounter = (await this.getCurrentShopCounter()) ?? 0;
+    }
 
-    get Shops(): Shop[] {
+    private getCurrentShopCounter(): Promise<number | undefined> {
+        const query = AppDataSource.createQueryBuilder();
+        AppDataSource.createQueryBuilder().select("shop").from(Shop, "shop").where("MAX(shop.id)");
+        return query.getRawOne();
+    }
+
+
+    getShops(): Shop[] {
         return [...this._shops.values()];
     }
 
@@ -96,7 +106,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false, undefined, "Failed to reopen shop because the shop does not exist.");
     }
 
-    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, relatedSale?: Sale, productDesc?: string): Result<void | Product> {
+    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, productDesc?: string): Result<void | Product> {
         if (quantity < 0)
             return new Result<void>(false, undefined, "Cannot add negative amount of product to a shop ");
         let shop = this._shops.get(shopId);

@@ -1,21 +1,34 @@
-export class Offer{
+import {BaseEntity, Column, Entity, PrimaryColumn} from "typeorm";
+
+@Entity()
+export class Offer extends BaseEntity{
+    @PrimaryColumn({type: "int", name: "id"})
     private readonly _id: number;
+    @Column({type: "text", name: "user"}) //TODO - FK
     private readonly _user: string;
+    @PrimaryColumn({type: "int", name: "shopId"}) //TODO - FK
     private readonly _shopId: number;
+    @Column({type: "int", name: "productId"}) //TODO - FK
     private readonly _pId: number;
+    @Column({type: "int", name: "price"})
     private readonly _price: number;
+    // @Column({type: "json", array: true, name: "approvers"})
     private _approvers: Map<string, boolean>;
+    @Column({type: "boolean", name: "answer"})
     private _answer: boolean;
 
     constructor(id: number, userId: string, shopId: number,  pId: number, price: number, approvers: Set<string>){
+        super();
         this._id= id;
         this._user= userId;
         this._shopId = shopId;
         this._pId= pId;
         this._price= price;
         this._approvers = new Map<string, boolean>();
-        for (let owner of approvers){
-            this._approvers.set(owner, false)
+        if(approvers) {
+            for (let owner of approvers) {
+                this._approvers.set(owner, false)
+            }
         }
         this._answer= true;
     }

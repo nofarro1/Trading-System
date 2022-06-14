@@ -1,16 +1,35 @@
 import {Product} from "../marketplace/Product"
 import {ShoppingBag} from "./ShoppingBag";
-import {BaseEntity, Column, Entity, OneToMany} from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    Entity,
+    EntitySchema, JoinTable,
+    ManyToMany,
+    OneToMany,
+    PrimaryColumn,
+    PrimaryGeneratedColumn
+} from "typeorm";
+import {Offer} from "./Offer";
 
 @Entity()
 export class ShoppingCart extends BaseEntity {
-    @Column({type: "int"}) //TODO One To Many(() => ShoppingBag, shoppingBag => shoppingBag.shoppingCart)
+    @PrimaryColumn({type: "text", name: "username"})
+    private username: string;
+    // @OneToMany((type:[string,ShoppingBag]) => {
+    //     return  type.entries
+    // }, (entry:[string,ShoppingBag]) => entry)
+    // @Column({type: "text", array: true, name: "bags", transformer: {from: (value: [number, ShoppingBag][]) => new Map<number, ShoppingBag>(value), to: (value: Map<number, ShoppingBag>) => value.entries()}}) //TODO One To Many(() => ShoppingBag, shoppingBag => shoppingBag.shoppingCart)
     private _bags: Map<number, ShoppingBag>; //ShopID -> ShoppingBag
+    // @ManyToMany(() => Offer)
+    // @JoinTable()
+    private _offers: Offer[]
     // private _totalPrice: number;
 
-    constructor() {
+    constructor(username: string) {
         super();
         this._bags = new Map<number, ShoppingBag>();
+        this.username = username;
         // this._totalPrice=0;
     }
 
@@ -32,7 +51,7 @@ export class ShoppingCart extends BaseEntity {
         if (bag) {
             bag.addProduct(toAdd, quantity);
         } else {
-            let newBag = new ShoppingBag(shopId);
+            let newBag = new ShoppingBag(shopId, this);
             newBag.addProduct(toAdd, quantity);
             this.bags.set(shopId, newBag);
         }

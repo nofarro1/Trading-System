@@ -1,4 +1,5 @@
 import {SecurityController} from "../../../src/domain/SecurityController";
+import {AppDataSource} from "../../../src/dal/AppDataSource";
 
 let controller: SecurityController;
 const sessionID: string = "some-sessionID-with-the-following-string";
@@ -7,6 +8,9 @@ const password: string = "123456789";
 const shortPassword: string = "123";
 
 describe('SecurityController - tests', function () {
+    beforeAll(async function () {
+        await AppDataSource.initialize();
+    })
 
     beforeEach(function () {
         controller = new SecurityController();
@@ -14,14 +18,14 @@ describe('SecurityController - tests', function () {
 
     test("Access Marketplace - invalid Guest ID", () => {
         controller.accessMarketplace(sessionID);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
         expect(function() { controller.accessMarketplace(sessionID) }).toThrow(new Error(`There already exists a guest with ${sessionID} in the marketplace`));
     })
 
     test("Register - username already exists", () => {
         //valid access marketplace
         controller.accessMarketplace(sessionID);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
 
         //valid register
         controller.register(sessionID, username, password);
@@ -33,27 +37,26 @@ describe('SecurityController - tests', function () {
     test("Login - valid input", () => {
         //valid access marketplace
         controller.accessMarketplace(sessionID);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
         //valid register
         controller.register(sessionID, username, password);
         expect(controller.members.get(username)).toBeDefined()
 
         controller.login(sessionID, username, password);
         expect(controller.loggedInMembers.get(sessionID)).toBe(username);
-        expect(controller.activeGuests).not.toContain(sessionID);
     })
 
     test("Login - member already logged in", () => {
         //valid access marketplace
         controller.accessMarketplace(sessionID);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
         //valid register
         controller.register(sessionID, username, password);
         expect(controller.members.get(username)).toBeDefined()
 
         //valid login
         controller.login(sessionID, username, password);
-        expect(controller.loggedInMembers).toContain(username);
+        expect(controller.loggedInMembers.values()).toContain(username);
 
         expect(function() { controller.login(sessionID, username, password) }).toThrow(new Error(`The member ${username} is already logged into the system`));
     })
@@ -61,7 +64,7 @@ describe('SecurityController - tests', function () {
     test("Login - invalid password", () => {
         //valid access marketplace
         controller.accessMarketplace(sessionID);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
         //valid register
         controller.register(sessionID, username, password);
         expect(controller.members.get(username)).toBeDefined();
@@ -72,24 +75,24 @@ describe('SecurityController - tests', function () {
     test("Logout - valid input", () => {
         //valid access marketplace
         controller.accessMarketplace(sessionID);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
         //valid register
         controller.register(sessionID, username, password);
         expect(controller.members.get(username)).toBeDefined();
 
         //valid login
         controller.login(sessionID, username, password);
-        expect(controller.loggedInMembers).toContain(username);
+        expect(controller.loggedInMembers.values()).toContain(username);
 
         controller.logout(sessionID, username);
         expect(controller.loggedInMembers).not.toContain(username);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions.keys()).toContain(sessionID);
     })
 
     test("Logout - member is not logged in", () => {
         //valid access marketplace
         controller.accessMarketplace(sessionID);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
         //valid register
         controller.register(sessionID, username, password);
         expect(controller.members.get(username)).toBeDefined();
@@ -100,9 +103,9 @@ describe('SecurityController - tests', function () {
     test("Exit Marketplace - valid Guest ID", () => {
         //valid access marketplace
         controller.accessMarketplace(sessionID);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
 
         controller.exitMarketplace(sessionID);
-        expect(controller.activeGuests).not.toContain(sessionID);
+        expect(controller.activeSessions).not.toContain(sessionID);
     })
 });

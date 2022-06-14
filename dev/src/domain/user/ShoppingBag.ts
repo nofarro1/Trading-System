@@ -1,22 +1,28 @@
 import {Product} from "../marketplace/Product";
-import {BaseEntity, Column, Entity, ManyToMany, ManyToOne} from "typeorm";
+import {BaseEntity, Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryColumn} from "typeorm";
+import {ShoppingCart} from "./ShoppingCart";
 
 const compProducts = (p1: Product, p2: Product) => p1.fullPrice - p2.fullPrice;
 
 @Entity()
 export class ShoppingBag extends BaseEntity {
-    @Column({type: "int"}) //TODO - Foreign Key constraint (Many To One) TODO onDelete: 'CASCADE'
+    @PrimaryColumn({type: "int", name: "shopId"}) //TODO - Foreign Key constraint (Many To One) TODO onDelete: 'CASCADE'
     private _shopId: number;
-    @Column({type: "text", array: true}) //TODO - Foreign Key constraint (Many To Many)
+    @PrimaryColumn({type: "text"})
+    @ManyToOne(() => ShoppingCart, (shoppingCart) => shoppingCart.bags)
+    @JoinColumn({name: "username"})
+    shoppingCart: ShoppingCart;
+    @Column({type: "text", array: true, name: "products"}) //TODO - Foreign Key constraint (Many To Many)
     private _products: Map<number, [Product, number]>; //ProductID -> [Product, Quantity]
-    @Column({type: "int"})
+    @Column({type: "int", name: "total_price"})
     private _totalPrice: number;
 
-    constructor(shopId: number) {
+    constructor(shopId: number, shoppingCart: ShoppingCart) {
         super();
         this._shopId = shopId;
         this._products = new Map<number, [Product, number]>();
         this._totalPrice = 0;
+        this.shoppingCart = shoppingCart;
     }
 
     public get shopId(): number {
@@ -72,5 +78,26 @@ export class ShoppingBag extends BaseEntity {
 
     isEmpty(): boolean {
         return this.products.size == 0;
+    }
+}
+
+@Entity()
+export class Products_In_Bag extends BaseEntity {
+    @PrimaryColumn({type: "int", name: "shopId"})
+    @PrimaryColumn({type: "text", name: "username"})
+    @OneToOne(() => ShoppingBag)
+    @JoinColumn([{name: "username", referencedColumnName: "shoppingCart"},
+                        {name: "shopId", referencedColumnName: "_shopId"}])
+    bag: ShoppingBag;
+    @PrimaryColumn({type: "int", name: "productId"}) //TODO FK
+    product: Product;
+    @Column({type: "int"})
+    quantity: number;
+
+    constructor(bag: ShoppingBag, product: Product, quantity: number) {
+        super();
+        this.bag = bag;
+        this.product = product;
+        this.quantity = quantity;
     }
 }
