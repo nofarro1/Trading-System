@@ -14,8 +14,8 @@ export class Result<T> {
         return new Result(true, data, message);
     }
 
-    public static Fail(message: string): Result<undefined> {
-        return new Result(false, undefined, message);
+    public static Fail(message: string,data?:any): Result<any> {
+        return new Result(false, data, message);
     }
 }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { api } from 'src/backendService/Service';
+import { api } from '../../backendService/Service';
 
 @Component({
   selector: 'app-main',

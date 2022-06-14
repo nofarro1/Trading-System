@@ -46,6 +46,11 @@ import {
 } from "./marketplace/DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 import {SimpleDiscountDescriber} from "../utilities/simple_objects/marketplace/SimpleDiscountDescriber";
 import {DiscountComponent} from "./marketplace/DiscountAndPurchasePolicies/Components/DiscountComponent";
+import {ServiceSettings} from "../utilities/Types";
+import {PaymentService} from "./external_services/PaymentService";
+import {DeliveryService} from "./external_services/DeliveryService";
+import {PaymentDetails} from "./external_services/IPaymentService";
+import {DeliveryDetails} from "./external_services/IDeliveryService";
 
 @injectable()
 export class SystemController {
@@ -131,7 +136,7 @@ export class SystemController {
         return new Result(false, undefined, "could not Register");
     }
 
-    private authenticateMarketVisitor<T>(sessionId: string, callback: (id: string) => Result<T>) {
+    private authenticateMarketVisitor<T>(sessionId: string, callback: (id: string) => T) {
         const userId: string = this.securityController.hasActiveSession(sessionId);
         if (userId.length === 0) {
             return new Result(false, undefined, "this is not one of our visitors!");
@@ -381,21 +386,21 @@ export class SystemController {
     }
 
     //Guest Payment - Use-Case 5
-    checkout(sessionId: string, paymentDetails: any, deliveryDetails: any): Result<void> {
-        return this.authenticateMarketVisitor(sessionId, (id) => {
+    async checkout(sessionId: string, paymentDetails: PaymentDetails, deliveryDetails: DeliveryDetails): Promise<Result<void>> {
+        return Promise.resolve(this.authenticateMarketVisitor(sessionId, async (id) => {
             let result = this.uController.getGuest(id);
             let resultMm = this.uController.getMember(id);
             let userObj: Guest;
             if (checkRes(result)) {
                 userObj = result.data;
-                return this.pController.checkout(userObj);
+                return await this.pController.checkout(userObj, deliveryDetails, paymentDetails);
 
             } else if (checkRes(resultMm)) {
                 userObj = resultMm.data;
-                return this.pController.checkout(userObj);
+                return await this.pController.checkout(userObj, deliveryDetails, paymentDetails);
             }
             return new Result(false, undefined, "Unable to check out this user");
-        })
+        }));
     }
 
     /*------------------------------------Marketplace Interaction actions----------------------------------------------*/
@@ -470,59 +475,60 @@ export class SystemController {
             return new Result(false, undefined, "no permission")
         })
     }
-    // todo; undo commet  when missing the methods in marketplace controller are declared
-    // getDiscounts(sessId: string, shopId: number): Result<SimpleDiscountDescriber[] | void> {
-    //     return this.authenticateMarketVisitor(sessId, () => {
-    //         const discounts: DiscountComponent[] = this.mpController.getDiscounts(shopId);
-    //         return Result.Ok(discounts.map(toSimpleDiscountDescriber))
-    //     })
-    //
-    // }
-    //
-    // addDiscount(sessId: string, shopId: number, discount: DiscountData): Result<number | void> {
-    //     return this.authenticateMarketVisitor(sessId, (userId) => {
-    //         if (this.uController.checkPermission(userId, shopId, Permissions.AddDiscount).data ||
-    //             this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
-    //             const res = this.mpController.addDiscount(shopId, discount)
-    //             if (checkRes(res)) {
-    //                 return Result.Ok(res.data, `new discount add with Id ${res.data}`);
-    //             }
-    //             return Result.Fail("was unable to add the discount. reason: " + res.message);
-    //         }
-    //         return Result.Fail("No permissions to add discounts to shop " + shopId);
-    //     })
-    // }
-    //
-    // removeDiscount(sessId: string, shopId: number, idDisc: number): Result<void> {
-    //     return this.authenticateMarketVisitor(sessId, (userId) => {
-    //         if (this.uController.checkPermission(userId, shopId, Permissions.RemoveDiscount).data ||
-    //             this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
-    //             const res: Result<void> = this.mpController.removeDiscount(shopId, idDisc)
-    //             if (checkRes(res)) {
-    //                 return Result.Ok(res.data, `new discount add with Id ${res.data}`);
-    //             }
-    //             return res;
-    //         }
-    //         return Result.Fail("No permissions to add discounts to shop " + shopId);
-    //     })
-    // }
-    //
-    // getPolicies(sessId: string, shopId: number): Result<ImmediatePurchasePolicyComponent[]> {
-    //     return this.authenticateMarketVisitor(sessId, (userId) => {
-    //         if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
-    //             this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
-    //             const res = this.mpController.getPolicies(shopId);
-    //             if (checkRes(res)) {
-    //                 return Result.Ok(res.data, `new discount add with Id ${res.data}`);
-    //             }
-    //             return Result.Fail("was unable to add the discount. reason: " + res.message);
-    //         }
-    //         return Result.Fail("No permissions to add discounts to shop " + shopId);
-    //     })
-    //
-    // }
 
-    addPurchasePolicy(sessId: string, shopId: number, puPolicy:  ImmediatePurchaseData): Result<number | void> {
+    //todo; undo commet  when missing the methods in marketplace controller are declared
+    getDiscounts(sessId: string, shopId: number): Result<SimpleDiscountDescriber[] | void> {
+        return this.authenticateMarketVisitor(sessId, () => {
+            const discounts: DiscountComponent[] = this.mpController.getDiscounts(shopId);
+            return Result.Ok(discounts.map(toSimpleDiscountDescriber))
+        })
+
+    }
+
+    addDiscount(sessId: string, shopId: number, discount: DiscountData): Result<number | void> {
+        return this.authenticateMarketVisitor(sessId, (userId) => {
+            if (this.uController.checkPermission(userId, shopId, Permissions.AddDiscount).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
+                const res = this.mpController.addDiscount(shopId, discount)
+                if (checkRes(res)) {
+                    return Result.Ok(res.data, `new discount add with Id ${res.data}`);
+                }
+                return Result.Fail("was unable to add the discount. reason: " + res.message);
+            }
+            return Result.Fail("No permissions to add discounts to shop " + shopId);
+        })
+    }
+
+    removeDiscount(sessId: string, shopId: number, idDisc: number): Result<void> {
+        return this.authenticateMarketVisitor(sessId, (userId) => {
+            if (this.uController.checkPermission(userId, shopId, Permissions.RemoveDiscount).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
+                const res: Result<void> = this.mpController.removeDiscount(shopId, idDisc)
+                if (checkRes(res)) {
+                    return Result.Ok(res.data, `new discount add with Id ${res.data}`);
+                }
+                return res;
+            }
+            return Result.Fail("No permissions to add discounts to shop " + shopId);
+        })
+    }
+
+    getPolicies(sessId: string, shopId: number): Result<ImmediatePurchasePolicyComponent[]> {
+        return this.authenticateMarketVisitor(sessId, (userId) => {
+            if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
+                const res = this.mpController.getPolicies(shopId);
+                if (checkRes(res)) {
+                    return Result.Ok(res.data, `new discount add with Id ${res.data}`);
+                }
+                return Result.Fail("was unable to add the discount. reason: " + res.message);
+            }
+            return Result.Fail("No permissions to add discounts to shop " + shopId);
+        })
+
+    }
+
+    addPurchasePolicy(sessId: string, shopId: number, puPolicy: ImmediatePurchaseData): Result<number | void> {
         return this.authenticateMarketVisitor(sessId, (userId) => {
             if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
                 this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
@@ -688,7 +694,7 @@ export class SystemController {
     }
 
 
-    editConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, settings: any): Result<void> {
+    editConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, settings: ServiceSettings): Result<void> {
         return this.authenticateMarketVisitor(admin, (id: string) => {
             if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
@@ -709,9 +715,9 @@ export class SystemController {
                 return new Result(false, undefined, "no admin Privileges");
             }
             if (type === ExternalServiceType.Delivery)
-                this.pController.swapDeliveryService(new DeliveryServiceAdaptor(newServiceName, undefined));
+                this.pController.swapDeliveryService(new DeliveryServiceAdaptor(newServiceName, new DeliveryService(newServiceName)));
             else
-                this.pController.swapPaymentService(new PaymentServiceAdaptor(newServiceName, undefined))
+                this.pController.swapPaymentService(new PaymentServiceAdaptor(newServiceName, new PaymentService(newServiceName)))
 
             return new Result(true, undefined, "services swapped");
 
@@ -721,4 +727,9 @@ export class SystemController {
     }
 
 
+    getMessages(sessionId: string) {
+        return this.authenticateMarketVisitor(sessionId, (id) => {
+            return this.mController.getMessages(id);
+        })
+    }
 }

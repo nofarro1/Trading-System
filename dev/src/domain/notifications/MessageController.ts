@@ -63,12 +63,12 @@ export class MessageController implements IMessageListener<Message> {
         }
     }
 
-    getMessages(memberId: string): Message[] {
+    getMessages(memberId: string): Result<Message[]> {
         try {
-            return this.getMessageBox(memberId).getAllMessages()
+            return Result.Ok(this.getMessageBox(memberId).getAllMessages())
         } catch (e) {
             console.log(e)
-            return [];
+            return Result.Fail("No messages found for member", []);
         }
     }
 

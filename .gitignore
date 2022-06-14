@@ -55,3 +55,4 @@ Thumbs.db
 /dev/src/Client/client/.angular/
 /dev/src/Client/client/.vscode/
 /dev/src/Client/client/node_modules/
+/dev/src/Client/client/dist/

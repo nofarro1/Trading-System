@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Result} from "../../../../utilities/Result";
+import {checkRes, Result} from "../../../../utilities/Result";
 import {interfaces} from "inversify";
 import SimpleFactory = interfaces.SimpleFactory;
 import {SimpleGuest} from "../../../../utilities/simple_objects/user/SimpleGuest";
@@ -21,7 +21,7 @@ export class api {
     try{
       const res = await axios.get(base + "/access");
       const data: Result<void | SimpleGuest> = res.data
-      return data.data?._guestID;
+      return checkRes(data)? data.data._guestID : undefined;
     }catch(e:any){
       console.log("error in accessing");
       return undefined;
