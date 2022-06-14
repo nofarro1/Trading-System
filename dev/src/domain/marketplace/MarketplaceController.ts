@@ -3,7 +3,6 @@ import {ShopStatusChangedMessage} from "../notifications/Message";
 import {Shop} from "./Shop";
 import {Result} from "../../utilities/Result";
 import {Product} from "./Product";
-import {Sale} from "./Sale";
 import {
     DiscountKinds,
     FilterType,
@@ -100,7 +99,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false,undefined, "Failed to reopen shop because the shop does not exist.");
     }
 
-    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, relatedSale?: Sale, productDesc?: string): Result<void | Product> {
+    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, productDesc?: string): Result<void | Product> {
         if(quantity<0)
             return new Result<void>(false, undefined, "Cannot add negative amount of product to a shop ");
         let shop = this._shops.get(shopId);
