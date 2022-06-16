@@ -25,21 +25,21 @@ import config from "../config";
 
 const systemContainer = new Container();
 //services
-systemContainer.bind<Service>(TYPES.Service).to(Service).inSingletonScope()
-systemContainer.bind<GuestService>(TYPES.GuestService).to(GuestService)
-systemContainer.bind<MarketplaceService>(TYPES.MarketplaceService).to(MarketplaceService)
-systemContainer.bind<MemberService>(TYPES.MemberService).to(MemberService)
-systemContainer.bind<OrderService>(TYPES.OrderService).to(OrderService)
-systemContainer.bind<ShoppingCartService>(TYPES.ShoppingCartService).to(ShoppingCartService)
-systemContainer.bind<NotificationService>(TYPES.NotificationService).to(NotificationService)
+systemContainer.bind<Service>(TYPES.Service).to(Service).inSingletonScope();
+systemContainer.bind<GuestService>(TYPES.GuestService).to(GuestService);
+systemContainer.bind<MarketplaceService>(TYPES.MarketplaceService).to(MarketplaceService);
+systemContainer.bind<MemberService>(TYPES.MemberService).to(MemberService);
+systemContainer.bind<OrderService>(TYPES.OrderService).to(OrderService);
+systemContainer.bind<ShoppingCartService>(TYPES.ShoppingCartService).to(ShoppingCartService);
+systemContainer.bind<NotificationService>(TYPES.NotificationService).to(NotificationService);
 //controllers
-systemContainer.bind<SystemController>(TYPES.SystemController).to(SystemController).inSingletonScope()
-systemContainer.bind<ShoppingCartController>(TYPES.ShoppingCartController).to(ShoppingCartController)
-systemContainer.bind<MessageController>(TYPES.MessageController).to(MessageController)
-systemContainer.bind<UserController>(TYPES.UserController).to(UserController)
-systemContainer.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController).inSingletonScope()
-systemContainer.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController)
-systemContainer.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)
+systemContainer.bind<SystemController>(TYPES.SystemController).to(SystemController).inSingletonScope();
+systemContainer.bind<ShoppingCartController>(TYPES.ShoppingCartController).to(ShoppingCartController);
+systemContainer.bind<MessageController>(TYPES.MessageController).to(MessageController);
+systemContainer.bind<UserController>(TYPES.UserController).to(UserController);
+systemContainer.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController).inSingletonScope();
+systemContainer.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController);
+systemContainer.bind<SecurityController>(TYPES.SecurityController).to(SecurityController).inSingletonScope();
 
 //external services
 systemContainer.bind<string>("payment").toDynamicValue(() => config.env === "dev" ? "stub payment service" : " real payment")

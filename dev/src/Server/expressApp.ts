@@ -6,6 +6,7 @@ import {TYPES} from "../helpers/types";
 import {Result} from "../utilities/Result";
 import cors from "cors"
 import {PaymentService} from "../domain/external_services/PaymentService";
+import {AppRoutingModule} from "../Client/client/src/app/app-routing.module";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
@@ -639,6 +640,10 @@ app.use(sessionMiddleware);
 app.use(express.json())
 
 app.use('/', express.static(_app_folder))
+app.use('/shops', express.static(_app_folder))
+app.use('/shops/:id', express.static(_app_folder))
+app.use('/cart', express.static(_app_folder))
+app.use('/signup', express.static(_app_folder))
 // app.all('/*', function (req, res) {
 //     res.status(200).sendFile('/', {root: _app_folder})
 // })

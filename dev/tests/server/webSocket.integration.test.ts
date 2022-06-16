@@ -62,10 +62,9 @@ describe("websockets tests - basic actions", () => {
 
     })
 
-    test("connect test to socketIO", (done)=>{
+    test("connect test to socketIO", ()=>{
         client.registerCallbackForServerEvent('NewMessages', (arg)=> {
             expect(arg).toBe([simpleMessage]);
-            done()
         })
         serverEventPusher.onNewMessages([simpleMessage])
 
