@@ -73,3 +73,15 @@ export class ShopStatusChangedMessage extends Message {
         return this.content;
     }
 }
+
+export class AddedNewOffer2ShopMessage extends Message {
+
+
+    constructor(recpt: Set<string>) {
+        super(recpt);
+    }
+
+    getContent(): string {
+        return "";
+    }
+}

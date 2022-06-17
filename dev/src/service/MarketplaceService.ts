@@ -113,4 +113,11 @@ export class MarketplaceService {
             result.ok ? resolve(result) : reject(result.message);
         });
     }
+
+    addOffer2Shop (sessionId, userName:string, shopId: number, pId: number, price: number ){
+        return new Promise<Result<void>>((resolve, reject)=>{
+            let result: Result<void> = this.systemController.addOffer2Shop(sessionId, userName, shopId, pId, price);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
 }

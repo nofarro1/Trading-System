@@ -46,6 +46,7 @@ import {
     ContainerDiscountComponent
 } from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 import {Offer} from "../user/Offer";
+import {isBooleanObject, isNumberObject} from "util/types";
 
 
 export class Shop {
@@ -370,9 +371,10 @@ export class Shop {
             return this._offers.get(offerId);
     }
 
-    answerOffer(offerId: number, ownerId: string, answer: boolean): boolean{
+    answerOffer(offerId: number, ownerId: string, answer: boolean|number): boolean{
         let offer = this._offers.get(offerId);
         if(offer){
+            if(isBooleanObject(answer))
             offer.setAnswer(ownerId, answer);
             return true;
         }

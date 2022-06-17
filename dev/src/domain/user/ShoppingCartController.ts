@@ -4,6 +4,7 @@ import { ShoppingCart } from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
 import "reflect-metadata";
+import {Offer} from "./Offer";
 
 @injectable()
 export class ShoppingCartController {
@@ -120,5 +121,15 @@ export class ShoppingCartController {
         }
         logger.info(`Tried to empty ${username}'s bag in shop with id: ${shopId}, but the bag wasn't found.`);
         return new Result(true, undefined, `Tried to empty ${username}'s bag in shop with id: ${shopId}, but the bag wasn't found.`);
+    }
+
+    addOffer2cart(username: string, toAdd: Offer): Result <void>{
+        let cart = this.carts.get(username);
+        if(cart){
+            cart.addOffer(toAdd);
+            return new Result(true, undefined);
+        }
+        logger.info(`Tried to add offer to  ${username}'s cart , but the cart wasn't found.`);
+        return new Result(true, undefined, `Tried to add offer to ${username}'s cart, but the bag wasn't found.`);
     }
 }

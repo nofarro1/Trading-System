@@ -1,5 +1,5 @@
 import {MessageBox, ILLiveNotificationSubscriber} from "./MessageBox";
-import {Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message";
+import {AddedNewOffer2ShopMessage, Message, ShopPurchaseMessage, ShopStatusChangedMessage} from "./Message";
 import {IMessageListener} from "./IEventPublishers";
 import {Result} from "../../utilities/Result";
 import {inject, injectable} from "inversify";
@@ -93,6 +93,13 @@ export class MessageController implements IMessageListener<Message> {
     }
 
     visitShopStatusChangedEvent(msg: ShopStatusChangedMessage): void {
+        let recipients = msg.recipients;
+        for (let key of recipients) {
+            this.messageBoxes.get(key)?.addMessage(msg)
+        }
+    }
+
+    visitNewShopOffer(msg: AddedNewOffer2ShopMessage): void {
         let recipients = msg.recipients;
         for (let key of recipients) {
             this.messageBoxes.get(key)?.addMessage(msg)
