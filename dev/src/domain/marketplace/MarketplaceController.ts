@@ -1,5 +1,5 @@
 import {IMessageListener, IMessagePublisher} from "../notifications/IEventPublishers";
-import {ShopStatusChangedMessage} from "../notifications/Message";
+import {AddedNewOffer2ShopMessage, Message, ShopStatusChangedMessage} from "../notifications/Message";
 import {Shop} from "./Shop";
 import {Result} from "../../utilities/Result";
 import {Product} from "./Product";
@@ -27,7 +27,7 @@ import {
 import {Offer} from "../user/Offer";
 
 @injectable()
-export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage> {
+export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage | AddedNewOffer2ShopMessage> {
 
     private _shops: Map<number, Shop>;
     private _shopCounter: number;
@@ -408,7 +408,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         let shop = this._shops.get(shopId);
         if(shop){
             let offer = shop.addOfferPrice2Product(userId, pId, offeredPrice);
-            logger.info(`User with id: ${userId} submitted an price offer on product with id: ${pId}.`)
+            logger.info(`User with id: ${userId} submitted an price offer on product with id: ${pId}.`);
+            this.notifySubscribers(new AddedNewOffer2ShopMessage(shop.shopOwners))
             return new Result(true, offer);
         }
         logger.error(`Couldn't submit offer to shop with id: ${shopId} because the shop not found in market`);
@@ -490,7 +491,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    notifySubscribers(message: ShopStatusChangedMessage) {
+    notifySubscribers(message: Message) {
         if (this.subscribers !== null)
             for (let sub of this.subscribers) {
                 this.accept(sub, message);
@@ -499,8 +500,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     }
 
-    accept(v: IMessageListener<ShopStatusChangedMessage>, msg: ShopStatusChangedMessage) {
-        v.visitShopStatusChangedEvent(msg);
+    accept(v: IMessageListener<Message>, msg: Message) {
+        v.visitShopStatusChangedEvent(msg as ShopStatusChangedMessage);
     }
 
     getDiscounts(shopId: number) {

@@ -16,9 +16,9 @@ export class LiveNotificationClient {
             console.log("connection to server established")
         });
 
-        this._ioClient.on('NewMessage', (socket:Socket)=>{
-            console.log("received new message from server");
-        })
+        // this._ioClient.on('NewMessages', (socket:Socket)=>{
+        //     console.log("received new message from server");
+        // })
 
         this._ioClient.on('disconnect', ()=>{
             console.log("live notification disabled")
