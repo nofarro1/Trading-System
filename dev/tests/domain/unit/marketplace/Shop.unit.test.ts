@@ -27,6 +27,7 @@ import {
 } from "../../../../src/domain/marketplace/DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
 
 import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../../../mockHelper";
+import {Offer} from "../../../../src/domain/user/Offer";
 
 describe('SimpleShop- products', function() {
 
@@ -223,10 +224,6 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-        //     s1.discounts.set(s1.discountCounter, disc)
-        //     return s1.discountCounter++;
-        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 1);
@@ -259,10 +256,6 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-        //     s1.discounts.set(s1.discountCounter, disc)
-        //     return s1.discountCounter++;
-        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 1);
@@ -294,10 +287,6 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-        //     s1.discounts.set(s1.discountCounter, disc)
-        //     return s1.discountCounter++;
-        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 1);
@@ -328,10 +317,6 @@ describe('SimpleShop- products', function() {
             s1.productsCounter++;
             return p;
         })
-        // const mock_addDiscount = mockMethod(Shop.prototype, "addDiscount", (disc)=> {
-        //     s1.discounts.set(s1.discountCounter, disc)
-        //     return s1.discountCounter++;
-        // })
 
         let bag = new ShoppingBag(0);
         bag.addProduct(p1, 1);
@@ -365,10 +350,6 @@ describe('SimpleShop- products', function() {
             cart.bags.set(p.shopId,bag);
             return p;
         })
-        // const mock_addPurchase = mockMethod(Shop.prototype, "addPurchasePolicy", (purchase)=> {
-        //     s1.purchasePolicies.set(s1.productsCounter, purchase)
-        //     return s1.purchaseCounter++;
-        // })
 
         let cart = new ShoppingCart();
         cart.addProduct(p1, 2);
@@ -393,10 +374,6 @@ describe('SimpleShop- products', function() {
             cart.bags.set(p.shopId,bag);
             return p;
         })
-        // const mock_addPurchase = mockMethod(Shop.prototype, "addPurchasePolicy", (purchase)=> {
-        //     s1.purchasePolicies.set(s1.productsCounter, purchase)
-        //     return s1.purchaseCounter++;
-        // })
 
         let cart = new ShoppingCart();
         cart.addProduct(p1, 6);
@@ -410,16 +387,13 @@ describe('SimpleShop- products', function() {
         clearMocks(mock_can, mock_addProduct);
     })
 
-    // test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
-    //     let cart = new ShoppingCart();
-    //     cart.addProduct(p1, 5);
-    //     let bag = cart.bags.get(0);
-    //     let user = new Guest("1");
-    //     let simplePolicy = new SimplePurchase(SimplePolicyType.Category, p1.category, RelationType.Equal, 5,"The quantity of 'ski' cheese is more the 5.");
-    //     s1.addPurchasePolicy(simplePolicy);
-    //     let ans = s1.canMakePurchase([bag, user]);
-    //     expect(ans.ok).toBe(true);
-    // })
+
+    test("addOfferPrice2Product", ()=>{
+        let offer: Offer = s1.addOfferPrice2Product("nofar", 0, 4.5 );
+        expect(s1.offers.get(0)).toBe(offer);
+        expect(s1.offersArray).toContain(offer);
+        expect(s1.offerCounter).toBe(1);
+    } )
 })
 
 

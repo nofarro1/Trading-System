@@ -114,9 +114,23 @@ export class MarketplaceService {
         });
     }
 
-    addOffer2Shop (sessionId, userName:string, shopId: number, pId: number, price: number ){
+    addOffer2Shop (sessionId, shopId: number, pId: number, price: number ){
         return new Promise<Result<void>>((resolve, reject)=>{
-            let result: Result<void> = this.systemController.addOffer2Shop(sessionId, userName, shopId, pId, price);
+            let result: Result<void> = this.systemController.addOffer2Shop(sessionId, shopId, pId, price);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+
+    filingCounterOffer(sessionId: string, shopId: number, offerId: number, counterPrice: number){
+        return new Promise<Result<void>>((resolve, reject)=>{
+            let result: Result<void> = this.systemController.filingCounterOffer(sessionId, shopId, offerId, counterPrice);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+
+    denyCounterOffer(sessionId: string, shopId: number, offerId: number){
+        return new Promise<Result<void>>((resolve, reject)=>{
+            let result: Result<void> = this.systemController.denyCounterOffer(sessionId, shopId, offerId);
             result.ok ? resolve(result) : reject(result.message);
         })
     }

@@ -24,6 +24,8 @@ import {
 import {systemContainer} from "../../../src/helpers/inversify.config";
 import {TYPES} from "../../../src/helpers/types";
 import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../../mockHelper";
+import {Offer} from "../../../src/domain/user/Offer";
+import {AddedNewOffer2ShopMessage} from "../../../src/domain/notifications/Message";
 
 
 describe('system controller - unit', () => {
@@ -97,6 +99,7 @@ describe('system controller - unit', () => {
         mockInstance(mockDependencies.NotificationController)
 
         pControllerMockMethod = mockMethod(MarketplaceController.prototype, 'subscribe', () => {
+            sys.mpController.subscribers.push(sys.mController);
             console.log(`subscribe has been called for marketplace`);
         })
 
@@ -1440,6 +1443,14 @@ describe('system controller - unit', () => {
 
     test("swap external connection service", () => {
 
+    })
+
+    test("add offer to shop", ()=>{
+        const mock_addOffer = mockMethod(MarketplaceController.prototype, "addOffer2Product", (shopId:number, userId: string, pId: number, offeredPrice: number )=>{
+                mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners))
+        })
+        sys.addOffer2Shop(member1.session, member1.username, shop1.id, p1.id, 4.5);
+        expect(box1.getAllMessages()).toHaveLength(1);
     })
 
 })

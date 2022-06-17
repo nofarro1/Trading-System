@@ -5,6 +5,11 @@ import {Range} from "../../../../src/utilities/Range";
 import {mockDependencies, mockInstance, mockMethod} from "../../../mockHelper";
 import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Result} from "../../../../src/utilities/Result";
+import {Offer} from "../../../../src/domain/user/Offer";
+import {Member} from "../../../../src/domain/user/Member";
+import {MessageController} from "../../../../src/domain/notifications/MessageController";
+import {SecurityController} from "../../../../src/domain/SecurityController";
+import {UserController} from "../../../../src/domain/user/UserController";
 
 let controller: MarketplaceController;
 let shop_res: Result<void | Shop>;
@@ -211,9 +216,9 @@ describe("MarketPlaceController", ()=>{
         let shop_1 = shop_res;
         let shop_2 = controller.setUpShop("NofarShop", "Nofar's shop");
         if( shop_1.data && shop_2.data){
-            let p1_res = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.9,undefined ,"Yami cheesy");
-            let p2_res = controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9, undefined ,"Yami chees");
-            let p3_res = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 5.9, undefined ,"Yami cheesyyy");
+            let p1_res = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.9,"Yami cheesy");
+            let p2_res = controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9, "Yami chees");
+            let p3_res = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 5.9, "Yami cheesyyy");
             let search_res = controller.searchProduct(SearchType.keyword, "chees");
             if(p1_res.data && p2_res.data && p3_res.data && search_res.data){
                 expect(search_res.data.length).toBe(3);
@@ -225,9 +230,9 @@ describe("MarketPlaceController", ()=>{
         let shop_1 = shop_res;
         let shop_2 = controller.setUpShop("NofarShop", "Nofar's shop");
         if( shop_1.data && shop_2.data) {
-            let p1 = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.2, undefined, "Yami cheesy").data;
-            let p2 = controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9, undefined, "Yami chees").data;
-            let p3 = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 6, undefined, "Yami cheesyyy").data;
+            let p1 = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.2, "Yami cheesy").data;
+            let p2 = controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9,  "Yami chees").data;
+            let p3 = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 6, "Yami cheesyyy").data;
             if( p1 && p2 && p3){
                 let filter_res = controller.filterProducts(FilterType.price, new Range(5, 5.9), [p1, p2, p3]);
                 if(filter_res.data){
@@ -241,9 +246,9 @@ describe("MarketPlaceController", ()=>{
         let shop_1 = shop_res;
         let shop_2 = controller.setUpShop("NofarShop", "Nofar's shop");
         if( shop_1.data && shop_2.data) {
-            let p1 = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.9, undefined, "Yami cheesy").data;
-            let p2 = controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9, undefined, "Yami chees").data;
-            let p3 = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 5.9, undefined, "Yami cheesyyy").data;
+            let p1 = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.9,  "Yami cheesy").data;
+            let p2 = controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9,  "Yami chees").data;
+            let p3 = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 5.9,  "Yami cheesyyy").data;
             if( p1 && p2 && p3){
                 let filter_res = controller.filterProducts(FilterType.category, ProductCategory.A, [p1, p2, p3]);
                 if(filter_res.data){
@@ -253,5 +258,21 @@ describe("MarketPlaceController", ()=>{
         }
     })
 
+    test("addOffer2Product", ()=>{
+        const mock_addOffer = mockMethod(Shop.prototype, "addOfferPrice2Product", (userId: string, pId: number, offeredPrice: number )=>{
+            if(shop){
+                shop.offers.set(0, new Offer(0, userId, shop.id, pId, offeredPrice, shop.shopOwners));
+            }
+
+        })
+        let shop = shop_res.data;
+        if (shop){
+            shop.addOfferPrice2Product("nofarRoz", 0,4.5);
+        }
+        let userController = new UserController();
+        let res_Ofir = userController.addMember("ofirSession", "OfirPovi");
+        let messageController = new MessageController(new SecurityController());
+        expect(messageController.getMessages("OfirPovi").data).not.toHaveLength(1);
+    })
 
 })

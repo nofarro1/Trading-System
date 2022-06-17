@@ -734,12 +734,37 @@ export class SystemController {
         })
     }
 
-    addOffer2Shop(sessionId, userName: string, shopId: number, pId: number, price: number) : Result<void>{
+    addOffer2Shop(sessionId, shopId: number, pId: number, price: number) : Result<void>{
         return this.authenticateMarketVisitor(sessionId, (username) => {
-            let offer: Result<void | Offer> = this.mpController.addOffer2Product(shopId, userName, pId, price);
+            let offer: Result<void | Offer> = this.mpController.addOffer2Product(shopId, username, pId, price);
             if(checkRes(offer)){
                 return this.scController.addOffer2cart(username, offer.data);
             }
         })
     }
+
+    approveOffer(sessionId: string, shopId: number, offerId: number, answer: boolean) :Result<void>{
+        return this.authenticateMarketVisitor(sessionId, (username)=>{
+           return this.mpController.approveOffer(shopId, offerId, username, answer);
+        });
+    }
+
+    filingCounterOffer(sessionId: string, shopId: number, offerId: number, counterPrice: number){
+        return this.authenticateMarketVisitor(sessionId, (username)=>{
+            return this.mpController.filingCounterOffer(shopId, offerId, username, counterPrice);
+        })
+    }
+
+    denyCounterOffer(sessionId: string, shopId: number, offerId: number): Result<void>{
+        return this.authenticateMarketVisitor(sessionId, ()=>{
+            return this.mpController.denyCounterOffer(shopId, offerId);
+        })
+    }
+
+    acceptCounterOffer(sessionId: string, shopId: number, offerId: number): Result<void>{
+        return this.authenticateMarketVisitor(sessionId, (username)=>{
+            return this.mpController.acceptCounterOffer(shopId, offerId);
+        })
+    }
+
 }

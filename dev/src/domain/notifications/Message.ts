@@ -85,3 +85,12 @@ export class AddedNewOffer2ShopMessage extends Message {
         return "";
     }
 }
+
+export class counterOfferMessage extends Message {
+    constructor(username: string){
+        super(new Set(username));
+    }
+    getContent(): string {
+        return "";
+    }
+}

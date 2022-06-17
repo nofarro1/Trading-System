@@ -3,8 +3,8 @@ export class Offer{
     private readonly _user: string;
     private readonly _shopId: number;
     private readonly _pId: number;
-    private readonly _price: number;
-    private _approvers: Map<string, boolean>;
+    private _price: number;
+    private _approves: Map<string, boolean>;
     private _answer: boolean;
 
     constructor(id: number, userId: string, shopId: number,  pId: number, price: number, approvers: Set<string>){
@@ -13,9 +13,9 @@ export class Offer{
         this._shopId = shopId;
         this._pId= pId;
         this._price= price;
-        this._approvers = new Map<string, boolean>();
+        this._approves = new Map<string, boolean>();
         for (let owner of approvers){
-            this._approvers.set(owner, false)
+            this._approves.set(owner, false)
         }
         this._answer= true;
     }
@@ -23,6 +23,11 @@ export class Offer{
 
     get id(): number {
         return this._id;
+    }
+
+
+    get user(): string {
+        return this._user;
     }
 
     get shopId(): number {
@@ -37,23 +42,34 @@ export class Offer{
         return this._price;
     }
 
+    set price(value: number) {
+        this._price = value;
+    }
+
     get answer(): boolean {
         return this._answer;
     }
 
     setAnswer(userId: string, value: boolean) {
-        if(this._approvers.has(userId)){
+        if(this._approves.has(userId)){
             this._answer = this._answer && value;
-            this._approvers.set(userId, true);
+            this._approves.set(userId, true);
         }
         throw new Error("Only a shop owner can approve a price offer.")
     }
 
     isDone(){
-        return [...this._approvers.values()].reduce((acc:boolean, curr:boolean)=> acc&&curr);
+        return [...this._approves.values()].reduce((acc:boolean, curr:boolean)=> acc&&curr);
     }
 
-    set approvers(value: Map<string, boolean>) {
-        this._approvers = value;
+    set approves(value: Map<string, boolean>) {
+        this._approves = value;
     }
+
+    resetApproves(){
+        for (let i=0; i< this._approves.size; i++ ){
+            this._approves[i]= false;
+        }
+    }
+
 }

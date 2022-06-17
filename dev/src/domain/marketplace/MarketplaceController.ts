@@ -1,5 +1,10 @@
 import {IMessageListener, IMessagePublisher} from "../notifications/IEventPublishers";
-import {AddedNewOffer2ShopMessage, Message, ShopStatusChangedMessage} from "../notifications/Message";
+import {
+    AddedNewOffer2ShopMessage,
+    counterOfferMessage,
+    Message,
+    ShopStatusChangedMessage
+} from "../notifications/Message";
 import {Shop} from "./Shop";
 import {Result} from "../../utilities/Result";
 import {Product} from "./Product";
@@ -455,6 +460,45 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result (false, undefined, `Couldn't returned offer to shop with id: ${shopId} because the shop not found in market`)
     }
 
+    filingCounterOffer(shopId: number, offerId: number, username: string, counterPrice: number): Result<void>{
+        this.approveOffer(shopId, offerId,username, false);
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let offer = shop.filingCounterOffer(offerId, counterPrice);
+            this.notifySubscribers(new counterOfferMessage(offer.user));
+            logger.info(`${username} filing a counter-offer to offer with id ${offer.id} in shop with id ${offer.shopId}`);
+            return new Result<void>(true, undefined);
+        }
+        logger.info(`${username} couldn't filing a counter-offer to offer with id ${offerId} because shop the shop was not found in market.`);
+        return new Result<void>(false, undefined, `${username} couldn't filing a counter-offer to offer with id ${offerId} because shop the shop was not found in market.`);
+    }
+
+    denyCounterOffer(shopId: number, offerId: number): Result<void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let userOffer = shop.getOffer(offerId).user;
+            shop.removeOffer(offerId);
+            logger.info(`${userOffer} denied the counter-offer made on his bid with id: ${offerId}.`)
+            return new Result(true, undefined);
+        }
+        logger.error(`Cannot denied counter-offer because the shop not found in market`);
+        return new Result (false, undefined, `Cannot accept counter-offer because the shop not found in market`)
+    }
+
+    acceptCounterOffer(shopId, offerId: number): Result<void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let userOffer = shop.getOffer(offerId).user;
+            shop.acceptCounterOffer(offerId);
+            this.notifySubscribers(new AddedNewOffer2ShopMessage(shop.shopOwners));
+            logger.info(`${userOffer} accepted the counter-offer made on his bid with id: ${offerId}.`)
+            return new Result(true, undefined);
+        }
+        logger.error(`Cannot accept counter-offer because the shop not found in market`);
+        return new Result (false, undefined, `Cannot accept counter-offer because the shop not found in market`)
+    }
+
+
 
     // visitPurchaseEvent(msg: ShopPurchaseMessage): void {
     //     // logger.info(`"ShopPurchaseMessage" was received in marketPlaceController.`);
@@ -511,4 +555,6 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     getPolicies(shopId: number) {
         return null
     }
+
+
 }
