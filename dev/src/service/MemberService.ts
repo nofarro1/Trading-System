@@ -86,7 +86,7 @@ export class MemberService {
 
     approveOffer(sessionId: string, username: string, shopId:number, offerId: number, answer: boolean){
         return new Promise <Result<void>>((resolve, reject)=>{
-            let result: Result<void> = this.systemController.approveOffer(sessionId, username, shopId, offerId, answer);
+            let result: Result<void> = this.systemController.approveOffer(sessionId, shopId, offerId, answer);
             result.ok ? resolve(result) : reject(result.message);
         })
     }

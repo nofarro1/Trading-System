@@ -96,7 +96,14 @@ describe('system controller - unit', () => {
         //user
         mockInstance(mockDependencies.UserController)
         //notification
-        mockInstance(mockDependencies.NotificationController)
+        mockInstance(mockDependencies.NotificationController);
+
+        sys = systemContainer.get<SystemController>(TYPES.SystemController)
+        mpController = sys.mpController
+        mController = sys.mController
+        pController = sys.pController
+        scController = sys.securityController
+        uController = sys.uController
 
         pControllerMockMethod = mockMethod(MarketplaceController.prototype, 'subscribe', () => {
             sys.mpController.subscribers.push(sys.mController);
@@ -111,12 +118,7 @@ describe('system controller - unit', () => {
             return id;
         })
 
-        sys = systemContainer.get<SystemController>(TYPES.SystemController)
-        mpController = sys.mpController
-        mController = sys.mController
-        pController = sys.pController
-        scController = sys.securityController
-        uController = sys.uController
+
     })
 
     beforeEach(() => {
@@ -136,7 +138,8 @@ describe('system controller - unit', () => {
         cart5 = new ShoppingCart()
         member2 = new Member(sess5, username2)
         box2 = new MessageBox(username1);
-
+        mController.messageBoxes.set(username1, box1);
+        mController.messageBoxes.set(username2, box2);
     })
 
     afterEach(() => {
@@ -1445,9 +1448,10 @@ describe('system controller - unit', () => {
 
     })
 
-    test("add offer to shop", ()=>{
+    test("add offer to shop - testing notification to user", ()=>{
         const mock_addOffer = mockMethod(MarketplaceController.prototype, "addOffer2Product", (shopId:number, userId: string, pId: number, offeredPrice: number )=>{
                 mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners))
+            return Result.Ok(new Offer(0,userId, shopId, pId,offeredPrice, shop1.shopOwners))
         })
         sys.addOffer2Shop(member1.session, shop1.id, p1.id, 4.5);
         expect(box1.getAllMessages()).toHaveLength(1);
