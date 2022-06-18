@@ -1449,7 +1449,7 @@ describe('system controller - unit', () => {
         const mock_addOffer = mockMethod(MarketplaceController.prototype, "addOffer2Product", (shopId:number, userId: string, pId: number, offeredPrice: number )=>{
                 mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners))
         })
-        sys.addOffer2Shop(member1.session, member1.username, shop1.id, p1.id, 4.5);
+        sys.addOffer2Shop(member1.session, shop1.id, p1.id, 4.5);
         expect(box1.getAllMessages()).toHaveLength(1);
     })
 
