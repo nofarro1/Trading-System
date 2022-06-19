@@ -2,14 +2,16 @@ import {Product} from "../../../../src/domain/marketplace/Product";
 import {FilterType, ProductCategory, SearchType, ShopStatus} from "../../../../src/utilities/Enums";
 import {MarketplaceController} from "../../../../src/domain/marketplace/MarketplaceController";
 import {Range} from "../../../../src/utilities/Range";
-import {mockDependencies, mockInstance, mockMethod} from "../../../mockHelper";
+import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../../../mockHelper";
 import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Result} from "../../../../src/utilities/Result";
 import {Offer} from "../../../../src/domain/user/Offer";
-import {Member} from "../../../../src/domain/user/Member";
 import {MessageController} from "../../../../src/domain/notifications/MessageController";
 import {SecurityController} from "../../../../src/domain/SecurityController";
 import {UserController} from "../../../../src/domain/user/UserController";
+import {Member} from "../../../../src/domain/user/Member";
+import mock = jest.mock;
+import {Message} from "../../../../src/domain/notifications/Message";
 
 let controller: MarketplaceController;
 let shop_res: Result<void | Shop>;
@@ -261,18 +263,63 @@ describe("MarketPlaceController", ()=>{
     test("addOffer2Product", ()=>{
         const mock_addOffer = mockMethod(Shop.prototype, "addOfferPrice2Product", (userId: string, pId: number, offeredPrice: number )=>{
             if(shop){
-                shop.offers.set(0, new Offer(0, userId, shop.id, pId, offeredPrice, shop.shopOwners));
+                let offer: Offer = new Offer(0, userId, shop.id, pId, offeredPrice, shop.shopOwners);
+                shop.offers.set(0, offer);
+                return offer;
             }
+        })
+        let shop = shop_res.data;
+        let userController = new UserController();
+        userController.members.set("OfirPovi", new Member("ofirSession", "OfirPovi"));
+        let messageController = new MessageController(new SecurityController());
+        if (shop){
+            controller.addOffer2Product(shop.id, "NofarRoz", 0,4.5 )
+        }
+        let res:Result<Message[]> = messageController.getMessages("OfirPovi");
+        expect(res.data).not.toHaveLength(1);
+        expect(res.data.pop().getContent()).toEqual(`Hello Owner, we would like to notify you that a bid on product with id: 0 as been filing in Ofir's shop shop.`)
+        clearMocks(mock_addOffer);
+    })
 
+    test("getOffer" , ()=>{
+        const mock_addOffer = mockMethod(Shop.prototype, "addOfferPrice2Product", (userId: string, pId: number, offeredPrice: number )=>{
+            if(shop){
+                let offer = new Offer(0, userId, shop.id, pId, offeredPrice, shop.shopOwners);
+                shop.offers.set(0, offer);
+                return offer
+            }
         })
         let shop = shop_res.data;
         if (shop){
-            shop.addOfferPrice2Product("nofarRoz", 0,4.5);
+            let offer = shop.addOfferPrice2Product("NofarRoz", 0,4.5);
+            expect(controller.getOffer(shop.id, offer.id).data).toEqual(offer);
         }
+        clearMocks(mock_addOffer);
+    })
+
+    test("approveOffer", ()=>{
+        const mock_answerOffer = mockMethod(Shop.prototype, "answerOffer", ()=>{});
+        controller.approveOffer(0, 0, "NofarRoz",true);
+        expect(mock_answerOffer).toHaveBeenCalled();
+        clearMocks(mock_answerOffer);
+    })
+
+    test("addOffer2Product", ()=>{
+        const mock_fCounterOffer = mockMethod(Shop.prototype, "filingCounterOffer", (userId: string, pId: number, offeredPrice: number )=>{
+            if(shop){
+                return new Offer(0, userId, shop.id, pId, offeredPrice, shop.shopOwners);
+            }
+        })
+        let shop = shop_res.data;
         let userController = new UserController();
-        let res_Ofir = userController.addMember("ofirSession", "OfirPovi");
+        userController.members.set("OfirPovi", new Member("ofirSession", "OfirPovi"));
         let messageController = new MessageController(new SecurityController());
-        expect(messageController.getMessages("OfirPovi").data).not.toHaveLength(1);
+        if (shop){
+            controller.addOffer2Product(shop.id, "NofarRoz", 0,4.5 )
+        }
+        let res = messageController.getMessages("OfirPovi");
+        expect(res.data).not.toHaveLength(1);
+        clearMocks(mock_fCounterOffer);
     })
 
 })

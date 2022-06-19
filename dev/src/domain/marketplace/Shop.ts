@@ -8,17 +8,13 @@ import {
 import {Answer} from "../../utilities/Types";
 import {Guest} from "../user/Guest";
 import {
-    ConditionalDiscountData,
-    ContainerDiscountData,
-    ContainerPurchaseData,
     DiscountData,
     ImmediatePurchaseData,
     isConditionalDiscount,
     isContainerDiscount, isContainerPurchaseData,
     isSimpleDiscount,
     isSimplePurchaseData,
-    SimpleDiscountData,
-    SimplePurchaseData
+
 } from "../../utilities/DataObjects";
 import {SimpleDiscount} from "./DiscountAndPurchasePolicies/leaves/SimpleDiscount";
 import {PredicateDiscountPolicy} from "./DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
@@ -46,7 +42,7 @@ import {
     ContainerDiscountComponent
 } from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 import {Offer} from "../user/Offer";
-import {isBooleanObject, isNumberObject} from "util/types";
+
 
 
 export class Shop {
@@ -382,19 +378,21 @@ export class Shop {
             return this._offers.get(offerId);
     }
 
-    answerOffer(offerId: number, ownerId: string, answer: boolean|number): boolean{
+    answerOffer(offerId: number, ownerId: string, answer: boolean){
         let offer = this._offers.get(offerId);
         if(offer){
-            if(isBooleanObject(answer))
-            offer.setAnswer(ownerId, answer);
-            return true;
+                offer.setAnswer(ownerId, answer);
+                return true;
         }
         return false;
     }
 
     filingCounterOffer(offerId: number, counterOffer){
         let offer = this._offers.get(offerId);
-        offer? offer.price=counterOffer : undefined;
+        if(offer){
+            offer.price=counterOffer;
+            offer.resetApproves();
+        }
         return offer;
     }
 
@@ -408,8 +406,6 @@ export class Shop {
         for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
         return productsList;
     }
-
-
 
     private discData2Component (disc: DiscountData): DiscountComponent {
         if (isSimpleDiscount(disc)) {

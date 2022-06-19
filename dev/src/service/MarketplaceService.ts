@@ -7,6 +7,7 @@ import {ProductCategory, SearchType} from "../utilities/Enums";
 import {inject, injectable} from "inversify";
 import {TYPES} from './../helpers/types';
 import "reflect-metadata";
+import {Offer} from "../domain/user/Offer";
 
 @injectable()
 export class MarketplaceService {
@@ -128,9 +129,9 @@ export class MarketplaceService {
         })
     }
 
-    denyCounterOffer(sessionId: string, shopId: number, offerId: number){
+    denyCounterOffer(sessionId: string, username: string  , shopId: number, offerId: number){
         return new Promise<Result<void>>((resolve, reject)=>{
-            let result: Result<void> = this.systemController.denyCounterOffer(sessionId, shopId, offerId);
+            let result: Result<void> = this.systemController.denyCounterOffer(sessionId, username, shopId, offerId);
             result.ok ? resolve(result) : reject(result.message);
         })
     }

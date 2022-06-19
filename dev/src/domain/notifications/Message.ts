@@ -1,4 +1,5 @@
 import {UUIDGenerator} from "../../utilities/Utils";
+import {Offer} from "../user/Offer";
 
 export abstract class Message {
     id: string
@@ -66,7 +67,7 @@ export class ShopStatusChangedMessage extends Message {
     constructor(status: boolean, shopOwners:Set<string>, shopName: string) {
         super(shopOwners)
         this.recipients = shopOwners;
-        this.content = `hello Owner, We would like to notify you that the shop founder of '${shopName} ${status === true ? `opened the shop for business` : `closed the shop temporarily`}`
+        this.content = `Hello Owner, We would like to notify you that the shop founder of '${shopName} ${status === true ? `opened the shop for business` : `closed the shop temporarily`}`
     }
 
     getContent(): string {
@@ -75,20 +76,23 @@ export class ShopStatusChangedMessage extends Message {
 }
 
 export class AddedNewOffer2ShopMessage extends Message {
+    content: string;
 
-
-    constructor(recpt: Set<string>) {
+    constructor(recpt: Set<string>, offer: Offer, shopName: string) {
         super(recpt);
+        this.content = `Hello Owner, we would like to notify you that a bid on product with id: ${offer.id} as been filing in ${shopName} shop.`
     }
 
     getContent(): string {
-        return "";
+        return this.content;
     }
 }
 
 export class counterOfferMessage extends Message {
-    constructor(username: string){
-        super(new Set(username));
+    content: string;
+    constructor(offer: Offer, shopName: string){
+        super(new Set(offer.user));
+        this.content = `Hello ${offer.user}, we would like to notify you that a counter bid has been placed on the bid you submitted on for the product with id: ${offer.pId} in ${shopName} shop.\n The new bid is ${offer.price}.`
     }
     getContent(): string {
         return "";

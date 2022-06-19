@@ -1449,12 +1449,17 @@ describe('system controller - unit', () => {
     })
 
     test("add offer to shop - testing notification to user", ()=>{
-        const mock_addOffer = mockMethod(MarketplaceController.prototype, "addOffer2Product", (shopId:number, userId: string, pId: number, offeredPrice: number )=>{
-                mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners))
-            return Result.Ok(new Offer(0,userId, shopId, pId,offeredPrice, shop1.shopOwners))
+        const mock_addOffer2shop = mockMethod(MarketplaceController.prototype, "addOffer2Product", (shopId:number, userId: string, pId: number, offeredPrice: number )=>{
+                let offer =    new Offer(0,userId, shopId, pId,offeredPrice, shop1.shopOwners);
+                mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners, offer, shop1.name));
+            return Result.Ok(offer)
         })
+        const mock_addOffer2cart = mockMethod(ShoppingCartController.prototype, "addOffer2cart", ()=>{});
         sys.addOffer2Shop(member1.session, shop1.id, p1.id, 4.5);
         expect(box1.getAllMessages()).toHaveLength(1);
+        expect(mock_addOffer2cart).toHaveBeenCalled();
+        clearMocks(mock_addOffer2shop, mock_addOffer2cart);
     })
+
 
 })
