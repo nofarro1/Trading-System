@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { api } from 'src/backendService/Service';
 
 @Component({
   selector: 'app-menu',
@@ -9,8 +10,7 @@ export class MenuComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
-  }
+  async ngOnInit() {}
 
   clickedShops(){
   }

@@ -1,5 +1,7 @@
+import { JsonpClientBackend } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ReplaySubject, takeUntil } from 'rxjs';
 import { api } from 'src/backendService/Service';
 
@@ -18,6 +20,7 @@ export class SignupComponent implements OnInit, OnDestroy {
   countries: any = countries;
   selectedCountry: Country;
 
+  session: string|undefined;
   username: string;
   password: string;
   firstName: string;
@@ -29,9 +32,15 @@ export class SignupComponent implements OnInit, OnDestroy {
   constructor(
     private service: api,
     private formBuilder: FormBuilder,
+    private route: ActivatedRoute
     ){}
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      this.session = params.get('session') || undefined; // Print the parameter to the console. 
+      console.log("session = " + this.session); // Print the parameter to the console. 
+  });
+
     const emailValidation = Validators.pattern(
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
     const passwordValidation = Validators.pattern(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/)
@@ -46,17 +55,22 @@ export class SignupComponent implements OnInit, OnDestroy {
     });
   }
 
-  register(){
+  async register(){
     this.submitted = true;
-    console.log('register');
     this.username = this.form.get('username')?.value;
     this.password = this.form.get('password')?.value;
-    this.firstName = this.form.get('firstName')?.value;
-    this.lastName = this.form.get('lastName')?.value;
+    this.firstName = this.form.get('firstname')?.value;
+    this.lastName = this.form.get('lastname')?.value;
     this.email = this.form.get('email')?.value;
     this.country = this.form.get('country')?.value;
+    console.log(`username: ${this.username}, password: ${this.password}, firstName: ${this.firstName}, lastName: ${this.lastName}, email: ${this.email}, country: ${this.country}`);
 
-    this.service.register(this.username, this.password, this.firstName, this.lastName, this.email, this.country)
+    let member = await this.service.register(this.session, this.username, this.password, this.firstName, this.lastName, this.email, this.country).then((value) => value? value : undefined);
+    console.log("member = " + member);
+    if (member){
+      await this.service.login(this.username, this.password).then(value => value ? console.log("member registered and logged in") : console.log("not logged in"));
+    }
+
   };
 
   ngOnDestroy() {

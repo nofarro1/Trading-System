@@ -1,5 +1,14 @@
-<app-login (logged)="userLogged($event)" *ngIf="!isLoggedIn"></app-login>
-<app-logout *ngIf="isLoggedIn"></app-logout>
-<app-menu></app-menu>
-<router-outlet></router-outlet>
+<div class="login">
+  <app-login
+    [session]="session"
+    (logged)="userLogged($event)"
+    *ngIf="!isLoggedIn"
+  ></app-login>
+  <app-register [session]="session"></app-register>
+</div>
+›
 
+<app-menu></app-menu>
+
+<app-logout *ngIf="isLoggedIn"></app-logout>
+<router-outlet></router-outlet>

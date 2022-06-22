@@ -7,6 +7,7 @@ import {Result} from "../utilities/Result";
 import cors from "cors"
 import {PaymentService} from "../domain/external_services/PaymentService";
 import {AppRoutingModule} from "../Client/client/src/app/app-routing.module";
+import { logger } from "../helpers/logger";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
@@ -29,9 +30,11 @@ router.get('/check', (req, res) => {
 //access marketpalce - return the index.html in the future
 router.get('/access', async (req, res) => {
     let sessId = req.session.id;
+    logger.warn("[in access - expressApp]");
     try {
-        console.log("guest " + sessId + " accessed marketplace");
+        console.log("guest " + sessId + " try to access marketplace");
         let guest = await service.accessMarketplace(sessId);
+        
 
         req.socket.on("disconnect", async () => {
             console.log(`client ${sessId} disconnected`);
@@ -62,14 +65,18 @@ router.get('/access', async (req, res) => {
  */
 router.post('/guest/register', async (req, res) => {
     try {
-        let sessId = req.session.id;
+        let sessId = req.body.session;
         let username = req.body.username;
         let password = req.body.password;
         let firstName = req.body.firstName;
         let lastName = req.body.lastName;
         let email = req.body.email;
         let country = req.body.country;
+        logger.warn("[/guest/register] start with username and password: " + username);
+        logger.info(`seesId = ${sessId}`);
         let ans = await service.register(sessId, username, password, firstName, lastName, email, country)
+        logger.warn("[/guest/register] after service.register");
+        console.log("end /guest/register - ans returned : " + ans.data);
         res.status(201);
         res.send(ans);
     } catch (e: any) {

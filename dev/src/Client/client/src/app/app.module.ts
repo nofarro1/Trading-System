@@ -21,6 +21,8 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import { HttpClientModule} from '@angular/common/http';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
+import {InputTextModule} from 'primeng/inputtext';
+import { RegisterComponent } from './register/register.component';
 
 const apiConfig: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
@@ -41,7 +43,9 @@ const config: SocketIoConfig = {
     ShopComponent,
     CartComponent,
     LogoutComponent,
-    SignupComponent,  ],
+    SignupComponent,
+    RegisterComponent
+    ],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -54,7 +58,8 @@ const config: SocketIoConfig = {
     BrowserAnimationsModule,
     MultiSelectModule,
     HttpClientModule,
-    SocketIoModule.forRoot(apiConfig)
+    SocketIoModule.forRoot(apiConfig),
+    InputTextModule
   ],
   providers: [],
   bootstrap: [AppComponent]

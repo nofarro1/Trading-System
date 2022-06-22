@@ -1,9 +1,26 @@
-<div class="login" >
-  <input type="text" placeholder="Username" #Username>
-  <input type="password" placeholder="Password" #Password>
-  <div class="btngroup">
-  <button name="loginbtn" (click)="loginClick(Username.value,Password.value)">Login</button>
-    <a href="/signup"><button name="signupbtn">Sign-Up</button></a>
-  <button name="initbtn">Init System</button>
-  </div>
-</div>
+  <ng-container class="container btngroup">
+    <input
+      [disabled]="disable"
+      type="text"
+      pInputText
+      placeholder="Username"
+      [(ngModel)]="username"
+      #Username
+    />
+    <input
+      [disabled]="disable"
+      type="password"
+      pInputText
+      placeholder="Password"
+      [(ngModel)]="password"
+      #Password
+    />
+      <p-button
+        class="btn-primary btn"
+        name="loginbtn"
+        [disabled]="username === '' || password === '' || disable"
+        (click)="loginClick(Username.value, Password.value)"
+        >Login</p-button
+      >
+      <!-- <a href="/signup"><button name="signupbtn">Sign-Up</button></a> -->
+    </ng-container> 

@@ -42,9 +42,8 @@ export class SecurityController {
             logger.error(`There already exists a guest with ${sessionID} in the marketplace`);
             throw new Error(`There already exists a guest with ${sessionID} in the marketplace`);
         }
-
-        logger.info(`${sessionID} has accessed the marketplace successfully`);
         this.activeGuests.add(sessionID);
+        logger.info(`${sessionID} has accessed the marketplace successfully`);
     }
 
     exitMarketplace(sessionID: string): void {
@@ -122,12 +121,17 @@ export class SecurityController {
 
     hasActiveSession(sessionID: string): string {
         logger.info(`Checking whether ${sessionID} is associated with a logged in member or active guest`);
-        if(this.activeGuests.has(sessionID))
+        logger.warn(`[hasActiveSession] start`);
+        if(this.activeGuests.has(sessionID)){
+            logger.warn(`[hasActiveSession] in first if`);
             return sessionID;
+        }
         if(this.loggedInMembers.has(sessionID)) {
             // @ts-ignore
+            logger.warn(`[hasActiveSession] in second if`);
             return this.loggedInMembers.get(sessionID);
         }
+        logger.warn(`[hasActiveSession] exit`);
         return "";
     }
 }

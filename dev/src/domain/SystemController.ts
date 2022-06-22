@@ -139,10 +139,12 @@ export class SystemController {
     }
 
     private authenticateMarketVisitor<T>(sessionId: string, callback: (id: string) => T) {
+        logger.warn("[authenticateMarketVisitor] start")
         const userId: string = this.securityController.hasActiveSession(sessionId);
         if (userId.length === 0) {
             return new Result(false, undefined, "this is not one of our visitors!");
         }
+        logger.warn("[authenticateMarketVisitor] exit")
         return callback(userId);
     }
 
@@ -150,16 +152,19 @@ export class SystemController {
 
     //General Guest - Use-Case 1
     accessMarketplace(session: string): Result<void | SimpleGuest> {
+        logger.warn(`[accessMarketplace in systemController] - start`);
         let newGuest: Result<Guest> = this.uController.createGuest(session);
         if (!newGuest.ok) {
             return new Result(false, undefined);
         }
         const guest = newGuest.data
         let res = this.scController.addCart(guest.session);
+        logger.warn(`[accessMarketplace in systemController] - bag added`);
         if (checkRes(res)) {
             // guest._shoppingCart = res.data
         }
         this.securityController.accessMarketplace(guest.session);
+        logger.warn(`[accessMarketplace in systemController] - after security`);
         return new Result(true, toSimpleGuest(guest));
     }
 
@@ -244,6 +249,7 @@ export class SystemController {
 
     //General Guest - Use-Case 3
     registerMember(sessionID: string, newMember: RegisterMemberData): Result<void> {
+        logger.warn("in register member - system controller");
         const secCallback = (id: string): Result<void> => {
             //register process
             const res = this.register(id, newMember);
@@ -252,10 +258,8 @@ export class SystemController {
             } else {
                 return new Result(false, undefined, res.message);
             }
-
-
         }
-
+        logger.warn("[registerMember] in register member - system controller");
         return this.authenticateMarketVisitor(sessionID, secCallback);
     }
 
