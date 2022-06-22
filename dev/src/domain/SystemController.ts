@@ -248,13 +248,14 @@ export class SystemController {
     }
 
     //General Guest - Use-Case 3
-    registerMember(sessionID: string, newMember: RegisterMemberData): Result<void> {
+    registerMember(sessionID: string, newMember: RegisterMemberData): Result<SimpleMember | void> {
         logger.warn("in register member - system controller");
         const secCallback = (id: string): Result<void> => {
             //register process
             const res = this.register(id, newMember);
+            console.log("register process")
             if (res.ok) {
-                return new Result<void>(true, undefined, res.message)
+                return new Result<void>(true, res.data, res.message)
             } else {
                 return new Result(false, undefined, res.message);
             }
@@ -736,15 +737,6 @@ export class SystemController {
     getMessages(sessionId: string) {
         return this.authenticateMarketVisitor(sessionId, (id) => {
             return this.mController.getMessages(id);
-        })
-    }
-
-    addOffer2Shop(sessionId, userName: string, shopId: number, pId: number, price: number) : Result<void>{
-        return this.authenticateMarketVisitor(sessionId, (username) => {
-            let offer: Result<void | Offer> = this.mpController.addOffer2Product(shopId, userName, pId, price);
-            if(checkRes(offer)){
-                return this.scController.addOffer2cart(username, offer.data);
-            }
         })
     }
 }
