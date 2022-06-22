@@ -24,6 +24,8 @@ import {
 import {systemContainer} from "../../../src/helpers/inversify.config";
 import {TYPES} from "../../../src/helpers/types";
 import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../../mockHelper";
+import {Offer} from "../../../src/domain/user/Offer";
+import {AddedNewOffer2ShopMessage, counterOfferMessage} from "../../../src/domain/notifications/Message";
 
 
 describe('system controller - unit', () => {
@@ -94,9 +96,17 @@ describe('system controller - unit', () => {
         //user
         mockInstance(mockDependencies.UserController)
         //notification
-        mockInstance(mockDependencies.NotificationController)
+        mockInstance(mockDependencies.NotificationController);
+
+        sys = systemContainer.get<SystemController>(TYPES.SystemController)
+        mpController = sys.mpController
+        mController = sys.mController
+        pController = sys.pController
+        scController = sys.securityController
+        uController = sys.uController
 
         pControllerMockMethod = mockMethod(MarketplaceController.prototype, 'subscribe', () => {
+            sys.mpController.subscribers.push(sys.mController);
             console.log(`subscribe has been called for marketplace`);
         })
 
@@ -108,12 +118,7 @@ describe('system controller - unit', () => {
             return id;
         })
 
-        sys = systemContainer.get<SystemController>(TYPES.SystemController)
-        mpController = sys.mpController
-        mController = sys.mController
-        pController = sys.pController
-        scController = sys.securityController
-        uController = sys.uController
+
     })
 
     beforeEach(() => {
@@ -133,7 +138,8 @@ describe('system controller - unit', () => {
         cart5 = new ShoppingCart()
         member2 = new Member(sess5, username2)
         box2 = new MessageBox(username1);
-
+        mController.messageBoxes.set(username1, box1);
+        mController.messageBoxes.set(username2, box2);
     })
 
     afterEach(() => {
@@ -1442,4 +1448,56 @@ describe('system controller - unit', () => {
 
     })
 
+    test("add offer to shop - testing notification to user", ()=>{
+        const mock_addOffer2shop = mockMethod(MarketplaceController.prototype, "addOffer2Product", (shopId:number, userId: string, pId: number, offeredPrice: number )=>{
+                let offer =    new Offer(0,userId, shopId, pId,offeredPrice, shop1.shopOwners);
+                mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners, offer, shop1.name));
+                return Result.Ok(offer)
+        })
+        const mock_addOffer2cart = mockMethod(ShoppingCartController.prototype, "addOffer2cart", ()=>{});
+        sys.addOffer2Shop(member1.session, shop1.id, p1.id, 4.5);
+        expect(box1.getAllMessages()).toHaveLength(1);
+        expect(mock_addOffer2cart).toHaveBeenCalled();
+        clearMocks(mock_addOffer2shop, mock_addOffer2cart);
+    })
+
+    test("filing counter to offer - testing notification to user", ()=>{
+        const mock_fcOffer= mockMethod(MarketplaceController.prototype, "filingCounterOffer", ()=>{
+            let offer =    new Offer(0,member2.username, shop1.id, p1.id,4.75, shop1.shopOwners);
+            mpController.notifySubscribers(new counterOfferMessage(offer, shop1.name));
+            return Result.Ok(offer)
+        })
+        const mock_updateOff = mockMethod(ShoppingCartController.prototype, "updateOfferFromCart", ()=>{});
+        sys.filingCounterOffer(member1.session, shop1.id, 0, 4.5);
+        expect(box2.getAllMessages()).toHaveLength(1);
+        expect(mock_fcOffer).toHaveBeenCalled();
+        expect(mock_updateOff).toHaveBeenCalled();
+        clearMocks(mock_fcOffer, mock_updateOff);
+    })
+
+    test("deny counter offer", ()=>{
+        const mock_removeOffer = mockMethod(ShoppingCartController.prototype, "removeOffer", ()=>{});
+        const mock_denyCO = mockMethod(MarketplaceController.prototype, "denyCounterOffer", ()=>{});
+        sys.denyCounterOffer(member2.session, member2.username, 0, 0);
+        expect(mock_removeOffer).toHaveBeenCalled();
+        expect(mock_denyCO).toHaveBeenCalled();
+        clearMocks(mock_denyCO, mock_removeOffer);
+    })
+
+    test("accept counter offer- testing notification to user", ()=>{
+        const mock_acceptCO = mockMethod(MarketplaceController.prototype, "acceptCounterOffer", ()=>{
+            shop1.shopOwners.add(username2);
+            let offer =    new Offer(0,"NofarRoz", shop1.id, p1.id,4.75, shop1.shopOwners);
+            mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners, offer, shop1.name));
+            return Result.Ok(offer);
+        })
+        const mock_updateOff = mockMethod(ShoppingCartController.prototype, "updateOfferFromCart", ()=>{});
+        sys.acceptCounterOffer(member1.session, shop1.id, 0);
+        expect(mock_acceptCO).toHaveBeenCalled();
+        expect(mock_updateOff).toHaveBeenCalled();
+        expect(box1.getAllMessages()).toHaveLength(1);
+        expect(box2.getAllMessages()).toHaveLength(1);
+        clearMocks(mock_acceptCO, mock_updateOff);
+
+    })
 })
