@@ -11,7 +11,6 @@ import { Country, countries } from '../../models/countries_data'
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss']
 })
-
 export class SignupComponent implements OnInit, OnDestroy {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   form: FormGroup;
