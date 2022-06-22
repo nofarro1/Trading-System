@@ -32,11 +32,11 @@ import axios from "axios";
 // }
 
 declare module "express-session" {
-  interface Session {
-    username: string;
-    loggedIn: boolean;
-    sessionSubscriber?: LiveNotificationSubscriber;
-  }
+    interface Session {
+        username: string;
+        loggedIn: boolean;
+        sessionSubscriber?: LiveNotificationSubscriber;
+    }
 }
 
 // declare module "http" {

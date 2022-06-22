@@ -38,7 +38,8 @@ import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProdu
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
 import {SimpleShoppingCart} from "../utilities/simple_objects/user/SimpleShoppingCart";
 import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
-import {inject, injectable} from "inversify";
+import {inject} from "inversify";
+import { Injectable } from '@angular/core';
 import {TYPES} from "../helpers/types";
 import "reflect-metadata";
 import {
@@ -53,7 +54,7 @@ import {PaymentDetails} from "./external_services/IPaymentService";
 import {DeliveryDetails} from "./external_services/IDeliveryService";
 import {Offer} from "./user/Offer";
 
-@injectable()
+@Injectable()
 export class SystemController {
 
     mpController: MarketplaceController

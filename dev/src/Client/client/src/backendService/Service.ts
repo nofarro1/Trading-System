@@ -1,6 +1,6 @@
 import axios from "axios";
 import {checkRes, Result} from "../../../../utilities/Result";
-import {inject, injectable, interfaces} from "inversify";
+import {inject, interfaces} from "inversify";
 import SimpleFactory = interfaces.SimpleFactory;
 import {SimpleGuest} from "../../../../utilities/simple_objects/user/SimpleGuest";
 import {SimpleShop} from "../../../../utilities/simple_objects/marketplace/SimpleShop";
