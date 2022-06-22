@@ -91,10 +91,10 @@ export class AddedNewOffer2ShopMessage extends Message {
 export class counterOfferMessage extends Message {
     content: string;
     constructor(offer: Offer, shopName: string){
-        super(new Set(offer.user));
-        this.content = `Hello ${offer.user}, we would like to notify you that a counter bid has been placed on the bid you submitted on for the product with id: ${offer.pId} in ${shopName} shop.\n The new bid is ${offer.price}.`
+        super(new Set<string>().add(offer.user));
+        this.content = `Hello ${offer.user}, we would like to notify you that a counter bid has been placed on the bid you submitted-on for the product with id: ${offer.pId} in ${shopName} shop.\n The bid is ${offer.price}.`
     }
     getContent(): string {
-        return "";
+        return this.content;
     }
 }

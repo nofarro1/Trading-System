@@ -12,12 +12,11 @@ export class ShoppingCart {
 
     private _bags: Map<number, ShoppingBag>; //ShopID -> ShoppingBag
     private _offers: Offer[]
-  //  private _totalPrice: number;
    
 
-    constructor(){
-        this._bags= new Map<number, ShoppingBag>();
-     //   this._totalPrice=0;
+    constructor() {
+        this._bags = new Map<number, ShoppingBag>();
+        this.offers = [];
     }
 
     get bags(): Map<number, ShoppingBag> {
@@ -103,9 +102,8 @@ export class ShoppingCart {
                     rejected.push(offer);
             }
             waitings.push(offer);
-            return [waitings, rejected];
         }
-
+        return [waitings, rejected];
     }
 }
 

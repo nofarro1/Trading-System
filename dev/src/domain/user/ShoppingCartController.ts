@@ -143,7 +143,7 @@ export class ShoppingCartController {
             return new Result(true, undefined);
         }
         logger.info(`Tried to update offer to  ${toUpdate.user}'s cart , but the cart wasn't found.`);
-        return new Result(true, undefined, `Tried to update offer to ${toUpdate.user}'s cart, but the bag wasn't found.`);
+        return new Result(false, undefined, `Tried to update offer to ${toUpdate.user}'s cart, but the bag wasn't found.`);
     }
 
     removeOffer(username: string, toRemoveId: number){

@@ -12,11 +12,31 @@ import {UserController} from "../../../../src/domain/user/UserController";
 import {Member} from "../../../../src/domain/user/Member";
 import mock = jest.mock;
 import {Message} from "../../../../src/domain/notifications/Message";
+import {SystemController} from "../../../../src/domain/SystemController";
+import {Guest} from "../../../../src/domain/user/Guest";
+import {MessageBox} from "../../../../src/domain/notifications/MessageBox";
+
 
 let controller: MarketplaceController;
+let sys: SystemController;
+
+const sess1 = "1";
+let member1: Member;
+const username1 = "OfirPovi";
+let box1: MessageBox;
+
+const sess2 = "2";
+let member2: Member
+const username2 = "EladIn";
+let box2: MessageBox;
+
 let shop_res: Result<void | Shop>;
+let shop: void | Shop;
 let p1: Product;
 let  p2: Product;
+
+let mController: MessageController;
+let pControllerMockMethod: jest.SpyInstance<any, unknown[]>
 
 describe("MarketPlaceController", ()=>{
     beforeAll(()=>{
@@ -24,7 +44,16 @@ describe("MarketPlaceController", ()=>{
     })
     beforeEach(function(){
         controller = new MarketplaceController();
+
+        member1 = new Member(sess1, username1)
+        box1 = new MessageBox(username1);
+
+        member2= new Member( sess2, username2);
+        box2 = new MessageBox(username2);
+
+
         shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");
+        shop = shop_res.data;
          p1 = new Product("Ski", 0,0, ProductCategory.A, 5.9);
          p2  = new Product("Cottage", 0,1, ProductCategory.A,  5.9);
     })
@@ -268,17 +297,15 @@ describe("MarketPlaceController", ()=>{
                 return offer;
             }
         })
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{})
         let shop = shop_res.data;
-        let userController = new UserController();
-        userController.members.set("OfirPovi", new Member("ofirSession", "OfirPovi"));
-        let messageController = new MessageController(new SecurityController());
-        if (shop){
-            controller.addOffer2Product(shop.id, "NofarRoz", 0,4.5 )
+        if(shop){
+            controller.addOffer2Product(shop.id, "NofarRoz", 0, 4.5);
         }
-        let res:Result<Message[]> = messageController.getMessages("OfirPovi");
-        expect(res.data).not.toHaveLength(1);
-        expect(res.data.pop().getContent()).toEqual(`Hello Owner, we would like to notify you that a bid on product with id: 0 as been filing in Ofir's shop shop.`)
-        clearMocks(mock_addOffer);
+
+        expect(mock_addOffer).toHaveBeenCalled();
+        expect(mock_notify).toHaveBeenCalled();
+        clearMocks(mock_addOffer, mock_notify);
     })
 
     test("getOffer" , ()=>{
@@ -304,22 +331,45 @@ describe("MarketPlaceController", ()=>{
         clearMocks(mock_answerOffer);
     })
 
-    test("addOffer2Product", ()=>{
-        const mock_fCounterOffer = mockMethod(Shop.prototype, "filingCounterOffer", (userId: string, pId: number, offeredPrice: number )=>{
-            if(shop){
-                return new Offer(0, userId, shop.id, pId, offeredPrice, shop.shopOwners);
-            }
-        })
-        let shop = shop_res.data;
-        let userController = new UserController();
-        userController.members.set("OfirPovi", new Member("ofirSession", "OfirPovi"));
-        let messageController = new MessageController(new SecurityController());
+    test("filing counter offer", ()=>{
+        const mock_approveOffer = mockMethod(MarketplaceController.prototype, "approveOffer", ()=>{});
+        const mock_filingOffer = mockMethod(Shop.prototype, "filingCounterOffer", (offerId: number, counterPrice: number)=>{return shop?  new Offer(0, "NofarRoz", shop.id, p1.id, counterPrice, shop.shopOwners):  undefined});
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
+        let res: Result<void | Offer>;
         if (shop){
-            controller.addOffer2Product(shop.id, "NofarRoz", 0,4.5 )
+            res = controller.filingCounterOffer(shop.id, 0, "NofarRoz", 4.5);
         }
-        let res = messageController.getMessages("OfirPovi");
-        expect(res.data).not.toHaveLength(1);
-        clearMocks(mock_fCounterOffer);
+        expect(mock_approveOffer).toHaveBeenCalled();
+        expect(mock_filingOffer).toHaveBeenCalled();
+        expect(mock_notify).toHaveBeenCalled();
+        expect(res.ok).toBe(true);
+        clearMocks(mock_approveOffer, mock_filingOffer, mock_notify);
     })
 
+    test("deny counter offer", ()=>{
+        const mock_removeOffer = mockMethod(Shop.prototype, "removeOffer", ()=>{});
+        const mock_getOffer = mockMethod(Shop.prototype, "getOffer", (offerId: number)=>{return shop?  new Offer(0, "NofarRoz", shop.id, p1.id, 3.5, shop.shopOwners):  undefined});
+        let res: Result<void | Offer>;
+        if (shop){
+            res = controller.denyCounterOffer(shop.id, 0);
+        }
+        expect(mock_removeOffer).toHaveBeenCalled();
+        expect(res.ok).toBe(true);
+        clearMocks(mock_removeOffer, mock_getOffer);
+    })
+
+    test("accept counter offer", ()=>{
+        const mock_acceptCounterOffer = mockMethod(Shop.prototype, "acceptCounterOffer", ()=>{});
+        const mock_getOffer = mockMethod(Shop.prototype, "getOffer", (offerId: number)=>{return shop?  new Offer(0, "NofarRoz", shop.id, p1.id, 3.5, shop.shopOwners):  undefined});
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
+        let res: Result<void | Offer>;
+        if (shop){
+            res = controller.acceptCounterOffer(shop.id, 0);
+        }
+        expect(mock_acceptCounterOffer).toHaveBeenCalled();
+        expect(mock_getOffer).toHaveBeenCalled();
+        expect(mock_notify).toHaveBeenCalled();
+        expect(res.ok).toBe(true);
+        clearMocks(mock_acceptCounterOffer, mock_getOffer, mock_notify);
+    })
 })
