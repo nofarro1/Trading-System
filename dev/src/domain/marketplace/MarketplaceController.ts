@@ -99,7 +99,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         logger.error(`${founder} tried to reopen his shop, but the shop with id:${shopId} does not exist.`);
         return new Result(false,undefined, "Failed to reopen shop because the shop does not exist.");
     }
-
+    //does not work currectly
     addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, productDesc?: string): Result<void | Product> {
         if(quantity<0)
             return new Result<void>(false, undefined, "Cannot add negative amount of product to a shop ");
@@ -109,6 +109,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
         }
         let product = shop.addProduct(productName, productCategory, fullPrice, quantity,  productDesc);
+
         logger.info(`${productName} was added to ${shop.name}.`);
         return new Result(true, product,undefined);
     }
@@ -296,6 +297,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result(false, undefined,"Failed to return shop info because the shop wasn't found.");
     }
 
+    //no products in allProductsInMP
     getProduct(productId: number): Result<Product | void>{
         let toReturn= this._allProductsInMP.get(productId);
         if(toReturn){

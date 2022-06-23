@@ -21,10 +21,12 @@ import {
     toSimpleShoppingCart
 } from "../../../src/utilities/simple_objects/SimpleObjectFactory";
 import {ExternalServiceType} from "../../../src/utilities/Utils";
-import {systemContainer} from "../../../src/helpers/inversify.config";
+import {resetContainer, systemContainer} from "../../../src/helpers/inversify.config";
 import {TYPES} from "../../../src/helpers/types";
 import {PaymentDetails} from "../../../src/domain/external_services/IPaymentService";
 import {DeliveryDetails} from "../../../src/domain/external_services/IDeliveryService";
+import {SimpleShop} from "../../../src/utilities/simple_objects/marketplace/SimpleShop";
+import {SimpleProduct} from "../../../src/utilities/simple_objects/marketplace/SimpleProduct";
 
 
 const paymentDetails: PaymentDetails = {
@@ -74,30 +76,35 @@ describe('system controller - integration', () => {
 
     const sess5 = "5";
     const username2 = "member2";
-    const pass2 = "123456789"
+    const pass2 = "987654321"
     let member2: Member;
     let cart5: ShoppingCart;
     let box2: MessageBox;
 
     const shop1 = new Shop(0, "_name", username1, "this is my shop");
+    let shop: SimpleShop;
 
-    const p1 = new Product("ps1", 0, ProductCategory.A, 10, undefined,"description");
-    const p2 = new Product("ps2", 0, ProductCategory.A, 10, undefined,"description");
-    const p3 = new Product("ps3", 0, ProductCategory.A, 10, undefined,"description");
+    const p1 = new Product("ps1", 0, ProductCategory.A, 10, 1000,"description");
+    let simple_p1:SimpleProduct;
+    const p2 = new Product("ps2", 0, ProductCategory.A, 10, 200,"description");
+    const p3 = new Product("ps3", 0, ProductCategory.A, 10, 3000,"description");
 
     const role1 = new Role(0, "title", JobType.Owner, new Set())
     const role2 = new Role(0, "title", JobType.Manager, new Set())
 
-    beforeAll(() => {
+    // beforeAll(() => {
+    //
+    // })
+
+    beforeEach(() => {
+
         sys = systemContainer.get(TYPES.SystemController)
         mpController = sys.mpController
         mController = sys.mController
         pController = sys.pController
         scController = sys.securityController
         uController = sys.uController
-    })
 
-    beforeEach(() => {
         cart1 = new ShoppingCart();
         guest1 = new Guest(sess1);
 
@@ -114,6 +121,20 @@ describe('system controller - integration', () => {
         cart5 = new ShoppingCart();
         member2 = new Member(sess5, username2)
         box2 = new MessageBox(username1);
+
+
+        sys.accessMarketplace(sess4);
+        sys.registerMember(sess4, {username: username1, password: pass1});
+        //act
+        sys.login(sess4, {username: username1, password: pass1});
+        shop = sys.setUpShop(sess4, shop1.name).data as SimpleShop;
+        const res = sys.addProduct(sess4,{shopId: shop.ID, productCategory:p1.category, productName:p1.name, quantity:10,fullPrice:p1.fullPrice});
+        simple_p1 = res.data as SimpleProduct;
+        sys.exitMarketplace(sess4)
+    })
+
+    afterEach(() => {
+        resetContainer()
     })
 
     test("initialize the system", () => {
@@ -138,7 +159,7 @@ describe('system controller - integration', () => {
     test("exit marketplace - guest", () => {
         //prepare
         //previus test accessMarketplace
-        // sys.accessMarketplace(sess1);
+        sys.accessMarketplace(sess1);
 
         //act
         let res = sys.exitMarketplace(sess1);
@@ -162,20 +183,15 @@ describe('system controller - integration', () => {
         expect(res.ok).toBe(true)
         expect(res.data).toEqual(undefined)
         expect(res.message).toEqual("bye bye!")
-
-        sys.exitMarketplace(sess4)
     })
 
 
     describe("login tests", () => {
 
-        afterEach(() => {
-            sys.exitMarketplace(sess4);
-        })
         test("login test - success", () => {
             //prepare
             sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
+            // sys.registerMember(sess4, {username: username1, password: pass1});
 
             //act
             let res = sys.login(sess4, {username: username1, password: pass1});
@@ -190,7 +206,7 @@ describe('system controller - integration', () => {
             sys.accessMarketplace(sess4);
 
             //act
-            let res = sys.login(sess4, {username: username1, password: pass1});
+            let res = sys.login(sess4, {username: username1, password: pass2});
 
             //assert
             expect(res.ok).toBe(false);
@@ -201,7 +217,7 @@ describe('system controller - integration', () => {
     test("logout test - success", () => {
         //prepare
         sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
+        // sys.registerMember(sess4, {username: username1, password: pass1});
         sys.login(sess4, {username: username1, password: pass1});
 
         //act
@@ -209,25 +225,26 @@ describe('system controller - integration', () => {
 
         //assert
         expect(res.ok).toBe(true);
-        expect(res.data).not.toBeDefined()
+        expect(res.data).toBeDefined()
     })
 
     describe("register tests", () => {
         test("register member - success", () => {
             //prepare
-            sys.accessMarketplace(sess4);
+            sys.accessMarketplace(sess5);
 
             //act
-            let res = sys.registerMember(sess4, {username: username1, password: pass1});
+            let res = sys.registerMember(sess5, {username: username2, password: pass2});
 
             //assert
             expect(res.ok).toBe(true);
-            expect(res.data).not.toBeDefined();
+            expect(res.data).toBeDefined();
         })
 
         test("register member - failure from security", () => {
             //act
-            let res = sys.registerMember(sess4, {username: username1, password: pass1});
+            sys.accessMarketplace(sess5);
+            let res = sys.registerMember(sess5, {username: username1, password: pass1});
 
             //assert
             expect(res.ok).toBe(false);
@@ -242,7 +259,9 @@ describe('system controller - integration', () => {
             //act
             let res = sys.getShop(sess1, shop1.id);
             expect(res.ok).toBe(true);
-            expect(res.data).toEqual(toSimpleShop(shop1));
+            expect(res.data).toBeDefined()
+            let data: SimpleShop = res.data as SimpleShop;
+            expect(data.ID).toBe(shop.ID);
         })
 
         test("search product", () => {
@@ -250,11 +269,11 @@ describe('system controller - integration', () => {
             sys.accessMarketplace(sess1);
 
             //act
-            let res = sys.searchProducts(username1, SearchType.productName, "ps1");
+            let res = sys.searchProducts(sess1, SearchType.productName, "ps1");
 
             //assert
             expect(res.ok).toBe(true);
-            expect(res.data).toEqual(toSimpleProduct(p1));
+            expect(res.data).toEqual([simple_p1]);
         })
 
         test("add to cart - success", () => {
@@ -262,7 +281,7 @@ describe('system controller - integration', () => {
             sys.accessMarketplace(sess1);
 
             //act
-            let res = sys.addToCart(sess1, p1.id, 2);
+            let res = sys.addToCart(sess1, simple_p1.productID, 2);
 
             //assert
             expect(res.ok).toBe(true);
@@ -271,6 +290,7 @@ describe('system controller - integration', () => {
 
         test("add to cart - failure", () => {
             //act
+
             let res = sys.addToCart(username1, p1.id, 2);
 
             //assert
@@ -283,12 +303,12 @@ describe('system controller - integration', () => {
             sys.accessMarketplace(sess1);
 
             //act
-            let res = sys.getCart(username1);
+            let res = sys.getCart(sess1);
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).toBeDefined();
-            expect(res.data).toEqual(toSimpleShoppingCart(username1, cart1));
+            expect(res.data).toEqual(toSimpleShoppingCart(sess1, cart1));
         })
 
         test("remove product from cart", () => {
@@ -338,11 +358,11 @@ describe('system controller - integration', () => {
             sys.login(sess4, {username: username1, password: pass1});
 
             //act
-            let res = sys.setUpShop(username1, "shop1");
+            let res = sys.setUpShop(sess4, "shop1");
 
             //assert
             expect(res.ok).toBe(true);
-            expect(res.data).not.toBeDefined();
+            expect(res.data).toBeDefined();
         })
 
         test("setup shop - failed", () => {

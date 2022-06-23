@@ -22,8 +22,7 @@ import {IPaymentService} from "../domain/external_services/IPaymentService";
 import {PaymentService} from "../domain/external_services/PaymentService";
 import config from "../config";
 
-const createContainer = () => {
-    const fresh = new Container();
+function bind(fresh: Container) {
 //services
     fresh.bind<Service>(TYPES.Service).to(Service).inSingletonScope()
     fresh.bind<GuestService>(TYPES.GuestService).to(GuestService)
@@ -53,16 +52,21 @@ const createContainer = () => {
         fresh.bind<IDeliveryService>(TYPES.DeliveryService).to(DeliveryService);
         fresh.bind<IPaymentService>(TYPES.PaymentService).to(PaymentService);
     }
+}
+
+const createContainer = () => {
+    const fresh = new Container();
+    bind(fresh);
     fresh.snapshot()
     return fresh;
 };
 
-const systemContainer = createContainer();
+export const systemContainer = createContainer();
 
 export const resetContainer = () => {
-    systemContainer.restore();
+    systemContainer.unbindAll();
+    systemContainer.restore()
     systemContainer.snapshot();
 }
 
 
-module.exports ={systemContainer, resetContainer}
