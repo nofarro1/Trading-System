@@ -137,7 +137,8 @@ describe('system controller - integration', () => {
 
     test("exit marketplace - guest", () => {
         //prepare
-        sys.accessMarketplace(sess1);
+        //previus test accessMarketplace
+        // sys.accessMarketplace(sess1);
 
         //act
         let res = sys.exitMarketplace(sess1);
@@ -161,10 +162,16 @@ describe('system controller - integration', () => {
         expect(res.ok).toBe(true)
         expect(res.data).toEqual(undefined)
         expect(res.message).toEqual("bye bye!")
+
+        sys.exitMarketplace(sess4)
     })
 
 
     describe("login tests", () => {
+
+        afterEach(() => {
+            sys.exitMarketplace(sess4);
+        })
         test("login test - success", () => {
             //prepare
             sys.accessMarketplace(sess4);
@@ -175,7 +182,7 @@ describe('system controller - integration', () => {
 
             //assert
             expect(res.ok).toBe(true);
-            expect(res.data).not.toBeDefined()
+            expect(res.data).toBeDefined()
         })
 
         test("login test - failure - recover from security failure", () => {
@@ -198,7 +205,7 @@ describe('system controller - integration', () => {
         sys.login(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.logout(username1);
+        let res = sys.logout(sess4);
 
         //assert
         expect(res.ok).toBe(true);

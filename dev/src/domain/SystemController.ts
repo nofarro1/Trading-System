@@ -198,7 +198,7 @@ export class SystemController {
     //
     // }
     //General Guest - Use-Case 4
-    login(sessionId: string, d: LoginData): Result<void> {
+    login(sessionId: string, d: LoginData): Result<void | SimpleMember> {
         const secCallback = (id: string) => {
             //if success get the member_id
             try {
@@ -242,12 +242,12 @@ export class SystemController {
     }
 
     //General Guest - Use-Case 3
-    registerMember(sessionID: string, newMember: RegisterMemberData): Result<void> {
-        const secCallback = (id: string): Result<void> => {
+    registerMember(sessionID: string, newMember: RegisterMemberData): Result< void |SimpleMember> {
+        const secCallback = (id: string): Result<void | SimpleMember> => {
             //register process
             const res = this.register(id, newMember);
-            if (res.ok) {
-                return new Result<void>(true, undefined, res.message)
+            if (checkRes(res)) {
+                return new Result(true, res.data, res.message);
             } else {
                 return new Result(false, undefined, res.message);
             }
