@@ -6,7 +6,7 @@ const dev = {
     app: {
         port: 3000,
         external_services_config: {
-            min:10000,
+            min:1000,
             max: 10000,
             url: ""
         }

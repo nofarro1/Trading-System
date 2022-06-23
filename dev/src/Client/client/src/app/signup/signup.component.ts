@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReplaySubject, takeUntil } from 'rxjs';
-import { api } from 'src/backendService/Service';
+import { api } from '../../backendService/Service';
 
 import { Country, countries } from '../../models/countries_data'
 

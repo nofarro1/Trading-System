@@ -20,7 +20,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MultiSelectModule} from 'primeng/multiselect';
 import { HttpClientModule} from '@angular/common/http';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
-import { environment } from 'src/environments/environment';
+import { environment } from '../environments/environment';
 
 const apiConfig: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
