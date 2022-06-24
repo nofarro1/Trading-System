@@ -3,7 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SearchBarComponent } from './search-bar/search-bar.component';
-import { LoginComponent } from './login/login.component';
 import { MenuComponent } from './menu/menu.component';
 import { ShopsComponent } from './shops/shops.component';
 import { MainComponent } from './main/main.component';
@@ -13,7 +12,6 @@ import { TableModule } from 'primeng/table';
 import { DataViewModule } from 'primeng/dataview';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
-import { LogoutComponent } from './logout/logout.component';
 import { SignupComponent } from './signup/signup.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -22,7 +20,7 @@ import { HttpClientModule} from '@angular/common/http';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import {InputTextModule} from 'primeng/inputtext';
-import { RegisterComponent } from './register/register.component';
+import {MenubarModule} from 'primeng/menubar';
 
 const apiConfig: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
@@ -36,15 +34,12 @@ const config: SocketIoConfig = {
   declarations: [
     AppComponent,
     SearchBarComponent,
-    LoginComponent,
     MenuComponent,
     ShopsComponent,
     MainComponent,
     ShopComponent,
     CartComponent,
-    LogoutComponent,
     SignupComponent,
-    RegisterComponent
     ],
   imports: [
     BrowserModule,
@@ -59,7 +54,8 @@ const config: SocketIoConfig = {
     MultiSelectModule,
     HttpClientModule,
     SocketIoModule.forRoot(apiConfig),
-    InputTextModule
+    InputTextModule,
+    MenubarModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

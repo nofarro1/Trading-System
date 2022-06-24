@@ -7,9 +7,15 @@ import { api } from 'src/backendService/Service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  isLoggedIn = false;
+  disableLoginBtn: boolean = true;
+  showSignUp :boolean = false
+  isLoggedIn :boolean = false;
   title = 'client';
-  session: string | undefined;
+  session: any;
+  username: string = '';
+  password: string = '';
+  member: any;
+
 
   constructor(private service: api) {}
 
@@ -18,7 +24,29 @@ export class AppComponent {
     console.log(`the session that returned from accessMarketPlace is: ${this.session}`);
   }
 
-  userLogged($event: boolean) {
-    this.isLoggedIn = $event;
+
+  async afterSignUp(member: any) {
+    this.showSignUp = false;
+    this.loginUser(member["username"], member["password"]);  
   }
+  
+  async loginUser(username: string, password: string) {
+    this.member = await this.service.login(this.session, username, password);
+    if (this.member){
+      this.isLoggedIn = true;
+      console.log("login user: " + username);
+    }
+    else{
+      console.log("Somthing went wrong with the log in");
+    }
+  }
+
+  async logout() {
+    await this.service.logoutMember(this.session, this.username);
+    this.username = '';
+    this.password = '';
+    this.member = null;
+    this.isLoggedIn = false;
+  }
+  
 }

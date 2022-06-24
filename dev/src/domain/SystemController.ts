@@ -147,19 +147,17 @@ export class SystemController {
 
   //General Guest - Use-Case 1
   accessMarketplace(session: string): Result<void | SimpleGuest> {
-    logger.warn(`[accessMarketplace in systemController] - start`);
+    logger.warn(`[systemController/accessMarketplace] start w/ ${session}`);
     let newGuest: Result<Guest> = this.uController.createGuest(session);
     if (!newGuest.ok) {
       return new Result(false, undefined);
     }
     const guest = newGuest.data;
     let res = this.scController.addCart(guest.session);
-    logger.warn(`[accessMarketplace in systemController] - bag added`);
     if (checkRes(res)) {
-      // guest._shoppingCart = res.data
+      guest.shoppingCart = res.data
     }
     this.securityController.accessMarketplace(guest.session);
-    logger.warn(`[accessMarketplace in systemController] - after security`);
     return new Result(true, toSimpleGuest(guest));
   }
 
@@ -248,22 +246,19 @@ export class SystemController {
     sessionID: string,
     newMember: RegisterMemberData
   ): Result<SimpleMember | void> {
-    logger.warn("in register member - system controller");
+    logger.warn("[SystemController/registerMember] in register member - system controller");
     const secCallback = (id: string): Result<SimpleMember | void> => {
       //register process
       const res = this.register(id, newMember);
       console.log("register process");
       if (res.ok) {
-        console.log(
-          "[registerMember in SystemController] in if res is ok: res.data = " +
-            res.data
-        );
+        logger.warn("[SystemController/registerMember] finish - member returned");
         return new Result<SimpleMember | void>(true, res.data, res.message);
       } else {
+        logger.warn("[SystemController/registerMember] finish - there was error! undefined returned");
         return new Result(false, undefined, res.message);
       }
     };
-    logger.warn("[registerMember] in register member - system controller");
     return this.authenticateMarketVisitor(sessionID, secCallback);
   }
 
@@ -272,6 +267,7 @@ export class SystemController {
     newMember: RegisterMemberData
   ): Result<SimpleMember | void> {
     try {
+      console.log(`[SystemController/register] start w/${newMember.username}`)
       this.securityController.register(
         sessionId,
         newMember.username,
@@ -338,12 +334,18 @@ export class SystemController {
   //     return this.mpController.getShop(shopid)
   // }
 
-  getShops(sessionId: string): Result<SimpleShop[] | void> {
-    return this.authenticateMarketVisitor(sessionId, (id) => {
+  getShops(): Result<SimpleShop[] | void> {
+    console.log("[SystemController/getShops] start");
       const shops: SimpleShop[] = this.mpController.Shops.map(toSimpleShop);
       return Result.Ok(shops);
-    });
   }
+
+  // getShops(sessionId: string): Result<SimpleShop[] | void> {
+  //   return this.authenticateMarketVisitor(sessionId, (id) => {
+  //     const shops: SimpleShop[] = this.mpController.Shops.map(toSimpleShop);
+  //     return Result.Ok(shops);
+  //   });
+  // }
 
   //Guest Payment - Use-Case 2
   searchProducts(

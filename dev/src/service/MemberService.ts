@@ -17,12 +17,8 @@ export class MemberService {
     }
 
     //General Member - Use-Case 1
-    logout(sessionID: string): Promise<Result<void | SimpleGuest>> {
-
-        return new Promise<Result<void | SimpleGuest>>((resolve, reject) => {
-            let result: Result<void | SimpleGuest> = this.systemController.logout(sessionID);
-            result.ok ? resolve(result) : reject(result.message);
-        });
+    async logout(sessionID: string): Promise<Result<void | SimpleGuest>> {
+        return this.systemController.logout(sessionID);
     }
 
     //Shop Owner - Use-Case 4

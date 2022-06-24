@@ -44,23 +44,23 @@ export class Service {
     //----------------------Guest Service methods-------------------------------
 
     //General Guest - Use-Case 3
-    register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void>> {
+    async register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<SimpleMember | void>> {
         logger.info(`A member registration is being performed using ${sessionID} for username: ${username}`);
-        logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
-        return this.guestService.register(sessionID, username, password, firstName, lastName, email, country);
+        let ret = await this.guestService.register(sessionID, username, password, firstName, lastName, email, country);
+        return ret;
     }
 
     //General Admin - Use-Case 0
-    registerAdmin(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void>> {
+    async registerAdmin(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void>> {
         logger.info(`An admin registration is being performed for username ${username}`);
         logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
-        return this.guestService.registerAdmin(sessionID, username, password, firstName, lastName, email, country);
+        return await this.guestService.registerAdmin(sessionID, username, password, firstName, lastName, email, country);
     }
 
     //General Guest - Use-Case 4
-    login(sessionID: string, username: string, password: string): Promise<Result<void | SimpleMember>> {
+    async login(sessionID: string, username: string, password: string): Promise<Result<void | SimpleMember>> {
         logger.info(`A login is being performed using ${sessionID} for username: ${username}.`);
-        return this.guestService.login(sessionID, username, password);
+        return await this.guestService.login(sessionID, username, password);
     }
 
     //----------------------Member Service methods-------------------------------
@@ -233,9 +233,14 @@ export class Service {
         return this.orderService.editConnectionWithExternalService(sessionID, adminUsername, type, settings);
     }
 
-    async getAllShopsInfo(sessionID: string) {
-        logger.info(`${sessionID} is requesting All shops`);
-        return this.marketplaceService.getAllShopInfo(sessionID);
+    // async getAllShopsInfo(sessionID: string) {
+    //     logger.info(`${sessionID} is requesting All shops`);
+    //     return this.marketplaceService.getAllShopInfo(sessionID);
+    // }
+  
+    getAllShopsInfo() {
+        console.log("[Service/getAllShopsInfo] start");
+        return this.marketplaceService.getAllShopInfo();
     }
 
     async getMessages(sessionId: string) {

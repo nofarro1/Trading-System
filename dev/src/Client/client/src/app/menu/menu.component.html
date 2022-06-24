@@ -1,6 +1,15 @@
-<div class="pill-nav">
+<!-- <div class="pill-nav">
   <a class="active" href="">Home</a>
   <a href="/shops">Shops</a>
-  <a href="/cart">Cart</a>
-  <app-search-bar></app-search-bar>
-</div>
+  <a href="/cart">Cart</a> -->
+
+  <p-menubar [model]="items">
+    <ng-template pTemplate="start">
+    </ng-template>
+    <ng-template pTemplate="end">
+        <input type="text" pInputText placeholder="Search">
+    </ng-template>
+</p-menubar>
+
+  <!-- <app-search-bar></app-search-bar> -->
+<!-- </div> -->

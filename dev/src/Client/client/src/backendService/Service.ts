@@ -23,14 +23,14 @@ export class api {
 
   async accessMarketPlace() {
     try {
-      console.log('in accessMarketPlace - start');
       const res = await axios.get(base + '/access');
       const data: Result<void | SimpleGuest> = res.data;
-      // console.log("res = " + JSON.stringify(data));
-      return checkRes(data) ? data.data._guestID : undefined;
+      return checkRes(data) ? data.data._guestID : '';
     } catch (e: any) {
-      console.log('error in accessing');
-      return undefined;
+      console.log(
+        '[Service/accessMarketPlace] Error in accessing to the market place'
+      );
+      return null;
     }
   }
 
@@ -44,9 +44,6 @@ export class api {
     country: string
   ) {
     try {
-      console.log(
-        `username: ${username}, password: ${password}, firstName: ${firstName}`
-      );
       const res = await axios.post(base + '/guest/register', {
         session,
         username,
@@ -56,8 +53,9 @@ export class api {
         email,
         country,
       });
-      const data: Result<void | SimpleMember> = res.data;
-      console.log("end of register - we get back: " + data);
+      const data = res.data;
+      console.log('end of register - we get back: ');
+      console.log(data);
       return data.data;
     } catch (e: any) {
       console.log(`error in register: ${e.message}`);
@@ -87,12 +85,11 @@ export class api {
     return data.data;
   }
 
-  async login(username: string, password: string) {
+  async login(session: string, username: string, password: string) {
     const res = await axios.post(base + '/guest/login', {
-      data: {
-        username: username,
-        password: password,
-      },
+      session,
+      username,
+      password,
     });
     const data: Result<void | SimpleMember> = res.data;
     return data.data;
@@ -100,6 +97,14 @@ export class api {
 
   async logout(username: string) {
     const res = await axios.get(base + '/' + username);
+    const data: Result<void | SimpleGuest> = res.data;
+    return data.data;
+  }
+
+  async logoutMember(session: string, username: string) {
+    const res = await axios.get(
+      base + `/member/logout/:${username}/:${session}`
+    );
     const data: Result<void | SimpleGuest> = res.data;
     return data.data;
   }
@@ -275,6 +280,12 @@ export class api {
       },
     });
     const data: Result<void | SimpleShop> = res.data;
+    return data.data;
+  }
+
+  async getAllShops() {
+    const res = await axios.get(base + '/shops');
+    const data =  res.data;
     return data.data;
   }
 

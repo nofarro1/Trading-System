@@ -71,11 +71,12 @@ router.post('/guest/register', async (req, res) => {
         let lastName = req.body.lastName;
         let email = req.body.email;
         let country = req.body.country;
-        logger.warn("[/guest/register] start with username and password: " + username);
+        logger.warn("[/guest/register] start with username: " + username);
         logger.info(`seesId = ${sessId}`);
-        let ans = await service.register(sessId, username, password, firstName, lastName, email, country)
+        let ans = await service.register(sessId, username, password, firstName, lastName, email, country);
         logger.warn("[/guest/register] after service.register");
-        console.log("end /guest/register - ans returned : " + ans.data);
+        console.log("end /guest/register - ans returned : ");
+        console.log(ans);
         res.status(201);
         res.send(ans);
     } catch (e: any) {
@@ -132,10 +133,8 @@ router.post('/admin/register', async (req, res) => {
  * }
  */
 router.post('/guest/login', async (req, res) => {
-
-
     try {
-        let sessId = req.session.id;
+        let sessId = req.body.session;
         console.log("attempt to login with session id: " + sessId)
         let username = req.body.username;
         let password = req.body.password;
@@ -154,10 +153,11 @@ router.post('/guest/login', async (req, res) => {
 /**
  * logout
  */
-router.get('/member/logout/:username', async (req, res) => {
+router.get('/member/logout/:username/:session', async (req, res) => {
     try {
-        let sessId = req.session.id;
+        let sessId = req.params.session;
         let username = req.params.username
+        logger.warn("in logout session");
         let ans = await service.logout(sessId, username)
         req.session.loggedIn = false;
         req.session.username = "";
@@ -424,21 +424,17 @@ router.get('/shop/:shopId', async (req, res) => {
     }
 })
 
-router.get('/shop/all', async (req, res) => {
+/**
+ * get all shops
+ */
+router.get('/shops', async (req, res) => {
     try {
-        let sessId = req.session.id;
-        let ans = await service.getAllShopsInfo(sessId)
-
-    } catch (e: any) {
-        res.status(404).send(e.message)
-    }
-})
-
-router.get('/shop/all', async (req, res) => {
-    try {
-        let sessId = req.session.id;
-        let ans = await service.getAllShopsInfo(sessId)
-
+        console.log("in the function that return all shops");
+        // let sessId = req.session.id;
+        // let ans = await service.getAllShopsInfo(sessId)
+        let ans = await service.getAllShopsInfo();
+        console.log("after the return shops");
+        res.status(200).send(ans);
     } catch (e: any) {
         res.status(404).send(e.message)
     }

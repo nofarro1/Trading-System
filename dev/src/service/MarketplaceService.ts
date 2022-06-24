@@ -108,12 +108,18 @@ export class MarketplaceService {
         });
     }
 
-    getAllShopInfo(sessionID: string) {
-        return new Promise<Result<void | SimpleShop[]>>((resolve, reject) => {
-            let result: Result<void | SimpleShop[]> = this.systemController.getShops(sessionID);
-            result.ok ? resolve(result) : reject(result.message);
-        });
+    getAllShopInfo() {
+        console.log("[MarketPlaceService/getAllShopInfo] start");
+        return this.systemController.getShops();
     }
+
+
+    // getAllShopInfo(sessionID: string) {
+    //     return new Promise<Result<void | SimpleShop[]>>((resolve, reject) => {
+    //         let result: Result<void | SimpleShop[]> = this.systemController.getShops(sessionID);
+    //         result.ok ? resolve(result) : reject(result.message);
+    //     });
+    // }
 
     addOffer2Shop (sessionId, shopId: number, pId: number, price: number ){
         return new Promise<Result<void>>((resolve, reject)=>{

@@ -16,15 +16,26 @@ export class GuestService {
     }
 
     //General Guest - Use-Case 3
+    // register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string,
+    //          email?: string, country?: string): Promise<Result<SimpleMember | void>> {
+    //     return new Promise<Result<SimpleMember | void>>((resolve, reject) => {
+    //         console.log("[GuestService/register] start but before systemControl.registerMember");
+    //         let result: Result<SimpleMember | void> = this.systemController.registerMember(sessionID, {username: username, password: password,
+    //             firstName: firstName, lastName: lastName, email: email, country: country});
+    //         console.log("[GuestService/register] result = ");
+    //         console.log(result.data);
+    //         return result.ok ? result.data : reject(result.message);
+    //     });
+    // }
+    
     register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string,
-             email?: string, country?: string): Promise<Result<void>> {
-        logger.warn("[register] start");
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<SimpleMember | void> = this.systemController.registerMember(sessionID, {username: username, password: password,
+             email?: string, country?: string): Result<SimpleMember | void> {
+            console.log("[GuestService/register] start but before systemControl.registerMember");
+            return this.systemController.registerMember(sessionID, {username: username, password: password,
                 firstName: firstName, lastName: lastName, email: email, country: country});
-            result.ok ? result : reject(result.message);
-            console.log("[register in GuestService] what in the result? " + result.data);
-        });
+            // console.log("[GuestService/register] result = ");
+            // console.log(result.data);
+            // return result.ok ? result : undefined;
     }
 
     //General Admin - Use-Case 0
@@ -39,11 +50,7 @@ export class GuestService {
     }
 
     //General Guest - Use-Case 4
-    login(sessionID: string, username: string, password: string): Promise<Result<void | SimpleMember>> {
-
-        return new Promise<Result<void | SimpleMember>>((resolve, reject) => {
-            let result: Result<void | SimpleMember> = this.systemController.login(sessionID, { username: username, password: password });
-            result.ok ? resolve(result) : reject(result.message);
-        });
+    login(sessionID: string, username: string, password: string): Result<void | SimpleMember> {
+        return this.systemController.login(sessionID, { username: username, password: password });
     }
 }
