@@ -535,7 +535,7 @@ describe('Shopping cart-tests', function () {
     //User2.3
     test('add to cart-success', async (done) => {
         if (testMember instanceof SimpleMember) {
-            expect((await service.addToCart(testMember.username, testProduct.productID, 5)).ok).toBe(true);
+            expect((await service.addToCart(testMember.username, testProduct.shopID, testProduct.productID, 5)).ok).toBe(true);
             testShoppingCart = (await service.checkShoppingCart(testMember.username)).data;
             if (testShoppingCart instanceof SimpleShoppingCart) {
                 expect(testShoppingCart.products.has(testProduct)).toBe(true);
@@ -547,21 +547,21 @@ describe('Shopping cart-tests', function () {
 
     test('add to cart-fail', async (done) => {
         if (testMember instanceof SimpleMember) {
-            expect((await service.addToCart(testMember.username, testProduct.productID, 15)).ok).toBe(false);
+            expect((await service.addToCart(testMember.username, testProduct.productID, testProduct.productID, 15)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember');
         done();
     })
 
     test('add to cart-fail', async (done) => {
         if (testMember instanceof SimpleMember) {
-            expect((await service.addToCart(testMember.username, -1, 5)).ok).toBe(false);
+            expect((await service.addToCart(testMember.username, -1,-1, 5)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember');
         done();
     })
 
     test('remove from cart-success', async (done) => {
         if (testMember instanceof SimpleMember) {
-            expect((await service.removeFromCart(testMember.username, testProduct.productID)).ok).toBe(true);
+            expect((await service.removeFromCart(testMember.username, testProduct.shopID, testProduct.productID)).ok).toBe(true);
             testShoppingCart = (await service.checkShoppingCart(testMember.username)).data;
             if (testShoppingCart instanceof SimpleShoppingCart) {
                 expect(testShoppingCart.products.has(testProduct)).toBe(false);
@@ -573,14 +573,14 @@ describe('Shopping cart-tests', function () {
 
     test('remove from cart-fail', async (done) => {
         if (testMember instanceof SimpleMember) {
-            expect((await service.removeFromCart(testMember.username, -1)).ok).toBe(false);
+            expect((await service.removeFromCart(testMember.username, -1, -1)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember');
         done();
     })
 
     test('edit product in cart-success', async (done) => {
         if (testMember instanceof SimpleMember) {
-            (await service.addToCart(testMember.username, testProduct.productID, 5));
+            (await service.addToCart(testMember.username, testProduct.shopID, testProduct.productID, 5));
             expect((await service.editProductInCart(testMember.username, testProduct.productID, 7)).ok).toBe(true);
             if (testShoppingCart instanceof SimpleShoppingCart) {
                 expect(testShoppingCart.products.get(testProduct)).toBe(7);

@@ -188,9 +188,9 @@ export class Service {
     //----------------------Shopping Cart Service methods-------------------------------
 
     //Guest Payment - Use-Case 4.1
-    addToCart(sessionID: string, productID: number, productQuantity: number): Promise<Result<void>> {
+    addToCart(sessionID: string, shopId: number, productID: number, productQuantity: number): Promise<Result<void>> {
         logger.info(`${sessionID} wants to add the product ${productID} x${productQuantity} to his shopping cart`);
-        return this.shoppingCartService.addToCart(sessionID, productID, productQuantity);
+        return this.shoppingCartService.addToCart(sessionID, shopId, productID, productQuantity);
     }
 
     //Guest Payment - Use-Case 4.2
@@ -200,9 +200,9 @@ export class Service {
     }
 
     //Guest Payment - Use-Case 4.3
-    removeFromCart(sessionID: string, productID: number): Promise<Result<void>> {
+    removeFromCart(sessionID: string, shopId: number, productID: number): Promise<Result<void>> {
         logger.info(`${sessionID} would like to remove the product ${productID} from his shopping cart`);
-        return this.shoppingCartService.removeFromCart(sessionID, productID);
+        return this.shoppingCartService.removeFromCart(sessionID, shopId, productID);
     }
 
     //Guest Payment - Use-Case 4.4

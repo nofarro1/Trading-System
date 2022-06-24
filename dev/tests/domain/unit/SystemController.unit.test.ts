@@ -475,7 +475,7 @@ describe('system controller - unit', () => {
             return new Result(true, p1);
         });
         //act
-        let res = sys.getProduct(sess1, 0);
+        let res = sys.getProduct(sess1, 0, 0);
         expect(res.ok).toBe(true);
         expect(res.data).toEqual(toSimpleProduct(p1));
         expect(getProductMM).toBeCalled()
@@ -514,7 +514,7 @@ describe('system controller - unit', () => {
             return new Result(true, p1);
         });
 
-        let res = sys.addToCart(username1, 0, 2);
+        let res = sys.addToCart(username1, 0, 0, 2);
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
         expect(getProdMM).toBeCalled()
@@ -528,7 +528,7 @@ describe('system controller - unit', () => {
             return new Result(false, undefined);
         });
 
-        let res = sys.addToCart(username1, 0, 2);
+        let res = sys.addToCart(username1, 0, 0, 2);
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
         expect(getProdMM).toBeCalled()
@@ -558,7 +558,7 @@ describe('system controller - unit', () => {
             return new Result(true, p1);
         });
 
-        let res = sys.removeProductFromCart(username1, 0);
+        let res = sys.removeProductFromCart(username1, 0, 0);
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
         expect(removeProdMM).toBeCalled()

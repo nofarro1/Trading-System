@@ -279,12 +279,12 @@ export class SystemController {
 
     /*------------------------------------Marketplace Interaction actions----------------------------------------------*/
 
-    getProduct(sessionID: string, productId: number): Result<SimpleProduct | void> {
+    getProduct(sessionID: string, shopId: number, productId: number): Result<SimpleProduct | void> {
         //market visitor authentication
 
         return this.authenticateMarketVisitor(sessionID, () => {
 
-            const res = this.mpController.getProduct(productId);
+            const res = this.mpController.getProduct(shopId, productId);
             if (checkRes(res)) {
                 return new Result(true, toSimpleProduct(res.data), res.message)
             }
@@ -335,10 +335,10 @@ export class SystemController {
     }
 
     //Guest Payment - Use-Case 4.1
-    addToCart(sessionId: string, productId: number, quantity: number): Result<void> {
+    addToCart(sessionId: string, shopId: number,  productId: number, quantity: number): Result<void> {
 
         const authCallback = (id: string) => {
-            const productRes = this.mpController.getProduct(productId);
+            const productRes = this.mpController.getProduct(shopId, productId);
             if (checkRes(productRes))
                 return this.scController.addProduct(id, productRes.data, quantity)
             else {
@@ -361,9 +361,9 @@ export class SystemController {
     }
 
     //Guest Payment - Use-Case 4.4
-    editCart(sessionId: string, product: number, quantity: number, additionalData?: any): Result<void> {
+    editCart(sessionId: string, shopId: number, productId: number, quantity: number, additionalData?: any): Result<void> {
         const authCallback = (id: string) => {
-            const productRes = this.mpController.getProduct(product);
+            const productRes = this.mpController.getProduct(shopId, productId);
             if (checkRes(productRes)) {
                 return this.scController.updateProductQuantity(id, productRes.data, quantity)
             } else
@@ -374,9 +374,9 @@ export class SystemController {
     }
 
     //Guest Payment - Use-Case 4.3
-    removeProductFromCart(sessionId: string, product: number): Result<void> {
+    removeProductFromCart(sessionId: string, shopId: number, productId: number): Result<void> {
         const authCallback = (id: string) => {
-            const productRes = this.mpController.getProduct(product);
+            const productRes = this.mpController.getProduct(shopId, productId);
             if (checkRes(productRes)) {
                 return this.scController.removeProduct(id, productRes.data)
             }

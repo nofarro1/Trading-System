@@ -281,7 +281,7 @@ describe('system controller - integration', () => {
             sys.accessMarketplace(sess1);
 
             //act
-            let res = sys.addToCart(sess1, simple_p1.productID, 2);
+            let res = sys.addToCart(sess1, simple_p1.shopID, simple_p1.productID, 2);
 
             //assert
             expect(res.ok).toBe(true);
@@ -291,7 +291,7 @@ describe('system controller - integration', () => {
         test("add to cart - failure", () => {
             //act
 
-            let res = sys.addToCart(username1, p1.id, 2);
+            let res = sys.addToCart(username1, p1.shopId, p1.id, 2);
 
             //assert
             expect(res.ok).toBe(false);
@@ -314,10 +314,10 @@ describe('system controller - integration', () => {
         test("remove product from cart", () => {
             //prepare
             sys.accessMarketplace(sess1);
-            sys.addToCart(username1, p1.id, 2);
+            sys.addToCart(username1, p1.shopId, p1.id, 2);
 
             //act
-            let res = sys.removeProductFromCart(username1, p1.id);
+            let res = sys.removeProductFromCart(username1, p1.shopId, p1.id);
 
             //assert
             expect(res.ok).toBe(true);
@@ -327,7 +327,7 @@ describe('system controller - integration', () => {
         test("checkout - success", async() => {
             //prepare
             sys.accessMarketplace(sess1);
-            sys.addToCart(username1, p1.id, 2);
+            sys.addToCart(username1, p1.shopId, p1.id, 2);
 
             //act
             let res = await sys.checkout(username1, paymentDetails, deliveryDetails)
@@ -340,8 +340,8 @@ describe('system controller - integration', () => {
         test("checkout - failure", async(done) => {
             //prepare
             sys.accessMarketplace(sess1);
-            sys.addToCart(username1, p1.id, 2);
-            sys.removeProductFromCart(username1, p1.id);
+            sys.addToCart(username1, p1.shopId, p1.id, 2);
+            sys.removeProductFromCart(username1, p1.shopId, p1.id);
 
             //act
             let res = await sys.checkout(username1, paymentDetails, deliveryDetails)

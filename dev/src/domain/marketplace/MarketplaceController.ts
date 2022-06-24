@@ -36,14 +36,14 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     private _shops: Map<number, Shop>;
     private _shopCounter: number;
-    private _allProductsInMP: Map<number, Product>;
+    private _allProductsInMP: Map<[number, number], Product>;
 
     subscribers: IMessageListener<ShopStatusChangedMessage>[];
 
     constructor(){
         this._shops= new Map<number,Shop>();
         this._shopCounter= 0;
-        this._allProductsInMP= new Map<number, Product>();
+        this._allProductsInMP= new Map<[number, number], Product>();
         this.subscribers= [];
     }
 
@@ -60,11 +60,11 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         this._shops = value;
     }
 
-    get allProductsInMP(): Map<number, Product> {
+    get allProductsInMP(): Map<[number, number], Product> {
         return this._allProductsInMP;
     }
 
-    set allProductsInMP(value: Map<number, Product>) {
+    set allProductsInMP(value: Map<[number, number], Product>) {
         this._allProductsInMP = value;
     }
 
@@ -303,8 +303,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
     //no products in allProductsInMP
-    getProduct(productId: number): Result<Product | void>{
-        let toReturn= this._allProductsInMP.get(productId);
+    getProduct(shopId: number, productId: number): Result<Product | void>{
+        let toReturn= this._allProductsInMP.get([shopId, productId]);
         if(toReturn){
             logger.info(`Product with id: ${productId} was Returned successfully.`)
             return new Result(true,toReturn);

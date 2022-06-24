@@ -496,7 +496,7 @@ router.post('/cart', async (req, res) => {
         let sess = req.session.id
         let product = req.body.product
         let quantity = req.body.quantity
-        let ans = await service.addToCart(sess, product, quantity)
+        let ans = await service.addToCart(sess, product.shopId, product, quantity)
         res.status(202).send(ans)
     } catch (e: any) {
         res.status(404)
@@ -511,7 +511,7 @@ router.delete('/cart', async (req, res) => {
     try {
         let sess = req.session.id
         let product = req.body.product
-        let ans: Result<void> = await service.removeFromCart(sess, product)
+        let ans: Result<void> = await service.removeFromCart(sess, product.shopId, product)
         res.status(202).send(ans)
     } catch (e: any) {
         res.status(404)
