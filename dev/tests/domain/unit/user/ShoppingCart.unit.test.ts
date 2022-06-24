@@ -4,6 +4,7 @@ import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {ProductCategory} from "../../../../src/utilities/Enums";
 import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../../../mockHelper";
+import {Offer} from "../../../../src/domain/user/Offer";
 
 
 let cart: ShoppingCart;
@@ -105,5 +106,34 @@ describe("Shopping Cart - unit tests", ()=> {
         clearMocks(mock_update);
     })
 
+    test("add offer to cart", ()=>{
+        let offer = new Offer(0, "NofarRoz", shop1.id, 0, 4.5, shop1.shopOwners)
+        cart.addOffer(offer);
+        expect(cart.offers).toHaveLength(1);
+        expect(cart.offers).toContain(offer);
+    })
 
+    test("remove offer from cart", ()=>{
+        let offer1= new Offer(0, "NofarRoz", shop1.id, 0, 4.5, shop1.shopOwners)
+        let offer2 = new Offer(0, "NofarRoz", shop1.id, 1, 15.5, shop1.shopOwners)
+        cart.offers.push(offer1);
+        cart.offers.push(offer2);
+        cart.removeOffer(offer1);
+        expect(cart.offers).not.toContain(offer1);
+        expect(cart.offers).toContain(offer2);
+    })
+
+    test("chechOffers", ()=>{
+        let offer1= new Offer(0, "NofarRoz", shop1.id, 0, 4.5, shop1.shopOwners)
+        let offer2 = new Offer(1, "NofarRoz", shop1.id, 1, 15.5, shop1.shopOwners)
+        offer1.getApproves().set("Mario", [true, false]);
+        cart.offers.push(offer1);
+        cart.offers.push(offer2);
+        let res:[Offer[],Offer[]] = cart.checksOffers();
+        let res0 = res[0];
+        let res1 = res[1];
+        expect(res[0]).toContain(offer2);
+        expect(res[1]).toContain(offer1);
+
+    })
 })

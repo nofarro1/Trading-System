@@ -32,6 +32,7 @@ import { Member } from "./user/Member";
 import { MessageController } from "./notifications/MessageController";
 import { DiscountData, ImmediatePurchaseData, LoginData, NewProductData, NewRoleData, RegisterMemberData } from "../utilities/DataObjects";
 import { toSimpleDiscountDescriber, toSimpleGuest, toSimpleMember, toSimpleProduct, toSimpleProducts, toSimpleShop, toSimpleShoppingCart } from "../utilities/simple_objects/SimpleObjectFactory";
+import { Offer } from "./user/Offer";
 
 @injectable()
 export class SystemController {
@@ -912,18 +913,20 @@ export class SystemController {
       username: registrationData.username,
       password: registrationData.password,
     });
+    // if (admin.ok) {
+    //   this.uController.addRole(
+    //     registrationData.username,
+    //     "System Admin",
+    //     JobType.admin,
+    //     -1,
+    //     new Set()
+    //   );
     if (admin.ok) {
-      this.uController.addRole(
-        registrationData.username,
-        "System Admin",
-        JobType.admin,
-        -1,
-        new Set()
-      );
-      return new Result(true, undefined, "new admin is added");
-    }
-    return new Result(false, undefined, "admin name cannot be registered");
+      this.uController.addRole(registrationData.username, "System Admin", JobType.admin, -1, new Set())
+      return new Result(true, undefined, "new admin is added")
   }
+  return new Result(false, undefined, "admin name cannot be registered");
+}
 
   editConnectionWithExternalService(
     sessionID: string,
@@ -943,38 +946,120 @@ export class SystemController {
     });
   }
 
-  swapConnectionWithExternalService(
-    sessionID: string,
-    admin: string,
-    type: ExternalServiceType,
-    newServiceName: string
-  ): Result<void> {
-    return this.authenticateMarketVisitor(admin, (id: string) => {
-      if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
-        return new Result(false, undefined, "no admin Privileges");
-      }
-      if (type === ExternalServiceType.Delivery)
-        this.pController.swapDeliveryService(
-          new DeliveryServiceAdaptor(
-            newServiceName,
-            new DeliveryService(newServiceName)
-          )
-        );
-      else
-        this.pController.swapPaymentService(
-          new PaymentServiceAdaptor(
-            newServiceName,
-            new PaymentService(newServiceName)
-          )
-        );
+  // swapConnectionWithExternalService(
+  //   sessionID: string,
+  //   admin: string,
+  //   type: ExternalServiceType,
+  //   newServiceName: string
+  // ): Result<void> {
+  //   return this.authenticateMarketVisitor(admin, (id: string) => {
+  //     if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
+  //       return new Result(false, undefined, "no admin Privileges");
+  //     }
+  //     if (type === ExternalServiceType.Delivery)
+  //       this.pController.swapDeliveryService(
+  //         new DeliveryServiceAdaptor(
+  //           newServiceName,
+  //           new DeliveryService(newServiceName)
+  //         )
+  //       );
+  //     else
+  //       this.pController.swapPaymentService(
+  //         new PaymentServiceAdaptor(
+  //           newServiceName,
+  //           new PaymentService(newServiceName)
+  //         )
+  //       );
 
-      return new Result(true, undefined, "services swapped");
-    });
-  }
+  //     return new Result(true, undefined, "services swapped");
+  //   });
+  // }
 
   getMessages(sessionId: string) {
     return this.authenticateMarketVisitor(sessionId, (id) => {
       return this.mController.getMessages(id);
     });
   }
+
+
+
+
+    // editConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, settings: ServiceSettings): Result<void> {
+    //     return this.authenticateMarketVisitor(admin, (id: string) => {
+    //         if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
+    //             return new Result(false, undefined, "no admin Privileges");
+    //         }
+    //         if (type === ExternalServiceType.Delivery)
+    //             this.pController.deliveryService.editServiceSettings(settings);
+    //         else
+    //             this.pController.paymentService.editServiceSettings(settings)
+
+    //         return new Result(true, undefined, "services updated");
+
+    //     })
+    // }
+
+    swapConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, newServiceName: string): Result<void> {
+        return this.authenticateMarketVisitor(admin, (id: string) => {
+            if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
+                return new Result(false, undefined, "no admin Privileges");
+            }
+            if (type === ExternalServiceType.Delivery)
+                this.pController.swapDeliveryService(new DeliveryServiceAdaptor(newServiceName, new DeliveryService(newServiceName)));
+            else
+                this.pController.swapPaymentService(new PaymentServiceAdaptor(newServiceName, new PaymentService(newServiceName)))
+
+            return new Result(true, undefined, "services swapped");
+
+
+        })
+
+    }
+
+
+    /*-----------------------------------Offer (bid on product)----------------------------------------------*/
+    addOffer2Shop(sessionId, shopId: number, pId: number, price: number) : Result<void>{
+        return this.authenticateMarketVisitor(sessionId, (username) => {
+            let offer: Result<void | Offer> = this.mpController.addOffer2Product(shopId, username, pId, price);
+            if(checkRes(offer)){
+                return this.scController.addOffer2cart(username, offer.data);
+            }
+        })
+    }
+
+    approveOffer(sessionId: string, shopId: number, offerId: number, answer: boolean) :Result<void>{
+        return this.authenticateMarketVisitor(sessionId, (username)=>{
+           return this.mpController.approveOffer(shopId, offerId, username, answer);
+        });
+    }
+
+    filingCounterOffer(sessionId: string, shopId: number, offerId: number, counterPrice: number): Result<void>{
+        return this.authenticateMarketVisitor(sessionId, (username)=>{
+            let result: Result<void | Offer> =  this.mpController.filingCounterOffer(shopId, offerId, username, counterPrice);
+            if (checkRes(result)) {
+                this.scController.updateOfferFromCart(result.data);
+                return Result.Ok(result.data);
+            }
+            return Result.Fail(result.message);
+        })
+    }
+
+    denyCounterOffer(sessionId: string, username: string, shopId: number, offerId: number): Result<void>{
+        return this.authenticateMarketVisitor(sessionId, ()=>{
+            this.scController.removeOffer(username, offerId);
+            return this.mpController.denyCounterOffer(shopId, offerId);
+        })
+    }
+
+    acceptCounterOffer(sessionId: string, shopId: number, offerId: number): Result<void>{
+        return this.authenticateMarketVisitor(sessionId, (username)=>{
+            let result: Result<void | Offer> = this.mpController.acceptCounterOffer(shopId, offerId);
+            if (checkRes(result)) {
+                this.scController.updateOfferFromCart(result.data);
+                return Result.Ok(result.data);
+            }
+            return Result.Fail(result.message);
+        })
+    }
+
 }

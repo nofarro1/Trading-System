@@ -24,7 +24,6 @@ router.get('/check', (req, res) => {
 })
 
 
-
 //set routes to api
 
 //access marketpalce - return the index.html in the future
@@ -425,22 +424,22 @@ router.get('/shop/:shopId', async (req, res) => {
     }
 })
 
-router.get('/shop/all', async (req, res)=>{
+router.get('/shop/all', async (req, res) => {
     try {
         let sessId = req.session.id;
         let ans = await service.getAllShopsInfo(sessId)
 
-    } catch (e:any){
+    } catch (e: any) {
         res.status(404).send(e.message)
     }
 })
 
-router.get('/shop/all', async (req, res)=>{
+router.get('/shop/all', async (req, res) => {
     try {
         let sessId = req.session.id;
         let ans = await service.getAllShopsInfo(sessId)
 
-    } catch (e:any){
+    } catch (e: any) {
         res.status(404).send(e.message)
     }
 })
@@ -609,7 +608,7 @@ router.post('/admin/services/edit', async (req, res) => {
     }
 })
 
-router.get('/messages/:memberId', async (req, res) =>{
+router.get('/messages/:memberId', async (req, res) => {
     try {
         let sess = req.session.id;
         let ans = await service.getMessages(sess)
@@ -619,7 +618,7 @@ router.get('/messages/:memberId', async (req, res) =>{
     }
 })
 
-router.get('/messages/:memberId', async (req, res) =>{
+router.get('/messages/:memberId', async (req, res) => {
     try {
         let sess = req.session.id;
         let ans = await service.getMessages(sess)
@@ -640,7 +639,12 @@ router.get('/', (req, res) => {
 
 const _app_folder = './src/Client/client/dist/client'
 export const app = express();
-export const sessionConfig = {secret: "this is a secret", resave: true, saveUninitialized: true, cookie: {secure:false}}
+export const sessionConfig = {
+    secret: "this is a secret",
+    resave: true,
+    saveUninitialized: true,
+    cookie: {secure: false}
+}
 export const sessionMiddleware = session(sessionConfig)
 app.use(cors())
 app.use(sessionMiddleware);
@@ -654,5 +658,5 @@ app.use('/signup', express.static(_app_folder))
 // app.all('/*', function (req, res) {
 //     res.status(200).sendFile('/', {root: _app_folder})
 // })
-app.use('/api',router);
+app.use('/api', router);
 
