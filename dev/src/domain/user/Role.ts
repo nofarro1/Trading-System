@@ -6,10 +6,11 @@ export class Role {
     private readonly _shopId: number;
     private _title: string;
     private _jobType: JobType;
+    private _assigner: string;
     private _permissions: Set<Permissions>;
 
 
-    constructor(shopId: number, title: string, type: JobType, permissions: Set<Permissions>){
+    constructor(shopId: number, title: string, type: JobType, assigner: string, permissions: Set<Permissions>){
         this._shopId = shopId;
         this._title = title;
         this._jobType = type;
@@ -34,6 +35,11 @@ export class Role {
     public set jobType(value: JobType) {
         this._jobType = value;
     }
+
+    get assigner(): string {
+        return this._assigner;
+    }
+
     public get permissions(): Set<Permissions> {
         return this._permissions;
     }
@@ -53,7 +59,4 @@ export class Role {
         this.permissions.delete(perm);
     }
 
-    hasPermissions(perm: Permissions){
-        return this.permissions.has(perm);
-    }
 }

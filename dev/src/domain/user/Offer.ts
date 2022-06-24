@@ -7,14 +7,14 @@ export class Offer{
     private _approves: Map<string, [boolean, boolean]>;
     private _answer: boolean;
 
-    constructor(id: number, userId: string, shopId: number,  pId: number, price: number, approvers: Set<string>){
+    constructor(id: number, userId: string, shopId: number,  pId: number, price: number, approves: Set<string>){
         this._id= id;
         this._user= userId;
         this._shopId = shopId;
         this._pId= pId;
         this._price= price;
         this._approves = new Map<string, [boolean, boolean]>(); //(owner name, [has answered, answer]
-        for (let owner of approvers){
+        for (let owner of approves){
             this._approves.set(owner, [false, true])
         }
         this._answer= true;

@@ -1,5 +1,7 @@
 import {UUIDGenerator} from "../../utilities/Utils";
 import {Offer} from "../user/Offer";
+import {AppointmentAgreement} from "../marketplace/AppointmentAgreement";
+import {Shop} from "../marketplace/Shop";
 
 export abstract class Message {
     id: string
@@ -93,6 +95,40 @@ export class counterOfferMessage extends Message {
     constructor(offer: Offer, shopName: string){
         super(new Set<string>().add(offer.user));
         this.content = `Hello ${offer.user}, we would like to notify you that a counter bid has been placed on the bid you submitted-on for the product with id: ${offer.pId} in ${shopName} shop.\n The bid is ${offer.price}.`
+    }
+    getContent(): string {
+        return this.content;
+    }
+}
+
+export class appointmentAgreementMessage extends Message {
+    content: string;
+    constructor(agreement: AppointmentAgreement, shopName: string, approves: Set<string>){
+        super(approves);
+        this.content = `Hello, ${agreement.assigner} submitted ${agreement.member} candidacy for a shop owner in shop- ${shopName}. `
+    }
+
+    getContent(): string {
+        return this.content;
+    }
+}
+
+export class apponitmentApprovedMessage extends Message{
+    content: string;
+    constructor(shopName: string, member: string){
+        super(new Set<string>().add(member));
+        this.content = `Congratulation ${member}! Your shop owner appointment in ${shopName} has been approved by all shop owners. Soon you will be appointed.`
+    }
+    getContent(): string {
+        return this.content;
+    }
+}
+
+export class newOwnerInShopMessage extends Message{
+    content: string;
+    constructor(shop: Shop, member: string){
+        super(shop.shopOwners);
+        this.content = `${member} has been appointed a shop owner in your shop - ${shop.name}.`;
     }
     getContent(): string {
         return this.content;

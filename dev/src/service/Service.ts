@@ -72,12 +72,12 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 4
-    appointShopOwner(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string, title?: string): Promise<Result<void>> {
-        logger.info(`${sessionID}: ${assigningOwnerID} is appointing ${newOwnerID} to an owner of shop ${shopID}`);
-        if(title)
-            logger.info(`Member is appointed with the title ${title}`);
-        return this.memberService.appointShopOwner(sessionID, newOwnerID, shopID, assigningOwnerID, title);
-    }
+    // appointShopOwner(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string, title?: string): Promise<Result<void>> {
+    //     logger.info(`${sessionID}: ${assigningOwnerID} is appointing ${newOwnerID} to an owner of shop ${shopID}`);
+    //     if(title)
+    //         logger.info(`Member is appointed with the title ${title}`);
+    //     return this.memberService.appointShopOwner(sessionID, newOwnerID, shopID, assigningOwnerID, title);
+    // }
 
     //Shop Owner - Use-Case 6
     appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Promise<Result<void>> {

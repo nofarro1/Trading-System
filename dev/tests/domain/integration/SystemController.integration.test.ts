@@ -89,8 +89,8 @@ describe('system controller - integration', () => {
     const p2 = new Product("ps2", 0, ProductCategory.A, 10, 200,"description");
     const p3 = new Product("ps3", 0, ProductCategory.A, 10, 3000,"description");
 
-    const role1 = new Role(0, "title", JobType.Owner, new Set())
-    const role2 = new Role(0, "title", JobType.Manager, new Set())
+    const role1 = new Role(0, "title", JobType.Owner, username1, new Set())
+    const role2 = new Role(0, "title", JobType.Manager, username1, new Set())
 
     // beforeAll(() => {
     //
