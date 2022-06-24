@@ -26,28 +26,24 @@ export class Member extends Guest {
     }
 
     addRole(role: Role) {
-        this.roles.set(role.shopId, role);
+        if(!this.roles.has(role.shopId)) {
+            this.roles.set(role.shopId, role);
+        }
     }
 
     removeRole(shopId: number) {
-        let r;
-        this.roles.forEach((role) => {
-            if (role.shopId === shopId)
-                r = role;
-        });
-        if (r)
-            this.roles.delete(r);
+        if (this.roles.has(shopId))
+            this.roles.delete(shopId);
     }
 
     hasRole(shopId: number) {
-        this.roles.forEach((role) => {
-            if (role.shopId === shopId)
-                return true;
-        });
-        return false;
+       return this.roles.has(shopId);
     }
 
     addPermission(shopId: number, perm: Permissions) {
+        if(this.roles.has(shopId)) {
+            this.roles.get(shopId).addPermission(perm);
+        }
         this.roles.forEach((role) => {
             if (role.shopId === shopId)
                 role.addPermission(perm);
@@ -55,10 +51,9 @@ export class Member extends Guest {
     }
 
     removePermission(shopId: number, perm: Permissions) {
-        this.roles.forEach((role) => {
-            if (role.shopId === shopId)
-                role.removePermission(perm);
-        })
+        if(this.roles.has(shopId)) {
+            this.roles.get(shopId).removePermission(perm);
+        }
     }
     public getIdentifier(): string {
         return this.username;

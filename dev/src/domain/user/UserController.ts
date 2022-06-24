@@ -61,9 +61,9 @@ export class UserController {
         const member = this.members.get(username);
         if (member){
             if (!member.hasRole(shopId)){
-                logger.warn(`[removeRole] Role of shop ${shopId} NOT removed from member ${username} because this member don't have roles of this shop`); 
+                logger.warn(`[removeRole] Role of shop ${shopId} NOT removed from member ${username} because this member don't have roles of this shop`);
+                logger.info(`Role of shop ${shopId} removed from member ${username}`);
                 return new Result(false, undefined, `user ${username} not found`);
-                logger.info(`Role of shop ${shopId} removed from member ${username}`); 
             }
         }
         if (member){

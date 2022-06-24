@@ -7,9 +7,9 @@ export class SecurityController {
     private readonly _MINIMUM_PASSWORD_LENGTH = 8;
     private readonly _MAXIMUM_USERNAME_LENGTH = 31;
 
-    private readonly _members: Map<string, string>; //Username <-> Password
-    private readonly _activeGuests: Set<string>; //Session IDs
-    private readonly _loggedInMembers: Map<string, string>; //Session ID <-> Username
+      _members: Map<string, string>; //Username <-> Password
+      _activeGuests: Set<string>; //Session IDs
+      _loggedInMembers: Map<string, string>; //Session ID <-> Username
 
     constructor() {
         this._members = new Map<string, string>();
@@ -116,8 +116,8 @@ export class SecurityController {
             throw new Error(`The member ${username} is not currently logged in`);
         }
 
+        const res = this._loggedInMembers.delete(sessionID);
         logger.info(`Member ${username} has logged out successfully`);
-        this.loggedInMembers.delete(username);
     }
 
     hasActiveSession(sessionID: string): string {

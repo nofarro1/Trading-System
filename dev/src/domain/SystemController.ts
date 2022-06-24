@@ -14,7 +14,6 @@ import {MarketplaceController} from "./marketplace/MarketplaceController";
 import {ShoppingCartController} from "./user/ShoppingCartController";
 import {PurchaseController} from "./purchase/PurchaseController";
 import {MessageController} from "./notifications/MessageController";
-import {NotificationController} from "./notifications/NotificationController";
 import {checkRes, Result} from "../utilities/Result";
 import {UserController} from "./user/UserController";
 import {Guest} from "./user/Guest";
@@ -165,9 +164,9 @@ export class SystemController {
     //General Member - Use-Case 1 //General Guest - Use-Case 2
     exitMarketplace(sessionId: string): Result<void> {
 
-        const callback = (id: string) => {
-            let toLogout = id
-            let res = this.logout(id) // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
+        const callback = (MemberId: string) => {
+            let toLogout = sessionId
+            let res = this.logout(sessionId) // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
             if (checkRes(res)) {
                 toLogout = res.data.guestID;
             }
@@ -198,7 +197,7 @@ export class SystemController {
     //
     // }
     //General Guest - Use-Case 4
-    login(sessionId: string, d: LoginData): Result<void> {
+    login(sessionId: string, d: LoginData): Result<void | SimpleMember> {
         const secCallback = (id: string) => {
             //if success get the member_id
             try {
@@ -242,12 +241,12 @@ export class SystemController {
     }
 
     //General Guest - Use-Case 3
-    registerMember(sessionID: string, newMember: RegisterMemberData): Result<void> {
-        const secCallback = (id: string): Result<void> => {
+    registerMember(sessionID: string, newMember: RegisterMemberData): Result<void | SimpleMember> {
+        const secCallback = (id: string): Result<void | SimpleMember> => {
             //register process
             const res = this.register(id, newMember);
-            if (res.ok) {
-                return new Result<void>(true, undefined, res.message)
+            if (checkRes(res)) {
+                return new Result(true, res.data, res.message);
             } else {
                 return new Result(false, undefined, res.message);
             }
@@ -407,14 +406,14 @@ export class SystemController {
     /*------------------------------------Marketplace Interaction actions----------------------------------------------*/
 
     //Member Payment - Use-Case 2
-    setUpShop(sessionId: string, shopName: string): Result<void> {
-        const authCallback = (founderId: string): Result<void> => {
+    setUpShop(sessionId: string, shopName: string): Result<void | SimpleShop> {
+        const authCallback = (founderId: string): Result<void | SimpleShop> => {
             const result = this.uController.getMember(founderId);
             if (checkRes(result)) {
                 let shop = this.mpController.setUpShop(founderId, shopName)
                 if (checkRes(shop)) {
-                    this.uController.addRole(founderId, "founder", JobType.Founder, shop.data.id, new Set());
-                    return new Result(true, undefined, "shop has opened");
+                    this.uController.addRole(founderId, "founder", JobType.Founder, shop.data.id, new Set([Permissions.ShopOwner]));
+                    return new Result(true, toSimpleShop(shop.data), "shop has opened");
                 }
                 return new Result(false, undefined, "failed to set up shop.")
             } else {
@@ -430,7 +429,8 @@ export class SystemController {
     //Shop Owner - Use-Case 1.1
     addProduct(sessionId: string, p: NewProductData): Result<SimpleProduct | void> {
         const authCallback = (id: string) => {
-            if (this.uController.checkPermission(id, p.shopId, Permissions.AddProduct).data) {
+            if (this.uController.checkPermission(id, p.shopId, Permissions.AddProduct).data ||
+                this.uController.checkPermission(id, p.shopId, Permissions.ShopOwner).data) {
 
                 let res = this.mpController.addProductToShop(
                     p.shopId, p.productCategory, p.productName,
@@ -448,7 +448,8 @@ export class SystemController {
     //Shop Owner - Use-Case 1.3
     updateProductQuantity(sessionId: string, shop: number, product: number, quantity: number): Result<void> {
         const authCallback = (id: string): Result<void> => {
-            if (this.uController.checkPermission(id, shop, Permissions.ModifyProduct).data) {
+            if (this.uController.checkPermission(id, shop, Permissions.ModifyProduct).data ||
+                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.mpController.updateProductQuantity(shop, product, quantity)
             }
             return new Result(false, undefined, "member does not have permissions");
@@ -459,7 +460,8 @@ export class SystemController {
     //Shop Owner - Use-Case 1.2
     deleteProduct(sessId: string, shop: number, product: number): Result<void> {
         const authCallback = (id: string): Result<void> => {
-            if (this.uController.checkPermission(id, shop, Permissions.RemoveProduct).data) {
+            if (this.uController.checkPermission(id, shop, Permissions.RemoveProduct).data ||
+                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.mpController.removeProductFromShop(shop, product);
             }
             return new Result(false, undefined, "member does not have permissions");
@@ -470,7 +472,8 @@ export class SystemController {
     //Shop Owner - Use-Case 9
     deactivateShop(sessId: string, shop: number): Result<void> {
         return this.authenticateMarketVisitor(sessId, (id: string) => {
-            if (this.uController.checkPermission(id, shop, Permissions.CloseShop).data) {
+            if (this.uController.checkPermission(id, shop, Permissions.CloseShop).data ||
+                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.mpController.closeShop(id, shop)
             }
             return new Result(false, undefined, "no permission")
@@ -562,7 +565,8 @@ export class SystemController {
     //Shop Owner - Use-Case 4
     appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
         const authCallback = (id: string) => {
-            if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data) {
+            if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
+                this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data) {
                 const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions.concat(Permissions.ShopOwner)))
                 if (checkRes(result)) {
                     return this.mpController.appointShopOwner(r.member, r.shopId)
@@ -577,7 +581,8 @@ export class SystemController {
     //Shop Owner - Use-Case 6
     appointShopManager(sessionId: string, r: NewRoleData): Result<void> {
         const authCallback = (appointerId: string) => {
-            if (this.uController.checkPermission(appointerId, r.shopId, Permissions.AddShopManager).data) {
+            if (this.uController.checkPermission(appointerId, r.shopId, Permissions.AddShopManager).data ||
+                this.uController.checkPermission(appointerId, r.shopId, Permissions.ShopOwner).data) {
                 const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions)) //todo: adding an assigner to the method?
                 if (result.ok) {
                     return this.mpController.appointShopManager(r.member, r.shopId)
@@ -602,21 +607,23 @@ export class SystemController {
     */
 
     //Shop Owner - Use-Case 7.1
-    addShopManagerPermission(connectionId: string, manager: string, shop: number, permission: Permissions): Result<void> {
+    addShopManagerPermission(sessionId: string, manager: string, shop: number, permission: Permissions): Result<void> {
         const authCallback = (ownerId: string) => {
-            if (this.uController.checkPermission(ownerId, shop, Permissions.AddPermission).data) {
+            if (this.uController.checkPermission(ownerId, shop, Permissions.AddPermission).data ||
+                this.uController.checkPermission(ownerId, shop, Permissions.ShopOwner).data) {
                 return this.uController.addPermission(manager, shop, permission)
             } else {
                 return new Result(false, undefined, "No permission to add permissions");
             }
         }
-        return this.authenticateMarketVisitor(connectionId, authCallback)
+        return this.authenticateMarketVisitor(sessionId, authCallback)
     }
 
     //Shop Owner - Use-Case 7.2
     removeShopManagerPermission(sessionId: string, manager: string, shop: number, permission: Permissions): Result<void> {
         const authCallback = (id: string) => {
-            if (this.uController.checkPermission(id, shop, Permissions.RemovePermission).data) {
+            if (this.uController.checkPermission(id, shop, Permissions.RemovePermission).data ||
+                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.uController.removePermission(manager, shop, permission)
             } else {
                 return new Result(false, undefined, "No permission to add permissions");
@@ -627,7 +634,8 @@ export class SystemController {
 
     reactivateShop(sessId: string, shop: number): Result<void> {
         return this.authenticateMarketVisitor(sessId, (id: string) => {
-            if (this.uController.checkPermission(id, shop, Permissions.ReopenShop).data) {
+            if (this.uController.checkPermission(id, shop, Permissions.ReopenShop).data ||
+                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.mpController.reopenShop(id, shop)
             }
             return new Result(false, undefined, "no permission")
@@ -637,7 +645,8 @@ export class SystemController {
     //Shop Owner - Use-Case 11
     getPersonnelInfoOfShop(sessId: string, shop: number): Result<SimpleMember[] | void> {
         const callback = (id: string) => {
-            if (!this.uController.checkPermission(id, shop, Permissions.RequestPersonnelInfo).data) {
+            if (!this.uController.checkPermission(id, shop, Permissions.RequestPersonnelInfo).data||
+                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
             }
             let shopRes = this.mpController.getShopInfo(shop);
@@ -664,7 +673,8 @@ export class SystemController {
 
         const callback = (id: string) => {
             //check if can preview History
-            if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data) {
+            if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data||
+                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
             }
             let orders: string[] = this.pController.shopOrders.has(shop) ?
@@ -688,7 +698,7 @@ export class SystemController {
             password: registrationData.password
         });
         if (admin.ok) {
-            this.uController.addRole(registrationData.username, "System Admin", JobType.admin, -1, new Set())
+            this.uController.addRole(registrationData.username, "System Admin", JobType.admin, -1, new Set([Permissions.AdminControl]))
             return new Result(true, undefined, "new admin is added")
         }
         return new Result(false, undefined, "admin name cannot be registered");

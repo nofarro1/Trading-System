@@ -44,7 +44,7 @@ export class Service {
     //----------------------Guest Service methods-------------------------------
 
     //General Guest - Use-Case 3
-    register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void>> {
+    register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void | SimpleMember>> {
         logger.info(`A member registration is being performed using ${sessionID} for username: ${username}`);
         logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
         return this.guestService.register(sessionID, username, password, firstName, lastName, email, country);

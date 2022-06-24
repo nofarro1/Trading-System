@@ -16,9 +16,9 @@ export class GuestService {
 
     //General Guest - Use-Case 3
     register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string,
-             email?: string, country?: string): Promise<Result<void>> {
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.registerMember(sessionID, {username: username, password: password,
+             email?: string, country?: string): Promise<Result<void | SimpleMember>> {
+        return new Promise<Result<void | SimpleMember>>((resolve, reject) => {
+            let result: Result<void | SimpleMember> = this.systemController.registerMember(sessionID, {username: username, password: password,
                 firstName: firstName, lastName: lastName, email: email, country: country});
             result.ok ? resolve(result) : reject(result.message);
         });
