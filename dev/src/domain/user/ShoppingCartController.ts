@@ -132,4 +132,29 @@ export class ShoppingCartController {
         logger.info(`Tried to add offer to  ${username}'s cart , but the cart wasn't found.`);
         return new Result(true, undefined, `Tried to add offer to ${username}'s cart, but the bag wasn't found.`);
     }
+
+    updateOfferFromCart(toUpdate: Offer){
+        let cart = this.carts.get(toUpdate.user);
+        if(cart){
+            // First delete the irrelevant offer and then push the relevant one.
+            let i: number = cart.offers.findIndex((curr: Offer)=> curr.id===toUpdate.id);
+            cart.offers.splice(i, 1);
+            cart.offers.push(toUpdate);
+            return new Result(true, undefined);
+        }
+        logger.info(`Tried to update offer to  ${toUpdate.user}'s cart , but the cart wasn't found.`);
+        return new Result(false, undefined, `Tried to update offer to ${toUpdate.user}'s cart, but the bag wasn't found.`);
+    }
+
+    removeOffer(username: string, toRemoveId: number){
+        let cart = this.carts.get(username);
+        if(cart){
+            // First delete the irrelevant offer and then push the relevant one.
+            let i: number = cart.offers.findIndex((curr: Offer)=> curr.id=== toRemoveId);
+            cart.offers.splice(i, 1);
+            return new Result(true, undefined);
+        }
+        logger.info(`Tried to remove offer to  ${username}'s cart , but the cart wasn't found.`);
+        return new Result(true, undefined, `Tried to remove offer to ${username}'s cart, but the bag wasn't found.`);
+    }
 }

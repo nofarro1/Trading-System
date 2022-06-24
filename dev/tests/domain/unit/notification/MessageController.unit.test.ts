@@ -3,6 +3,8 @@ import {Message} from "../../../../src/domain/notifications/Message";
 import {Member} from "../../../../src/domain/user/Member";
 import {MessageController} from "../../../../src/domain/notifications/MessageController";
 import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
+import {systemContainer} from "../../../../src/helpers/inversify.config";
+import {TYPES} from "../../../../src/helpers/types";
 
 
 
@@ -44,7 +46,7 @@ describe('messageBox - test', function () {
         cart1 = new ShoppingCart();
         tu1 = new Member(sess1,id1)
         mb1 = new MessageBox(id1);
-        controller = new MessageController();
+        controller = systemContainer.get(TYPES.MessageController);
         controller.messageBoxes.set(id1, mb1)
         jest.clearAllMocks()
     })

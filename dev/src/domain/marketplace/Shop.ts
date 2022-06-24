@@ -8,17 +8,13 @@ import {
 import {Answer} from "../../utilities/Types";
 import {Guest} from "../user/Guest";
 import {
-    ConditionalDiscountData,
-    ContainerDiscountData,
-    ContainerPurchaseData,
     DiscountData,
     ImmediatePurchaseData,
     isConditionalDiscount,
     isContainerDiscount, isContainerPurchaseData,
     isSimpleDiscount,
     isSimplePurchaseData,
-    SimpleDiscountData,
-    SimplePurchaseData
+
 } from "../../utilities/DataObjects";
 import {SimpleDiscount} from "./DiscountAndPurchasePolicies/leaves/SimpleDiscount";
 import {PredicateDiscountPolicy} from "./DiscountAndPurchasePolicies/Predicates/PredicateDiscountPolicy";
@@ -46,7 +42,7 @@ import {
     ContainerDiscountComponent
 } from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 import {Offer} from "../user/Offer";
-import {isBooleanObject, isNumberObject} from "util/types";
+
 
 
 export class Shop {
@@ -69,7 +65,7 @@ export class Shop {
     private _description?: string;
     private _offers: Map<number, Offer>
     private _offersArray: Offer[];
-    private offerCounter: number;
+    private _offerCounter: number;
 
     constructor(id: number, name: string, shopFounder: string, description?: string){
         this._id= id;
@@ -88,7 +84,9 @@ export class Shop {
         this._purchasePoliciesArray= [];
         this._purchaseCounter = 0;
         this._description = description;
-        this.offerCounter = 0;
+        this._offers = new Map<number, Offer>();
+        this.offersArray = []
+        this._offerCounter = 0;
     }
 
 
@@ -210,6 +208,15 @@ export class Shop {
         this._purchaseCounter = value;
     }
 
+    get offers(): Map<number, Offer> {
+        return this._offers;
+    }
+
+
+    get offerCounter(): number {
+        return this._offerCounter;
+    }
+
     get offersArray(): Offer[] {
         return this._offersArray;
     }
@@ -269,7 +276,7 @@ export class Shop {
 
     removeShopOwner (ownerId: string): boolean{
         for (let offer of this._offers.values()){
-            offer.approvers.delete(ownerId);
+            offer.approves.delete(ownerId);
         }
         return this._shopOwners.delete(ownerId);
     }
@@ -355,10 +362,10 @@ export class Shop {
     }
 
     addOfferPrice2Product( userId: string, pId: number, offeredPrice: number): Offer{
-        let offer = new Offer(this.offerCounter,userId, this.id, pId, offeredPrice, this.shopOwners)
-        this._offers.set(this.offerCounter, offer);
+        let offer = new Offer(this._offerCounter,userId, this.id, pId, offeredPrice, this.shopOwners)
+        this._offers.set(this._offerCounter, offer);
         this.offersArray= [...this._offers.values()];
-        this.offerCounter= this.offerCounter+1;
+        this._offerCounter= this._offerCounter+1;
         return offer;
     }
 
@@ -371,14 +378,27 @@ export class Shop {
             return this._offers.get(offerId);
     }
 
-    answerOffer(offerId: number, ownerId: string, answer: boolean|number): boolean{
+    answerOffer(offerId: number, ownerId: string, answer: boolean){
         let offer = this._offers.get(offerId);
         if(offer){
-            if(isBooleanObject(answer))
-            offer.setAnswer(ownerId, answer);
-            return true;
+                offer.setAnswer(ownerId, answer);
+                return true;
         }
         return false;
+    }
+
+    filingCounterOffer(offerId: number, counterOffer){
+        let offer = this._offers.get(offerId);
+        if(offer){
+            offer.price=counterOffer;
+            offer.resetApproves();
+        }
+        return offer;
+    }
+
+    acceptCounterOffer(id: number) {
+        let offer: Offer = this.offers.get(id);
+        offer.resetApproves();
     }
 
     private extractProducts(shopProducts: Map<number, [Product, number]>): Product[]{
@@ -386,8 +406,6 @@ export class Shop {
         for(let tuple of shopProducts){ productsList.push(tuple[1][0])}
         return productsList;
     }
-
-
 
     private discData2Component (disc: DiscountData): DiscountComponent {
         if (isSimpleDiscount(disc)) {
@@ -445,6 +463,7 @@ export class Shop {
                 }
             }
         }
+
 
 
 }

@@ -10,7 +10,7 @@ import {SimpleProduct} from "../../../../utilities/simple_objects/marketplace/Si
 import {ProductCategory} from "../../../../utilities/Enums";
 import {SimpleShoppingCart} from "../../../../utilities/simple_objects/user/SimpleShoppingCart";
 
-const base="https://localhost:3000";
+const base="https://localhost:3000/api";
 export class api {
 
   constructor() {

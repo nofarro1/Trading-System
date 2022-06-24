@@ -17,6 +17,7 @@ import {
     SimplePurchaseData
 } from "../../../../src/utilities/DataObjects";
 import {add} from "winston";
+import {Offer} from "../../../../src/domain/user/Offer";
 
 const mockInstance = (dependency: string) => {
     jest.mock(dependency)
@@ -276,6 +277,18 @@ describe('SimpleShop- Appointed Members', function(){
         s1.addPurchasePolicy(simplePolicy);
         let ans = s1.canMakePurchase([bag, user]);
         expect(ans.ok).toBe(true);
+    })
+
+    test("offer status - isDone + setAnswer", ()=>{
+        let offer = new Offer(s1.offerCounter, "nofar", s1.id, 0, 4.5, s1.shopOwners);
+        s1.offers.set(s1.offerCounter, offer);
+        expect(offer.isDone()).toBe(false);
+        s1.answerOffer(offer.id, s1.shopFounder, true);
+        expect(offer.isDone()).toBe(true);
+        expect(offer.answer).toBe(true);
+        s1.answerOffer(offer.id, s1.shopFounder, false);
+        expect(offer.isDone()).toBe(true);
+        expect(offer.answer).toBe(false);
     })
 })
 
