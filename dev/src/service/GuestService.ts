@@ -20,9 +20,9 @@ export class GuestService {
              email?: string, country?: string): Promise<Result<void>> {
         logger.warn("[register] start");
         return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.registerMember(sessionID, {username: username, password: password,
+            let result: Result<SimpleMember | void> = this.systemController.registerMember(sessionID, {username: username, password: password,
                 firstName: firstName, lastName: lastName, email: email, country: country});
-            result.ok ? resolve(result) : reject(result.message);
+            result.ok ? result : reject(result.message);
             console.log("[register in GuestService] what in the result? " + result.data);
         });
     }

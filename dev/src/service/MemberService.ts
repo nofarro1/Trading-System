@@ -84,10 +84,10 @@ export class MemberService {
         });
     }
 
-    approveOffer(sessionId: string, shopId:number, offerId: number, answer: string){
-        return new Promise <Result<void>>((resolve, reject)=>{
-            let result: Result<void> = this.systemController.approveOffer(sessionId, shopId, offerId, answer);
-            result.ok ? resolve(result) : reject(result.message);
-        })
-    }
+    // approveOffer(sessionId: string, shopId:number, offerId: number, answer: string){
+    //     return new Promise <Result<void>>((resolve, reject)=>{
+    //         let result: Result<void> = this.systemController.approveOffer(sessionId, shopId, offerId, answer);
+    //         result.ok ? resolve(result) : reject(result.message);
+    //     })
+    // }
 }
