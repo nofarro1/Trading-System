@@ -1,0 +1,373 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./prisma"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Member {
+  username          String             @id
+  //Foreign Keys referenced
+  roles             Role[] //One To Many
+  shops             Shop[] //One To Many
+  shop_owners       ShopOwner[] //One To Many
+  shop_managers     ShopManager[] //One To Many
+  ShoppingCart      ShoppingCart? //One To One
+  MemberCredentials MemberCredentials? //One To One
+
+  @@map("member")
+}
+
+model Role {
+  member      Member        @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username    String //FK
+  shop        Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId      Int //FK
+  title       String?
+  job_type    JobType
+  permissions Permissions[]
+
+  @@id([username, shopId])
+  @@map("role")
+}
+
+model Product {
+  id               Int             @id
+  name             String
+  shop             Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId           Int //FK - Many To One
+  category         ProductCategory @default(A)
+  rate             ProductRate     @default(NotRated)
+  description      String?
+  //Foreign Keys referenced
+  products_in_shop ProductInShop[]
+  products_in_bag  ProductInBag[]
+
+  @@map("product")
+}
+
+model Shop {
+  id               Int             @id
+  name             String
+  status           ShopStatus
+  member           Member          @relation(fields: [shop_founder], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  shop_founder     String //FK - One To One
+  rate             ShopRate        @default(NotRated)
+  //  discounts
+  //  purchase_policies
+  description      String?
+  //Foreign Keys referenced
+  role             Role[]
+  products         Product[]
+  shop_owners      ShopOwner[]
+  shop_managers    ShopManager[]
+  products_in_shop ProductInShop[]
+  bags             ShoppingBag[]
+
+  @@map("shop")
+}
+
+model ShopOwner {
+  member   Member @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String
+  shop     Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId   Int
+
+  @@id([username, shopId])
+  @@map("shop_owner")
+}
+
+model ShopManager {
+  member   Member @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String
+  shop     Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId   Int
+
+  @@id([username, shopId])
+  @@map("shop_manager")
+}
+
+model ProductInShop {
+  shop             Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId           Int //FK - Many To One
+  product          Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId        Int //FK - Many To One
+  product_quantity Int     @default(0)
+
+  @@id([shopId, productId])
+  @@map("product_in_shop")
+}
+
+model ShoppingCart {
+  member   Member        @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String        @id
+  //Foreign Key referenced
+  bags     ShoppingBag[]
+
+  @@map("shopping_cart")
+}
+
+model ShoppingBag {
+  shoppingCart    ShoppingCart   @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username        String
+  shop            Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId          Int
+  //Foreign Key referenced
+  products_in_bag ProductInBag[]
+
+  @@id([username, shopId])
+  @@map("shopping_bag")
+}
+
+model ProductInBag {
+  shoppingBag      ShoppingBag @relation(fields: [username, shopId], references: [username, shopId], onDelete: Cascade, onUpdate: Cascade)
+  username         String
+  shopId           Int
+  product          Product     @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId        Int //FK - Many To One
+  product_quantity Int         @default(0)
+
+  @@id([username, shopId, productId])
+  @@map("product_in_bag")
+}
+
+model MemberCredentials {
+  member   Member @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String @id
+  password String
+
+  @@map("member_credentials")
+}
+
+//model SimpleMessage {
+//  @@map("simple_message")
+//}
+//
+//model ShopPurchaseMessage {
+//  @@map("shop_purchase_message")
+//}
+//
+//model ShopStatusChangedMessage {
+//  @@map("shop_status_changed_message")
+//}
+//
+//model AddedNewOffer2ShopMessage {
+//  @@map("added_new_offer_to_shop_message")
+//}
+//
+//model CounterOfferMessage {
+//  @@map("counter_offer_message")
+//}
+
+model Discount {
+  id                  Int                  @id
+  //Foreign Key references
+  simpleDiscount      SimpleDiscount?
+  conditionalDiscount ConditionalDiscount?
+  discountContainer   DiscountContainer?
+
+  @@map("discount")
+}
+
+model SimpleDiscount {
+  discount            Discount             @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id                  Int                  @id
+  discountType        DiscountType
+  discountPercent     Int
+  description         String
+  productId           Int?
+  category            ProductCategory?
+  //Foreign Key references
+  conditionalDiscount ConditionalDiscount?
+
+  @@map("simple_discount")
+  DiscountInContainer DiscountInContainer[]
+}
+
+model ConditionalDiscount {
+  discount          Discount           @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id                Int                @id
+  simpleDiscount    SimpleDiscount     @relation(fields: [simpleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  simpleId          Int                @unique
+  //Foreign Key references
+  discountPredicate DiscountPredicate?
+
+  @@map("conditional_discount")
+}
+
+model DiscountPredicate {
+  discount     ConditionalDiscount @relation(fields: [discountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  discountId   Int                 @id
+  discountType DiscountType
+  productId    Int?
+  category     ProductCategory?
+  relation     RelationType
+  value        Int
+  description  String
+
+  @@map("discount_predicate")
+}
+
+model DiscountContainer {
+  discount    Discount              @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id          Int                   @id
+  description String
+  type        DiscountRelation
+  //Foreign Key references
+  discounts   DiscountInContainer[]
+
+  @@map("discount_container")
+}
+
+model DiscountInContainer {
+  discount           SimpleDiscount    @relation(fields: [containedDiscount], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  containedDiscount  Int
+  discountContainer  DiscountContainer @relation(fields: [containingDiscount], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  containingDiscount Int
+
+  @@id([containedDiscount, containingDiscount])
+  @@map("discount_in_container")
+}
+
+//model PolicyInContainer {
+//  containedPolicy Int
+//  containingPolicy Int
+//  //Foreign Key references
+//  policyContainers PolicyContainer[]
+//
+//  @@id([containedPolicy, containingPolicy])
+//}
+//
+//model SimplePolicy {
+//  id Int @id
+//  okay Boolean
+//  message String
+//
+//
+//}
+//
+//model PolicyPredicate {
+//  policy SimplePolicy @relation(fields: [], references: [], onDelete: Cascade, onUpdate: Cascade) //TODO
+//  id Int @id
+//  policyType SimplePolicyType
+//  productId Int?
+//  productCategory ProductCategory?
+//  guest String?
+//  relation RelationType
+//  value Int
+//  description String
+//}
+//
+//model ConditionalPolicy {
+//  id Int @id
+//  policy Policy @relation(fields: [dependent, dependentOn], references: [id], onDelete: Cascade, onUpdate: Cascade)
+//  dependent Int
+//  depedentOn Int
+//  description String
+//}
+//
+//model LogicalPolicy {
+//  id Int @id
+//  description String
+//
+//  policies PolicyInContainer[]
+//}
+//
+//model Offer {
+//  id Int @id
+//  member Member @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+//  username String
+//  shopId Int
+//  productId Int
+//  price Double
+//
+//}
+//
+//model OfferApprovers {
+//  username String
+//  offerId Int
+//  approved Boolean @default(null) //TODO
+//}
+//
+//model AppointmentAgreement {
+//  username String
+//  assigner String
+//  approved Boolean
+//
+//}
+
+enum JobType {
+  Admin
+  Founder
+  Owner
+  Manager
+}
+
+enum Permissions {
+  AddProduct
+  RemoveProduct
+  ModifyProduct
+  RequestPersonnelInfo
+  GetPurchaseHistory
+  AddShopOwner
+  AddShopManager
+  AddPermission
+  RemovePermission
+  CloseShop
+  ReopenShop
+  AdminControl
+  AddDiscount
+  RemoveDiscount
+  AddPurchasePolicy
+  RemovePurchasePolicy
+  ShopOwner
+}
+
+enum ProductCategory {
+  A
+  B
+  C
+}
+
+enum ProductRate {
+  NotRated
+}
+
+enum ShopStatus {
+  Open
+  Closed
+}
+
+enum ShopRate {
+  NotRated
+}
+
+enum DiscountType {
+  Product
+  Category
+  Bag
+}
+
+enum RelationType {
+  LessThan
+  LessThanOrEqual
+  Equal
+  GreaterThan
+  GreaterThanOrEqual
+  NotEqual
+}
+
+enum DiscountRelation {
+  And
+  Or
+  Xor
+  Addition
+  Max
+}
