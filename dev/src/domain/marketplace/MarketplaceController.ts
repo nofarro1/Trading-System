@@ -502,7 +502,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result (false, undefined, `Cannot accept counter-offer because the shop not found in market`)
     }
 
-    submitOwnerAppointmentInShop(shopId: number, member: string, assigner: string): Result<void | AppointmentAgreement>{
+    submitOwnerAppointmentInShop(shopId: number, member: string, assigner: string): Result<void>{
         let shop = this._shops.get(shopId);
         if(shop){
             if(!shop.shopOwners.has(assigner)){
@@ -513,7 +513,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
                 let agreement = shop.submitOwnerAppointment(member, assigner);
                 this.notifySubscribers(new appointmentAgreementMessage(agreement, shop.name, shop.shopOwners));
                 logger.info(`New appointment agreement has been submitted to shop with id: ${shopId}.`)
-                return new Result<void | AppointmentAgreement>(true, agreement, `${agreement.assigner} submitted ${agreement.member} candidacy for a shop owner in shop- ${shop.name}.`)
+                return new Result<void>(true, undefined, `${agreement.assigner} submitted ${agreement.member} candidacy for a shop owner in shop- ${shop.name}.`)
             }
         }
         logger.warn(`Cannot submit owner appointment because the shop not found in market`);

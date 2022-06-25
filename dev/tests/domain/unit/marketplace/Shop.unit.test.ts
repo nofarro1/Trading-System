@@ -439,7 +439,7 @@ describe('Shop.units', function() {
     expect(agreement).not.toBeNull();
     if(agreement){
         expect(agreement.isDone()).toBe(true);
-        expect(agreement.answer).toBe(true);
+        expect(agreement.getAnswer()).toBe(true);
     }
     })
 

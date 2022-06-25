@@ -25,14 +25,10 @@ export class MemberService {
         });
     }
 
-    //Shop Owner - Use-Case 4
-    appointShopOwner(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string, title?: string,
-                     permissions?: Permissions[]): Promise<Result<void>> {
+    //Shop Owner - Modified Use-Case 4 according version 4
+    appointShopOwner(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string): Promise<Result<void>> {
         return new Promise<Result<void>>((resolve, reject) => {
-            if(!permissions)
-                permissions = new Array<Permissions>();
-            let result: Result<void> = this.systemController.appointShopOwner(sessionID, {member: newOwnerID, shopId: shopID, assigner: assigningOwnerID,
-                title: title, permissions: permissions});
+            let result: Result<void> = this.systemController.submitOwnerAppointmentInShop(sessionID, shopID, newOwnerID, assigningOwnerID);
             result.ok ? resolve(result) : reject(result.message);
         });
     }

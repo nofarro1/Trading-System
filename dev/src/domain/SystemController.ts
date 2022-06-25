@@ -790,7 +790,7 @@ export class SystemController {
         })
     }
     /*-----------------------------------Appointment agreement----------------------------------------------*/
-    submitOwnerAppointmentInShop(sessionId: string, shopId: number, member: string, assigner: string): Result<void | AppointmentAgreement>{
+    submitOwnerAppointmentInShop(sessionId: string, shopId: number, member: string, assigner: string): Result<void>{
         return this.authenticateMarketVisitor(sessionId, ()=>{
             return this.mpController.submitOwnerAppointmentInShop(shopId, member, assigner);
         })

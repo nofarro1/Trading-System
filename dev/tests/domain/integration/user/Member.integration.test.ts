@@ -20,10 +20,10 @@ const shop1 = new Shop(12, "myShop", founder.username);
 const shop2 = new Shop(42, "theShop", founder.username);
 
 let emptyPerm = new Set<Permissions>();
-const r1 = new Role(shop1.id, "manager of myShop", JobType.Manager, shop1.shopFounder, emptyPerm);
-const r2 = new Role(shop2.id, "manager of theShop", JobType.Manager, shop2.shopFounder, emptyPerm);
-const r3 = new Role(shop2.id, "owner of theShop", JobType.Owner, shop2.shopFounder,emptyPerm);
-const r4 = new Role(shop1.id, "founder of myShop", JobType.Founder, shop1.shopFounder, emptyPerm);
+const r1 = new Role(shop1.id, JobType.Manager, shop1.shopFounder, emptyPerm);
+const r2 = new Role(shop2.id, JobType.Manager, shop2.shopFounder, emptyPerm);
+const r3 = new Role(shop2.id, JobType.Owner, shop2.shopFounder,emptyPerm);
+const r4 = new Role(shop1.id, JobType.Founder, shop1.shopFounder, emptyPerm);
 
 
 
@@ -48,7 +48,7 @@ describe('SimpleMember - test', function () {
     test("dont remove role that dont exist from member", () => {
         m1.addRole(r1);
         m1.addRole(r2);
-        const r3 = new Role(shop1.id, "founder of myShop", JobType.Owner, shop1.shopFounder, emptyPerm);
+        const r3 = new Role(shop1.id, JobType.Owner, shop1.shopFounder, emptyPerm);
         m1.removeRole(r3.shopId, shop1.shopFounder);
         m1.removeRole(r2.shopId, shop1.shopFounder);
         expect(m1.roles).toContain(r3);

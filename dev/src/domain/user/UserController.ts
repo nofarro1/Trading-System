@@ -46,7 +46,7 @@ export class UserController {
             return new Result(false, undefined, `User ${username} not found`);
         }
         const member = this.members.get(username);
-        let role = new Role(shopId, title, jobType, assigner, perm);
+        let role = new Role(shopId, jobType, assigner, perm);
         if(member)
             member.addRole(role);
         logger.info(`[addRole] Role ${role} added to member ${username}`);
