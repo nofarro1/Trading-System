@@ -34,14 +34,14 @@ export class MemberService {
     }
 
     //Shop Owner - Use-Case 6
-    appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string, title?: string,
+    appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string,
                        permissions?: Permissions[]): Promise<Result<void>> {
 
         return new Promise<Result<void>>((resolve, reject) => {
             if(!permissions)
                 permissions = new Array<Permissions>();
             let result: Result<void> = this.systemController.appointShopManager(sessionID, {member: newManagerID, shopId: shopID, assigner: assigningOwnerID,
-                title: title, permissions: permissions});
+                permissions: permissions});
             result.ok ? resolve(result) : reject(result.message);
         });
     }

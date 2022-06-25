@@ -85,13 +85,11 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 6
-    appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Promise<Result<void>> {
+    appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string, permissions?: Permissions[]): Promise<Result<void>> {
         logger.info(`${sessionID}: ${assigningOwnerID} is appointing ${newManagerID} to a manager of shop ${shopID}`);
-        if(title)
-            logger.info(`Member is appointed with the title ${title}`);
         if(permissions)
             logger.info(`Member is appointed with the following permissions: ${permissions}`);
-        return this.memberService.appointShopManager(sessionID, newManagerID, shopID, assigningOwnerID, title, permissions);
+        return this.memberService.appointShopManager(sessionID, newManagerID, shopID, assigningOwnerID, permissions);
     }
 
     //Shop Owner - Use-Case 7.1

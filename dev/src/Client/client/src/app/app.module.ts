@@ -25,10 +25,10 @@ import { environment } from '../environments/environment';
 const apiConfig: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
 const config: SocketIoConfig = {
-	url: environment.socketUrl, // socket server url;
-	options: {
-		transports: ['websocket']
-	}
+  url: environment.socketUrl, // socket server url;
+  options: {
+    transports: ['websocket']
+  }
 }
 @NgModule({
   declarations: [
