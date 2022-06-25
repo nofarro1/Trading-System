@@ -645,7 +645,7 @@ export class SystemController {
     //Shop Owner - Use-Case 11
     getPersonnelInfoOfShop(sessId: string, shop: number): Result<SimpleMember[] | void> {
         const callback = (id: string) => {
-            if (!this.uController.checkPermission(id, shop, Permissions.RequestPersonnelInfo).data||
+            if (!this.uController.checkPermission(id, shop, Permissions.RequestPersonnelInfo).data ||
                 this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
             }
@@ -673,7 +673,7 @@ export class SystemController {
 
         const callback = (id: string) => {
             //check if can preview History
-            if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data||
+            if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data ||
                 this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
             }
@@ -702,6 +702,17 @@ export class SystemController {
             return new Result(true, undefined, "new admin is added")
         }
         return new Result(false, undefined, "admin name cannot be registered");
+    }
+
+    checkAdminPermissions(sessionID: string, admin_username: string, admin_password: string): Result<boolean> {
+        return this.authenticateMarketVisitor(sessionID, (username) => {
+            if(this.securityController.checkPassword(username, admin_password)){
+                return this.uController.checkPermission(admin_username,-1,Permissions.AdminControl);
+            } else {
+                return Result.Fail("password does not match");
+            }
+        })
+
     }
 
 
@@ -745,24 +756,24 @@ export class SystemController {
     }
 
     /*-----------------------------------Offer (bid on product)----------------------------------------------*/
-    addOffer2Shop(sessionId, shopId: number, pId: number, price: number) : Result<void>{
+    addOffer2Shop(sessionId, shopId: number, pId: number, price: number): Result<void> {
         return this.authenticateMarketVisitor(sessionId, (username) => {
             let offer: Result<void | Offer> = this.mpController.addOffer2Product(shopId, username, pId, price);
-            if(checkRes(offer)){
+            if (checkRes(offer)) {
                 return this.scController.addOffer2cart(username, offer.data);
             }
         })
     }
 
-    approveOffer(sessionId: string, shopId: number, offerId: number, answer: boolean) :Result<void>{
-        return this.authenticateMarketVisitor(sessionId, (username)=>{
-           return this.mpController.approveOffer(shopId, offerId, username, answer);
+    approveOffer(sessionId: string, shopId: number, offerId: number, answer: boolean): Result<void> {
+        return this.authenticateMarketVisitor(sessionId, (username) => {
+            return this.mpController.approveOffer(shopId, offerId, username, answer);
         });
     }
 
-    filingCounterOffer(sessionId: string, shopId: number, offerId: number, counterPrice: number): Result<void>{
-        return this.authenticateMarketVisitor(sessionId, (username)=>{
-            let result: Result<void | Offer> =  this.mpController.filingCounterOffer(shopId, offerId, username, counterPrice);
+    filingCounterOffer(sessionId: string, shopId: number, offerId: number, counterPrice: number): Result<void> {
+        return this.authenticateMarketVisitor(sessionId, (username) => {
+            let result: Result<void | Offer> = this.mpController.filingCounterOffer(shopId, offerId, username, counterPrice);
             if (checkRes(result)) {
                 this.scController.updateOfferFromCart(result.data);
                 return Result.Ok(result.data);
@@ -771,15 +782,15 @@ export class SystemController {
         })
     }
 
-    denyCounterOffer(sessionId: string, username: string, shopId: number, offerId: number): Result<void>{
-        return this.authenticateMarketVisitor(sessionId, ()=>{
+    denyCounterOffer(sessionId: string, username: string, shopId: number, offerId: number): Result<void> {
+        return this.authenticateMarketVisitor(sessionId, () => {
             this.scController.removeOffer(username, offerId);
             return this.mpController.denyCounterOffer(shopId, offerId);
         })
     }
 
-    acceptCounterOffer(sessionId: string, shopId: number, offerId: number): Result<void>{
-        return this.authenticateMarketVisitor(sessionId, (username)=>{
+    acceptCounterOffer(sessionId: string, shopId: number, offerId: number): Result<void> {
+        return this.authenticateMarketVisitor(sessionId, (username) => {
             let result: Result<void | Offer> = this.mpController.acceptCounterOffer(shopId, offerId);
             if (checkRes(result)) {
                 this.scController.updateOfferFromCart(result.data);

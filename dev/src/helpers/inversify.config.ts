@@ -24,7 +24,7 @@ import config from "../config";
 
 function bind(fresh: Container) {
 //services
-    fresh.bind<Service>(TYPES.Service).to(Service).inSingletonScope()
+    fresh.bind<Service>(TYPES.Service).to(Service)
     fresh.bind<GuestService>(TYPES.GuestService).to(GuestService)
     fresh.bind<MarketplaceService>(TYPES.MarketplaceService).to(MarketplaceService)
     fresh.bind<MemberService>(TYPES.MemberService).to(MemberService)
@@ -67,6 +67,16 @@ export const resetContainer = () => {
     systemContainer.unbindAll();
     systemContainer.restore()
     systemContainer.snapshot();
+}
+
+export const clearContainer = () => {
+    systemContainer.unbindAll();
+    bind(systemContainer)
+}
+
+const rebind = () => {
+    clearContainer();
+
 }
 
 

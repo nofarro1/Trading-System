@@ -90,4 +90,11 @@ export class MemberService {
             result.ok ? resolve(result) : reject(result.message);
         })
     }
+
+    checkAdminPermissions(sessionID: string, username: any, password: any) {
+        return new Promise <Result<boolean>>((resolve, reject)=>{
+            let result: Result<boolean> = this.systemController.checkAdminPermissions(sessionID,username,password);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
 }

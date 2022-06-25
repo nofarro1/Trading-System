@@ -56,15 +56,17 @@ export class Server {
     private notificationService: NotificationService;
 
 
-    constructor(app: Express, service: Service,
-                notificationService: NotificationService) {
-        this.backendService = service;
-        this.notificationService = notificationService;
+    constructor(bundle:{
+                    app: Express, service: Service,
+                    notificationService: NotificationService
+                }) {
+        this.backendService = bundle.service;
+        this.notificationService = bundle.notificationService;
         this.httpsServer = https.createServer({
             key: fs.readFileSync(keyPath),
             cert: fs.readFileSync(certPath),
             rejectUnauthorized: false
-        }, app)
+        }, bundle.app)
         logger.info("https Server is initialized")
         this.ioServer = new io.Server(this.httpsServer, {
             cors: {origin: "*/*"}

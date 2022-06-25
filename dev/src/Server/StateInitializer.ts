@@ -9,6 +9,7 @@ import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProdu
 import {logger} from "../helpers/logger";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {SimpleShop} from "../utilities/simple_objects/marketplace/SimpleShop";
+import {SimpleGuest} from "../utilities/simple_objects/user/SimpleGuest";
 
 type MemberData = {
     sessionId: string,
@@ -41,32 +42,56 @@ type ProductData = {
 export class StateInitializer {
     service: Service;
     private DataSource: any;
-    private membersData: MemberData[] = [];
-    private foundersData: ShopFounderData[] = [];
+    private _membersData: MemberData[] = [];
+    private _foundersData: ShopFounderData[] = [];
     private productsData: ProductData[] = [];
-    private addedProducts: SimpleProduct[] = [];
+    private _addedProducts: SimpleProduct[] = [];
 
     constructor(service: Service, DataSource) {
         this.service = service;
         this.DataSource = DataSource;
-        memberData.forEach(memberData => this.membersData.push(memberData))
-        shopFounderData.forEach((founderData) => this.foundersData.push(founderData));
+        memberData.forEach(memberData => this._membersData.push(memberData))
+        shopFounderData.forEach((founderData) => this._foundersData.push(founderData));
         productsData.forEach((productData) => this.productsData.push(productData));
     }
 
-    //initialize the system with data.
+    get allMembers(): MemberData[] {
+        return this._membersData.concat(this._foundersData.map(f => f.member))
+    }
+
+    get membersData(): MemberData[] {
+        return this._membersData;
+    }
+
+    get foundersData(): ShopFounderData[] {
+        return this._foundersData;
+    }
+
+    get addedProducts(): SimpleProduct[] {
+        return this._addedProducts;
+    }
+
+//initialize the system with data.
     async initialize() {
-        let success = true;
-        //register members, non shop founders
-        const registered = await Promise.all(this.membersData.map(this.registerMembers))
-        registered.reduce((acc, curr) => acc && curr, success);
-        //registering shop founders createShops and adding products for each shop
-        for (const {member, shop} of this.foundersData) {
-            let reg_success = await this.registerMembers(member)
-            success = success && reg_success && await this.createShop(member, shop);
+        try {
+            let success = true;
+            //register members, non shop founders
+            const registered = await Promise.all(this._membersData.map(async (member) => {
+                return await this.registerMembers(member);
+            }));
+            registered.reduce((acc, curr) => acc && curr, success);
+            //registering shop founders createShops and adding products for each shop
+            for (const {member, shop} of this._foundersData) {
+                let reg_success = await this.registerMembers(member)
+                success = success && reg_success && await this.createShop(member, shop);
+            }
+            //added products to cart
+            return success && await this.populateCarts();
+        } catch (err) {
+            logger.error("failed to initialize the marketplace", err)
+            Promise.reject(err);
         }
-        //added products to cart
-        return success && await this.populateCarts();
+
     }
 
     private async registerMembers(membersData: MemberData): Promise<boolean> {
@@ -120,7 +145,7 @@ export class StateInitializer {
             const res = await this.service.addProductToShop(shop.sessionId, shop.founder, shop.Id, toCategoryEnum(pd.category), pd.name, pd.price, pd.quantity, pd.description);
             if (checkRes(res)) {
                 pd.id = res.data.productID;
-                this.addedProducts.push(res.data)
+                this._addedProducts.push(res.data)
             }
             return res;
         });
@@ -136,7 +161,7 @@ export class StateInitializer {
 
     private async addShopOwners(shopID: number, assigner: MemberData) {
         let success = true;
-        const three_owners = this.membersData.splice(0, 3);
+        const three_owners = this._membersData.splice(0, 3);
         for (const owner of three_owners) {
             const res = await this.service.appointShopOwner(assigner.sessionId, owner.username, shopID, assigner.username);
             success = success && res.ok
@@ -146,7 +171,7 @@ export class StateInitializer {
 
     private async addShopManagers(shopID: number, assigner: MemberData) {
         let success = true;
-        const three_owners = this.membersData.splice(0, 2);
+        const three_owners = this._membersData.splice(0, 2);
         for (const owner of three_owners) {
             const res = await this.service.appointShopManager(assigner.sessionId, owner.username, shopID, assigner.username);
             success = success && res.ok
@@ -156,24 +181,27 @@ export class StateInitializer {
 
     private async populateCarts() {
         let okList = []
-        const all_members = this.membersData.concat(this.foundersData.map(f => f.member));
+        const all_members = this.allMembers
         for (let i = 0; i < 100; i++) {
-            const member = StateInitializer.getRandomFromList(all_members);
-            for(let j = 0; j< StateInitializer.getRandomFromList([1,2,3,4,5]); j++){
-                const product = StateInitializer.getRandomFromList(this.addedProducts);
+            const member = StateInitializer.getRandomFromList(all_members); // fetch a user
+            const access = await this.service.accessMarketplace(member.sessionId); // access the marketplace
+            for (let j = 0; j < StateInitializer.getRandomFromList([1, 2, 3, 4, 5]); j++) { // add a random amount of products to the cart
+                const product = StateInitializer.getRandomFromList(this._addedProducts);
                 okList.push(await this.populateCart(member, product));
             }
+            const exit = this.service.exitMarketplace((access.data as SimpleGuest).guestID) // finish the visit
         }
         return okList.reduce((acc, curr) => acc && curr, true)
     }
 
     private async populateCart(member: MemberData, product: SimpleProduct) {
+
         const res = await this.service.addToCart(member.sessionId, product.productID, StateInitializer.getRandomFromList([1, 2, 3]));
         return res.ok
     }
 
-    private static getRandomFromList<T>(list: T[]): T {
-        return list[Math.random() * list.length]
+    public static getRandomFromList<T>(list: T[]): T {
+        return list[Math.floor(Math.random() * list.length)]
     }
 
     reset() {
@@ -186,6 +214,5 @@ export class StateInitializer {
         }
 
     }
-
 
 }

@@ -18,14 +18,20 @@ import {TYPES} from "../helpers/types";
 import "reflect-metadata";
 import {DeliveryDetails} from "../domain/external_services/IDeliveryService";
 import {PaymentDetails} from "../domain/external_services/IPaymentService";
+import {StateInitializer} from "../Server/StateInitializer";
+import config from "../config";
 
 @injectable()
 export class Service {
+    get stateInit(): StateInitializer {
+        return this._stateInit;
+    }
     private guestService: GuestService;
     private memberService: MemberService;
     private marketplaceService: MarketplaceService;
     private shoppingCartService: ShoppingCartService;
     private orderService: OrderService;
+    private _stateInit: StateInitializer;
 
     constructor(@inject(TYPES.GuestService) guestService: GuestService,
                 @inject(TYPES.MemberService) memberService: MemberService,
@@ -39,6 +45,7 @@ export class Service {
         this.marketplaceService = marketplaceService
         this.shoppingCartService = shoppingCartService
         this.orderService = orderService
+        this._stateInit = new StateInitializer(this, config.db)
     }
 
     //----------------------Guest Service methods-------------------------------
@@ -74,7 +81,7 @@ export class Service {
     //Shop Owner - Use-Case 4
     appointShopOwner(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string, title?: string): Promise<Result<void>> {
         logger.info(`${sessionID}: ${assigningOwnerID} is appointing ${newOwnerID} to an owner of shop ${shopID}`);
-        if(title)
+        if (title)
             logger.info(`Member is appointed with the title ${title}`);
         return this.memberService.appointShopOwner(sessionID, newOwnerID, shopID, assigningOwnerID, title);
     }
@@ -82,9 +89,9 @@ export class Service {
     //Shop Owner - Use-Case 6
     appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string, title?: string, permissions?: Permissions[]): Promise<Result<void>> {
         logger.info(`${sessionID}: ${assigningOwnerID} is appointing ${newManagerID} to a manager of shop ${shopID}`);
-        if(title)
+        if (title)
             logger.info(`Member is appointed with the title ${title}`);
-        if(permissions)
+        if (permissions)
             logger.info(`Member is appointed with the following permissions: ${permissions}`);
         return this.memberService.appointShopManager(sessionID, newManagerID, shopID, assigningOwnerID, title, permissions);
     }
@@ -133,7 +140,7 @@ export class Service {
     //Guest Payment - Use-Case 2
     searchProducts(sessionID: string, searchBy: SearchType, searchTerm: string, filters?: any): Promise<Result<void | SimpleProduct[]>> {
         logger.info(`${sessionID} has initiated a product search operation using the search term ${searchTerm}`);
-        if(filters)
+        if (filters)
             logger.info(`The search is initiated using the following filter details ${filters}`);
         return this.marketplaceService.searchProducts(sessionID, searchBy, searchTerm, filters);
     }
@@ -151,7 +158,7 @@ export class Service {
                      price: number, quantity: number, description?: string): Promise<Result<SimpleProduct | void>> {
         logger.info(`${sessionID}:  user ${username} wants to add a new product to shop ${shopID}`);
         logger.info(`The product contains the following details - category: ${category}, name: ${name}, price: ${price}, quantity: ${quantity}`);
-        if(description)
+        if (description)
             logger.info(`The product contains the following description: ${description}`);
         return this.marketplaceService.addProductToShop(sessionID, shopID, category, name, price, quantity, description);
     }
@@ -180,7 +187,7 @@ export class Service {
     //System Admin - Use-Case 4
     getShopPurchaseHistory(sessionID: string, ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | string[]>> {
         logger.info(`${sessionID}: ${ownerID} would like to view the purchase history of ${shopID} from ${startDate} to ${endDate}`);
-        if(filters)
+        if (filters)
             logger.info(`The request is made with the following filters: ${filters}`);
         return this.marketplaceService.getShopPurchaseHistory(sessionID, shopID, startDate, endDate, filters);
     }
@@ -208,7 +215,7 @@ export class Service {
     //Guest Payment - Use-Case 4.4
     editProductInCart(sessionID: string, productID: number, productQuantity: number, additionalDetails?: any): Promise<Result<void>> {
         logger.info(`${sessionID} would like to modify product ${productID} with a quantity of ${productQuantity}`);
-        if(additionalDetails)
+        if (additionalDetails)
             logger.info(`The modification is requested using the following additional details ${additionalDetails}`);
         return this.shoppingCartService.editProductInCart(sessionID, productID, productQuantity, additionalDetails);
     }
@@ -241,5 +248,10 @@ export class Service {
     async getMessages(sessionId: string) {
         return this.memberService.getMessages(sessionId)
 
+    }
+
+    async checkAdminPermissions(sessionID: string, username: any, password: any) {
+        logger.info(`checking admin permissions for session ${sessionID}`);
+        return this.memberService.checkAdminPermissions(sessionID, username, password)
     }
 }

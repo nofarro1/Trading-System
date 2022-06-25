@@ -1,4 +1,4 @@
-import express from "express";
+import express, {Express} from "express";
 import session from 'express-session';
 import {Service} from "../service/Service";
 import {systemContainer} from "../helpers/inversify.config";
@@ -7,6 +7,10 @@ import {Result} from "../utilities/Result";
 import cors from "cors"
 import {PaymentService} from "../domain/external_services/PaymentService";
 import {AppRoutingModule} from "../Client/client/src/app/app-routing.module";
+import {NotificationService} from "../service/NotificationService";
+import {StateInitializer} from "./StateInitializer";
+import config from "../config";
+import {logger} from "../helpers/logger";
 
 
 const service = systemContainer.get<Service>(TYPES.Service)
@@ -601,6 +605,59 @@ router.post('/admin/services/edit', async (req, res) => {
     }
 })
 
+
+/**
+ * {
+ *     adminname,
+ *     password,
+ *
+ * }
+ */
+router.post('/admin/system/init', async (req, res) => {
+    try {
+        const sessID = req.session.id;
+        const username = req.body.username;
+        const password = req.body.password;
+        const isLoggedIn = await service.checkAdminPermissions(sessID,username,password); // should be true. if not it supposes to go to catch
+        const initStatus = await service.stateInit.initialize();
+        res.status(200).send(Result.Ok(true,"successfully initiated the system"))
+    } catch (e) {
+        logger.error(e.message)
+        res.status(500).send(Result.Fail(e.message))
+    }
+})
+
+router.post('/admin/system/reset', async (req, res) => {
+    try {
+        const sessID = req.session.id;
+        const username = req.body.username;
+        const password = req.body.password;
+        const isLoggedIn = await service.checkAdminPermissions(sessID,username,password); // should be true. if not it supposes to go to catch
+        const resetStatus = await service.stateInit.reset();
+        const initStatus = await service.stateInit.initialize();
+        res.status(200).send(Result.Ok(true,"successfully initiated the system"))
+    } catch (e) {
+        logger.error(e.message)
+        res.status(500).send(Result.Fail(e.message))
+    }
+})
+router.post('/admin/setup/clean', async (req, res) => {
+    try {
+        const sessID = req.session.id;
+        const username = req.body.username;
+        const password = req.body.password;
+        const isLoggedIn = await service.checkAdminPermissions(sessID,username,password); // should be true. if not it supposes to go to catch
+        const initStatus = await service.stateInit.reset();
+        res.status(200).send(Result.Ok(true,"successfully initiated the system"))
+    } catch (e) {
+        logger.error(e.message)
+        res.status(500).send(Result.Fail(e.message))
+    }
+})
+
+
+//------------------------ messages -------------------------------//
+
 router.get('/messages/:memberId', async (req, res) => {
     try {
         let sess = req.session.id;
@@ -652,4 +709,8 @@ app.use('/signup', express.static(_app_folder))
 //     res.status(200).sendFile('/', {root: _app_folder})
 // })
 app.use('/api', router);
-
+export const bundle: { app: Express, service: Service, notificationService: NotificationService } = {
+    app: app,
+    service: service,
+    notificationService: systemContainer.get(TYPES.NotificationService)
+}

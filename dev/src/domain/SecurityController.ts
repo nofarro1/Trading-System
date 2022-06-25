@@ -4,7 +4,7 @@ import "reflect-metadata";
 
 @injectable()
 export class SecurityController {
-    private readonly _MINIMUM_PASSWORD_LENGTH = 8;
+    private readonly _MINIMUM_PASSWORD_LENGTH = 6;
     private readonly _MAXIMUM_USERNAME_LENGTH = 31;
 
       _members: Map<string, string>; //Username <-> Password
@@ -35,6 +35,10 @@ export class SecurityController {
 
     get loggedInMembers(): Map<string, string> {
         return this._loggedInMembers;
+    }
+
+    checkPassword(username: string, password: string): boolean {
+        return this.members.get(username) === password
     }
 
     accessMarketplace(sessionID: string): void {
