@@ -1,6 +1,11 @@
 
 const env = process.env.NODE_ENV.trim();
 console.log("running in environment: " + env)
+
+const defaultAdminCredentials = {
+    username: "admin",
+    password: ""
+}
 const dev = {
     env: "dev",
     app: {

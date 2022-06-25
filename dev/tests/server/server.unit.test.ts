@@ -1,4 +1,4 @@
-import {app} from "../../src/Server/expressApp"
+import {app, bundle} from "../../src/Server/expressApp"
 import {Server} from "../../src/Server/Server"
 import request, {Response} from "supertest"
 import {systemContainer} from "../../src/helpers/inversify.config";
@@ -34,7 +34,7 @@ describe("networking tests - basic actions", () => {
 
 
     beforeAll((done) => {
-        server = new Server(app, systemContainer.get(TYPES.Service), systemContainer.get(TYPES.NotificationService));
+        server = new Server(bundle);
         server.start()
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = "0"; //allow self-signed certificate
         agent = request.agent(app)

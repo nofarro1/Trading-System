@@ -1,7 +1,4 @@
-import {app} from "./Server/expressApp";
-import {systemContainer} from "./helpers/inversify.config";
-import {TYPES} from "./helpers/types";
+import {bundle} from "./Server/expressApp";
 import {Server} from "./Server/Server";
-
-const theServer = new Server(app,systemContainer.get(TYPES.Service),systemContainer.get(TYPES.NotificationService));
+const theServer = new Server(bundle);
 theServer.start()

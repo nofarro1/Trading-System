@@ -3,7 +3,7 @@ import request from "supertest";
 import {mockDependencies, mockInstance, mockMethod} from "../mockHelper";
 import {Service} from "../../src/service/Service";
 import {Result} from "../../src/utilities/Result";
-import {app} from "../../src/Server/expressApp";
+import {app, bundle} from "../../src/Server/expressApp";
 import {systemContainer} from "../../src/helpers/inversify.config";
 import {TYPES} from "../../src/helpers/types";
 import {LiveNotificationClient} from "../../src/Server/webSocketClient";
@@ -33,7 +33,7 @@ describe("websockets tests - basic actions", () => {
     let serverEventPusher:LiveNotificationSubscriber;
 
     beforeAll(async () => {
-        server = new Server(app, systemContainer.get(TYPES.Service), systemContainer.get(TYPES.NotificationService));
+        server = new Server(bundle);
         server.start()
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = String(0); //allow self-signed certificate
         agent = request.agent(app)
