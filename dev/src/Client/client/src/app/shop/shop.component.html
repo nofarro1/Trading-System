@@ -1,7 +1,71 @@
+<p-toast position="top-center" key="tc"></p-toast>
+
 <div class="header">
-  <h1>**ShopName**</h1>
+  <h1>Welcome To Shop</h1>
+  <h1>{{ shopName }}</h1>
 </div>
-<p-table [value]="products">
+
+<p-button
+  *ngIf="memberRoleType === 'FOUNDER' && !wantToAddProduct"
+  name="addShop"
+  (onClick)="wantToAddProduct = true"
+  >Add New Product</p-button
+>
+<ng-container class="container">
+  <div *ngIf="wantToAddProduct">
+    <input
+      [style]="{ 'margin-left': '20px', width: '180px' }"
+      type="text"
+      pInputText
+      placeholder="Enter Product Name"
+      [(ngModel)]="newProductName"
+    />
+    <input
+      [style]="{ 'margin-left': '20px', width: '120px' }"
+      type="text"
+      pInputText
+      placeholder="Enter Price"
+      [(ngModel)]="newProductPrice"
+    />
+    <input
+      [style]="{ 'margin-left': '20px', width: '130px' }"
+      type="text"
+      pInputText
+      placeholder="Enter Quantity"
+      [(ngModel)]="newProductQuantity"
+    />
+    <input
+      [style]="{ 'margin-left': '20px' }"
+      type="text"
+      pInputText
+      placeholder="Enter Description"
+      [(ngModel)]="newProductDescription"
+    />
+    <p-dropdown
+      [style]="{ 'margin-left': '20px', width: '220px' }"
+      [options]="productCatagory"
+      [(ngModel)]="selectedCatagory"
+      placeholder="Select Catagory"
+      optionLabel="catagory"
+      [showClear]="true"
+    ></p-dropdown>
+
+    <p-button
+      [style]="{ 'margin-left': '20px' }"
+      name="loginbtn"
+      [disabled]="
+        newProductDescription === '' ||
+        newProductName === '' ||
+        newProductPrice < 0 ||
+        newProductQuantity < 0
+      "
+      (click)="addNewProduct()"
+      >Add Product</p-button
+    >
+  </div>
+</ng-container>
+
+<p-table [value]="productsToShow">
   <ng-template pTemplate="header">
     <tr>
       <th>Name</th>
@@ -9,17 +73,47 @@
       <th>Rate</th>
       <th>Description</th>
       <th>Price</th>
-      <th style="color: white;"></th>
+      <th></th>
+      <th style="color: white"></th>
     </tr>
   </ng-template>
-  <ng-template pTemplate="body" let-Product class="body-line !important">
+  <ng-template pTemplate="body" let-product class="body-line !important">
     <tr>
-      <td class="font-bold ml-2 !important">{{Product.name}}</td>
-      <td>{{Product.category}}</td>
-      <td>{{Product.rate}}</td>
-      <td>{{Product.description}}</td>
-      <td>{{Product.discountPrice}}</td>
-      <button pButton type="button" class="p-button-secondary" label="Add to cart" routerLink="/shops/{{Product.id}}"></button>
+      <td class="font-bold ml-2 !important">{{ product.name }}</td>
+      <td>{{ product.category }}</td>
+      <td>{{ product.rate }}</td>
+      <td>{{ product.description }}</td>
+      <td>{{ product.price }}</td>
+      <td>
+        <p-button
+          name="addToCartBtn"
+          [disabled]="product.quantityToCart === 0"
+          (click)="addProductToCart(product.id, product.quantityToCart)"
+          >Add To Cart</p-button
+        >
+      </td>
+      <td>
+        <p-inputNumber
+          [(ngModel)]="product.quantityToCart"
+          mode="decimal"
+          [showButtons]="true"
+          inputId="minmax-buttons"
+          [min]="0"
+          [max]="product.quantity"
+        >
+        </p-inputNumber>
+      </td>
+      <td>
+        <button
+          *ngIf="memberRoleType === OWNER"
+          pButton
+          style="width: 10px"
+          pRipple
+          type="button"
+          icon="pi pi-trash"
+          class="p-button-rounded p-button-danger p-button-text"
+        ></button>
+      </td>
     </tr>
   </ng-template>
 </p-table>
