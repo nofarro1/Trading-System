@@ -147,9 +147,9 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 1.1
-    addProductToShop(sessionID: string, username: string, shopID: number, category: ProductCategory, name: string,
+    addProductToShop(sessionID: string, shopID: number, category: ProductCategory, name: string,
                      price: number, quantity: number, description?: string): Promise<Result<SimpleProduct | void>> {
-        logger.info(`${sessionID}:  user ${username} wants to add a new product to shop ${shopID}`);
+        logger.info(`${sessionID}:  user wants to add a new product to shop ${shopID}`);
         logger.info(`The product contains the following details - category: ${category}, name: ${name}, price: ${price}, quantity: ${quantity}`);
         if(description)
             logger.info(`The product contains the following description: ${description}`);
@@ -157,8 +157,8 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 1.2
-    removeProductFromShop(sessionID: string, username: string, shopID: number, productID: number): Promise<Result<void>> {
-        logger.info(`${sessionID}: ${username} wants to remove from shop ${shopID} the product ${productID}`);
+    removeProductFromShop(sessionID: string, shopID: number, productID: number): Promise<Result<void>> {
+        logger.info(`${sessionID}: wants to remove from shop ${shopID} the product ${productID}`);
         return this.marketplaceService.removeProductFromShop(sessionID, shopID, productID);
     }
 

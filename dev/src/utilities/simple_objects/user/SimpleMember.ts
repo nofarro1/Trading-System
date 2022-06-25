@@ -23,6 +23,10 @@ export class SimpleMember {
         return this._jobType;
     }
 
+    getJobTypeValue(): number {
+        return (this._jobType) ? this._jobType.valueOf() : -1 ;
+    }
+
     get permissions(): Set<Permissions> | undefined {
         return this._permissions;
     }

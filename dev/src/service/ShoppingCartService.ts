@@ -16,11 +16,8 @@ export class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 4.1
-    addToCart(sessionID: string, productID: number, productQuantity: number): Promise<Result<void>> {
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.addToCart(sessionID, productID, productQuantity);
-            result.ok ? resolve(result) : reject(result.message);
-        });
+    async addToCart(sessionID: string, productID: number, productQuantity: number): Promise<Result<void>> {
+            return this.systemController.addToCart(sessionID, productID, productQuantity);
     }
 
     //Guest Payment - Use-Case 4.2

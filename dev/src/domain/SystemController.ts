@@ -372,6 +372,7 @@ export class SystemController {
   ): Result<void> {
     const authCallback = (id: string) => {
       const productRes = this.mpController.getProduct(productId);
+      console.log(productRes);
       if (checkRes(productRes))
         return this.scController.addProduct(id, productRes.data, quantity);
       else {

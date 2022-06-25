@@ -9,7 +9,7 @@ import {SignupComponent} from "./signup/signup.component";
 const routes: Routes = [
   { path: '', component: MainComponent },
   { path: 'shops', component: ShopsComponent },
-  { path: 'shops/:id', component: ShopComponent },
+  { path: 'shop/:shopId', component: ShopComponent },
   { path: 'cart', component: CartComponent },
   { path: 'signup', component:SignupComponent}
 ];

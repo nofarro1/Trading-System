@@ -72,14 +72,12 @@ export class api {
     country: string
   ) {
     const res = await axios.post(base + 'admin/register', {
-      data: {
         username: username,
         password: password,
         firstName: firstName,
         lastName: lastName,
         email: email,
         country: country,
-      },
     });
     const data: Result<void | SimpleMember> = res.data;
     return data.data;
@@ -116,12 +114,10 @@ export class api {
     title: string
   ) {
     const res = await axios.post(base + '/member/shopManagement/assignOwner', {
-      data: {
         owner: owner,
         shopId: shopId,
         newOwnerId: newOwnerId,
         title: title,
-      },
     });
     const data: Result<void> = res.data;
     return data.ok;
@@ -136,12 +132,10 @@ export class api {
     const res = await axios.post(
       base + '/member/shopManagement/assignManager',
       {
-        data: {
           owner: owner,
           shopId: shopId,
           newManager: newManager,
           title: title,
-        },
       }
     );
     const data: Result<void> = res.data;
@@ -155,12 +149,10 @@ export class api {
     permissions: Permissions[]
   ) {
     const res = await axios.post(base + '/member/shopManagement/Permissions', {
-      data: {
         owner: owner,
         shopId: shopId,
         manager: manager,
         permissions: permissions,
-      },
     });
     const data: Result<void> = res.data;
     return data.ok;
@@ -203,19 +195,17 @@ export class api {
 
   async searchProducts(term: string, type: string, filter: any) {
     const res = await axios.post(base + '/product/search', {
-      data: {
         term: term,
         type: type,
         filter: filter,
-      },
     });
     const data: Result<void | SimpleProduct[]> = res.data;
     return data.data;
   }
 
   async addProductToShop(
+    session: string,
     shopId: number,
-    username: string,
     category: ProductCategory,
     name: string,
     price: number,
@@ -223,31 +213,24 @@ export class api {
     description: string
   ) {
     const res = await axios.post(base + '/product/' + shopId, {
-      data: {
-        username: username,
+        session: session,
         category: category,
         name: name,
         price: price,
         quantity: quantity,
         description: description,
-      },
     });
     const data: Result<void | SimpleProduct> = res.data;
     return data.data;
   }
 
   async removeProductFromShop(
+    session: string,
     shopId: number,
-    username: string,
     productId: number
   ) {
     const res = await axios.delete(
-      base + '/product/' + shopId + '/' + productId,
-      {
-        data: {
-          username: username,
-        },
-      }
+      base + '/product/' + shopId + '/' + productId, {data: {session}}
     );
     const data: Result<void | SimpleProduct> = res.data;
     return data.data;
@@ -260,24 +243,15 @@ export class api {
     quantity: number
   ) {
     const res = await axios.patch(
-      base + '/product/' + shopId + '/' + productId,
-      {
-        data: {
-          username: username,
-          quantity: quantity,
-        },
-      }
-    );
+      base + '/product/' + shopId + '/' + productId, { username, quantity });
     const data: Result<void> = res.data;
     return data.ok;
   }
 
   async setUpShop(username: string, shopName: string) {
-    const res = await axios.post(base + '/shop', {
-      data: {
-        username: username,
-        shopName: shopName,
-      },
+    const res = await axios.post(base + '/shop/setup', {
+        username,
+        shopName,
     });
     const data: Result<void | SimpleShop> = res.data;
     return data.data;
@@ -285,7 +259,7 @@ export class api {
 
   async getAllShops() {
     const res = await axios.get(base + '/shops');
-    const data =  res.data;
+    const data = res.data;
     return data.data;
   }
 
@@ -311,17 +285,7 @@ export class api {
     filters: any
   ) {
     const res = await axios.get(
-      base +
-        '/shop/orders/' +
-        shopId +
-        '/' +
-        ownerUsername +
-        '/' +
-        from +
-        '/' +
-        to,
-      filters
-    );
+      base + `shop/orders/${shopId}/${ownerUsername}/${from}/${to}`,filters);
     const data: Result<void | string[]> = res.data;
     return data.data;
   }
@@ -332,19 +296,14 @@ export class api {
     return data.data;
   }
 
-  async addToCart(product: number, quantity: number) {
-    const res = await axios.post(base + '/cart', {
-      data: {
-        product: product,
-        quantity: quantity,
-      },
-    });
+  async addToCart(session: string, product: number, quantity: number) {
+    const res = await axios.post(base + '/cart/add', {session, product, quantity});
     const data: Result<void> = res.data;
     return data.ok;
   }
 
   async removeFromCart(product: number) {
-    const res = await axios.delete(base + '/cart', {
+    const res = await axios.delete(base + '/cart/remove', {
       data: {
         product: product,
       },
@@ -354,11 +313,9 @@ export class api {
   }
 
   async editProductInCart(product: number, quantity: number) {
-    const res = await axios.patch(base + '/cart', {
-      data: {
+    const res = await axios.patch(base + '/cart/modify', {
         product: product,
-        quantity: quantity,
-      },
+        quantity: quantity
     });
     const data: Result<void> = res.data;
     return data.ok;

@@ -21,6 +21,8 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import {InputTextModule} from 'primeng/inputtext';
 import {MenubarModule} from 'primeng/menubar';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {ToastModule} from 'primeng/toast';
 
 const apiConfig: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
@@ -56,6 +58,8 @@ const config: SocketIoConfig = {
     SocketIoModule.forRoot(apiConfig),
     InputTextModule,
     MenubarModule,
+    InputNumberModule,
+    ToastModule
   ],
   providers: [],
   bootstrap: [AppComponent]

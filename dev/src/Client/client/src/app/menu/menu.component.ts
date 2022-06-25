@@ -1,6 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { api } from 'src/backendService/Service';
 import {MenuItem} from 'primeng/api';
+import { outputAst } from '@angular/compiler';
 
 @Component({
   selector: 'app-menu',
@@ -10,6 +11,7 @@ import {MenuItem} from 'primeng/api';
 export class MenuComponent implements OnInit {
   items: MenuItem[];
   @Input() isLoggedIn = false;
+  @Output() clickedOn = new EventEmitter<string>();
 
   constructor() { }
 
@@ -18,17 +20,17 @@ export class MenuComponent implements OnInit {
       {
           label: 'Home',
           icon: 'pi pi-fw pi-home',
-          routerLink:"/"
+          command: (event: Event) => {this.clickedOn.emit("home")}
       },
       {
           label: 'Shops',
           icon: 'pi pi-fw pi-shop',
-          routerLink:"/shops"
+          command: (event: Event) => {this.clickedOn.emit("shops")}
       },
       {
         label: 'Cart',
         icon: 'pi pi-fw pi-shop',
-        routerLink:"/cart"
+        command: (event: Event) => {this.clickedOn.emit("cart")}
 
     }
   ];
@@ -38,3 +40,7 @@ export class MenuComponent implements OnInit {
   }
 
 }
+function output() {
+  throw new Error('Function not implemented.');
+}
+
