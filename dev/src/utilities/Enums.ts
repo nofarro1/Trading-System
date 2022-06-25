@@ -14,3 +14,13 @@ export enum DiscountKinds {SimpleDiscount, ConditionalDiscount, ContainerDiscoun
 export enum DiscountRelation {And, Or, Xor, Addition, Max}
 export enum PurchasePoliciesKinds {SimplePurchase, ContainerPurchasePolicy}
 export enum PurchasePoliciesRelation { And, Conditional, Or}
+
+
+export function toCategoryEnum(productData) {
+    const str = productData.category;
+    const enumType: ProductCategory = str as unknown as ProductCategory;
+    const cateEnum = ProductCategory[ProductCategory[enumType]];
+    console.log(cateEnum);
+    return cateEnum;
+
+}

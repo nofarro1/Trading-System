@@ -4,7 +4,9 @@ import {checkRes, Result} from "../utilities/Result";
 import memberData from "./initialization_data/members.json"
 import shopFounderData from "./initialization_data/shop_founders.json"
 import productsData from "./initialization_data/products.json"
-import {ProductCategory} from "../utilities/Enums";
+import {ProductCategory, toCategoryEnum} from "../utilities/Enums";
+import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
+import {logger} from "../helpers/logger";
 
 type MemberData = {
     sessionId: string,
@@ -17,8 +19,8 @@ type MemberData = {
 }
 
 type ShopFounderData = {
-    "member": MemberData,
-    "shop": {
+    member: MemberData,
+    shop: {
         Id: number,
         sessionId: string,
         founder: string,
@@ -26,7 +28,7 @@ type ShopFounderData = {
     }
 }
 type ProductData = {
-    category: string,
+    category: string | ProductCategory,
     name: string,
     price: number,
     quantity: number,
@@ -46,52 +48,78 @@ export class StateInitializer {
         this.membersData = [];
         this.foundersData = [];
         this.productsData = [];
+        memberData.forEach(memberData => this.membersData.push(memberData))
+        shopFounderData.forEach((founderData) => this.foundersData.push(founderData));
+        productsData.forEach((productData) => this.productsData.push(productData));
     }
 
     //initialize the system with data.
-    initialize() {
-        memberData.forEach(memberData => this.membersData.push(memberData));
-        shopFounderData.forEach((founderData) => this.foundersData.push(founderData));
-        productsData.forEach((productData) => this.productsData.push(productData));
-        //register members.... 10 members
-       this.membersData.forEach(this.registerMembers);
-        const founder_member_data = this.foundersData.map(founderData => founderData.member);
-        founder_member_data.forEach(this.registerMembers);
-        //createShops... 4 shops
-        //add products to shop... 5 products per shop
-        //appoint manager ... 2 managers in different shops
+    async initialize() {
+        let success = true;
+        //register members, non shop founders
+        this.membersData.forEach(this.registerMembers);
+        //registering shop founders createShops and adding products for each shop
+        for (const {member, shop} of this.foundersData) {
+            let reg_success = await this.registerMembers(member)
+            success = success && reg_success && await this.createShop(member, shop);
+        }
+
         //appoint shop Owner... 2 AdditionalOwners
     }
 
-    async registerMembers(membersData: MemberData) {
+    private async registerMembers(membersData: MemberData): Promise<boolean> {
         //Access Marketplace
         const res = await this.service.accessMarketplace(membersData.sessionId);
         //register the members
         const res_register = await this.service.register(membersData.sessionId, membersData.username,
-                                    membersData.password, membersData.firstName,
-                                    membersData.lastName, membersData.email, membersData.country);
+            membersData.password, membersData.firstName,
+            membersData.lastName, membersData.email, membersData.country);
         //leave marketplace
         const exit_res = await this.service.exitMarketplace(membersData.sessionId);
+        return res.ok && res_register.ok && exit_res.ok;
     }
 
-    async createShop(member, shop) {
+    private async createShop(member, shop): Promise<boolean> {
         //accessMarketplace
+        let success = true;
         const res = await this.service.accessMarketplace(member.sessionId);
-        const login_res = await this.service.login(member.sessionId, member.username,member.password);
-
-        const res_setupShop = await this.service.setUpShop(shop.sessionId, shop.username,shop.name);
-        if(checkRes(res_setupShop)) {
-            shop.Id = res_setupShop.data.ID;
-        }
+        success = success && res.ok;
+        const login_res = await this.service.login(member.sessionId, member.username, member.password);
+        success = success && login_res.ok;
+        const res_setupShop = await this.service.setUpShop(shop.sessionId, shop.username, shop.name);
+        if (!checkRes(res_setupShop)) {
+            success = false;
+        } else shop.Id = res_setupShop.data.ID;
         //add 20 products
-        console.log(this.productsData.length);
+        console.log(`adding to shop ${shop.Id} 20 products - amount left:${this.productsData.length}`);
         const twentyProducts: ProductData[] = this.productsData.splice(0, 20)
-        console.log(this.productsData.length);
+        const add_products_res = await this.addProductsToShop(shop, twentyProducts);
+        if (!add_products_res) {
+            logger.error(`failed add to shop ${shop.Id} 20 products`)
+            success = false;
+        }
+        console.log(`added to shop ${shop.Id} 20 products - amount left:${this.productsData.length}`);
+        const exit_res = await this.service.exitMarketplace(member.sessionId)
+        return success && exit_res.ok;
+    }
 
-
+    private async addProductsToShop(shop: { Id: number, sessionId: string, founder: string, shopName: string }, products: ProductData[]) {
+        const promises: Promise<Result<SimpleProduct | void>>[] = products.map((pd) => {
+            return this.service.addProductToShop(shop.sessionId, shop.founder, shop.Id, toCategoryEnum(pd.category), pd.name, pd.price, pd.quantity, pd.description)
+        });
+        try {
+            const results: Result<SimpleProduct | void>[] = await Promise.all(promises);
+            return results.reduce((acc, curr) => acc && curr.ok, true);
+        } catch (err: any) {
+            logger.error("failed to add to shop products");
+            return false;
+        }
 
     }
-    
+
+    private addShopOwners(shopId, newOwner:MemberData,assigner:MemberData){
+
+    }
 
     reset() {
         try {
