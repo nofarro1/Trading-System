@@ -17,16 +17,17 @@ export class AppointmentAgreement{
         this._answer = true;
     }
 
-    get answer(): boolean {
-        return this._answer;
-    }
-
-    set answer(value: boolean) {
-        this._answer = value;
-    }
-
     get assigner(): string {
         return this._assigner;
+    }
+
+    getAnswer(): boolean {
+        let answer: boolean = true;
+        for(let tuple of [...this._approves.values()]){
+            if(tuple[0])
+                answer = answer && tuple[1];
+        }
+        return answer;
     }
 
     setAnswer(userId: string, answer: boolean) {

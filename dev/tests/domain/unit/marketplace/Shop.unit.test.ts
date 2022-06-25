@@ -29,6 +29,7 @@ import {
 import {clearMocks, mockDependencies, mockInstance, mockMethod} from "../../../mockHelper";
 import {Offer} from "../../../../src/domain/user/Offer";
 import mock = jest.mock;
+import exp from "constants";
 
 describe('Shop.units', function() {
 
@@ -428,6 +429,23 @@ describe('Shop.units', function() {
         clearMocks(mock_resetApproves);
     })
 
+    test("submit Owner appointment", ()=>{
+       s1.submitOwnerAppointment("ofir", "Nofar");
+       expect(s1.appointmentAgreements.has("ofir")).toBe(true);
+    })
+
+    test("answer appointment agreement - success", ()=>{
+    let agreement = s1.answerAppointmentAgreement("Nofar", s1.shopFounder, true);
+    expect(agreement).not.toBeNull();
+    if(agreement){
+        expect(agreement.isDone()).toBe(true);
+        expect(agreement.answer).toBe(true);
+    }
+    })
+
+    test("answer appointment agreement - success", ()=>{
+       expect(s1.answerAppointmentAgreement("Nofar", "Shahar", true)).toThrow("Only an exist shop owner can approve the appointment of a new shop owner");
+    })
 })
 
 

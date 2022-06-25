@@ -232,6 +232,10 @@ export class Shop {
     }
 
 
+    get appointmentAgreements(): Map<string, AppointmentAgreement> {
+        return this._appointmentAgreements;
+    }
+
     addProduct(productName: string, category: ProductCategory, fullPrice: number, quantity: number, productDesc?: string): Product {
         let toAdd = new Product(productName, this.id, this._productsCounter, category, fullPrice, productDesc);
         if (!this.products.has(toAdd.id)) {
@@ -477,9 +481,11 @@ export class Shop {
     }
 
     answerAppointmentAgreement(member: string, owner: string, answer: boolean): void | AppointmentAgreement {
+
         let agreement: AppointmentAgreement = this._appointmentAgreements.get(member);
         if (agreement) {
             agreement.setAnswer(owner, answer);
+            return agreement;
         }
         return agreement;
     }
