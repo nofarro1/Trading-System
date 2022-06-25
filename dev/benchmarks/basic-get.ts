@@ -2,7 +2,7 @@ const autocannon = require("autocannon");
 require("dotenv").config();
 
 function startBench(){
-    const url = "http://localhost:" + process.env.PORT || 3000;
+    const url = "http://localhost:" + 3000;
     const args = process.argv.slice(2);
     const numConnections = args[0] || 100;
     const maxConnectionRequests = args[1] || 1;
