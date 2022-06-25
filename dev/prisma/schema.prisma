@@ -172,6 +172,7 @@ model Discount {
   simpleDiscount      SimpleDiscount?
   conditionalDiscount ConditionalDiscount?
   discountContainer   DiscountContainer?
+  discountInContainer DiscountInContainer?
 
   @@map("discount")
 }
@@ -188,7 +189,6 @@ model SimpleDiscount {
   conditionalDiscount ConditionalDiscount?
 
   @@map("simple_discount")
-  DiscountInContainer DiscountInContainer[]
 }
 
 model ConditionalDiscount {
@@ -227,7 +227,7 @@ model DiscountContainer {
 }
 
 model DiscountInContainer {
-  discount           SimpleDiscount    @relation(fields: [containedDiscount], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  discount           Discount    @relation(fields: [containedDiscount], references: [id], onDelete: Cascade, onUpdate: Cascade)
   containedDiscount  Int
   discountContainer  DiscountContainer @relation(fields: [containingDiscount], references: [id], onDelete: Cascade, onUpdate: Cascade)
   containingDiscount Int
