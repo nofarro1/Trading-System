@@ -89,7 +89,7 @@ export class StateInitializer {
             return success && await this.populateCarts();
         } catch (err) {
             logger.error("failed to initialize the marketplace", err)
-            Promise.reject(err);
+            await Promise.reject(err);
         }
 
     }

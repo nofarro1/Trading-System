@@ -421,21 +421,13 @@ router.get('/shop/:shopId', async (req, res) => {
     }
 })
 
-router.get('/shop/all', async (req, res) => {
+
+router.get('/shop', async (req, res) => {
     try {
         let sessId = req.session.id;
         let ans = await service.getAllShopsInfo(sessId)
-
-    } catch (e: any) {
-        res.status(404).send(e.message)
-    }
-})
-
-router.get('/shop/all', async (req, res) => {
-    try {
-        let sessId = req.session.id;
-        let ans = await service.getAllShopsInfo(sessId)
-
+        console.log("here")
+        res.status(200).send(ans);
     } catch (e: any) {
         res.status(404).send(e.message)
     }
