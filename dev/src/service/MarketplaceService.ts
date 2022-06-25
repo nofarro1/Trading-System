@@ -8,6 +8,7 @@ import {inject, injectable} from "inversify";
 import {TYPES} from './../helpers/types';
 import "reflect-metadata";
 import {Offer} from "../domain/user/Offer";
+import {AppointmentAgreement} from "../domain/marketplace/AppointmentAgreement";
 
 @injectable()
 export class MarketplaceService {
@@ -132,6 +133,13 @@ export class MarketplaceService {
     denyCounterOffer(sessionId: string, username: string  , shopId: number, offerId: number){
         return new Promise<Result<void>>((resolve, reject)=>{
             let result: Result<void> = this.systemController.denyCounterOffer(sessionId, username, shopId, offerId);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+
+    submitOwnerAppointmentInShop(sessionId: string, shopId: number, member: string, assigner: string){
+        return new Promise<Result<void | AppointmentAgreement>>((resolve, reject)=>{
+            let result: Result<void | AppointmentAgreement> = this.systemController.submitOwnerAppointmentInShop(sessionId, shopId, member, assigner);
             result.ok ? resolve(result) : reject(result.message);
         })
     }

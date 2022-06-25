@@ -15,6 +15,7 @@ import {Message} from "../../../../src/domain/notifications/Message";
 import {SystemController} from "../../../../src/domain/SystemController";
 import {Guest} from "../../../../src/domain/user/Guest";
 import {MessageBox} from "../../../../src/domain/notifications/MessageBox";
+import {AppointmentAgreement} from "../../../../src/domain/marketplace/AppointmentAgreement";
 
 
 let controller: MarketplaceController;
@@ -35,6 +36,8 @@ let shop: void | Shop;
 let p1: Product;
 let  p2: Product;
 
+let shopData: Shop;
+
 let mController: MessageController;
 let pControllerMockMethod: jest.SpyInstance<any, unknown[]>
 
@@ -54,6 +57,8 @@ describe("MarketPlaceController", ()=>{
 
         shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");
         shop = shop_res.data;
+        if(shop)
+            shopData = shop;
          p1 = new Product("Ski", 0,0, ProductCategory.A, 5.9);
          p2  = new Product("Cottage", 0,1, ProductCategory.A,  5.9);
     })
@@ -174,19 +179,19 @@ describe("MarketPlaceController", ()=>{
         }
     })
 
-    test("Appoint shop owner", ()=>{
-        const mock_appoint = mockMethod(Shop.prototype, "appointShopOwner", (ownerId)=>{
-            shop.shopOwners.add(ownerId);
-        })
-
-        let shop:Shop;
-        if(shop_res.data){
-            shop = shop_res.data;
-            let res= controller.appointShopOwner("NofarRoz", shop.id);
-            expect(res.ok).toBe(true);
-            expect(shop.shopOwners.has("NofarRoz")).toBe(true);
-        }
-    })
+    // test("Appoint shop owner", ()=>{
+    //     const mock_appoint = mockMethod(Shop.prototype, "appointShopOwner", (ownerId)=>{
+    //         shop.shopOwners.add(ownerId);
+    //     })
+    //
+    //     let shop:Shop;
+    //     if(shop_res.data){
+    //         shop = shop_res.data;
+    //         let res= controller.appointShopOwner("NofarRoz", shop.id);
+    //         expect(res.ok).toBe(true);
+    //         expect(shop.shopOwners.has("NofarRoz")).toBe(true);
+    //     }
+    // })
 
     test("Appoint shop Manager", ()=>{
         const mock_appoint = mockMethod(Shop.prototype, "appointShopManager", (ownerId)=>{
@@ -372,4 +377,34 @@ describe("MarketPlaceController", ()=>{
         expect(res.ok).toBe(true);
         clearMocks(mock_acceptCounterOffer, mock_getOffer, mock_notify);
     })
+
+    test("submit owner appointment in shop - success", ()=>{
+        const mock_submitOA = mockMethod(Shop.prototype, "submitOwnerAppointment", (member: string, assigner: string)=>{
+            return new AppointmentAgreement(member, assigner, shopData.shopOwners);
+        })
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
+        let res: Result<void | AppointmentAgreement> = controller.submitOwnerAppointmentInShop(shopData.id, "Nofar", shopData.shopFounder);
+        expect(mock_notify).toHaveBeenCalled();
+        expect(res.ok).toBe(true);
+        clearMocks(mock_notify);
+    })
+
+    test("submit owner appointment in shop - fail- assigner isn't shop owner", ()=>{
+        const mock_submitOA = mockMethod(Shop.prototype, "submitOwnerAppointment", (member: string, assigner: string)=>{
+            return new AppointmentAgreement(member, assigner, shopData.shopOwners);
+        })
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
+        let res: Result<void | AppointmentAgreement> = controller.submitOwnerAppointmentInShop(shopData.id, "Nofar", "shahar");
+        expect(mock_notify).not.toHaveBeenCalled();
+        expect(res.ok).toBe(false);
+        expect(res.message).toBe(`Cannot submit owner appointment in ${shopData.name} because shahar is not a shop owner.`)
+        clearMocks(mock_submitOA, mock_notify);
+    })
+
+    // test("answer appointment agreement in shop - succsess", ()=>{
+    //     const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", ()=>{
+    //         let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("Elad"));
+    //         agreement.approves =
+    //     })
+    // })
 })

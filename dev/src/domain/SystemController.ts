@@ -51,6 +51,7 @@ import {DeliveryService} from "./external_services/DeliveryService";
 import {PaymentDetails} from "./external_services/IPaymentService";
 import {DeliveryDetails} from "./external_services/IDeliveryService";
 import {Offer} from "./user/Offer";
+import {AppointmentAgreement} from "./marketplace/AppointmentAgreement";
 
 @injectable()
 export class SystemController {
@@ -412,7 +413,7 @@ export class SystemController {
             if (checkRes(result)) {
                 let shop = this.mpController.setUpShop(founderId, shopName)
                 if (checkRes(shop)) {
-                    this.uController.addRole(founderId, "founder", JobType.Founder, shop.data.id, new Set([Permissions.ShopOwner]));
+                    this.uController.addRole(founderId, founderId, "founder", JobType.Founder, shop.data.id, new Set([Permissions.ShopOwner]));
                     return new Result(true, toSimpleShop(shop.data), "shop has opened");
                 }
                 return new Result(false, undefined, "failed to set up shop.")
@@ -563,27 +564,27 @@ export class SystemController {
     /*-----------------------------------shop Personnel Actions actions----------------------------------------------*/
 
     //Shop Owner - Use-Case 4
-    appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
-        const authCallback = (id: string) => {
-            if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
-                this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data) {
-                const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions.concat(Permissions.ShopOwner)))
-                if (checkRes(result)) {
-                    return this.mpController.appointShopOwner(r.member, r.shopId)
-                }
-                return new Result(false, undefined, "failed to add the role to the user")
-            }
-            return new Result(false, undefined, "no permissions to appoint shopOwner")
-        }
-        return this.authenticateMarketVisitor(sessionId, authCallback)
-    }
+    // appointShopOwner(sessionId: string, r:NewRoleData): Result<void> {
+    //     const authCallback = (id: string) => {
+    //         if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
+    //             this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data) {
+    //             const result = this.uController.addRole(r.assigner, r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions.concat(Permissions.ShopOwner)))
+    //             if (checkRes(result)) {
+    //                 return this.mpController.appointShopOwner(r.member, r.shopId)
+    //             }
+    //             return new Result(false, undefined, "failed to add the role to the user")
+    //         }
+    //         return new Result(false, undefined, "no permissions to appoint shopOwner")
+    //     }
+    //     return this.authenticateMarketVisitor(sessionId, authCallback)
+    // }
 
     //Shop Owner - Use-Case 6
     appointShopManager(sessionId: string, r: NewRoleData): Result<void> {
         const authCallback = (appointerId: string) => {
             if (this.uController.checkPermission(appointerId, r.shopId, Permissions.AddShopManager).data ||
                 this.uController.checkPermission(appointerId, r.shopId, Permissions.ShopOwner).data) {
-                const result = this.uController.addRole(r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions)) //todo: adding an assigner to the method?
+                const result = this.uController.addRole(r.assigner, r.member, r.title !== undefined ? r.title : "", JobType.Manager, r.shopId, new Set(r.permissions)) //todo: adding an assigner to the method?
                 if (result.ok) {
                     return this.mpController.appointShopManager(r.member, r.shopId)
                 }
@@ -698,7 +699,7 @@ export class SystemController {
             password: registrationData.password
         });
         if (admin.ok) {
-            this.uController.addRole(registrationData.username, "System Admin", JobType.admin, -1, new Set([Permissions.AdminControl]))
+            this.uController.addRole("admin", registrationData.username, "System Admin", JobType.admin, -1, new Set([Permissions.AdminControl]))
             return new Result(true, undefined, "new admin is added")
         }
         return new Result(false, undefined, "admin name cannot be registered");
@@ -799,5 +800,12 @@ export class SystemController {
             return Result.Fail(result.message);
         })
     }
+    /*-----------------------------------Appointment agreement----------------------------------------------*/
+    submitOwnerAppointmentInShop(sessionId: string, shopId: number, member: string, assigner: string): Result<void>{
+        return this.authenticateMarketVisitor(sessionId, ()=>{
+            return this.mpController.submitOwnerAppointmentInShop(shopId, member, assigner);
+        })
+    }
+
 
 }

@@ -98,15 +98,15 @@ describe("MarketPlaceController", ()=>{
         }
     })
 
-    test("Appoint shop owner", ()=>{
-        let shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");
-        let shop = shop_res.data;
-        if (shop) {
-            let res= controller.appointShopOwner("NofarRoz", shop.id);
-            expect(res.ok).toBe(true);
-            expect(shop.shopOwners.has("NofarRoz")).toBe(true);
-        }
-    })
+    // test("Appoint shop owner", ()=>{
+    //     let shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");
+    //     let shop = shop_res.data;
+    //     if (shop) {
+    //         let res= controller.appointShopOwner("NofarRoz", shop.id);
+    //         expect(res.ok).toBe(true);
+    //         expect(shop.shopOwners.has("NofarRoz")).toBe(true);
+    //     }
+    // })
 
     test("Appoint shop Manager", ()=>{
         let shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");

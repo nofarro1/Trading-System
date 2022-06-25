@@ -181,7 +181,7 @@ router.post('/member/shopManagement/assignOwner', async (req, res) => {
         let shopId = req.body.shopId
         let newOwner = req.body.newOwnerId
         let title = req.body.title
-        let ans = await service.appointShopOwner(sessId, newOwner, shopId, owner, title)
+        let ans = await service.appointShopOwner(sessId, newOwner, shopId, owner)
         res.send(ans)
     } catch (e: any) {
         res.status(404)

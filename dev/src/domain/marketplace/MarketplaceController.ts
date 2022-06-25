@@ -1,8 +1,8 @@
 import {IMessageListener, IMessagePublisher} from "../notifications/IEventPublishers";
 import {
-    AddedNewOffer2ShopMessage,
+    AddedNewOffer2ShopMessage, appointmentAgreementMessage,
     counterOfferMessage,
-    Message,
+    Message, newOwnerInShopMessage,
     ShopStatusChangedMessage
 } from "../notifications/Message";
 import {Shop} from "./Shop";
@@ -30,6 +30,8 @@ import {
     ContainerDiscountComponent
 } from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 import {Offer} from "../user/Offer";
+import {AppointmentAgreement} from "./AppointmentAgreement";
+import {agent} from "supertest";
 
 @injectable()
 export class MarketplaceController implements IMessagePublisher<ShopStatusChangedMessage | AddedNewOffer2ShopMessage> {
@@ -153,7 +155,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    appointShopOwner(ownerId: string, shopId: number): Result<void>{
+    private appointShopOwner(ownerId: string, shopId: number): Result<void>{
         let shop= this._shops.get(shopId);
         if(!shop) {
             logger.error(`Failed to appoint ${ownerId} to shop with id: ${shopId}, because the shop does not exist.`)
@@ -161,6 +163,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
         try{
             shop.appointShopOwner(ownerId);
+            shop.removeAppointmentAgreement(ownerId);
             logger.info(`${ownerId} was appointed as a ${shop.name} shop owner.`)
             return new Result(true, undefined);
         }
@@ -342,8 +345,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         let shop = this._shops.get(shopId);
         if(shop){
             shop.addSubDiscount(discId, toAdd);
-            //Todo fix logs and result
-            logger.info(`Discount with id: ${discId} was removed from Shop with id: ${shopId} successfully.`)
+            logger.info(`Discount with id: ${discId} from Shop with id: ${shopId} was modified successfully.`)
             return new Result(true, undefined);
         }
         else{
@@ -500,6 +502,48 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         return new Result (false, undefined, `Cannot accept counter-offer because the shop not found in market`)
     }
 
+    submitOwnerAppointmentInShop(shopId: number, member: string, assigner: string): Result<void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            if(!shop.shopOwners.has(assigner)){
+                logger.warn(`Cannot submit owner appointment in ${shop.name} because the assigner is not a shop owner.`);
+                return new Result (false, undefined, `Cannot submit owner appointment in ${shop.name} because ${assigner} is not a shop owner.`);
+            }
+            else{
+                let agreement = shop.submitOwnerAppointment(member, assigner);
+                this.notifySubscribers(new appointmentAgreementMessage(agreement, shop.name, shop.shopOwners));
+                logger.info(`New appointment agreement has been submitted to shop with id: ${shopId}.`)
+                return new Result<void>(true, undefined, `${agreement.assigner} submitted ${agreement.member} candidacy for a shop owner in shop- ${shop.name}.`)
+            }
+        }
+        logger.warn(`Cannot submit owner appointment because the shop not found in market`);
+        return new Result (false, undefined, `Cannot submit owner appointment because the shop not found in market`);
+    }
+
+    answerAppointmentAgreementInShop (shopId: number, member: string, owner: string, answer: boolean): Result<void>{
+        let shop = this._shops.get(shopId);
+        if(shop){
+            try {
+                let agreement = shop.answerAppointmentAgreement(member, owner, answer);
+                if (agreement) {
+                    if (agreement.isDone()) {
+                        this.appointShopOwner(member, shopId);
+                        this.notifySubscribers(new newOwnerInShopMessage(shop, member));
+                    }
+                    return new Result<void>(true, undefined);
+                }
+                logger.warn(`${owner} cannot answer on ${member}'s appointment agreement because he isn't one of the shop owners`)
+                return new Result<void>(false, undefined, `In shop- ${shop.name}: ${owner} cannot answer on ${member}'s appointment agreement because he isn't one of the shop owners`);
+            }
+            catch(e: any){
+                logger.warn(`${owner} could not answer on ${member} appointment agreement in shop with id: ${shopId} because the shop was not in market.`)
+                return new Result<void>(false, undefined, `${owner} could not answer on ${member} appointment agreement in shop with id: ${shopId} because the shop was not in market.`)
+            }
+
+        }
+        logger.warn(`${owner} could not answer on ${member} appointment agreement in shop with id: ${shopId} because the shop was not in market.`)
+        return new Result<void>(false, undefined, `${owner} could not answer on ${member} appointment agreement in shop with id: ${shopId} because the shop was not in market.`)
+    }
 
 
     // visitPurchaseEvent(msg: ShopPurchaseMessage): void {
@@ -557,6 +601,5 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     getPolicies(shopId: number) {
         return null
     }
-
 
 }

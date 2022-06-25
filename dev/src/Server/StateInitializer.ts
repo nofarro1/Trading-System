@@ -4,7 +4,7 @@ import {checkRes, Result} from "../utilities/Result";
 import memberData from "./initialization_data/members.json"
 import shopFounderData from "./initialization_data/shop_founders.json"
 import productsData from "./initialization_data/products.json"
-import {ProductCategory, toCategoryEnum} from "../utilities/Enums";
+import {ProductCategory} from "../utilities/Enums";
 import {SimpleProduct} from "../utilities/simple_objects/marketplace/SimpleProduct";
 import {logger} from "../helpers/logger";
 import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
@@ -142,7 +142,7 @@ export class StateInitializer {
 
     private async addProductsToShop(shop: { Id: number, sessionId: string, founder: string, shopName: string }, products: ProductData[]) {
         const promises: Promise<Result<SimpleProduct | void>>[] = products.map(async (pd) => {
-            const res = await this.service.addProductToShop(shop.sessionId, shop.founder, shop.Id, toCategoryEnum(pd.category), pd.name, pd.price, pd.quantity, pd.description);
+            const res = await this.service.addProductToShop(shop.sessionId, shop.founder, shop.Id, ProductCategory.A, pd.name, pd.price, pd.quantity, pd.description);
             if (checkRes(res)) {
                 pd.id = res.data.productID;
                 this._addedProducts.push(res.data)

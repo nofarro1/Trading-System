@@ -1,3 +1,5 @@
+import {NewProductData} from "./DataObjects";
+
 export enum SearchType{productName, category, keyword}
 export enum FilterType{price, productRate, category, shopRate}
 export enum ShopRate {NotRated}
@@ -16,10 +18,10 @@ export enum PurchasePoliciesKinds {SimplePurchase, ContainerPurchasePolicy}
 export enum PurchasePoliciesRelation { And, Conditional, Or}
 
 
-export function toCategoryEnum(productData) {
-    const str = productData.category;
+export function toCategoryEnum(productData: NewProductData) {
+    const str = productData.productCategory;
     const enumType: ProductCategory = str as unknown as ProductCategory;
-    const cateEnum = ProductCategory[ProductCategory[enumType]];
+    const cateEnum = ProductCategory[productData[enumType]];
     console.log(cateEnum);
     return cateEnum;
 
