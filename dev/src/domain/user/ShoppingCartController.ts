@@ -25,16 +25,16 @@ export class ShoppingCartController {
         if(cart){
             try {
                 cart.addProduct(toAdd, quantity);
-                logger.info(`The product: ${toAdd.name} was added to ${cartId}'s cart.`);
+                logger.info(`[ShoppingCartController/addProduct] The product: ${toAdd.name} was added to ${cartId}'s cart.`);
                 return new Result(true, undefined, `The product: ${toAdd.name} was added to ${cartId}'s cart.`);
             }
 
             catch (error: any) {
-                logger.error(`In ShoppingCartController-> addProduct(${cartId}, ${toAdd.name}, ${quantity}): ${error.message}.`);
+                logger.error(`[ShoppingCartController/addProduct] In ShoppingCartController-> addProduct(${cartId}, ${toAdd.name}, ${quantity}): ${error.message}.`);
                 return new Result(false, undefined, error.message);
             }
         }
-        logger.error(`Failed adding ${toAdd.name} to cart because the needed cart wasn't found.`)
+        logger.error(`[ShoppingCartController/addProduct] Failed adding ${toAdd.name} to cart because the needed cart wasn't found.`)
         return new Result(false, undefined, "Failed to addProduct to cart because the needed cart wasn't found");
     }
 
@@ -43,16 +43,16 @@ export class ShoppingCartController {
         if(cart){
             try {
                 cart.removeProduct(toRemove);
-                logger.info(`The product: ${toRemove.name} was removed from ${cartId}'s cart`);
+                logger.info(`[ShoppingCartController/removeProduct] The product: ${toRemove.name} was removed from ${cartId}'s cart`);
                 return new Result(true, undefined)
             }
             catch (error: any) {
-                logger.error(`In ShoppingCartController-> removeProduct(${cartId}, ${toRemove.name}): ${error.message}.`)
+                logger.error(`[ShoppingCartController/removeProduct] In ShoppingCartController-> removeProduct(${cartId}, ${toRemove.name}): ${error.message}.`)
                 return new Result(false, undefined, error.message)
             }
         }
         else {
-            logger.error(`Failed removing ${toRemove.name} to cart because the needed cart wasn't found.`)
+            logger.error(`[ShoppingCartController/removeProduct] Failed removing ${toRemove.name} to cart because the needed cart wasn't found.`)
             return new Result(false, undefined, "Failed to remove product from cart because the needed cart wasn't found");
         }
     }
@@ -62,53 +62,53 @@ export class ShoppingCartController {
         if(cart){
             try{
                 cart.updateProductQuantity(toUpdate, quantity);
-                logger.info(`The product: ${toUpdate.name}'s quantity was update in cart with id: ${cartId}`);
+                logger.info(`[ShoppingCartController/updateProductQuantity] The product: ${toUpdate.name}'s quantity was update in cart with id: ${cartId}`);
                 return new Result(true, undefined);
             }
             catch(error: any){
-                logger.error(`In ShoppingCartController-> updateProduct(${cartId}, ${toUpdate.name}): ${error.message}.`);
+                logger.error(`[ShoppingCartController/updateProductQuantity] In ShoppingCartController-> updateProduct(${cartId}, ${toUpdate.name}): ${error.message}.`);
                 return new Result(false, undefined, error.message);
             }
         }
         else {
-            logger.error(`Failed updating ${toUpdate.name}'s quantity to cart because the needed cart wasn't found.`)
+            logger.error(`[ShoppingCartController/updateProductQuantity] Failed updating ${toUpdate.name}'s quantity to cart because the needed cart wasn't found.`)
             return new Result(false, undefined, "Failed to update product's quantity in cart because the needed cart wasn't found");
         }
     }
 
     addCart(username: string): Result<ShoppingCart>{
         this.carts.set(username, new ShoppingCart());
-        logger.info(`New cart was created for ${username}`);
+        logger.info(`[ShoppingCartController/addCart] New cart was created for ${username}`);
         return new Result(true, this.carts.get(username),undefined);
     }
 
     removeCart(username: string): Result<void>{
         if(this.carts.delete(username)){
-            logger.info(`${username}'s cart was deleted.`)
+            logger.info(`[ShoppingCartController/removeCart] ${username}'s cart was deleted.`)
             return new Result(true, undefined, `${username}'s cart was deleted.`);
         }
-        logger.error(`Failed to delete ${username}'s cart, because the cart was not found.`);
+        logger.error(`[ShoppingCartController/removeCart] Failed to delete ${username}'s cart, because the cart was not found.`);
         return new Result(false, undefined, `Failed to delete ${username}'s cart, because the cart was not found.`);
     }
 
     getCart(username: string): Result<ShoppingCart | void>{
         let toReturn = this.carts.get(username);
         if(toReturn){
-            logger.info(`${username}'s cart was successfully returned.`)
+            logger.info(`[ShoppingCartController/getCart] ${username}'s cart was successfully returned.`)
             return new Result(true, toReturn, `${username}'s cart was successfully returned.`);
         }
-        logger.error(`Failed to returned ${username}'s cart, because the cart was not found.`);
+        logger.error(`[ShoppingCartController/getCart] Failed to returned ${username}'s cart, because the cart was not found.`);
         return new Result(false, undefined, `Failed to returned ${username}'s cart, because the cart was not found.`);
     }
 
     emptyCart(username: string): Result<void>{
         let toEmpty = this.carts.get(username);
         if(toEmpty){
-            toEmpty.emptyCart();
-            logger.info(`${username}'s cart was successfully emptied.`);
+            toEmpty.emptyCart(); 
+            logger.info(`[ShoppingCartController/emptyCart] ${username}'s cart was successfully emptied.`);
             return new Result(true,  undefined, `${username}'s cart was successfully emptied.`);
         }
-        logger.error(`Failed to empty ${username}'s cart, because the cart wasn't found`);
+        logger.error(`[ShoppingCartController/emptyCart] Failed to empty ${username}'s cart, because the cart wasn't found`);
         return new Result(false, undefined, `Failed to empty ${username}'s cart, because the cart wasn't found`);
     }
 
@@ -116,10 +116,10 @@ export class ShoppingCartController {
         let cart = this.carts.get(username);
         if(cart){
             cart.emptyBag(shopId);
-            logger.info(`${username}'s bag in shop with id: ${shopId} was successfully emptied.`);
+            logger.info(`[ShoppingCartController/emptyBag] ${username}'s bag in shop with id: ${shopId} was successfully emptied.`);
             return new Result(true,  undefined);
         }
-        logger.info(`Tried to empty ${username}'s bag in shop with id: ${shopId}, but the bag wasn't found.`);
+        logger.info(`[ShoppingCartController/emptyBag] Tried to empty ${username}'s bag in shop with id: ${shopId}, but the bag wasn't found.`);
         return new Result(true, undefined, `Tried to empty ${username}'s bag in shop with id: ${shopId}, but the bag wasn't found.`);
     }
 
@@ -129,7 +129,7 @@ export class ShoppingCartController {
             cart.addOffer(toAdd);
             return new Result(true, undefined);
         }
-        logger.info(`Tried to add offer to  ${username}'s cart , but the cart wasn't found.`);
+        logger.info(`[ShoppingCartController/addOffer2cart] offer to  ${username}'s cart , but the cart wasn't found.`);
         return new Result(true, undefined, `Tried to add offer to ${username}'s cart, but the bag wasn't found.`);
     }
 
@@ -142,7 +142,7 @@ export class ShoppingCartController {
             cart.offers.push(toUpdate);
             return new Result(true, undefined);
         }
-        logger.info(`Tried to update offer to  ${toUpdate.user}'s cart , but the cart wasn't found.`);
+        logger.info(`[ShoppingCartController/updateOfferFromCart] Tried to update offer to  ${toUpdate.user}'s cart , but the cart wasn't found.`);
         return new Result(false, undefined, `Tried to update offer to ${toUpdate.user}'s cart, but the bag wasn't found.`);
     }
 
@@ -154,7 +154,7 @@ export class ShoppingCartController {
             cart.offers.splice(i, 1);
             return new Result(true, undefined);
         }
-        logger.info(`Tried to remove offer to  ${username}'s cart , but the cart wasn't found.`);
+        logger.info(`[ShoppingCartController/removeOffer] Tried to remove offer to  ${username}'s cart , but the cart wasn't found.`);
         return new Result(true, undefined, `Tried to remove offer to ${username}'s cart, but the bag wasn't found.`);
     }
 }

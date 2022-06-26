@@ -155,7 +155,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
     }
 
-    private appointShopOwner(ownerId: string, shopId: number): Result<void>{
+    public appointShopOwner(ownerId: string, shopId: number): Result<void>{
         let shop= this._shops.get(shopId);
         if(!shop) {
             logger.error(`Failed to appoint ${ownerId} to shop with id: ${shopId}, because the shop does not exist.`)

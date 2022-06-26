@@ -109,6 +109,12 @@ export class MarketplaceService {
         });
     }
 
+    // getAllShopInfo() {
+    //     console.log("[MarketPlaceService/getAllShopInfo] start");
+    //     return this.systemController.getShops();
+    // }
+
+
     getAllShopInfo(sessionID: string) {
         return new Promise<Result<void | SimpleShop[]>>((resolve, reject) => {
             let result: Result<void | SimpleShop[]> = this.systemController.getShops(sessionID);
