@@ -24,7 +24,7 @@ export type ShopStatus = typeof ShopStatus[keyof typeof ShopStatus]
 export enum DiscountType {Product, Category, Bag}
 export enum PolicyType {LogicalPolicy, SimplePolicy }
 export enum SimplePolicyType {Product, Category, ShoppingBag, UserInfo}
-export enum LogicalPolicy {AndPolicy, OrPolicy, ConditionalPolicy}
+// export enum LogicalPolicy {AndPolicy, OrPolicy, ConditionalPolicy}
 export const JobType: { [x: string]: 'Admin' | 'Founder' | 'Owner' | 'Manager'} = {
     Admin: 'Admin',
     Founder: 'Founder',

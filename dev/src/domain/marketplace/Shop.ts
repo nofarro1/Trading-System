@@ -496,13 +496,13 @@ export class Shop implements Entity{
             },
         });
 
-    answerAppointmentAgreement(member: string, owner: string, answer: boolean): void | AppointmentAgreement {
         for(const shop_owner of this.shopOwners)
             await this.createShopOwner(shop_owner, this.id);
         for(const shop_manager of this.shopManagers)
             await this.createShopManager(shop_manager, this.id);
     }
 
+    answerAppointmentAgreement(member: string, owner: string, answer: boolean): void | AppointmentAgreement {
         let agreement: AppointmentAgreement = this._appointmentAgreements.get(member);
         if (agreement) {
             agreement.setAnswer(owner, answer);

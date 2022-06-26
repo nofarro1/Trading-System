@@ -8,7 +8,6 @@ import {
     ShopRate,
     DiscountType, Product, SimplePolicyType, RelationType
 } from "../../prisma/prisma";
-import {app} from "../../src/Server/expressApp";
 
 let prisma;
 
@@ -29,12 +28,11 @@ async function createMemberCredentials(username: string, password: string) {
     });
 }
 
-async function createRole(username: string, shopId: number, job_type: JobType, permissions: Permissions[], title?: string) {
+async function createRole(username: string, shopId: number, job_type: JobType, permissions: Permissions[]) {
     await prisma.role.create({
         data: {
             username: username,
             shopId: shopId,
-            title: title,
             job_type: job_type,
             permissions: permissions,
         },
@@ -340,7 +338,7 @@ describe("prisma tests", ()=> {
     })
 
     test("create role test", async () => {
-        createRole("shmulik", 0, JobType.Owner, [Permissions.AddPermission, Permissions.AddShopManager], "owner")
+        createRole("shmulik", 0, JobType.Owner, [Permissions.AddPermission, Permissions.AddShopManager])
             .catch((e) => {
                 throw e
             })

@@ -63,7 +63,6 @@ export class Role implements Entity{
             data: {
                 username: username,
                 shopId: this.shopId,
-                title: this.title,
                 job_type: this.jobType,
                 permissions: Array.from(this.permissions),
             },

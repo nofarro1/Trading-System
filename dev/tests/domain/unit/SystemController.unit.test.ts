@@ -71,9 +71,9 @@ describe('system controller - unit', () => {
 
     const shop1 = new Shop(0, "_name", username1, "this is my shop");
 
-    const p1 = new Product("ps1", 0, ProductCategory.A, 10, undefined, "description");
-    const p2 = new Product("ps2", 0, ProductCategory.A, 10, undefined, "description");
-    const p3 = new Product("ps3", 0, ProductCategory.A, 10, undefined, "description");
+    const p1 = new Product("ps1", 0, 0, ProductCategory.A, 1000, "description");
+    const p2 = new Product("ps2", 0, 1, ProductCategory.A, 10, "description");
+    const p3 = new Product("ps3", 0, 2, ProductCategory.A, 10,"description");
     // const p4 = new Product("ps4", 0, ProductCategory.A, "description", 10, 10)
     // const p5 = new Product("ps5", 0, ProductCategory.A, "description", 10, 10)
     // const p6 = new Product("ps6", 0, ProductCategory.A, "description", 10, 10)

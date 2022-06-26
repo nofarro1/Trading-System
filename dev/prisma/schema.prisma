@@ -32,7 +32,6 @@ model Role {
   username      String //FK
   shop          Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   shopId        Int //FK
-  title         String?
   job_type      JobType
   permissions   Permissions[]
   //Foreign Key references
