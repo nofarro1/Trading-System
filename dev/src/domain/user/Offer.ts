@@ -7,14 +7,14 @@ export class Offer{
     private _approves: Map<string, [boolean, boolean]>;
     private _answer: boolean;
 
-    constructor(id: number, userId: string, shopId: number,  pId: number, price: number, approvers: Set<string>){
+    constructor(id: number, userId: string, shopId: number,  pId: number, price: number, approves: Set<string>){
         this._id= id;
         this._user= userId;
         this._shopId = shopId;
         this._pId= pId;
         this._price= price;
         this._approves = new Map<string, [boolean, boolean]>(); //(owner name, [has answered, answer]
-        for (let owner of approvers){
+        for (let owner of approves){
             this._approves.set(owner, [false, true])
         }
         this._answer= true;
@@ -75,8 +75,9 @@ export class Offer{
     set approves(value: Set<string>) {
         let newApproves = new Map<string, [boolean, boolean]>();
         for (let owner of value){
-            if(this._approves.has(owner))
-                newApproves.set(owner, this._approves.get(owner));
+            let ans = this._approves.get(owner);
+            if(this._approves.has(owner) && ans)
+                newApproves.set(owner, ans);
             else
                 newApproves.set(owner, [false, true]);
         }
@@ -84,10 +85,12 @@ export class Offer{
     }
 
     resetApproves(){
-        for (let i=0; i< this._approves.size; i++ ){
-            this._approves[i]= [false, true];
+        let keys = this._approves.keys();
+        for(let key of keys){
+            this._approves.set(key, [false, true]);
         }
     }
+
 
     getApproves(): Map<string, [boolean, boolean]> {
         return this._approves;

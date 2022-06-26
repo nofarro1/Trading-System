@@ -1,0 +1,10 @@
+.login{
+    display:grid;
+    grid-auto-flow: column;
+    padding-left: 20px;
+    height: 100px;
+    justify-content: left;
+    align-content: space-evenly;
+    border: 1px solid darkslategrey;
+    grid-gap: 20px;
+  }

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import {ProductCategory, ProductRate} from "../../../../../utilities/Enums";
 import {SimpleProduct} from "../../../../../utilities/simple_objects/marketplace/SimpleProduct";
-import {api} from "../../backendService/Service.service";
+import {api} from "../../backendService/Service";
 import {SimpleShoppingCart} from "../../../../../utilities/simple_objects/user/SimpleShoppingCart";
 
 @Component({
@@ -10,10 +10,11 @@ import {SimpleShoppingCart} from "../../../../../utilities/simple_objects/user/S
   styleUrls: ['./cart.component.scss']
 })
 export class CartComponent implements OnInit {
+  @Input() session: string;
   totalprice: number;
   name: string;
   products: SimpleProduct[];
-  //serv=new api();
+
   constructor(private service: api,) {
     this.products=[];
     this.name="";
@@ -27,6 +28,7 @@ export class CartComponent implements OnInit {
     //   }
     // )
   }
+  
   ngOnInit(): void {
   }
 

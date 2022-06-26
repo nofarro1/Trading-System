@@ -1,5 +1,81 @@
-<app-login (logged)="userLogged($event)" *ngIf="!isLoggedIn"></app-login>
-<app-logout *ngIf="isLoggedIn"></app-logout>
-<app-menu></app-menu>
-<router-outlet></router-outlet>
+<p-toast position="top-center" key="tc"></p-toast>
 
+
+<div
+  *ngIf="!isLoggedIn"
+  class="form-group"
+  [style]="{ 'padding-bottom': '30px', 'padding-top': '30px' }"
+>
+  <ng-container class="container">
+    <input
+      [style]="{ 'margin-left': '20px' }"
+      type="text"
+      pInputText
+      placeholder="Username"
+      [(ngModel)]="username"
+      #Username
+    />
+    <input
+      [style]="{ 'margin-left': '10px' }"
+      type="password"
+      pInputText
+      placeholder="Password"
+      [(ngModel)]="password"
+      #Password
+    />
+    <p-button
+      [style]="{ 'margin-left': '10px' }"
+      name="loginbtn"
+      [disabled]="username === '' || password === ''"
+      (click)="loginUser(Username.value, Password.value)"
+      >Login</p-button
+    >
+    <p-button
+      [style]="{ 'margin-left': '20px' }"
+      name="signupbtn"
+      (onClick)="showSignUp = true"
+      >Sign-Up</p-button
+    >
+    <p-button
+      *ngIf="member?.getJobTypeValue() === ADMIN"
+      [style]="{ 'margin-left': '10px' }"
+      name="initBtn"
+      >init System</p-button
+    >
+  </ng-container>
+</div>
+
+<div *ngIf="isLoggedIn">
+  <h3>Welcome {{ username }}</h3>
+  <div class="btngroup" style="margin-bottom: 50px">
+    <p-button [style]="{ 'margin-left': '10px' }" (onClick)="logout()"
+      >Logout</p-button
+    >
+    <p-button [style]="{ 'margin-left': '10px' }">Notification</p-button>
+    <p-button [style]="{ 'margin-left': '10px' }">Your Profile</p-button>
+  </div>
+</div>
+
+<app-menu (clickedOn)="goToPage($event)" [isLoggedIn]="isLoggedIn"></app-menu>
+
+<app-signup
+  *ngIf="showSignUp"
+  (registerMember)="afterSignUp($event)"
+  [session]="session"
+></app-signup>
+
+<!-- <router-outlet *ngIf="!showSignUp"></router-outlet> -->
+<app-main *ngIf="showHome"></app-main>
+
+<app-shops
+  *ngIf="showShops"
+  (shopIdClicked)="goToShop($event)"
+  [member]="member"
+  [session]="session"
+></app-shops>
+<app-shop
+  *ngIf="showShop"
+  (shopId)="shopToShow"
+  [session]="session"
+></app-shop>
+<app-cart *ngIf="showCart" [session]="session"></app-cart>

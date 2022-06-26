@@ -32,7 +32,7 @@ export class MemberCredentials implements Entity{
 
 @injectable()
 export class SecurityController {
-    private readonly _MINIMUM_PASSWORD_LENGTH = 8;
+    private readonly _MINIMUM_PASSWORD_LENGTH = 6;
     private readonly _MAXIMUM_USERNAME_LENGTH = 31;
     private readonly _members: Map<string, string>; //Username <-> Password
     private readonly _activeSessions: Set<string>; //Session IDs
@@ -62,6 +62,10 @@ export class SecurityController {
 
     get loggedInMembers(): Map<string, string> {
         return this._loggedInMembers;
+    }
+
+    checkPassword(username: string, password: string): boolean {
+        return this.members.get(username) === password
     }
 
     accessMarketplace(sessionID: string): void {
@@ -102,7 +106,7 @@ export class SecurityController {
             throw new RangeError(`Password is too short and must contain at least ${this.MINIMUM_PASSWORD_LENGTH} characters`);
         }
 
-        logger.info(`${username} has registered successfully to the marketplace`);
+        logger.info(`[SecurityController/register] ${username} has registered successfully to the marketplace`);
         this.members.set(username, password);
         new MemberCredentials(username, password); //Saves to database
     }
@@ -125,7 +129,7 @@ export class SecurityController {
             throw new Error(`The password is invalid, please try again`);
         }
 
-        logger.info(`${username} has logged in successfully to the system`);
+        logger.info(`[SecurityController/login] ${username} has logged in successfully to the system`);
         this.loggedInMembers.set(sessionID, username);
     }
 
@@ -155,6 +159,7 @@ export class SecurityController {
         if (this.loggedInMembers.has(sessionID)) {
             return this.loggedInMembers?.get(sessionID);
         }
+        logger.warn(`[SecurityController/hasActiveSession]  exit`);
         return "";
     }
 }

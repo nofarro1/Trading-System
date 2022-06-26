@@ -20,11 +20,12 @@ import {IDeliveryService} from "../domain/external_services/IDeliveryService";
 import {DeliveryService} from "../domain/external_services/DeliveryService";
 import {IPaymentService} from "../domain/external_services/IPaymentService";
 import {PaymentService} from "../domain/external_services/PaymentService";
-import config from "../config";
+
+const env = process.env.NODE_ENV;
 
 function bind(fresh: Container) {
 //services
-    fresh.bind<Service>(TYPES.Service).to(Service).inSingletonScope()
+    fresh.bind<Service>(TYPES.Service).to(Service)
     fresh.bind<GuestService>(TYPES.GuestService).to(GuestService)
     fresh.bind<MarketplaceService>(TYPES.MarketplaceService).to(MarketplaceService)
     fresh.bind<MemberService>(TYPES.MemberService).to(MemberService)
@@ -41,14 +42,14 @@ function bind(fresh: Container) {
     fresh.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)
 
 //external services
-    fresh.bind<string>("payment").toDynamicValue(() => config.env === "dev" ? "stub payment service" : " real payment")
-    fresh.bind<string>("delivery").toDynamicValue(() => config.env === "dev" ? "stub delivery service" : " real delivery")
+    fresh.bind<string>("payment").toDynamicValue(() => env === "dev" ? "stub payment service" : " real payment")
+    fresh.bind<string>("delivery").toDynamicValue(() => env === "dev" ? "stub delivery service" : " real delivery")
     fresh.bind<string>("RealPayment").toConstantValue("real payment")
     fresh.bind<string>("RealDelivery").toConstantValue("real delivery")
     fresh.bind<PaymentServiceAdaptor>(TYPES.PaymentServiceAdaptor).to(PaymentServiceAdaptor)
     fresh.bind<DeliveryServiceAdaptor>(TYPES.DeliveryServiceAdaptor).to(DeliveryServiceAdaptor)
 
-    if (config.env === "prod") {
+    if (env === "prod") {
         fresh.bind<IDeliveryService>(TYPES.DeliveryService).to(DeliveryService);
         fresh.bind<IPaymentService>(TYPES.PaymentService).to(PaymentService);
     }
@@ -67,6 +68,16 @@ export const resetContainer = () => {
     systemContainer.unbindAll();
     systemContainer.restore()
     systemContainer.snapshot();
+}
+
+export const clearContainer = () => {
+    systemContainer.unbindAll();
+    bind(systemContainer)
+}
+
+const rebind = () => {
+    clearContainer();
+
 }
 
 

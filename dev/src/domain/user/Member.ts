@@ -33,13 +33,17 @@ export class Member extends Guest implements Entity{
         }
     }
 
-    removeRole(shopId: number) {
-        if (this.roles.has(shopId))
+    removeRole(shopId: number, assigner: string) {
+        if (this.roles.has(shopId) && this.roles.get(shopId).assigner === assigner)
             this.roles.delete(shopId);
     }
 
     hasRole(shopId: number) {
        return this.roles.has(shopId);
+    }
+
+    isAssigner (assigner: string, member: string, shopId: number){
+        return this.roles.get(shopId).assigner === assigner;
     }
 
     addPermission(shopId: number, perm: Permissions) {

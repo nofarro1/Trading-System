@@ -7,8 +7,7 @@ import {Service} from "../service/Service";
 import {SimpleMessage} from "../domain/notifications/Message";
 import {LiveNotificationSubscriber, NotificationService} from "../service/NotificationService";
 import {logger} from "../helpers/logger"
-import config from "../config";
-import {Session} from 'inspector';
+
 
 
 // declare module "express-session" {
@@ -43,7 +42,7 @@ declare module "express-session" {
 
 const keyPath = __dirname + "/security/key.pem";
 const certPath = __dirname + "/security/cert.pem";
-const port = process.env.PORT || config.app.port;
+const port = process.env.PORT || 3000;
 
 const wrap = (middleware: express.RequestHandler) =>
     (socket: Socket, next: NextFunction): void => middleware(socket.request as Request, {} as Response, next as NextFunction);
@@ -56,15 +55,17 @@ export class Server {
     private notificationService: NotificationService;
 
 
-    constructor(app: Express, service: Service,
-                notificationService: NotificationService) {
-        this.backendService = service;
-        this.notificationService = notificationService;
+    constructor(bundle: {
+        app: Express, service: Service,
+        notificationService: NotificationService
+    }) {
+        this.backendService = bundle.service;
+        this.notificationService = bundle.notificationService;
         this.httpsServer = https.createServer({
             key: fs.readFileSync(keyPath),
             cert: fs.readFileSync(certPath),
             rejectUnauthorized: false
-        }, app)
+        }, bundle.app)
         logger.info("https Server is initialized")
         this.ioServer = new io.Server(this.httpsServer, {
             cors: {origin: "*/*"}
@@ -76,13 +77,25 @@ export class Server {
 
     start() {
         this.setupEvents();
-        this.httpsServer.listen(port, () => {
-            console.log("server started. listening on port " + port)
+        const listen = () => this.httpsServer.listen(port, () => {
+            logger.info("server started. listening on port " + port)
         });
+        if (process.env.NODE_ENV === 'dev') {
+            listen();
+        } else {
+            this.backendService.stateInit
+                .initialize()
+                .then(() => listen())
+                .catch(() => {
+                logger.error("was unable to initialize data to the system");
+                listen();
+            });
+        }
+
     }
 
     shutdown() {
-        this.httpsServer.close(() => console.log("server is down"));
+        this.httpsServer.close(() => logger.info("server is down"));
     }
 
     private setupEvents() {
@@ -107,7 +120,7 @@ export class Server {
             //check if this session is logged in
             let sub = new LiveNotificationSubscriber(socket);
             this.notificationService.subscribeToBox(sub).then(() => {
-                console.log("live notification subscription success");
+                logger.info(`live notification enabled for session ${socket.request.session.id}`);
             });
             this.setupGeneralMessageEvent(socket);
 

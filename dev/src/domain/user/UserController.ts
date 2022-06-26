@@ -40,36 +40,39 @@ export class UserController {
         return new Result(true, undefined);
     }
 
-    addRole(username: string, title: string, jobType: JobType, shopId: number, perm: Set<Permissions>): Result<Role | undefined>{
+    addRole(assigner: string, username: string,  jobType: JobType, shopId: number, perm: Set<Permissions>): Result<Role | undefined>{
         if (!this.members.has(username)){
-            logger.warn(`[addRole] Role of shop ${shopId} not added to member ${username} beacause this member not exist`);
+            logger.error(`[addRole] Role of shop ${shopId} not added to member ${username} beacause this member not exist`);
             return new Result(false, undefined, `User ${username} not found`);
         }
         const member = this.members.get(username);
-        let role = new Role(shopId, title, jobType, perm);
+        let role = new Role(shopId, jobType, assigner, perm);
         if(member)
             member.addRole(role);
         logger.info(`[addRole] Role ${role} added to member ${username}`);
         return new Result(true, role);
     }
 
-    removeRole(username: string, shopId: number): Result<void>{
+    removeRole(username: string, assigner: string, shopId: number): Result<void>{
         if (!this.members.has(username)){
-            logger.warn(`[removeRole] Role of shop ${shopId} NOT removed from member ${username} because this member not exist`); 
+            logger.error(`[removeRole] Role of shop ${shopId} NOT removed from member ${username} because this member not exist`);
             return new Result(false, undefined, `user ${username} not found`);
         }
         const member = this.members.get(username);
-        if (member){
-            if (!member.hasRole(shopId)){
-                logger.warn(`[removeRole] Role of shop ${shopId} NOT removed from member ${username} because this member don't have roles of this shop`);
-                logger.info(`Role of shop ${shopId} removed from member ${username}`);
+        if (member) {
+            if (!member.hasRole(shopId)) {
+                logger.error(`[removeRole] Role of shop ${shopId} NOT removed from member ${username} because this member don't have roles of this shop`);
                 return new Result(false, undefined, `user ${username} not found`);
             }
-        }
-        if (member){
-            member.removeRole(shopId);
-            logger.info(`[removeRole] Role of shop ${shopId} removed from member ${username}`); 
-            return new Result(true, undefined);
+            else {
+                if(member.isAssigner(assigner, member.username, shopId)){
+                    member.removeRole(shopId, assigner);
+                    logger.info(`[removeRole] Role of shop ${shopId} removed from member ${username}`);
+                    return new Result(true, undefined);
+                }
+                logger.info(`[removeRole] Role of shop ${shopId} NOT removed from member ${username} because only the assigner can remove the role. `);
+                return new Result(true, undefined);
+            }
         }
         return new Result(false, undefined);
     }
