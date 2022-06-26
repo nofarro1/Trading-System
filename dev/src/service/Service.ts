@@ -45,7 +45,7 @@ export class Service {
         this.marketplaceService = marketplaceService
         this.shoppingCartService = shoppingCartService
         this.orderService = orderService
-        this._stateInit = new StateInitializer(this, config.db)
+        this._stateInit = new StateInitializer(this, process.env.DB_URL)
     }
 
     //----------------------Guest Service methods-------------------------------
