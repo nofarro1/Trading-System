@@ -80,19 +80,44 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         this._shopCounter++;
         this._shops.set(toAdd.id, toAdd);
         logger.info(`The ${shopName} was opened in the market by ${userId}.`);
+        toAdd.save().then(r => logger.debug("saved to database")).catch(err => logger.error(err));
         return new Result(true, toAdd);
     }
 
-    closeShop(founder: string, shopId: number): Result<void>{
+    async closeShop(founder: string, shopId: number): Promise<Result<void>>{
         let toClose= this._shops.get(shopId);
         if(toClose){
             toClose.status= ShopStatus.close;
             this.notifySubscribers(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
             logger.info(`The ${toClose.name} was closed in the market.`);
+            this.saveShop(toClose)
             return new Result(true, undefined);
+        }else {
+            let shop = await this.fetchShop(shopId)
+            if(shop){
+                toClose.status= ShopStatus.close;
+                this.notifySubscribers(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
+                logger.info(`The ${toClose.name} was closed in the market.`);
+                this.saveShop(toClose)
+                return new Result(true, undefined);
+            }
+            logger.error(`${founder} tried to close his shop, but the shop with id:${shopId}  does not exist`);
+            return new Result(false,undefined, "Failed to close shop because the shop isn't exist.");
         }
-        logger.error(`${founder} tried to close his shop, but the shop with id:${shopId}  does not exist`);
-        return new Result(false,undefined, "Failed to close shop because the shop isn't exist.");
+
+
+    }
+    saveShop(shop:Shop):void {
+        shop.save().then(r => logger.debug("saved to database")).catch(err => logger.error(err));
+    }
+
+    async fetchShop(shopId: number) {
+        try {
+            let shop = await Shop.findById(shopId);
+            return shop
+        } catch (e) {
+            return undefined;
+        }
     }
 
     reopenShop(founder: string, shopId: number): Result<void>{
@@ -110,13 +135,13 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, productDesc?: string): Result<void | Product> {
         if(quantity<0)
             return new Result<void>(false, undefined, "Cannot add negative amount of product to a shop ");
-        let shop = this._shops.get(shopId);
+        let shop = this._shops.get(shopId);// fatch from db
         if (!shop) {
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
         }
         let product: Product = shop.addProduct(productName, productCategory, fullPrice, quantity,  productDesc);
-        this.allProductsInMP.set({shop:product.shopId,id:product.id},product)
+        this.allProductsInMP.set({shop:product.shopId,id:product.id},product) // save shop to database
         logger.info(`${productName} was added to ${shop.name}.`);
         return new Result(true, product,undefined);
     }

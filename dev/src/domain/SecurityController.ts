@@ -18,12 +18,17 @@ export class MemberCredentials implements Entity{
     }
 
     async save() {
-        await prisma.memberCredentials.create({
-            data: {
-                username: this.username,
-                password: this.password,
-            },
-        });
+        try{
+            await prisma.memberCredentials.create({
+                data: {
+                    username: this.username,
+                    password: this.password,
+                },
+            });
+        } catch(error) {
+            logger.error("failed at database save")
+        }
+
     }
 
     update() {
@@ -93,7 +98,7 @@ export class SecurityController {
         this.activeSessions.delete(sessionID);
     }
 
-    async register(sessionID: string, username: string, password: string): void {
+    async register(sessionID: string, username: string, password: string): Promise<void> {
         if (!this.activeSessions.has(sessionID)) {
             logger.error(`There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
@@ -118,7 +123,7 @@ export class SecurityController {
         new MemberCredentials(username, password); //Saves to database
     }
 
-    async login(sessionID: string, username: string, password: string): void {
+    async login(sessionID: string, username: string, password: string): Promise<void> {
         if (!this.activeSessions.has(sessionID)) {
             logger.error(`There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);

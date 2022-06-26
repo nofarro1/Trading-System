@@ -360,7 +360,7 @@ export class Shop implements Entity{
         this._discountsArray = [...this._discounts.values()];
     }
 
-    getDiscount(discId: number): number | DiscountComponent | undefined{
+    getDiscount(discId: number): DiscountComponent | undefined{
         let toReturn:DiscountComponent = this.discounts.get(discId);
         if(!toReturn){
             this.searchDiscInDB(discId).then((disc: DiscountComponent)=>{
@@ -549,7 +549,8 @@ export class Shop implements Entity{
         this._appointmentAgreements.delete(member);
     }
 
-    findById() {
+    static findById(shopId:number) {
+        return null
     }
 
     async save() {

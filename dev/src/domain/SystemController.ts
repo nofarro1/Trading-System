@@ -559,13 +559,13 @@ export class SystemController {
     }
 
     //Shop Owner - Use-Case 9
-    deactivateShop(sessId: string, shop: number): Result<void> {
-        return this.authenticateMarketVisitor(sessId, (id: string) => {
+    async deactivateShop(sessId: string, shop: number): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(sessId, (id: string) => {
             if (this.uController.checkPermission(id, shop, Permissions.CloseShop).data ||
                 this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.mpController.closeShop(id, shop)
             }
-            return new Result(false, undefined, "no permission")
+            return Promise.resolve(new Result(false, undefined, "no permission"))
         })
     }
 
