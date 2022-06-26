@@ -22,6 +22,7 @@ model Member {
   offers                Offer[]
   offerApprovers        OfferApprover[]
   appointmentAgreements AppointmentAgreement[]
+  messageRecipients     MessageRecipients[]
 
   @@map("member")
 }
@@ -149,25 +150,26 @@ model MemberCredentials {
   @@map("member_credentials")
 }
 
-//model SimpleMessage {
-//  @@map("simple_message")
-//}
-//
-//model ShopPurchaseMessage {
-//  @@map("shop_purchase_message")
-//}
-//
-//model ShopStatusChangedMessage {
-//  @@map("shop_status_changed_message")
-//}
-//
-//model AddedNewOffer2ShopMessage {
-//  @@map("added_new_offer_to_shop_message")
-//}
-//
-//model CounterOfferMessage {
-//  @@map("counter_offer_message")
-//}
+model Message {
+  id          Int                 @id
+  timestamp   Int
+  isRead      Boolean
+  messageType MessageType
+  //Foreign Key references
+  recipients  MessageRecipients[]
+
+  @@map("message")
+}
+
+model MessageRecipients {
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  messageId Int
+  member    Member  @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username  String
+
+  @@id([messageId, username])
+  @@map("message_recipients")
+}
 
 model Discount {
   id                  Int                  @id
@@ -428,4 +430,12 @@ enum PurchasePoliciesRelation {
   And
   Conditional
   Or
+}
+
+enum MessageType {
+  Simple
+  ShopPurchase
+  ShopStatusChanged
+  AddedNewOffer2Shop
+  CounterOffer
 }
