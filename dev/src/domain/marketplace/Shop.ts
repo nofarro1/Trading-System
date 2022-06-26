@@ -1,5 +1,4 @@
 import {Product} from "./Product";
-import {PurchasePoliciesRelation, ProductCategory, ShopRate, ShopStatus, DiscountRelation} from "../../../prisma/prisma";
 import {ShoppingBag} from "../user/ShoppingBag";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
 import {
@@ -44,6 +43,7 @@ import {
 import {Offer} from "../user/Offer";
 import {Entity} from "../../utilities/Entity";
 import prisma from "../../utilities/PrismaClient";
+import {DiscountRelation, ProductCategory, PurchasePoliciesRelation, ShopRate, ShopStatus} from "../../utilities/Enums";
 
 
 

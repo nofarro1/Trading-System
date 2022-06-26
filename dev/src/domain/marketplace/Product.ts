@@ -1,6 +1,6 @@
-import {ProductCategory, ProductRate} from "../../../prisma/prisma";
 import {Entity} from "../../utilities/Entity";
 import prisma from "../../utilities/PrismaClient";
+import {ProductCategory, ProductRate} from "../../utilities/Enums";
 
 
 export class Product implements Entity{

@@ -1,6 +1,7 @@
-import {JobType, Permissions} from "../../../prisma/prisma";
 import {Entity} from "../../utilities/Entity";
 import prisma from "../../utilities/PrismaClient";
+import {JobType} from "../../utilities/Enums";
+import {Permissions} from "../../utilities/Permissions";
 
 
 export class Role implements Entity{
