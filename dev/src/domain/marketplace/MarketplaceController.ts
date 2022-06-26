@@ -532,12 +532,16 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
                     }
                     return new Result<void>(true, undefined);
                 }
-                logger.warn(`${owner} cannot answer on ${member}'s appointment agreement because he isn't one of the shop owners`)
-                return new Result<void>(false, undefined, `In shop- ${shop.name}: ${owner} cannot answer on ${member}'s appointment agreement because he isn't one of the shop owners`);
             }
             catch(e: any){
-                logger.warn(`${owner} could not answer on ${member} appointment agreement in shop with id: ${shopId} because the shop was not in market.`)
-                return new Result<void>(false, undefined, `${owner} could not answer on ${member} appointment agreement in shop with id: ${shopId} because the shop was not in market.`)
+                if(shop){
+                    logger.warn(`${owner} cannot answer on ${member}'s appointment agreement because he isn't one of the shop owners`)
+                    return new Result<void>(false, undefined, `In shop- ${shop.name}: ${owner} cannot answer on ${member}'s appointment agreement because he isn't one of the shop owners.`);
+                }
+                else{
+                    logger.warn(`${owner} could not answer on ${member} appointment agreement in shop with id: ${shopId} because the shop was not in market.`)
+                    return new Result<void>(false, undefined, `${owner} could not answer on ${member} appointment agreement in shop with id: ${shopId} because the shop was not in market.`)
+                }
             }
 
         }
