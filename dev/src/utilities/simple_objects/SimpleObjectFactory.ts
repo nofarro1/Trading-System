@@ -38,7 +38,7 @@ export function toSimpleShop(shop: Shop): SimpleShop {
         products.set(product, quantity);
     }
 
-    return new SimpleShop(shop.id, shop.name, shop.status, products);
+    return new SimpleShop(shop.id, shop.name,shop.shopFounder,shop.status, products);
 }
 
 export function toSimpleGuest(guest: Guest): SimpleGuest {
