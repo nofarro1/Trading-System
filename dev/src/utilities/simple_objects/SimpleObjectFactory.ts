@@ -1,8 +1,8 @@
-import { SimpleProduct } from "./marketplace/SimpleProduct";
+import {SimpleProduct} from "./marketplace/SimpleProduct";
 import {Product} from "../../domain/marketplace/Product";
-import { SimpleShop } from "./marketplace/SimpleShop";
-import { SimpleGuest } from "./user/SimpleGuest";
-import { SimpleMember } from "./user/SimpleMember";
+import {SimpleShop} from "./marketplace/SimpleShop";
+import {SimpleGuest} from "./user/SimpleGuest";
+import {SimpleMember} from "./user/SimpleMember";
 import {SimpleShoppingCart} from "./user/SimpleShoppingCart";
 import {Shop} from "../../domain/marketplace/Shop";
 import {Guest} from "../../domain/user/Guest";
@@ -10,17 +10,19 @@ import {Member} from "../../domain/user/Member";
 import {ShoppingCart} from "../../domain/user/ShoppingCart";
 import {DiscountComponent} from "../../domain/marketplace/DiscountAndPurchasePolicies/Components/DiscountComponent";
 import {SimpleDiscountDescriber} from "./marketplace/SimpleDiscountDescriber";
+import {Role} from "../../domain/user/Role";
+import {SimpleRole} from "./user/SimpleRole";
 
 
-export function toSimpleProduct(product: Product): SimpleProduct{
+export function toSimpleProduct(product: Product): SimpleProduct {
     return new SimpleProduct(product.id, product.name, product.shopId,
         product.fullPrice, product.category, product.rate, product.description);
 }
 
-export function toSimpleProducts(products: Product[]): SimpleProduct[]{
+export function toSimpleProducts(products: Product[]): SimpleProduct[] {
     const simpleProducts: SimpleProduct[] = new Array<SimpleProduct>();
 
-    for (const product of <Product[]> products) {
+    for (const product of <Product[]>products) {
         const simpleProduct: SimpleProduct = toSimpleProduct(product);
         simpleProducts.push(simpleProduct);
     }
@@ -28,7 +30,7 @@ export function toSimpleProducts(products: Product[]): SimpleProduct[]{
     return simpleProducts;
 }
 
-export function toSimpleShop(shop: Shop): SimpleShop{
+export function toSimpleShop(shop: Shop): SimpleShop {
     const products: Map<SimpleProduct, number> = new Map<SimpleProduct, number>();
     for (const [domainProduct, quantity] of shop.products.values()) {
         const product: SimpleProduct = new SimpleProduct(domainProduct.id, domainProduct.name, domainProduct.shopId,
@@ -39,15 +41,20 @@ export function toSimpleShop(shop: Shop): SimpleShop{
     return new SimpleShop(shop.id, shop.name, shop.status, products);
 }
 
-export function toSimpleGuest(guest: Guest): SimpleGuest{
+export function toSimpleGuest(guest: Guest): SimpleGuest {
     return new SimpleGuest(guest.session);
 }
 
-export function toSimpleMember(member: Member): SimpleMember{
-    return new SimpleMember(member.username);
+export function toSimpleMember(member: Member): SimpleMember {
+    const simpleRoles = [...member.roles.values()].filter(toSimpleRole);
+    return new SimpleMember(member.username, simpleRoles);
 }
 
-export function toSimpleShoppingCart(userID: string, shoppingCart: ShoppingCart): SimpleShoppingCart{
+function toSimpleRole(role: Role): SimpleRole {
+    return new SimpleRole(role.shopId,role.permissions)
+}
+
+export function toSimpleShoppingCart(userID: string, shoppingCart: ShoppingCart): SimpleShoppingCart {
     const simpleProducts: Map<SimpleProduct, number> = new Map<SimpleProduct, number>();
     for (const [shopID, shoppingBag] of Object.entries(shoppingCart.bags)) {
 
@@ -63,5 +70,5 @@ export function toSimpleShoppingCart(userID: string, shoppingCart: ShoppingCart)
 }
 
 export function toSimpleDiscountDescriber(discount: DiscountComponent): SimpleDiscountDescriber {
-    return new SimpleDiscountDescriber(discount.id,discount.description);
+    return new SimpleDiscountDescriber(discount.id, discount.description);
 }
