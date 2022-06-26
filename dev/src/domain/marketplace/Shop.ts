@@ -1,5 +1,5 @@
 import {Product} from "./Product";
-import {PurchasePoliciesRelation, ProductCategory, ShopRate, ShopStatus, DiscountRelation} from "../../utilities/Enums";
+import {PurchasePoliciesRelation, ProductCategory, ShopRate, ShopStatus, DiscountRelation} from "../../../prisma/prisma";
 import {ShoppingBag} from "../user/ShoppingBag";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
 import {
@@ -42,10 +42,12 @@ import {
     ContainerDiscountComponent
 } from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 import {Offer} from "../user/Offer";
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
 
 
 
-export class Shop {
+export class Shop implements Entity{
 
     private _id: number;
     private _name: string;
@@ -70,7 +72,7 @@ export class Shop {
     constructor(id: number, name: string, shopFounder: string, description?: string){
         this._id= id;
         this._name= name;
-        this._status= ShopStatus.open;
+        this._status= ShopStatus.Open;
         this._shopFounder= shopFounder;
         this._shopOwners= new Set<string>([shopFounder]);
         this._shopManagers= new Set<string>();
@@ -464,6 +466,45 @@ export class Shop {
             }
         }
 
+    findById() {
+    }
 
+    async save(...params: any) {
+        await prisma.shop.create({
+            data: {
+                id: this.id,
+                name: this.name,
+                status: this.status,
+                shop_founder: this.shopFounder,
+                rate: this.rate,
+                description: this.description,
+            },
+        });
 
+        for(const shop_owner of this.shopOwners)
+            await this.createShopOwner(shop_owner, this.id);
+        for(const shop_manager of this.shopManagers)
+            await this.createShopManager(shop_manager, this.id);
+    }
+
+    private async createShopOwner(username: string, shopId: number) {
+        await prisma.shopOwner.create({
+            data: {
+                username: username,
+                shopId: shopId,
+            },
+        });
+    }
+
+    private async createShopManager(username: string, shopId: number) {
+        await prisma.shopManager.create({
+            data: {
+                username: username,
+                shopId: shopId,
+            },
+        });
+    }
+
+    update() {
+    }
 }

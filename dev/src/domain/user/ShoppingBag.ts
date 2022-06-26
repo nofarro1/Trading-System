@@ -1,8 +1,10 @@
 import { Product } from "../marketplace/Product";
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
 
 const compProducts = (p1: Product, p2: Product)=>  p1.fullPrice - p2.fullPrice;
 
-export class ShoppingBag {
+export class ShoppingBag implements Entity{
     private _shopId: number;
     private _products: Map<number, [Product, number]>; //ProductID -> [Product, Quantity]
     private _totalPrice: number;
@@ -64,5 +66,31 @@ export class ShoppingBag {
 
     isEmpty(): boolean {
         return this.products.size == 0;
+    }
+
+    findById() {
+    }
+
+    async save(username: string) {
+        await prisma.shoppingBag.create({
+            data: {
+                username: username,
+                shopId: this.shopId,
+            },
+        });
+    }
+
+    async saveProductInBag(username: string, productId: number, quantity: number) {
+        await prisma.productInBag.create({
+            data: {
+                username: username,
+                shopId: this.shopId,
+                productId: productId,
+                product_quantity: quantity,
+            },
+        });
+    }
+
+    update() {
     }
 }

@@ -1,7 +1,9 @@
-import {ProductCategory, ProductRate} from "../../utilities/Enums";
+import {ProductCategory, ProductRate} from "../../../prisma/prisma";
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
 
 
-export class Product {
+export class Product implements Entity{
 
     private _id: number;
     private _name: string;
@@ -74,6 +76,33 @@ export class Product {
     }
     public set fullPrice(value: number) {
         this._fullPrice = value;
+    }
+
+    findById() {
+    }
+
+    async save(quantity: number) {
+        await prisma.product.create({
+            data: {
+                id: this.id,
+                name: this.name,
+                shopId: this.shopId,
+                category: this.category,
+                rate: this.rate,
+                description: this.description,
+            },
+        });
+
+        await prisma.productInShop.create({
+            data: {
+                shopId: this.shopId,
+                productId: this.id,
+                product_quantity: quantity,
+            },
+        });
+    }
+
+    update() {
     }
 
 

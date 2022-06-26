@@ -11,7 +11,7 @@ import { SimpleProduct } from '../../../../utilities/simple_objects/marketplace/
 import { ProductCategory } from '../../../../utilities/Enums';
 import { SimpleShoppingCart } from '../../../../utilities/simple_objects/user/SimpleShoppingCart';
 import { HttpClient } from '@angular/common/http';
-import { Socket } from 'ngx-socket-io';  
+import { Socket } from 'ngx-socket-io';
 import { catchError } from 'rxjs';
 import {io} from 'socket.io-client'
 

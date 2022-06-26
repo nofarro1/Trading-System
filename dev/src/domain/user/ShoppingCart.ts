@@ -5,10 +5,12 @@ import { Product } from "../marketplace/Product"
 //import { Result } from "../../utilities/Result";
 import { ShoppingBag } from "./ShoppingBag";
 import {Offer} from "./Offer";
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
 //import { exceptions } from "winston";
 
 
-export class ShoppingCart {
+export class ShoppingCart implements Entity{
 
     private _bags: Map<number, ShoppingBag>; //ShopID -> ShoppingBag
     private _offers: Offer[]
@@ -104,6 +106,20 @@ export class ShoppingCart {
             waitings.push(offer);
         }
         return [waitings, rejected];
+    }
+
+    findById() {
+    }
+
+    async save(username: string) {
+        await prisma.shoppingCart.create({
+            data: {
+                username: username,
+            },
+        });
+    }
+
+    update() {
     }
 }
 

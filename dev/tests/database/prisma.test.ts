@@ -1,4 +1,14 @@
-import {PrismaClient, Permissions, ProductCategory, JobType, ProductRate, ShopStatus, ShopRate} from "../../prisma/prisma";
+import {
+    PrismaClient,
+    Permissions,
+    ProductCategory,
+    JobType,
+    ProductRate,
+    ShopStatus,
+    ShopRate,
+    DiscountType, Product, SimplePolicyType, RelationType
+} from "../../prisma/prisma";
+import {app} from "../../src/Server/expressApp";
 
 let prisma;
 
@@ -124,6 +134,165 @@ async function createProductsInShoppingBag(username: string, shopId: number, pro
     });
 }
 
+async function createDiscount(id: number, shopId: number) {
+    await prisma.discount.create({
+        data: {
+            id: id,
+            shopId: shopId,
+        },
+    });
+}
+
+async function createSimpleDiscount(id: number, discountType: DiscountType, discountPercent: number, description: string,
+                                    productId?: number, category?: ProductCategory) {
+    await prisma.simpleDiscount.create({
+        data: {
+            id: id,
+            discountType: discountType,
+            discountPercent: discountPercent,
+            description: description,
+            productId: productId,
+            category: category,
+        },
+    });
+}
+
+async function createConditionalDiscount(id: number, simpleId: number) {
+    await prisma.conditionalDiscount.create({
+        data: {
+            id: id,
+            simpleId: simpleId,
+        },
+    });
+}
+
+async function createDiscountPredicate(discountId: number, discountType) {
+    await prisma.discountPredicate.create({
+        data: {
+            discountId: discountId,
+            discountType: discountType,
+        },
+    });
+}
+
+async function createDiscountContainer(id: number, description: string, type: DiscountType) {
+    await prisma.discountContainer.create({
+        data: {
+            id: id,
+            description: description,
+            type: type,
+        },
+    });
+}
+
+async function createDiscountInContainer(containedDiscount: number, containingDiscount: number) {
+    await prisma.discountInContainer.create({
+        data: {
+            containedDiscount: containedDiscount,
+            containingDiscount: containingDiscount
+        },
+    });
+}
+
+async function createPolicy(id: number, shopId: number) {
+    await prisma.policy.create({
+        data: {
+            id: id,
+            shopId: shopId,
+        },
+    });
+}
+
+async function createSimplePolicy(id: number, okay: boolean, message: string) {
+    await prisma.simplePolicy.create({
+        data: {
+            id: id,
+            okay: okay,
+            message: message,
+        },
+    });
+}
+
+async function createConditionalPolicy(id: number, dependent: number, dependentOn: number, description: string) {
+    await prisma.conditionalPolicy.create({
+        data: {
+            id: id,
+            dependent: dependent,
+            dependentOn: dependentOn,
+            description: description,
+        },
+    });
+}
+
+async function createPolicyPredicate(policyId: number, policyType: SimplePolicyType, relation: RelationType, value: number,
+                                     description: string, productId?: number, productCategory?: ProductCategory, guest?: string) {
+    await prisma.policyPredicate.create({
+        data: {
+            policyId: policyId,
+            policyType: policyType,
+            relation: relation,
+            value: value,
+            description: description,
+            productId: productId,
+            productCategory: productCategory,
+            guest: guest,
+        },
+    });
+}
+
+async function createLogicalPolicy(id: number, description: string) {
+    await prisma.logicalPolicy.create({
+        data: {
+            id: id,
+            description: description,
+        },
+    });
+}
+
+async function createPolicyInContainer(containedPolicy: number, containingPolicy: number) {
+    await prisma.policyInContainer.create({
+        data: {
+            containedPolicy: containedPolicy,
+            containingPolicy: containingPolicy
+        },
+    });
+}
+
+async function createOffer(id: number, username: string, shopId: number, productId: number, price: number) {
+    await prisma.offer.create({
+        data: {
+            id: id,
+            username: username,
+            shopId: shopId,
+            productId: productId,
+            price: price,
+        },
+    });
+}
+
+async function createOfferApprover(username: string, offerId: number, answered: boolean, approved: boolean) {
+    await prisma.offerApprover.create({
+        data: {
+            username: username,
+            offerId: offerId,
+            answered: answered,
+            approved: approved,
+        },
+    });
+}
+
+async function createAppointmentAgreement(username: string, shopId: number, assigner: string, answered: boolean, approved: boolean) {
+    await prisma.appointmentAgreement.create({
+        data: {
+            username: username,
+            shopId: shopId,
+            assigner: assigner,
+            answered: answered,
+            approved: approved,
+        },
+    });
+}
+
 describe("prisma tests", ()=> {
     beforeAll(function () {
         prisma = new PrismaClient();
@@ -161,7 +330,7 @@ describe("prisma tests", ()=> {
     })
 
     test("create shop test", async () => {
-        createShop(0, "Best Shop", ShopStatus.open, "shmulik", ["shmulik", "hayim"], ["yafit"], ShopRate.NotRated, "Why would you shop anywhere else?")
+        createShop(0, "Best Shop", ShopStatus.Open, "shmulik", ["shmulik", "hayim"], ["yafit"], ShopRate.NotRated, "Why would you shop anywhere else?")
             .catch((e) => {
                 throw e
             })

@@ -13,27 +13,30 @@ datasource db {
 }
 
 model Member {
-  username          String             @id
+  username              String                 @id
   //Foreign Keys referenced
-  roles             Role[] //One To Many
-  shops             Shop[] //One To Many
-  ShoppingCart      ShoppingCart? //One To One
-  MemberCredentials MemberCredentials? //One To One
+  roles                 Role[] //One To Many
+  shops                 Shop[] //One To Many
+  ShoppingCart          ShoppingCart? //One To One
+  MemberCredentials     MemberCredentials? //One To One
+  offers                Offer[]
+  offerApprovers        OfferApprover[]
+  appointmentAgreements AppointmentAgreement[]
 
   @@map("member")
 }
 
 model Role {
-  member      Member        @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
-  username    String //FK
-  shop        Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  shopId      Int //FK
-  title       String?
-  job_type    JobType
-  permissions Permissions[]
+  member        Member        @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username      String //FK
+  shop          Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId        Int //FK
+  title         String?
+  job_type      JobType
+  permissions   Permissions[]
   //Foreign Key references
-  shop_owners      ShopOwner[]
-  shop_managers    ShopManager[]
+  shop_owners   ShopOwner[]
+  shop_managers ShopManager[]
 
   @@id([username, shopId])
   @@map("role")
@@ -50,25 +53,28 @@ model Product {
   //Foreign Keys referenced
   products_in_shop ProductInShop[]
   products_in_bag  ProductInBag[]
+  offers           Offer[]
 
   @@map("product")
 }
 
 model Shop {
-  id               Int             @id
-  name             String
-  status           ShopStatus
-  member           Member          @relation(fields: [shop_founder], references: [username], onDelete: Cascade, onUpdate: Cascade)
-  shop_founder     String //FK - One To One
-  rate             ShopRate        @default(NotRated)
-  description      String?
+  id                    Int                    @id
+  name                  String
+  status                ShopStatus
+  member                Member                 @relation(fields: [shop_founder], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  shop_founder          String //FK - One To One
+  rate                  ShopRate               @default(NotRated)
+  description           String?
   //Foreign Keys referenced
-  role             Role[]
-  products         Product[]
-  products_in_shop ProductInShop[]
-  bags             ShoppingBag[]
-  discounts Discount[]
-  policies Policy[]
+  role                  Role[]
+  products              Product[]
+  products_in_shop      ProductInShop[]
+  bags                  ShoppingBag[]
+  discounts             Discount[]
+  policies              Policy[]
+  offers                Offer[]
+  appointmentAgreements AppointmentAgreement[]
 
   @@map("shop")
 }
@@ -136,8 +142,8 @@ model ProductInBag {
 }
 
 model MemberCredentials {
-  member   Member @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
-  username String @id
+  member   Member? @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String  @id
   password String
 
   @@map("member_credentials")
@@ -165,8 +171,8 @@ model MemberCredentials {
 
 model Discount {
   id                  Int                  @id
-  shop     Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  shopId Int
+  shop                Shop                 @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId              Int
   //Foreign Key references
   simpleDiscount      SimpleDiscount?
   conditionalDiscount ConditionalDiscount?
@@ -205,11 +211,11 @@ model DiscountPredicate {
   discount     ConditionalDiscount @relation(fields: [discountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   discountId   Int                 @id
   discountType DiscountType
-  productId    Int?
-  category     ProductCategory?
   relation     RelationType
   value        Int
   description  String
+  productId    Int?
+  category     ProductCategory?
 
   @@map("discount_predicate")
 }
@@ -226,8 +232,8 @@ model DiscountContainer {
 }
 
 model DiscountInContainer {
-  discount           Discount    @relation(fields: [containedDiscount], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  containedDiscount  Int
+  discount           Discount          @relation(fields: [containedDiscount], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  containedDiscount  Int               @unique
   discountContainer  DiscountContainer @relation(fields: [containingDiscount], references: [id], onDelete: Cascade, onUpdate: Cascade)
   containingDiscount Int
 
@@ -236,33 +242,33 @@ model DiscountInContainer {
 }
 
 model Policy {
-  id Int @id
-  shop     Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  shopId Int
+  id                Int                @id
+  shop              Shop               @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId            Int
   //Foreign Key references
   simplePolicy      SimplePolicy?
   conditionalPolicy ConditionalPolicy?
-  logicalPolicy LogicalPolicy?
+  logicalPolicy     LogicalPolicy?
   policyInContainer PolicyInContainer?
 
   @@map("policy")
 }
 
 model SimplePolicy {
-  policy Policy @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  id Int @id
-  okay Boolean
+  policy  Policy  @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id      Int     @id
+  okay    Boolean
   message String
 
   @@map("simple_policy")
 }
 
 model ConditionalPolicy {
-  policy Policy @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  id Int @id
-  dependent Int
-  dependentOn Int
-  description String
+  policy          Policy           @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id              Int              @id
+  dependent       Int
+  dependentOn     Int
+  description     String
   //Foreign Key references
   policyPredicate PolicyPredicate?
 
@@ -270,61 +276,77 @@ model ConditionalPolicy {
 }
 
 model PolicyPredicate {
-  policy ConditionalPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  policyId Int @id
-  policyType SimplePolicyType
-  productId Int?
+  policy          ConditionalPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  policyId        Int               @id
+  policyType      SimplePolicyType
+  relation        RelationType
+  value           Int
+  description     String
+  productId       Int?
   productCategory ProductCategory?
-  guest String?
-  relation RelationType
-  value Int
-  description String
+  guest           String?
 
   @@map("policy_predicate")
 }
 
 model LogicalPolicy {
-  policy Policy @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  id Int @id
+  policy      Policy              @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id          Int                 @id
   description String
   //Foreign Key references
-  policies PolicyInContainer[]
+  policies    PolicyInContainer[]
 
   @@map("logical_policy")
 }
 
 model PolicyInContainer {
-  policy Policy @relation(fields: [containedPolicy], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  containedPolicy Int
-  policyContainer LogicalPolicy @relation(fields: [containingPolicy], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  policy           Policy        @relation(fields: [containedPolicy], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  containedPolicy  Int           @unique
+  policyContainer  LogicalPolicy @relation(fields: [containingPolicy], references: [id], onDelete: Cascade, onUpdate: Cascade)
   containingPolicy Int
 
-  @@map("policy_in_container")
   @@id([containedPolicy, containingPolicy])
+  @@map("policy_in_container")
 }
 
-//model Offer {
-//  id Int @id
-//  member Member @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
-//  username String
-//  shopId Int
-//  productId Int
-//  price Double
-//
-//}
-//
-//model OfferApprovers {
-//  username String
-//  offerId Int
-//  approved Boolean @default(null) //TODO
-//}
-//
-//model AppointmentAgreement {
-//  username String
-//  assigner String
-//  approved Boolean
-//
-//}
+model Offer {
+  member        Member         @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  id            Int            @id
+  username      String
+  shop          Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId        Int
+  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId     Int
+  price         Float
+  //Foreign Keys referenced
+  offerApprover OfferApprover?
+
+  @@map("offer")
+}
+
+model OfferApprover {
+  member   Member  @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String
+  offer    Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  offerId  Int     @unique
+  answered Boolean @default(false)
+  approved Boolean @default(false)
+
+  @@map("offer_approver")
+}
+
+model AppointmentAgreement {
+  member   Member  @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String
+  shop     Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId   Int
+  assigner String
+  answered Boolean @default(false)
+  approved Boolean @default(false)
+
+  @@id([username, shopId])
+  @@map("appointment_agreement")
+}
 
 enum JobType {
   Admin
@@ -396,8 +418,14 @@ enum DiscountRelation {
 }
 
 enum SimplePolicyType {
-Product
- Category
+  Product
+  Category
   ShoppingBag
-   UserInfo
-   }
+  UserInfo
+}
+
+enum PurchasePoliciesRelation {
+  And
+  Conditional
+  Or
+}

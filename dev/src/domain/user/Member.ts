@@ -1,9 +1,11 @@
 import {Permissions} from "../../utilities/Permissions";
 import {Role} from "./Role";
 import {Guest} from "./Guest";
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
 
 
-export class Member extends Guest {
+export class Member extends Guest implements Entity{
     private _username: string;
     private readonly _roles: Map<number, Role>;
 
@@ -57,6 +59,20 @@ export class Member extends Guest {
     }
     public getIdentifier(): string {
         return this.username;
+    }
+
+    findById() {
+    }
+
+    async save() {
+        await prisma.member.create({
+            data: {
+                username: this.username,
+            },
+        });
+    }
+
+    update() {
     }
 }
 
