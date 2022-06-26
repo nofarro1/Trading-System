@@ -46,7 +46,7 @@ export function toSimpleGuest(guest: Guest): SimpleGuest {
 }
 
 export function toSimpleMember(member: Member): SimpleMember {
-    const simpleRoles = [...member.roles.values()].filter(toSimpleRole);
+    const simpleRoles = [...member.roles.values()].map(toSimpleRole);
     return new SimpleMember(member.username, simpleRoles);
 }
 

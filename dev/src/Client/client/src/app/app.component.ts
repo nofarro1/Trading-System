@@ -109,7 +109,7 @@ export class AppComponent {
     }
   }
 
-  goToShop(shopId: any) {
+  goToShop(shopId: number) {
     this.shopToShow = shopId;
     this.goToPage('shop');
   }

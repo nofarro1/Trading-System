@@ -75,7 +75,7 @@
 ></app-shops>
 <app-shop
   *ngIf="showShop"
-  (shopId)="(shopToShow)"
+  (shopId)="shopToShow"
   [session]="session"
 ></app-shop>
 <app-cart *ngIf="showCart" [session]="session"></app-cart>

@@ -426,10 +426,11 @@ router.get('/shop/:shopId', async (req, res) => {
  */
 router.get('/shops', async (req, res) => {
     try {
+        const sessID = req.body.id;
         console.log("in the function that return all shops");
         // let sessId = req.session.id;
         // let ans = await service.getAllShopsInfo(sessId)
-        let ans = await service.getAllShopsInfo();
+        let ans = await service.getAllShopsInfo(sessID);
         console.log("after the return shops");
         res.status(200).send(ans);
     } catch (e: any) {

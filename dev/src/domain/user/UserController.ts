@@ -40,7 +40,7 @@ export class UserController {
         return new Result(true, undefined);
     }
 
-    addRole(assigner: string, username: string, title: string, jobType: JobType, shopId: number, perm: Set<Permissions>): Result<Role | undefined>{
+    addRole(assigner: string, username: string,  jobType: JobType, shopId: number, perm: Set<Permissions>): Result<Role | undefined>{
         if (!this.members.has(username)){
             logger.error(`[addRole] Role of shop ${shopId} not added to member ${username} beacause this member not exist`);
             return new Result(false, undefined, `User ${username} not found`);

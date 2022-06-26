@@ -1,5 +1,6 @@
 import { Permissions } from "../../Permissions";
 import {JobType} from "../../Enums";
+import {SimpleRole} from "./SimpleRole";
 
 
 export class SimpleMember {
