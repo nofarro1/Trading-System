@@ -196,7 +196,7 @@ export class StateInitializer {
 
     private async populateCart(member: MemberData, product: SimpleProduct) {
 
-        const res = await this.service.addToCart(member.sessionId, product.productID, StateInitializer.getRandomFromList([1, 2, 3]));
+        const res = await this.service.addToCart(member.sessionId, product.shopID,product.productID, StateInitializer.getRandomFromList([1, 2, 3]));
         return res.ok
     }
 

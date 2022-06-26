@@ -403,8 +403,12 @@ describe("MarketPlaceController", ()=>{
 
     // test("answer appointment agreement in shop - succsess", ()=>{
     //     const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", ()=>{
-    //         let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("Elad"));
-    //         agreement.approves =
+    //         let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("EladIn"));
+    //         agreement.setAnswer("OfirPovi", true);
+    //         return agreement;
     //     })
+    //     const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
+    //     let res: Result<void> =
+    //     expect
     // })
 })
