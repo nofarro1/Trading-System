@@ -3,11 +3,14 @@ import { api } from 'src/backendService/Service';
 import { PrimeNGConfig } from 'primeng/api';
 import { JobType } from '../../../../utilities/Enums';
 import { SimpleMember } from '../../../../utilities/simple_objects/user/SimpleMember';
+import { SimpleGuest } from '../../../../utilities/simple_objects/user/SimpleGuest';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  providers: [MessageService],
 })
 export class AppComponent {
   shopToShow: any;
@@ -26,7 +29,11 @@ export class AppComponent {
   showCart: boolean = false;
   showHome: boolean = true;
 
-  constructor(private service: api, private primengConfig: PrimeNGConfig) {}
+  constructor(
+    private service: api,
+    private primengConfig: PrimeNGConfig,
+    private messageService: MessageService
+  ) {}
 
   async ngOnInit() {
     this.primengConfig.ripple = true;
@@ -77,25 +84,51 @@ export class AppComponent {
 
   async loginUser(username: string, password: string) {
     this.member = await this.service.login(this.session, username, password);
+    console.log(this.member);
     if (this.member) {
+      this.username = this.member["_username"];
       this.isLoggedIn = true;
-      console.log('login user: ' + username);
+      console.log('login user: ' + this.username);
     } else {
       console.log('Somthing went wrong with the log in');
     }
   }
 
   async logout() {
-    await this.service.logoutMember(this.session, this.username);
-    this.username = '';
-    this.password = '';
-    this.member = undefined;
-    this.isLoggedIn = false;
-    this.goToPage("home");
+    console.log('logout');
+    let ans = await this.service.logoutMember(this.session, this.username);
+    console.log(ans);
+    if (ans instanceof SimpleGuest) {
+      this.username = '';
+      this.password = '';
+      this.member = undefined;
+      this.isLoggedIn = false;
+      this.goToPage('home');
+    } else {
+      this.showErrorMsg("Error logout from the system");
+    }
   }
 
   goToShop(shopId: any) {
     this.shopToShow = shopId;
-    this.goToPage("shop");
+    this.goToPage('shop');
+  }
+
+  showErrorMsg(msg: string) {
+    this.messageService.add({
+      severity: 'error',
+      key: 'tc',
+      summary: 'Error',
+      detail: msg,
+    });
+  }
+
+  showSuccessMsg(msg: string) {
+    this.messageService.add({
+      severity: 'success',
+      key: 'tc',
+      summary: 'success',
+      detail: msg,
+    });
   }
 }

@@ -4,6 +4,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ReplaySubject, takeUntil } from 'rxjs';
+import { MessageService } from 'primeng/api';
+
 import { api } from '../../backendService/Service';
 
 import { Country, countries } from '../../models/countries_data';
@@ -12,6 +14,7 @@ import { Country, countries } from '../../models/countries_data';
   selector: 'app-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss'],
+  providers: [MessageService],
 })
 export class SignupComponent implements OnInit, OnDestroy {
   @Input() session: any;
@@ -32,7 +35,7 @@ export class SignupComponent implements OnInit, OnDestroy {
   constructor(
     private service: api,
     private formBuilder: FormBuilder,
-    private route: ActivatedRoute
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -84,4 +87,25 @@ export class SignupComponent implements OnInit, OnDestroy {
     this.destroyed$.next(true);
     this.destroyed$.complete();
   }
+
+  showErrorMsg(msg: string) {
+    console.log('error add product');
+    this.messageService.add({
+      severity: 'error',
+      key: 'tc',
+      summary: 'Error',
+      detail: msg,
+    });
+  }
+
+  showSuccessMsg(msg : string) {
+    console.log('success add product');
+    this.messageService.add({
+      severity: 'success',
+      key: 'tc',
+      summary: 'success',
+      detail: msg,
+    });
+  }
+
 }

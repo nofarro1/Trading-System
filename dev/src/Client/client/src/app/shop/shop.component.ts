@@ -3,6 +3,7 @@ import {
   JobType,
   ProductCategory,
   ProductRate,
+  ShopRate,
 } from '../../../../../utilities/Enums';
 import { ActivatedRoute } from '@angular/router';
 import { api } from 'src/backendService/Service';
@@ -98,13 +99,13 @@ export class ShopComponent implements OnInit {
     this.initProductList();
   }
 
-  addProductToCart(productId: number, quantity: number) {
+  addProductToCart(productId: number, productName:string, quantity: number) {
     let ans = this.service.addToCart(this.session, productId, quantity);
     ans.then((value) => {
       if (value) {
-        this.showSuccessAddedToCart();
+        this.showSuccessMsg(`The product ${productName} was added to cart`);
       } else {
-        this.showErrorAddToCart();
+        this.showSuccessMsg(`Error happend, product ${productName} wasn't added to cart`);
       }
     });
   }
@@ -117,8 +118,8 @@ export class ShopComponent implements OnInit {
         new Product(
           product.productID,
           product.productName,
-          product.category === 0 ? 'A' : product.category === 1 ? 'B' : 'C',
-          product.rating,
+          ProductCategory[product.category],
+          ShopRate[product.rating],
           product.description || '',
           product.price,
           quantity
@@ -129,7 +130,7 @@ export class ShopComponent implements OnInit {
 
   addNewProduct() {
     if (this.newProductPrice > 0 || this.newProductQuantity < 0)
-      this.showErrorAddProduct();
+    this.showErrorMsg(`The product ${this.newProductName} wasn't added to the shop`);
     else {
       this.service.addProductToShop(
         this.session,
@@ -140,13 +141,13 @@ export class ShopComponent implements OnInit {
         this.newProductQuantity,
         this.newProductDescription
       );
+      this.showSuccessMsg(`The product ${this.newProductName} was added to the shop`);
       this.newProductName = '';
       this.newProductQuantity;
       this.newProductDescription = '';
       this.newProductPrice;
       this.selectedCatagory = '';
       this.wantToAddProduct = false;
-      this.showSuccessAddProduct();
     }
   }
 
@@ -154,41 +155,23 @@ export class ShopComponent implements OnInit {
     this.service.removeProductFromShop(this.session, this.shopId, productId);
   }
 
-  showSuccessAddedToCart() {
-    this.messageService.add({
-      severity: 'success',
-      key: 'tc',
-      summary: 'Success',
-      detail: 'Product added to cart',
-    });
-  }
-
-  showErrorAddToCart() {
-    this.messageService.add({
-      severity: 'error',
-      key: 'tc',
-      summary: 'Error',
-      detail: 'Product was not added to cart',
-    });
-  }
-
-  showErrorAddProduct() {
+  showErrorMsg(msg: string) {
     console.log('error add product');
     this.messageService.add({
       severity: 'error',
       key: 'tc',
       summary: 'Error',
-      detail: 'Product added to shop',
+      detail: msg,
     });
   }
 
-  showSuccessAddProduct() {
+  showSuccessMsg(msg : string) {
     console.log('success add product');
     this.messageService.add({
       severity: 'success',
       key: 'tc',
       summary: 'success',
-      detail: 'Product was not added to shop',
+      detail: msg,
     });
   }
 }

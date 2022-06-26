@@ -1,3 +1,6 @@
+<p-toast position="top-center" key="tc"></p-toast>
+
+
 <div
   *ngIf="!isLoggedIn"
   class="form-group"
@@ -63,6 +66,7 @@
 
 <!-- <router-outlet *ngIf="!showSignUp"></router-outlet> -->
 <app-main *ngIf="showHome"></app-main>
+
 <app-shops
   *ngIf="showShops"
   (shopIdClicked)="goToShop($event)"
