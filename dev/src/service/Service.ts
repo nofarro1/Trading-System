@@ -51,23 +51,23 @@ export class Service {
     //----------------------Guest Service methods-------------------------------
 
     //General Guest - Use-Case 3
-    register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void | SimpleMember>> {
+    async register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<SimpleMember | void>> {
         logger.info(`A member registration is being performed using ${sessionID} for username: ${username}`);
-        logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
-        return this.guestService.register(sessionID, username, password, firstName, lastName, email, country);
+        let ret = await this.guestService.register(sessionID, username, password, firstName, lastName, email, country);
+        return ret;
     }
 
     //General Admin - Use-Case 0
-    registerAdmin(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void>> {
+    async registerAdmin(sessionID: string, username: string, password: string, firstName?: string, lastName?: string, email?: string, country?: string): Promise<Result<void>> {
         logger.info(`An admin registration is being performed for username ${username}`);
         logger.info(`The following personal details were entered: First Name ${firstName}, Last Name: ${lastName}, E-mail: ${email}, Country: ${country}`);
-        return this.guestService.registerAdmin(sessionID, username, password, firstName, lastName, email, country);
+        return await this.guestService.registerAdmin(sessionID, username, password, firstName, lastName, email, country);
     }
 
     //General Guest - Use-Case 4
-    login(sessionID: string, username: string, password: string): Promise<Result<void | SimpleMember>> {
+    async login(sessionID: string, username: string, password: string): Promise<Result<void | SimpleMember>> {
         logger.info(`A login is being performed using ${sessionID} for username: ${username}.`);
-        return this.guestService.login(sessionID, username, password);
+        return await this.guestService.login(sessionID, username, password);
     }
 
     //----------------------Member Service methods-------------------------------
@@ -150,9 +150,9 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 1.1
-    addProductToShop(sessionID: string, username: string, shopID: number, category: ProductCategory, name: string,
+    addProductToShop(sessionID: string, shopID: number, category: ProductCategory, name: string,
                      price: number, quantity: number, description?: string): Promise<Result<SimpleProduct | void>> {
-        logger.info(`${sessionID}:  user ${username} wants to add a new product to shop ${shopID}`);
+        logger.info(`${sessionID}:  user wants to add a new product to shop ${shopID}`);
         logger.info(`The product contains the following details - category: ${category}, name: ${name}, price: ${price}, quantity: ${quantity}`);
         if (description)
             logger.info(`The product contains the following description: ${description}`);
@@ -160,8 +160,8 @@ export class Service {
     }
 
     //Shop Owner - Use-Case 1.2
-    removeProductFromShop(sessionID: string, username: string, shopID: number, productID: number): Promise<Result<void>> {
-        logger.info(`${sessionID}: ${username} wants to remove from shop ${shopID} the product ${productID}`);
+    removeProductFromShop(sessionID: string, shopID: number, productID: number): Promise<Result<void>> {
+        logger.info(`${sessionID}: wants to remove from shop ${shopID} the product ${productID}`);
         return this.marketplaceService.removeProductFromShop(sessionID, shopID, productID);
     }
 
@@ -238,8 +238,10 @@ export class Service {
 
     async getAllShopsInfo(sessionID: string) {
         logger.info(`${sessionID} is requesting All shops`);
+        console.log("[Service/getAllShopsInfo] start");
         return this.marketplaceService.getAllShopInfo(sessionID);
     }
+
 
     async getMessages(sessionId: string) {
         return this.memberService.getMessages(sessionId)

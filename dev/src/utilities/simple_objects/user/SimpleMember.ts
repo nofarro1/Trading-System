@@ -2,9 +2,6 @@ import { Permissions } from "../../Permissions";
 import {JobType} from "../../Enums";
 
 
-class SimpleRole {
-}
-
 export class SimpleMember {
     private readonly _username: string;
     private readonly _roles: SimpleRole[]
