@@ -18,7 +18,8 @@ const base = 'https://localhost:3000/api';
 export class api {
   btnDisabled = true;
   constructor() {
-    axios.defaults.httpsAgent = { rejectUnauthorized: false };
+    axios.defaults.httpsAgent = { rejectUnauthorized: false,
+    keepAlive: true};
   }
 
   async accessMarketPlace() {

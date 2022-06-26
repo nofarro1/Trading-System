@@ -184,7 +184,7 @@ export class SystemController {
     exitMarketplace(sessionId: string): Result<void> {
         const callback = (id: string) => {
             let toLogout = id;
-            let res = this.logout(id); // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
+            let res = this.logout(sessionId); // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
             if (checkRes(res)) {
                 toLogout = res.data.guestID;
             }
@@ -393,7 +393,6 @@ export class SystemController {
     ): Result<void> {
         const authCallback = (id: string) => {
             const productRes = this.mpController.getProduct(shopId, productId);
-            console.log(productRes);
             if (checkRes(productRes))
                 return this.scController.addProduct(id, productRes.data, quantity);
             else {
@@ -642,15 +641,8 @@ export class SystemController {
         puPolicy: ImmediatePurchaseData
     ): Result<number | void> {
         return this.authenticateMarketVisitor(sessId, (userId) => {
-            if (
-                this.uController.checkPermission(
-                    userId,
-                    shopId,
-                    Permissions.AddPurchasePolicy
-                ).data ||
-                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner)
-                    .data
-            ) {
+            if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
                 const res = this.mpController.addPurchasePolicy(shopId, puPolicy);
                 if (checkRes(res)) {
                     return Result.Ok(res.data, `new discount add with Id ${res.data}`);
@@ -694,9 +686,8 @@ export class SystemController {
     appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
         const authCallback = (id: string) => {
             if (
-                this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner)
-                    .data
-            ) {
+                this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
+                this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data ) {
                 const result = this.uController.addRole(
                     id,
                     r.member,
@@ -806,7 +797,7 @@ export class SystemController {
     getPersonnelInfoOfShop(sessId: string, shop: number): Result<SimpleMember[] | void> {
         const callback = (id: string) => {
             if (!this.uController.checkPermission(id, shop, Permissions.RequestPersonnelInfo).data ||
-                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
+                !this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
             }
             let shopRes = this.mpController.getShopInfo(shop);
@@ -834,7 +825,7 @@ export class SystemController {
         const callback = (id: string) => {
             //check if can preview History
             if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data ||
-                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
+                !this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
             }
             let orders: string[] = this.pController.shopOrders.has(shop) ?
