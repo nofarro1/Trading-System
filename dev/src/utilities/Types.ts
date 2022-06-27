@@ -25,17 +25,13 @@ export type ServiceSettings = {
 
 declare module "express-session" {
     interface Session {
-        username: string;
-        loggedIn: boolean;
-        sessionSubscriber?:LiveNotificationSubscriber;
     }
 }
 
 declare module "http" {
     interface IncomingMessage {
         session: Session;
-        username: string;
-        loggedIn: boolean;
+
     }
 }
 

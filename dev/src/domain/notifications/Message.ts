@@ -63,7 +63,7 @@ export class ShopPurchaseMessage extends Message {
 export class ShopStatusChangedMessage extends Message {
 
     content: string;
-    recipients: Set<string>
+    // recipients: Set<string>
 
 
     constructor(status: boolean, shopOwners:Set<string>, shopName: string) {

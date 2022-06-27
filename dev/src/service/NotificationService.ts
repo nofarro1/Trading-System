@@ -11,13 +11,11 @@ export class LiveNotificationSubscriber implements ILLiveNotificationSubscriber 
     }
 
     private socket: Socket;
-    private readonly _username: string;
     private _sessionId: string;
 
 
     constructor(socket: Socket) {
         this.socket = socket;
-        this._username = socket.request.session.username;
         this._sessionId = socket.request.session.id;
     }
 

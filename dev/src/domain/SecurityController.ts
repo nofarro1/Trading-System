@@ -136,7 +136,7 @@ export class SecurityController {
         if(this.loggedInMembers.has(sessionID)) {
             // @ts-ignore
             logger.warn(`[SecurityController/hasActiveSession] in second if`);
-            return this.loggedInMembers.get(sessionID);
+            return this.loggedInMembers.get(sessionID) as string;
         }
         logger.warn(`[SecurityController/hasActiveSession]  exit`);
         return "";

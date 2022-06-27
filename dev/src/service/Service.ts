@@ -20,6 +20,7 @@ import {DeliveryDetails} from "../domain/external_services/IDeliveryService";
 import {PaymentDetails} from "../domain/external_services/IPaymentService";
 import {StateInitializer} from "../Server/StateInitializer";
 import config from "../config";
+import {discountInf} from "../utilities/Types";
 import {DiscountData, ImmediatePurchaseData} from "../utilities/DataObjects";
 
 @injectable()
@@ -238,7 +239,8 @@ export class Service {
     }
 
     async getAllShopsInfo(sessionID: string) {
-        logger.info(`${sessionID} is requesting All shops`);
+        logger.info(`[Service/getAllShopsInfo] ${sessionID} is requesting All shops`);
+        console.log("[Service/getAllShopsInfo] start");
         return this.marketplaceService.getAllShopInfo(sessionID);
     }
 

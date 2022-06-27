@@ -16,6 +16,7 @@ import {DiscountData, ImmediatePurchaseData} from "../../../../utilities/DataObj
 import {
   ImmediatePurchasePolicyComponent
 } from "../../../../domain/marketplace/DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
+import { discountInf } from '../../../../utilities/Types';
 
 const base = 'https://localhost:3000/api';
 
@@ -204,6 +205,14 @@ export class api {
     return data.data;
   }
 
+  async addDisc(username: string, shopId: number) {
+    const res = await axios.get(
+      base + '/member/shopManagement/Personnel/' + username + '/' + shopId
+    );
+    const data: Result<void | SimpleMember[]> = res.data;
+    return data.data;
+  }
+
   async exitMarketplace() {
     const res = await axios.get(base + '/exit');
     const data: Result<void> = res.data;
@@ -241,6 +250,7 @@ export class api {
     return data.data;
   }
 
+
   async removeProductFromShop(
     session: string,
     shopId: number,
@@ -274,8 +284,8 @@ export class api {
     return data.data;
   }
 
-  async getAllShops() {
-    const res = await axios.get(base + '/shops');
+  async getAllShops(session: string) {
+    const res = await axios.get(base + `/shops/${session}`);
     const data = res.data;
     return data.data;
   }
@@ -286,9 +296,10 @@ export class api {
     return data.data;
   }
 
-  async closeShop(shopId: number, founder: string) {
-    const res = await axios.patch(base + '/shop/close/' + shopId, {
-      founder: founder,
+  async closeShop(session: string, shopId: number) {
+    const res = await axios.patch(base + '/shop/close', {
+      session: session,
+      shopIp: shopId,
     });
     const data: Result<void> = res.data;
     return data.ok;

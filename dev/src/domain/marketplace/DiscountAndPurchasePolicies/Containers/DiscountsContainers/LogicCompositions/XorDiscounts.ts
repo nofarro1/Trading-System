@@ -26,10 +26,10 @@ export class XorDiscounts extends ContainerDiscountComponent{
     }
 
 
-    addDiscountElement(toAdd: DiscountComponent){
+    override addDiscountElement(toAdd: DiscountComponent){
         this.discounts.push(toAdd);
     }
-    removeDiscountElement(toRemove: DiscountComponent){
+    override removeDiscountElement(toRemove: DiscountComponent){
         let i = this.discounts.indexOf(toRemove);
         this.discounts.splice(i, 1);
     }

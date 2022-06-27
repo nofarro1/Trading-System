@@ -7,6 +7,7 @@ import {Service} from "../service/Service";
 import {SimpleMessage} from "../domain/notifications/Message";
 import {LiveNotificationSubscriber, NotificationService} from "../service/NotificationService";
 import {logger} from "../helpers/logger"
+import { Session } from 'express-session';
 
 
 
