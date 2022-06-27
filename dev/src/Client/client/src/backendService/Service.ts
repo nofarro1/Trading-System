@@ -66,8 +66,7 @@ export class api {
         country,
       });
       const data = res.data;
-      console.log('end of register - we get back: ');
-      console.log(data);
+
       return data.data;
     } catch (e: any) {
       console.log(`error in register: ${e.message}`);
@@ -98,6 +97,7 @@ export class api {
   }
 
   async login(session: string, username: string, password: string) {
+    console.log(`session: ${session}, username: ${username}, password: ${password}`);
     const res = await axios.post(base + '/guest/login', {
       session,
       username,
@@ -115,7 +115,7 @@ export class api {
 
   async logoutMember(session: string, username: string) {
     const res = await axios.get(
-      base + `/member/logout/:${username}/:${session}`
+      base + `/member/logout/${username}/${session}`
     );
     const data: Result<void | SimpleGuest> = res.data;
     return data.data;
@@ -256,8 +256,12 @@ export class api {
       quantity: quantity,
       description: description,
     });
-    const data: Result<void | SimpleProduct> = res.data;
-    return data.data;
+    if (res.data.ok){
+      const data: Result<SimpleProduct> = res.data;
+      return data.data;
+    }
+      const data: Result<void> = res.data;
+      return data.data;
   }
 
 
@@ -292,6 +296,8 @@ export class api {
       shopName,
     });
     const data: Result<void | SimpleShop> = res.data;
+    console.log("in setup shop");
+    console.log(data);
     return data.data;
   }
 
@@ -301,9 +307,11 @@ export class api {
     return data.data;
   }
 
-  async getShopInfo(shopId: number) {
-    const res = await axios.get(base + '/shop/' + shopId);
+  async getShopInfo(session: string, shopId: number) {
+    const res = await axios.get(base + `/shop/${shopId}/${session}`);
+    console.log(res);
     const data: Result<void | SimpleShop> = res.data;
+    console.log(data);
     return data.data;
   }
 
@@ -317,6 +325,7 @@ export class api {
   }
 
   async getShopPurchaseHistory(
+    session: string, 
     shopId: number,
     ownerUsername: string,
     from: Date,

@@ -470,7 +470,7 @@ router.patch("/product/:shopId/:productId", async (req, res) => {
 });
 
 //setup shop
-router.post("/shop", async (req, res) => {
+router.post("/shop/setup", async (req, res) => {
   try {
     // let sessId = req.session.id;
     let sessId = req.body.session;
@@ -486,10 +486,11 @@ router.post("/shop", async (req, res) => {
 /**
  * get shop
  */
-router.get("/shop/:shopId", async (req, res) => {
+router.get("/shop/:shopId/:session", async (req, res) => {
   try {
     // let sessId = req.session.id;
-    let sessId = req.body.session;
+    let sessId = req.params.session;
+    console.log("session", sessId);
     let shopId = Number(req.params.shopId);
     let ans = await service.getShopInfo(sessId, shopId);
     res.status(200).send(ans);

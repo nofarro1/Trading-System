@@ -28,13 +28,9 @@ export class AddShopComponent implements OnInit {
   addNewShop() {
     console.log('addNewShop');
     this.service.setUpShop(this.session, this.username, this.newShopName).then((shop) => {
-      if (shop instanceof SimpleShop) {
         this.showSuccessMsg(`The shop opened`);
         this.newShopName = '';
         this.finishAddShop.emit();
-      } else {
-        this.showErrorMsg(`The shop was not opened`);
-      }
     });
   }
 

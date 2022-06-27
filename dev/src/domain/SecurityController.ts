@@ -98,7 +98,7 @@ export class SecurityController {
             logger.error(`[SecurityController/login] The member ${username} is already logged into the system`);
             throw new Error(`The member ${username} is already logged into the system`);
         }
-        if (await this.checkPassword(username, password)) {
+        if (!(await this.checkPassword(username, password))) {
             logger.warn(`[SecurityController/login] The password is invalid, please try again`);
             throw new Error(`The password is invalid, please try again`);
         }
@@ -117,12 +117,13 @@ export class SecurityController {
             logger.error(`[SecurityController/logout] A member with the username '${username}' does not exist`);
             throw new Error(`A member with the username '${username}' does not exist`);
         }
-        if(this.loggedInMembers.get(sessionID) != username) {
+        if(this.loggedInMembers.get(sessionID) !== username) {
             logger.error(`[SecurityController/logout] ${sessionID}: The member ${username} is not currently logged in`);
             throw new Error(`The member ${username} is not currently logged in`);
         }
 
         const res = this._loggedInMembers.delete(sessionID);
+        // this.activeGuests.add(sessionID);
         logger.info(`[SecurityController/logout] Member ${username} has logged out successfully`);
     }
 

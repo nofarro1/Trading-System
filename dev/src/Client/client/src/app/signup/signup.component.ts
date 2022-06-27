@@ -9,6 +9,7 @@ import { MessageService } from 'primeng/api';
 import { api } from '../../backendService/Service';
 
 import { Country, countries } from '../../models/countries_data';
+import { SimpleMember } from '../../../../../utilities/simple_objects/user/SimpleMember';
 
 @Component({
   selector: 'app-signup',
@@ -19,7 +20,7 @@ import { Country, countries } from '../../models/countries_data';
 export class SignupComponent implements OnInit, OnDestroy {
   @Input() session: any;
   @Output() registerMember = new EventEmitter<any>();
-  private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
+  private destroyed$: ReplaySubject<boolean> = new ReplaySubject();
   form: FormGroup;
   submitted: boolean = false;
   countries: any = countries;
@@ -64,7 +65,6 @@ export class SignupComponent implements OnInit, OnDestroy {
     this.email = this.form.get('email')?.value;
     this.country = this.form.get('country')?.value;
 
-    let member;
     await this.service
       .register(
         this.session,
@@ -75,11 +75,13 @@ export class SignupComponent implements OnInit, OnDestroy {
         this.email,
         this.country
       )
-      .then((member) => {
-          this.registerMember.emit({
-            username: member["_username"],
+      .then((member: {_username: string, _roles: any[]}) => {
+        this.registerMember.emit({
+            username: member._username,
             password: this.password,
           });
+      }).catch((error) => {
+        this.showErrorMsg(error);
       });
   }
 
@@ -89,7 +91,6 @@ export class SignupComponent implements OnInit, OnDestroy {
   }
 
   showErrorMsg(msg: string) {
-    console.log('error add product');
     this.messageService.add({
       severity: 'error',
       key: 'tc',
@@ -99,7 +100,6 @@ export class SignupComponent implements OnInit, OnDestroy {
   }
 
   showSuccessMsg(msg : string) {
-    console.log('success add product');
     this.messageService.add({
       severity: 'success',
       key: 'tc',

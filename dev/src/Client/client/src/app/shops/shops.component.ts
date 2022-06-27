@@ -6,6 +6,7 @@ import { JobType, ShopStatus } from '../../../../../utilities/Enums';
 import { SimpleMember } from '../../../../../utilities/simple_objects/user/SimpleMember';
 import { SimpleShop } from '../../../../../utilities/simple_objects/marketplace/SimpleShop';
 import { MessageService } from 'primeng/api';
+import { ThisReceiver } from '@angular/compiler';
 
 @Component({
   selector: 'app-shops',
@@ -32,9 +33,14 @@ export class ShopsComponent implements OnInit {
   constructor(private service: api, private messageService: MessageService) {}
 
   ngOnInit(): void {
-    this.memberRoleType = this.member?.getJobTypeValue();
+    this.initShops();
+  }
+
+  initShops(){
     this.service.getAllShops(this.session).then((retShops) => {
-      retShops.forEach((shop: any) => {
+      console.log("shops");
+      console.log(retShops);
+      retShops?.forEach((shop: any) => {
         this.shops.push(
           new SimpleShop(
             shop['_ID'],
@@ -47,28 +53,23 @@ export class ShopsComponent implements OnInit {
         this.shopStatus.set(shop['_ID'], ShopStatus[shop['_status']]);
       });
     });
-    console.log(this.shops);
   }
 
   showProducts(shop: SimpleShop) {
     this.shopToShow.emit(shop);
   }
 
-  addShop() {
-    this.service
-      .setUpShop(this.session, this.member.username, this.newShopName)
-      .then((shop) => {
-        if (shop instanceof SimpleShop) {
-          this.showSuccessMsg(`The shop ${shop.name} opened`);
-        } else {
-          this.showErrorMsg(`Error happend, shop not opened`);
-        }
-      });
-    this.newShopName = '';
-  }
+  // addShop() {
+  //   this.service
+  //     .setUpShop(this.session, this.member.username, this.newShopName)
+  //     .then((shop) => {
+  //       this.showSuccessMsg(`The shop opened`)
+  //       this.initShops();
+  //     });
+  //   this.newShopName = '';
+  // }
 
   showErrorMsg(msg: string) {
-    console.log('error add product');
     this.messageService.add({
       severity: 'error',
       key: 'tc',
@@ -78,7 +79,6 @@ export class ShopsComponent implements OnInit {
   }
 
   showSuccessMsg(msg: string) {
-    console.log('success add product');
     this.messageService.add({
       severity: 'success',
       key: 'tc',

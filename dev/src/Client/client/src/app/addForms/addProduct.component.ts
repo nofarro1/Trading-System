@@ -25,7 +25,9 @@ export class AddProductComponent implements OnInit {
 
   constructor(private messageService: MessageService, private service: api) {}
 
-  async ngOnInit() {}
+  async ngOnInit() {
+    console.log(this.productCatagory);
+  }
 
   addNewProduct() {
     console.log('addNewProduct');
@@ -43,27 +45,26 @@ export class AddProductComponent implements OnInit {
           this.newProductDescription
         )
         .then((product) => {
-          if (product instanceof SimpleProduct) {
-            this.showSuccessMsg(
-              `The product ${this.newProductName} was added to the shop`
-            );
-            this.newProductName = '';
-            this.newProductQuantity;
-            this.newProductDescription = '';
-            this.newProductPrice;
-            this.selectedCatagory = '';
-            this.finishAddProduct.emit();
-          } else {
+          if (product){
+            console.log(product);
+              this.showSuccessMsg(
+                `The product ${this.newProductName} was added to the shop`
+              );
+              this.newProductName = '';
+              this.newProductQuantity;
+              this.newProductDescription = '';
+              this.newProductPrice;
+              this.selectedCatagory = '';
+              this.finishAddProduct.emit();
+          }else{
             this.showErrorMsg(
               `The product ${this.newProductName} wasn't added to the shop`
             );
-          }
-        });
-    }
+          }});
+        }
   }
 
   showErrorMsg(msg: string) {
-    console.log('error add product');
     this.messageService.add({
       severity: 'error',
       key: 'tc',
@@ -73,7 +74,6 @@ export class AddProductComponent implements OnInit {
   }
 
   showSuccessMsg(msg: string) {
-    console.log('success add product');
     this.messageService.add({
       severity: 'success',
       key: 'tc',

@@ -49,9 +49,11 @@ export class AppComponent {
   }
 
 
-  async afterSignUp(member: any) {
+  async afterSignUp(member: {username: string, password: string}) {
     this.showSignUp = false;
-    this.loginUser(member['username'], member['password']);
+    console.log(member.password);
+    console.log(member.username);
+    this.loginUser(member.username, member.password);
   }
 
   goToPage(tab: string) {
@@ -89,30 +91,27 @@ export class AppComponent {
   }
 
   async loginUser(username: string, password: string) {
-    this.member = await this.service.login(this.session, username, password);
-    console.log(this.member);
-    if (this.member) {
-      this.username = this.member["_username"];
+    await this.service.login(this.session, username, password).then((member) => {
+      this.member = member;
       this.isLoggedIn = true;
-      console.log('login user: ' + this.username);
-    } else {
-      console.log('Somthing went wrong with the log in');
-    }
+    }).catch((err) =>{
+      this.showErrorMsg("password and username not mismatch.");
+    });
   }
 
   async logout() {
     console.log('logout');
-    let ans = await this.service.logoutMember(this.session, this.username);
-    console.log(ans);
-    if (ans instanceof SimpleGuest) {
+    await this.service.logoutMember(this.session, this.username).then((value) => {
+      console.log("returned from logout");
+      console.log(value);
       this.username = '';
       this.password = '';
       this.member = undefined;
       this.isLoggedIn = false;
       this.goToPage('home');
-    } else {
+    }).catch((err) => {
       this.showErrorMsg("Error logout from the system");
-    }
+    });
   }
 
   goToShop(shop: SimpleShop) {

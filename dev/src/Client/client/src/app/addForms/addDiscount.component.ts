@@ -78,7 +78,6 @@ export class AddDiscountComponent implements OnInit {
   }
 
   showErrorMsg(msg: string) {
-    console.log('error add product');
     this.messageService.add({
       severity: 'error',
       key: 'tc',
@@ -88,7 +87,6 @@ export class AddDiscountComponent implements OnInit {
   }
 
   showSuccessMsg(msg: string) {
-    console.log('success add product');
     this.messageService.add({
       severity: 'success',
       key: 'tc',

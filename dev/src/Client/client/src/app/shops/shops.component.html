@@ -4,8 +4,6 @@
 <div class="header">
   <h1>Shops</h1>
 </div>
-<th><input *ngIf="memberRoleType === ADMIN" [(ngModel)]="newShopName" type="text" pInputText placeholder="Enter Shop Name"></th>
-<th><p-button *ngIf="memberRoleType === ADMIN" [disabled]="newShopName === ''" name="addShop" (click)="addShop()">Add New Shop</p-button></th>
 
 <div class="container">
     <div class="container" style="margin: 10px;">

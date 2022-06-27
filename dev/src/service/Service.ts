@@ -130,7 +130,13 @@ export class Service {
     //Guest Payment - Use-Case 1
     getShopInfo(sessionID: string, shopID: number): Promise<Result<void | SimpleShop>> {
         logger.info(`${sessionID} is requesting info regarding shop ${shopID}`);
-        return this.marketplaceService.getShopInfo(sessionID, shopID);
+        let ans = this.marketplaceService.getShopInfo(sessionID, shopID);
+        console.log("in getShopInfo in Service");
+        ans.then((val)=>{
+            console.log("in the then");
+        })
+        console.log(ans);
+        return ans;
     }
 
     //todo: Get shops (all or filtered for a number
@@ -147,35 +153,35 @@ export class Service {
 
     //Member Payment - Use-Case 2
     setUpShop(sessionID: string, username: string, shopName: string): Promise<Result<void | SimpleShop>> {
-        logger.info(`${sessionID}: ${username} wants to create a new shop with the name ${shopName}`);
+        logger.info(`[service/setUpShop] ${sessionID}: ${username} wants to create a new shop with the name ${shopName}`);
         return this.marketplaceService.setUpShop(sessionID, shopName);
     }
 
     //Shop Owner - Use-Case 1.1
     addProductToShop(sessionID: string, shopID: number, category: ProductCategory, name: string,
                      price: number, quantity: number, description?: string): Promise<Result<SimpleProduct | void>> {
-        logger.info(`${sessionID}:  user wants to add a new product to shop ${shopID}`);
-        logger.info(`The product contains the following details - category: ${category}, name: ${name}, price: ${price}, quantity: ${quantity}`);
+        logger.info(`[service/addProductToShop] ${sessionID}:  user wants to add a new product to shop ${shopID}`);
+        logger.info(`[service/addProductToShop] The product contains the following details - category: ${category}, name: ${name}, price: ${price}, quantity: ${quantity}`);
         if (description)
-            logger.info(`The product contains the following description: ${description}`);
+            logger.info(`[service/addProductToShop] The product contains the following description: ${description}`);
         return this.marketplaceService.addProductToShop(sessionID, shopID, category, name, price, quantity, description);
     }
 
     //Shop Owner - Use-Case 1.2
     removeProductFromShop(sessionID: string, shopID: number, productID: number): Promise<Result<void>> {
-        logger.info(`${sessionID}: wants to remove from shop ${shopID} the product ${productID}`);
+        logger.info(`[service/removeProductFromShop] ${sessionID}: wants to remove from shop ${shopID} the product ${productID}`);
         return this.marketplaceService.removeProductFromShop(sessionID, shopID, productID);
     }
 
     //Shop Owner - Use-Case 1.3
     modifyProductQuantityInShop(sessionID: string, username: string, shopID: number, productID: number, productQuantity: number): Promise<Result<void>> {
-        logger.info(`${sessionID}: ${username} wants to modify the product ${productID} in shop ${shopID} wth quantity ${productQuantity}`);
+        logger.info(`[service/modifyProductQuantityInShop] ${sessionID}: ${username} wants to modify the product ${productID} in shop ${shopID} wth quantity ${productQuantity}`);
         return this.marketplaceService.modifyProductQuantityInShop(sessionID, shopID, productID, productQuantity);
     }
 
     //Shop Owner - Use-Case 9
     closeShop(sessionID: string, founderID: string, shopID: number): Promise<Result<void>> {
-        logger.info(`${sessionID}: ${founderID} wants to close the shop ${shopID}`);
+        logger.info(`[service/closeShop] ${sessionID}: ${founderID} wants to close the shop ${shopID}`);
         return this.marketplaceService.closeShop(sessionID, shopID);
     }
 
@@ -184,7 +190,7 @@ export class Service {
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
     getShopPurchaseHistory(sessionID: string, ownerID: string, shopID: number, startDate: Date, endDate: Date, filters?: any): Promise<Result<void | string[]>> {
-        logger.info(`${sessionID}: ${ownerID} would like to view the purchase history of ${shopID} from ${startDate} to ${endDate}`);
+        logger.info(`[service/getShopPurchaseHistory] ${sessionID}: ${ownerID} would like to view the purchase history of ${shopID} from ${startDate} to ${endDate}`);
         if (filters)
             logger.info(`The request is made with the following filters: ${filters}`);
         return this.marketplaceService.getShopPurchaseHistory(sessionID, shopID, startDate, endDate, filters);
@@ -194,19 +200,19 @@ export class Service {
 
     //Guest Payment - Use-Case 4.1
     addToCart(sessionID: string, shopId: number, productID: number, productQuantity: number): Promise<Result<void>> {
-        logger.info(`${sessionID} wants to add the product ${productID} x${productQuantity} to his shopping cart`);
+        logger.info(`[service/addToCart] ${sessionID} wants to add the product ${productID} x${productQuantity} to his shopping cart`);
         return this.shoppingCartService.addToCart(sessionID, shopId, productID, productQuantity);
     }
 
     //Guest Payment - Use-Case 4.2
     checkShoppingCart(sessionID: string): Promise<Result<void | SimpleShoppingCart>> {
-        logger.info(`${sessionID} would like to review the contents of his shopping cart`);
+        logger.info(`[service/checkShoppingCart] ${sessionID} would like to review the contents of his shopping cart`);
         return this.shoppingCartService.checkShoppingCart(sessionID);
     }
 
     //Guest Payment - Use-Case 4.3
     removeFromCart(sessionID: string, shopId: number, productID: number): Promise<Result<void>> {
-        logger.info(`${sessionID} would like to remove the product ${productID} from his shopping cart`);
+        logger.info(`[service/removeFromCart] ${sessionID} would like to remove the product ${productID} from his shopping cart`);
         return this.shoppingCartService.removeFromCart(sessionID, shopId, productID);
     }
 

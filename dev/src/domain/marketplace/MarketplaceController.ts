@@ -111,13 +111,16 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         if(quantity<0)
             return new Result<void>(false, undefined, "Cannot add negative amount of product to a shop ");
         let shop = this._shops.get(shopId);
+        console.log("MarketPlaceController/addProductToShop");
+        console.log(shop);
         if (!shop) {
-            logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
+            logger.error(`[MarketPlaceController/addProductToShop] Failed to add product to shop because the shop with id:${shopId} does not exit .`)
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
         }
+        logger.info(`[MarketPlaceController/addProductToShop] ${productName} before the adding`);
         let product: Product = shop.addProduct(productName, productCategory, fullPrice, quantity,  productDesc);
         this.allProductsInMP.set({shop:product.shopId,id:product.id},product)
-        logger.info(`${productName} was added to ${shop.name}.`);
+        logger.info(`[MarketPlaceController/addProductToShop] ${productName} was added to ${shop.name}.`);
         return new Result(true, product,undefined);
     }
 

@@ -9,6 +9,7 @@ import { api } from 'src/backendService/Service';
 import { SimpleShop } from '../../../../../utilities/simple_objects/marketplace/SimpleShop';
 import { SimpleMember } from '../../../../../utilities/simple_objects/user/SimpleMember';
 import { MessageService } from 'primeng/api';
+import { SimpleProduct } from '../../../../../utilities/simple_objects/marketplace/SimpleProduct';
 
 @Component({
   selector: 'app-shop',
@@ -27,23 +28,23 @@ export class ShopComponent implements OnInit {
   wantToAddDiscount: boolean = false;
   wantToAddProduct: boolean = false;
 
-
+  shopProducts: Map<SimpleProduct, number> = new Map<SimpleProduct, number>();
   products: Product[] = [];
   productsWithAmount: Map<number, number>[] = [];
 
-  ADMIN = JobType.admin;
-  FOUNDER = JobType.Founder;
-  OWNER = JobType.Owner;
-  MANAGER = JobType.Manager;
+  // ADMIN = JobType.admin;
+  // FOUNDER = JobType.Founder;
+  // OWNER = JobType.Owner;
+  // MANAGER = JobType.Manager;
 
   constructor(private service: api, private messageService: MessageService) {
-    let p1 = new Product(111, 'phone', 'A', 'ddd', 'very good phone!', 12, 20);
-    let p2 = new Product(222, 'candy', 'B', 'ddd', 'very good candy!', 3, 28);
-    let p3 = new Product(333, 'car', 'A', 'ddd', 'very good car!', 10000000, 3);
+    // let p1 = new Product(111, 'phone', 'A', 'ddd', 'very good phone!', 12, 20);
+    // let p2 = new Product(222, 'candy', 'B', 'ddd', 'very good candy!', 3, 28);
+    // let p3 = new Product(333, 'car', 'A', 'ddd', 'very good car!', 10000000, 3);
 
-    this.products.push(p1);
-    this.products.push(p2);
-    this.products.push(p3);
+    // this.products.push(p1);
+    // this.products.push(p2);
+    // this.products.push(p3);
   }
 
   ngOnInit(): void {
@@ -52,13 +53,14 @@ export class ShopComponent implements OnInit {
     //   console.log(`shopId = ${this.shopId}`);
     // });
 
-    // this.service.getShopInfo(this.shopId).then((shop) => {
-    //   if (shop instanceof SimpleShop) {
-    //     this.shopName = shop.name;
-    //     this.products = shop.products;
-    //   }
-    // });
+    this.service.getShopInfo(this.session, this.shop.ID).then((shop) => {
+      if (shop) {
+        this.shopName = shop.name;
+        this.shopProducts = shop.products;
+      }
+    });
 
+    console.log(this.shopProducts);
     Array.prototype.forEach.call(this.shop.products.entries || [], (element) => {
       console.log('product');
       console.log(element);
@@ -114,17 +116,14 @@ export class ShopComponent implements OnInit {
   }
 
   finishAddProduct($event){
-    console.log("here?");
     this.wantToAddProduct = false;
   }
 
   finishAddDiscount($event){
-    console.log("here?");
     this.wantToAddDiscount = false;
   }
 
   showErrorMsg(msg: string) {
-    console.log('error add product');
     this.messageService.add({
       severity: 'error',
       key: 'tc',
@@ -134,7 +133,6 @@ export class ShopComponent implements OnInit {
   }
 
   showSuccessMsg(msg: string) {
-    console.log('success add product');
     this.messageService.add({
       severity: 'success',
       key: 'tc',

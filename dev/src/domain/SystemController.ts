@@ -232,7 +232,7 @@ export class SystemController {
         const secCallback = async (id: string): Promise<Result<void | SimpleMember>> => {
             //if success get the member_id
             try {
-                await this.securityController.login(id, d.username, d.password);
+                await this.securityController.login(sessionId, d.username, d.password);
             } catch (e: any) {
                 return new Result(false, undefined, e.message);
             }
@@ -354,7 +354,8 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, () => {
             const res = this.mpController.getShopInfo(shopId);
             if (checkRes(res)) {
-                return new Result(true, toSimpleShop(res.data), res.message);
+                let ss = toSimpleShop(res.data)
+                return new Result(true, ss , res.message);
             }
             return new Result(false, undefined, "could not get product");
         });
