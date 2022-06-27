@@ -1,5 +1,4 @@
 import {Product} from "./Product";
-import {PurchasePoliciesRelation, ProductCategory, ShopRate, ShopStatus, DiscountRelation} from "../../utilities/Enums";
 import {ShoppingBag} from "../user/ShoppingBag";
 import {DiscountComponent} from "./DiscountAndPurchasePolicies/Components/DiscountComponent";
 import {
@@ -42,11 +41,22 @@ import {
     ContainerDiscountComponent
 } from "./DiscountAndPurchasePolicies/Containers/DiscountsContainers/ContainerDiscountComponent";
 import {Offer} from "../user/Offer";
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
+import {
+    DiscountKinds,
+    DiscountRelation,
+    ProductCategory,
+    PurchasePoliciesRelation,
+    ShopRate,
+    ShopStatus
+} from "../../utilities/Enums";
 import {AppointmentAgreement} from "./AppointmentAgreement";
+import {Discount, DiscountInContainer} from "../../../prisma/prisma";
 
 
 
-export class Shop {
+export class Shop implements Entity{
 
     private _id: number;
     private _name: string;
@@ -69,14 +79,14 @@ export class Shop {
     private _offerCounter: number;
     private _appointmentAgreements: Map<string, AppointmentAgreement>;
 
-    constructor(id: number, name: string, shopFounder: string, description?: string) {
-        this._id = id;
-        this._name = name;
-        this._status = ShopStatus.open;
-        this._shopFounder = shopFounder;
-        this._shopOwners = new Set<string>([shopFounder]);
-        this._shopManagers = new Set<string>();
-        this._products = new Map<number, [Product, number]>();
+    constructor(id: number, name: string, shopFounder: string, description?: string){
+        this._id= id;
+        this._name= name;
+        this._status= ShopStatus.Open;
+        this._shopFounder= shopFounder;
+        this._shopOwners= new Set<string>([shopFounder]);
+        this._shopManagers= new Set<string>();
+        this._products= new Map<number, [Product, number]>();
         this._productsCounter = 0;
         this._rate = ShopRate.NotRated;
         this._discounts = new Map<number, DiscountComponent>();
@@ -350,9 +360,36 @@ export class Shop {
         this._discountsArray = [...this._discounts.values()];
     }
 
-    getDiscount(id2return: number): DiscountComponent {
-        return this.discounts.get(id2return);
+    getDiscount(discId: number): number | DiscountComponent | undefined{
+        let toReturn:DiscountComponent = this.discounts.get(discId);
+        if(!toReturn){
+            this.searchDiscInDB(discId).then((disc: DiscountComponent)=>{
+                return 1;
+            }).catch((e)=>{
+                console.log(e)
+                return 1});
+        }
+        return toReturn;
     }
+
+    private async searchDiscInDB(discId: number): Promise<DiscountComponent> {
+        let dalDisc: Discount= await prisma.discount.findUnique({
+            where: {id_shopId : {id: discId, shopId: this.id}},
+        });
+        return this.dalDisc2Component(dalDisc);
+    }
+
+    private dalDisc2Component(dalDisc: Discount): Promise<DiscountComponent>{
+        let type = dalDisc.kind;
+        if(type === DiscountKinds.SimpleDiscount)
+            return SimpleDiscount.findById(dalDisc.id);
+        if(type === DiscountKinds.ConditionalDiscount)
+            return ConditionalDiscount.findById(dalDisc.id);
+        if(type === DiscountKinds.ContainerDiscount)
+            return ContainerDiscountComponent.findById(dalDisc.id);
+    }
+
+
 
     addPurchasePolicy(puPolicy: ImmediatePurchaseData): number {
         let toAdd: ImmediatePurchasePolicyComponent = this.policyData2Component(puPolicy);
@@ -500,7 +537,6 @@ export class Shop {
     }
 
     answerAppointmentAgreement(member: string, owner: string, answer: boolean): void | AppointmentAgreement {
-
         let agreement: AppointmentAgreement = this._appointmentAgreements.get(member);
         if (agreement) {
             agreement.setAnswer(owner, answer);
@@ -511,5 +547,51 @@ export class Shop {
 
     removeAppointmentAgreement(member: string){
         this._appointmentAgreements.delete(member);
+    }
+
+    findById() {
+    }
+
+    async save() {
+        await prisma.shop.create({
+            data: {
+                id: this.id,
+                name: this.name,
+                status: this.status,
+                shop_founder: this.shopFounder,
+                rate: this.rate,
+                description: this.description,
+            },
+        });
+
+        for(const shop_owner of this.shopOwners)
+            await this.createShopOwner(shop_owner, this.id);
+        for(const shop_manager of this.shopManagers)
+            await this.createShopManager(shop_manager, this.id);
+    }
+
+    private async createShopManager(username: string, shopId: number) {
+        await prisma.shopManager.create({
+            data: {
+                username: username,
+                shopId: shopId,
+            },
+        });
+    }
+
+    private async createShopOwner(username: string, shopId: number) {
+        await prisma.shopOwner.create({
+            data: {
+                username: username,
+                shopId: shopId,
+            },
+        });
+    }
+
+    update() {
+    }
+
+    delete() {
+
     }
 }

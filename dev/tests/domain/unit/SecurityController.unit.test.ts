@@ -17,17 +17,17 @@ describe('SecurityController - tests', function () {
 
     test("Access Marketplace - valid Guest ID", () => {
         controller.accessMarketplace(sessionID);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
     })
 
    test("Access Marketplace - invalid Guest ID", () => {
-       controller.activeGuests.add(sessionID);
+       controller.activeSessions.add(sessionID);
 
        expect(function() { controller.accessMarketplace(sessionID) }).toThrow(new Error(`There already exists a guest with ${sessionID} in the marketplace`));
    })
 
     test("Register - valid input", async () => {
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
 
         await controller.register(sessionID, username, password);
         expect(await bcrypt.compare(password, controller.members.get(username))).toBe(true);
@@ -40,7 +40,7 @@ describe('SecurityController - tests', function () {
     })
 
     test("Register - username already exists", () => {
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
         controller.members.set(username, password);
 
         expect(async function () {
@@ -49,7 +49,7 @@ describe('SecurityController - tests', function () {
     })
 
     test("Register - invalid password", () => {
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
 
         expect(async function () {
             await controller.register(sessionID, username, shortPassword)
@@ -57,7 +57,7 @@ describe('SecurityController - tests', function () {
     })
 
     test("Register - long username", () => {
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
 
         expect(async function () {
             await controller.register(sessionID, longUsername, password)
@@ -65,7 +65,7 @@ describe('SecurityController - tests', function () {
     })
 
     test("Register - empty username", () => {
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
 
         expect(async function () {
             await controller.register(sessionID, emptyUsername, password)
@@ -74,13 +74,13 @@ describe('SecurityController - tests', function () {
 
     test("Login - valid input", async () => {
         //valid access marketplace
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
         //valid register
         controller.members.set(username, password);
 
         await controller.login(sessionID, username, password);
         expect(controller.loggedInMembers.get(sessionID)).toBe(username);
-        expect(controller.activeGuests).not.toContain(sessionID);
+        expect(controller.activeSessions).not.toContain(sessionID);
     })
 
     test("Login - invalid session ID", () => {
@@ -91,7 +91,7 @@ describe('SecurityController - tests', function () {
 
     test("Login - username does not exist", () => {
         //valid access marketplace
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
 
         expect(async function () {
             await controller.login(sessionID, username, password)
@@ -100,7 +100,7 @@ describe('SecurityController - tests', function () {
 
     test("Login - member already logged in", async () => {
         //valid access marketplace
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
         //valid register
         controller.members.set(username, await bcrypt.hash(password, 10));
 
@@ -114,7 +114,7 @@ describe('SecurityController - tests', function () {
 
     test("Login - invalid password", () => {
         //valid access marketplace
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
         //valid register
         controller.members.set(username, password);
 
@@ -125,7 +125,7 @@ describe('SecurityController - tests', function () {
 
     test("Logout - valid input", () => {
         //valid access marketplace
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
         //valid register
         controller.members.set(username, password);
 
@@ -134,7 +134,7 @@ describe('SecurityController - tests', function () {
 
         controller.logout(sessionID, username);
         expect(controller.loggedInMembers).not.toContain(username);
-        expect(controller.activeGuests).toContain(sessionID);
+        expect(controller.activeSessions).toContain(sessionID);
     })
 
     test("Logout - invalid session ID", () => {
@@ -143,14 +143,14 @@ describe('SecurityController - tests', function () {
 
     test("Logout - username does not exist", () => {
         //valid access marketplace
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
 
         expect(function() { controller.logout(sessionID, username) }).toThrow(new Error(`A member with the username '${username}' does not exist`));
     })
 
     test("Logout - member is not logged in", () => {
         //valid access marketplace
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
         //valid register
         controller.members.set(username, password);
 
@@ -159,10 +159,10 @@ describe('SecurityController - tests', function () {
 
     test("Exit Marketplace - valid Guest ID", () => {
         //valid access marketplace
-        controller.activeGuests.add(sessionID);
+        controller.activeSessions.add(sessionID);
 
         controller.exitMarketplace(sessionID);
-        expect(controller.activeGuests).not.toContain(sessionID);
+        expect(controller.activeSessions).not.toContain(sessionID);
     })
 
     test("Exit - Invalid Guest ID", () => {

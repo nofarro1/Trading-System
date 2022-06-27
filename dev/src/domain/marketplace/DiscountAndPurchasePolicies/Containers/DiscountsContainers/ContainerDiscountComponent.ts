@@ -1,6 +1,7 @@
 import {DiscountComponent} from "../../Components/DiscountComponent";
 import {Product} from "../../../Product";
 import {DiscountData} from "../../../../../utilities/DataObjects";
+import {Entity} from "../../../../../utilities/Entity";
 
 export abstract class ContainerDiscountComponent implements DiscountComponent{
     protected _id: number;
@@ -32,4 +33,16 @@ export abstract class ContainerDiscountComponent implements DiscountComponent{
         this.discounts.splice(i, 1);
     }
 
+    static findById(containingDiscount: any): Promise<ContainerDiscountComponent> {
+        return undefined;
+    }
+
+    delete(...params: any) {
+    }
+
+    save(...params: any) {
+    }
+
+    update(...params: any) {
+    }
 }

@@ -1,8 +1,10 @@
-import { JobType } from "../../utilities/Enums";
-import { Permissions } from "../../utilities/Permissions";
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
+import {JobType} from "../../utilities/Enums";
+import {Permissions} from "../../utilities/Permissions";
 
 
-export class Role {
+export class Role implements Entity{
     private readonly _shopId: number;
     private _jobType: JobType;
     private _assigner: string;
@@ -49,4 +51,28 @@ export class Role {
         this.permissions.delete(perm);
     }
 
+    hasPermissions(perm: Permissions){
+        return this.permissions.has(perm);
+    }
+
+    findById() {
+    }
+
+    async save(username: string) {
+        await prisma.role.create({
+            data: {
+                username: username,
+                shopId: this.shopId,
+                job_type: this.jobType,
+                permissions: Array.from(this.permissions),
+            },
+        });
+    }
+
+    update() {
+    }
+
+    delete() {
+
+    }
 }
