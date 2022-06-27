@@ -4,8 +4,10 @@ import {
     RelationType
 } from "../../../../utilities/Enums";
 import {Product} from "../../Product";
+import {Entity} from "../../../../utilities/Entity";
+import prisma from "../../../../utilities/PrismaClient";
 
-export class PredicateDiscountPolicy {
+export class PredicateDiscountPolicy implements Entity{
     type: DiscountType; // Simple.Product
     object: number | ProductCategory | undefined; //0 => tomatoes id
     relation: RelationType; // <=
@@ -95,5 +97,73 @@ export class PredicateDiscountPolicy {
                 return quantity <= value;
         }
 
+    }
+
+    async save(discId: number, shopId: number) {
+        const type: number | "A" | "B" | "C" = this.object
+        if(typeof type === "number") {
+            await prisma.discountPredicate.create({
+                data: {
+                    discountId: discId,
+                    shopId: shopId,
+                    discountType: this.type,
+                    relation: this.relation,
+                    value: this.value,
+                    productId: type
+                }
+            })
+        }
+
+        else if(typeof type === typeof ProductCategory){
+            await prisma.discountPredicate.create({
+            data:{
+                discountId: discId,
+                shopId: shopId,
+                discountType: this.type,
+                relation: this.relation,
+                value: this.value,
+                category: type
+              }
+            })
+        }
+
+        else{
+          await prisma.discountPredicate.create({
+              data:{
+                  discountId: discId,
+                  shopId: shopId,
+                  discountType: this.type,
+                  relation: this.relation,
+                  value: this.value,
+                  category: type
+              }
+          })
+        }
+    }
+
+    async delete(discId: number, shopId: number) {
+        await prisma.discountPredicate.delete({
+            where: {discountId_shopId: {discountId: discId, shopId: shopId}}
+        })
+    }
+
+
+
+    update(...params: any) {
+    }
+
+    static async findById(discId: number, shopId ): Promise<PredicateDiscountPolicy>{
+        let dalPre = await prisma.discountPredicate.findUnique({
+            where: {discountId_shopId: { discountId: discId, shopId}}
+        })
+        const type: number | "A" | "B" | "C" = dalPre.category
+        if(typeof type === "number")
+         return new PredicateDiscountPolicy(dalPre.discountType, dalPre.productId, dalPre.relation, dalPre.value);
+
+        else if(typeof type === typeof ProductCategory)
+            return new PredicateDiscountPolicy(dalPre.discountType, dalPre.category, dalPre.relation, dalPre.value);
+
+        else
+            return new PredicateDiscountPolicy(dalPre.discountType, undefined, dalPre.relation, dalPre.value);
     }
 }
