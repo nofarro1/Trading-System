@@ -23,8 +23,8 @@
     >Close Shop</p-button>
   </div>
 
-    <app-Add-Product *ngIf="wantToAddProduct" [session]="session" [shopId]="shop.ID" (finishAddProduct)="finishAddProduct($event)"></app-Add-Product>
-    <app-add-discount *ngIf="wantToAddDiscount" [session]="session" [shopId]="shop.ID" ></app-add-discount>
+    <app-add-Product *ngIf="wantToAddProduct" [session]="session" [shopId]="shop.ID" (finishAddProduct)="finishAddProduct($event)"></app-add-Product>
+    <app-add-discount *ngIf="wantToAddDiscount" [session]="session" [shopId]="shop.ID" (finishAddDiscount)="finishAddDiscount($event)" [products]="products"></app-add-discount>
   
 </div>
 

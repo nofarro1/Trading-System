@@ -1,13 +1,25 @@
-import { Component, EventEmitter, Input, OnInit, Output, Type } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  Type,
+} from '@angular/core';
 import { api } from 'src/backendService/Service';
-import { productCatagories } from 'src/models/countries_data';
+import { discountTypes, productCatagories } from 'src/models/countries_data';
 import { MessageService } from 'primeng/api';
-import { BrowserAnimationsModule } from
-    "@angular/platform-browser/animations";
-import { SimpleDiscountData } from '../../../../../utilities/DataObjects';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  DiscountData,
+  SimpleDiscountData,
+} from '../../../../../utilities/DataObjects';
+import { DiscountType, ProductCategory } from '../../../../../utilities/Enums';
+import { timeStamp } from 'console';
+import { Product } from '../shop/shop.component';
 
 @Component({
-  selector: 'app-Add-Discount',
+  selector: 'app-add-discount',
   templateUrl: './addDiscount.component.html',
   styleUrls: ['./addDiscount.component.scss'],
   providers: [MessageService],
@@ -15,13 +27,15 @@ import { SimpleDiscountData } from '../../../../../utilities/DataObjects';
 export class AddDiscountComponent implements OnInit {
   @Input() shopId: number;
   @Input() session: string;
+  @Input() products: Product[] = [];
   @Output() finishAddDiscount = new EventEmitter<any>();
-  newDiscountName: string = '';
-  newDiscountPrice: number;
-  newDiscountQuantity: number;
-  newDiscountDescription: any = '';
+  newDiscountType: DiscountType;
+  DiscountTypeThatWasChosen: string;
+  newDiscountPercent: number;
+  newDiscountObj: number | ProductCategory;
   productCatagory: any = productCatagories;
-  selectedCatagory: any = '';
+  discountTypes: any = discountTypes;
+  discountObjRolldown: any;
 
   constructor(private messageService: MessageService, private service: api) {}
 
@@ -29,35 +43,37 @@ export class AddDiscountComponent implements OnInit {
 
   addNewDiscount() {
     console.log('addNewDiscount');
-    if (!(this.selectedCatagory instanceof Object)) {
-      this.showErrorMsg(`Discount must have catagory`);
-    } else {
-      this.service.(
-          this.session,
-          this.shopId,
-          this.selectedCatagory,
-          this.newDiscountName,
-          this.newDiscountPrice,
-          this.newDiscountQuantity,
-          this.newDiscountDescription
-        )
-        .then((product) => {
-          if (product instanceof SimpleDiscountData) {
-            this.showSuccessMsg(
-              `The product ${this.newDiscountName} was added to the shop`
-            );
-            this.newDiscountName = '';
-            this.newDiscountQuantity;
-            this.newDiscountDescription = '';
-            this.newDiscountPrice;
-            this.selectedCatagory = '';
-            this.finishAddDiscount.emit();
-          } else {
-            this.showErrorMsg(
-              `The product ${this.newDiscountName} wasn't added to the shop`
-            );
-          }
-        });
+    let discount: DiscountData = new SimpleDiscountData(
+      this.newDiscountType,
+      this.newDiscountObj,
+      this.newDiscountPercent
+    );
+    this.service
+      .addDiscount(this.session, this.shopId, discount)
+      .then((num) => {
+        if (typeof num === 'number') {
+          this.showSuccessMsg(`New discount added to the shop`);
+          this.newDiscountType;
+          this.newDiscountPercent;
+          this.newDiscountObj;
+          this.finishAddDiscount.emit();
+        } else {
+          this.showErrorMsg(`New discount wasn't added to the shop`);
+        }
+      });
+  }
+
+  chosenDiscountType() {
+    if (this.newDiscountType === 0){
+      this.DiscountTypeThatWasChosen = 'product';
+      this.discountObjRolldown = this.products;
+    }
+    else if (this.newDiscountType === 1){
+      this.DiscountTypeThatWasChosen = 'category';
+      this.discountObjRolldown = this.productCatagory;
+    }
+    else{
+      this.DiscountTypeThatWasChosen = '';
     }
   }
 

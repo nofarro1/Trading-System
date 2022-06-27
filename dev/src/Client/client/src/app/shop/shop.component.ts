@@ -118,6 +118,11 @@ export class ShopComponent implements OnInit {
     this.wantToAddProduct = false;
   }
 
+  finishAddDiscount($event){
+    console.log("here?");
+    this.wantToAddDiscount = false;
+  }
+
   showErrorMsg(msg: string) {
     console.log('error add product');
     this.messageService.add({

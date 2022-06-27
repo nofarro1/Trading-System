@@ -2,74 +2,48 @@
 
 <ng-container class="container">
     <tr>
-      <th>Name</th>
-      <th>Price</th>
-      <th>Quantity</th>
-      <th>Description</th>
-      <th>Catagory</th>
-      <!-- <th></th> -->
+      <th>Discount Catagory</th>
+      <th *ngIf="DiscountTypeThatWasChosen !== ''">Discount On {{discountTypes}}</th>
+      <th>Percent</th>
       <th style="color: white"></th>
     </tr>
     <tr>
       <td>
-      <input
-      class="form-control"
-      id="floatingInput"
-        [style]="{ 'margin-left': '20px', width: '180px' }"
-        type="text"
-        pInputText
-        placeholder="Enter Product Name"
-        [(ngModel)]="newProductName"
-      />
+        <p-dropdown
+        [style]="{ 'margin-left': '20px', width: '220px' }"
+        [options]="discountTypes"
+        [(ngModel)]="newDiscountType"
+        optionLabel="type"
+        [showClear]="true"
+        (onChange)="chosenDiscountType()"
+      ></p-dropdown>
+      </td>
+      <td>
+        <p-dropdown
+        *ngIf="DiscountTypeThatWasChosen !== 'product'"
+        [style]="{ 'margin-left': '20px', width: '220px' }"
+        [options]="discountObjRolldown"
+        [(ngModel)]="newDiscountObj"
+        optionLabel="name"
+        [showClear]="true"
+      ></p-dropdown>
       </td>
 <td>
   <input
     [style]="{ 'margin-left': '20px', width: '120px' }"
     type="number"
     pInputText
-    placeholder="Enter Price"
-    [(ngModel)]="newProductPrice"
+    [(ngModel)]="newDiscountPercent"
   />
 </td>
-<td>
-    <input
-      [style]="{ 'margin-left': '20px', width: '130px' }"
-      type="number"
-      pInputText
-      placeholder="Enter Quantity"
-      [(ngModel)]="newProductQuantity"
-    />
-    </td>
-    <td>
-    <input
-      [style]="{ 'margin-left': '20px' }"
-      type="text"
-      pInputText
-      placeholder="Enter Description"
-      [(ngModel)]="newProductDescription"
-    />
-  </td>
-  <td>
-      <p-dropdown
-        [style]="{ 'margin-left': '20px', width: '220px' }"
-        [options]="productCatagory"
-        [(ngModel)]="selectedCatagory"
-        placeholder="Select Catagory"
-        optionLabel="catagory"
-        [showClear]="true"
-      ></p-dropdown>
-    </td>
+
+
   </tr>
       <p-button
         [style]="{ 'margin-left': '20px' }"
         name="loginbtn"
-        [disabled]="
-          newProductDescription === '' ||
-          newProductName === '' ||
-          newProductPrice < 0 ||
-          newProductQuantity < 0
-        "
-        (click)="addNewProduct()"
-        >Add Product</p-button
+        [disabled]="newDiscountPercent > 0 && newDiscountPercent <= 100"
+        (click)="addNewDiscount()"
+        >Add Discount</p-button
       >
   </ng-container>

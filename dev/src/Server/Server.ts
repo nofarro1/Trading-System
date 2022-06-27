@@ -29,9 +29,6 @@ import { Session } from 'express-session';
 
 declare module "express-session" {
     interface Session {
-        username: string;
-        loggedIn: boolean;
-        sessionSubscriber?: LiveNotificationSubscriber;
     }
 }
 
@@ -89,7 +86,7 @@ export class Server {
                 .then(() => listen())
                 .catch(() => {
                 logger.error("was unable to initialize data to the system");
-                listen();
+                listen().keepAliveTimeout = 30000;
             });
         }
 

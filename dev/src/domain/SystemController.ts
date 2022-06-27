@@ -280,7 +280,7 @@ export class SystemController {
         const secCallback = async (id: string): Promise<Result<SimpleMember | void>> => {
             //register process
             const res = await this.register(id, newMember);
-            console.log("register process");
+            // console.log("register process");
             if (res.ok) {
                 logger.warn("[SystemController/registerMember] finish - member returned");
                 return new Result<SimpleMember | void>(true, res.data, res.message);

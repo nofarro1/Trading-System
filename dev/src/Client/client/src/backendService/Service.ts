@@ -95,9 +95,8 @@ export class api {
     return data.data;
   }
 
-  async login(session: string, username: string, password: string) {
+  async login(username: string, password: string) {
     const res = await axios.post(base + '/guest/login', {
-      session,
       username,
       password,
     });

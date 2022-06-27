@@ -1,3 +1,4 @@
+import { DiscountType } from "../../../../utilities/Enums";
 
 export var countries: Country [] = [
     { code: "AF", code3: "AFG", name: "Afghanistan", number: "004" },
@@ -252,11 +253,25 @@ export var countries: Country [] = [
 ];
 
 export var productCatagories: ProductCategoryScroll[] = [
-    {code: 0, catagory: "A"},
-    {code: 1, catagory: "B"},
-    {code: 2, catagory: "C"},
+    {code: 0, name: "A"},
+    {code: 1, name: "B"},
+    {code: 2, name: "C"},
 
 ];
+
+export var discountTypes: DiscountTypeScroll[] = [
+    {code: 0, type: "Product"},
+    {code: 1, type: "Catagory"},
+    {code: 2, type: "Bag"},
+
+];
+
+// export var products: ProductsScroll[] = [
+//     {id: 0, type: "Product"},
+//     {id: 1, type: "Catagory"},
+//     {id: 2, type: "Bag"},
+
+// ];
 
 export interface Country{
     code: string;
@@ -267,5 +282,14 @@ export interface Country{
 
 export interface ProductCategoryScroll{
     code: number;
-    catagory: string;
+    name: string;
+}
+export interface DiscountTypeScroll{
+    code: number;
+    type: string;
+}
+
+export interface ProductsScroll{
+    id: number;
+    name: string;
 }

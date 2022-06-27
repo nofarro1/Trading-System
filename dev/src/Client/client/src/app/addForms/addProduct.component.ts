@@ -7,7 +7,7 @@ import { BrowserAnimationsModule } from
     "@angular/platform-browser/animations";
 
 @Component({
-  selector: 'app-Add-Product',
+  selector: 'app-add-Product',
   templateUrl: './addProduct.component.html',
   styleUrls: ['./addProduct.component.scss'],
   providers: [MessageService],
