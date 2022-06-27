@@ -51,7 +51,6 @@ import {DeliveryService} from "./external_services/DeliveryService";
 import {PaymentDetails} from "./external_services/IPaymentService";
 import {DeliveryDetails} from "./external_services/IDeliveryService";
 import {Offer} from "./user/Offer";
-import {AppointmentAgreement} from "./marketplace/AppointmentAgreement";
 
 @injectable()
 export class SystemController {
@@ -68,7 +67,9 @@ export class SystemController {
         @inject(TYPES.UserController) uController: UserController,
         @inject(TYPES.PurchaseController) pController: PurchaseController,
         @inject(TYPES.MessageController) msgController: MessageController,
-        @inject(TYPES.SecurityController) sController: SecurityController
+        @inject(TYPES.SecurityController) sController: SecurityController,
+        @inject("adminUsername") adminUsername: string,
+        @inject("adminPassword") adminPassword: string
     ) {
         this.mpController = mpController;
         this.scController = scController;
@@ -76,8 +77,11 @@ export class SystemController {
         this.pController = pController;
         this.mController = msgController;
         this.securityController = sController;
+        //todo: configure dependencies between controllers
+        this.pController.subscribe(this.mController);
+        this.mpController.subscribe(this.mController);
 
-        const defaultAdmin = SystemController.createDefaultAdmin(
+        SystemController.createDefaultAdmin(
             this.securityController,
             this.uController,
             this.scController,
@@ -86,19 +90,26 @@ export class SystemController {
                 username: "admin",
                 password: "adminadmin",
             }
-        );
-        if (defaultAdmin.data === undefined) {
-            logger.error(
-                "failed to initialize system. default admin registration failed"
-            );
-            throw new Error("failed to register default admin member");
-        } else {
-            logger.info("system controller initialize successfully");
-        }
+        ).then((defaultAdmin) => {
+            if (defaultAdmin.data === undefined) {
+                logger.error(
+                    "failed to initialize system. default admin registration failed"
+                );
+                throw new Error("failed to register default admin member");
+            } else {
 
-        //todo: configure dependencies between controllers
-        this.pController.subscribe(this.mController);
-        this.mpController.subscribe(this.mController);
+                logger.info("system controller initialize successfully");
+            }
+        }).then(async () => {
+            return await this.securityController.checkPassword(adminUsername, adminPassword);
+        }).then((verified) => {
+            if (!verified) {
+                logger.error("failed to verify the admin on system start up");
+                throw new Error("failed to verify the admin on system start up");
+            }
+        })
+
+
     }
 
     // static initialize(): SystemController {
@@ -122,7 +133,7 @@ export class SystemController {
     //
     // }
 
-    private static createDefaultAdmin(
+    private static async createDefaultAdmin(
         security: SecurityController,
         user: UserController,
         cart: ShoppingCartController,
@@ -131,7 +142,7 @@ export class SystemController {
     ) {
         try {
             security.accessMarketplace("-1");
-            security.register("-1", newMember.username, newMember.password);
+            await security.register("-1", newMember.username, newMember.password);
         } catch (e: any) {
             return new Result(false, undefined, e.message);
         }
@@ -153,13 +164,26 @@ export class SystemController {
         sessionId: string,
         callback: (id: string) => T
     ) {
+        // logger.warn("[authenticateMarketVisitor] start");
+        const userId: string = this.securityController.hasActiveSession(sessionId);
+        if (userId.length === 0) {
+            return new Result(false, undefined, "this is not one of our visitors!");
+        }
+        // logger.warn("[authenticateMarketVisitor] exit");
+        return callback(userId);
+    }
+
+    private async authenticateMarketVisitorAsync<T>(
+        sessionId: string,
+        callback: (id: string) => Promise<T>
+    ) {
         logger.warn("[authenticateMarketVisitor] start");
         const userId: string = this.securityController.hasActiveSession(sessionId);
         if (userId.length === 0) {
             return new Result(false, undefined, "this is not one of our visitors!");
         }
         logger.warn("[authenticateMarketVisitor] exit");
-        return callback(userId);
+        return await callback(userId);
     }
 
     /*------------------------------------Guest management actions----------------------------------------------*/
@@ -217,11 +241,11 @@ export class SystemController {
     //
     // }
     //General Guest - Use-Case 4
-    login(sessionId: string, d: LoginData): Result<void | SimpleMember> {
-        const secCallback = (id: string) => {
+    async login(sessionId: string, d: LoginData): Promise<Result<void | SimpleMember>> {
+        const secCallback = async (id: string): Promise<Result<void | SimpleMember>> => {
             //if success get the member_id
             try {
-                this.securityController.login(id, d.username, d.password);
+                await this.securityController.login(id, d.username, d.password);
             } catch (e: any) {
                 return new Result(false, undefined, e.message);
             }
@@ -243,7 +267,7 @@ export class SystemController {
             }
         }
 
-        return this.authenticateMarketVisitor(sessionId, secCallback);
+        return this.authenticateMarketVisitorAsync(sessionId, secCallback);
     }
 
     //General Member - Use-Case 1
@@ -261,15 +285,14 @@ export class SystemController {
     }
 
     //General Guest - Use-Case 3
-    registerMember(
+    async registerMember(
         sessionID: string,
         newMember: RegisterMemberData
-    ): Result<SimpleMember | void> {
+    ): Promise<Result<SimpleMember | void>> {
         logger.warn("[SystemController/registerMember] in register member - system controller");
-        const secCallback = (id: string): Result<SimpleMember | void> => {
+        const secCallback = async (id: string): Promise<Result<SimpleMember | void>> => {
             //register process
-            const res = this.register(id, newMember);
-            console.log("register process");
+            const res = await this.register(id, newMember);
             if (res.ok) {
                 logger.warn("[SystemController/registerMember] finish - member returned");
                 return new Result<SimpleMember | void>(true, res.data, res.message);
@@ -278,16 +301,16 @@ export class SystemController {
                 return new Result(false, undefined, res.message);
             }
         };
-        return this.authenticateMarketVisitor(sessionID, secCallback);
+        return this.authenticateMarketVisitorAsync(sessionID, secCallback);
     }
 
-    private register(
+    private async register(
         sessionId: string,
         newMember: RegisterMemberData
-    ): Result<SimpleMember | void> {
+    ): Promise<Result<SimpleMember | void>> {
         try {
-            console.log(`[SystemController/register] start w/${newMember.username}`)
-            this.securityController.register(
+            // console.log(`[SystemController/register] start w/${newMember.username}`)
+            await this.securityController.register(
                 sessionId,
                 newMember.username,
                 newMember.password
@@ -361,10 +384,10 @@ export class SystemController {
     // }
 
     getShops(sessionId: string): Result<SimpleShop[] | void> {
-      return this.authenticateMarketVisitor(sessionId, (id) => {
-        const shops: SimpleShop[] = this.mpController.Shops.map(toSimpleShop);
-        return Result.Ok(shops);
-      });
+        return this.authenticateMarketVisitor(sessionId, (id) => {
+            const shops: SimpleShop[] = this.mpController.Shops.map(toSimpleShop);
+            return Result.Ok(shops);
+        });
     }
 
     //Guest Payment - Use-Case 2
@@ -558,6 +581,17 @@ export class SystemController {
         });
     }
 
+    // getDiscount(
+    //     sessId: string,
+    //     shopId: number
+    // ): Result<SimpleDiscountDescriber | void> {
+    //     return this.authenticateMarketVisitor(sessId, () => {
+    //         const discounts: DiscountComponent =
+    //             this.mpController.getDiscount(shopId);
+    //         return Result.Ok(discounts);
+    //     });
+    // }
+
     addDiscount(
         sessId: string,
         shopId: number,
@@ -682,7 +716,7 @@ export class SystemController {
 
     /*-----------------------------------shop Personnel Actions actions----------------------------------------------*/
 
-    appointShopOwner(sessionId: string, r:NewRoleData): Result<void> {
+    appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
         const authCallback = (id: string) => {
             if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
                 this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data) {
@@ -809,11 +843,11 @@ export class SystemController {
 
     //System Admin actions
     //General Admin - Use-Case 0
-    registerAsAdmin(sessionID: string, registrationData: RegisterMemberData, adminSecretKey?: string): Result<void> {
+    async registerAsAdmin(sessionID: string, registrationData: RegisterMemberData, adminSecretKey?: string): Promise<Result<void>> {
         if (adminSecretKey === null || adminSecretKey !== "Edan Rules") {
             return new Result(false, undefined, "admin key not correct");
         }
-        let admin = this.register(sessionID, {
+        let admin = await this.register(sessionID, {
             username: registrationData.username,
             password: registrationData.password
         });

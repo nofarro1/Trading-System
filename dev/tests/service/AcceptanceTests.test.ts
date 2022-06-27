@@ -237,28 +237,28 @@ describe('SimpleShop-tests', function () {
     //User4.1
     test('add product-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
-            expect((await service.addProductToShop("1", testMember.username, testShop.ID, ProductCategory.A, 'white shirt', 50, 10)).ok).toBe(true);
+            expect((await service.addProductToShop("1", testShop.ID, ProductCategory.A, 'white shirt', 50, 10)).ok).toBe(true);
         } else fail('expected testMember to be SimpleMember and testShop to be SimpleShop');
         done();
     })
 
     test('add product-fail', async (done) => {
         if (testShop instanceof SimpleShop) {
-            expect((await service.addProductToShop("-1", 'nonuser', testShop.ID, ProductCategory.A, 'white shirt', 50, 10)).ok).toBe(false);
+            expect((await service.addProductToShop("-1",  testShop.ID, ProductCategory.A, 'white shirt', 50, 10)).ok).toBe(false);
         } else fail('expected testShop to be shop');
         done();
     })
 
     test('add product-fail', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
-            expect((await service.addProductToShop("1", testMember.username, testShop.ID, ProductCategory.A, 'white shirt', -50, 10)).ok).toBe(false);
+            expect((await service.addProductToShop("1", testShop.ID, ProductCategory.A, 'white shirt', -50, 10)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember and testShop to be SimpleShop');
         done();
     })
     //Asserting quantity can't be negative **Constraint9**
     test('add product-fail', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
-            expect((await service.addProductToShop("1", testMember.username, testShop.ID, ProductCategory.A, 'white shirt', 50, -10)).ok).toBe(false);
+            expect((await service.addProductToShop("1", testShop.ID, ProductCategory.A, 'white shirt', 50, -10)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember and testShop to be SimpleShop');
         done();
     })
@@ -313,28 +313,28 @@ describe('SimpleShop-tests', function () {
     //User4.1
     test('remove product-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop && testProducts instanceof Array) {
-            expect((await service.removeProductFromShop("1", testMember.username, testShop.ID, testProducts[0].productID)).ok).toBe(true);
+            expect((await service.removeProductFromShop("1", testShop.ID, testProducts[0].productID)).ok).toBe(true);
         } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop and testProducts to be array of products');
         done();
     })
 
     test('remove product-fail', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
-            expect((await service.removeProductFromShop("1", testMember.username, testShop.ID, -1)).ok).toBe(false);
+            expect((await service.removeProductFromShop("1", testShop.ID, -1)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember and testShop to be SimpleShop');
         done();
     })
 
     test('remove product-fail', async (done) => {
         if (testMember instanceof SimpleMember && testProducts instanceof Array) {
-            expect((await service.removeProductFromShop("1", testMember.username, -1, testProducts[0].productID)).ok).toBe(false);
+            expect((await service.removeProductFromShop("1", -1, testProducts[0].productID)).ok).toBe(false);
         } else fail('expected testMember to be SimpleMember and testProducts to be array of products');
         done();
     })
 
     test('remove product-fail', async (done) => {
         if (testShop instanceof SimpleShop && testProducts instanceof Array) {
-            expect((await service.removeProductFromShop("-1", 'notpermitted', testShop.ID, testProducts[0].productID)).ok).toBe(false);
+            expect((await service.removeProductFromShop("-1", testShop.ID, testProducts[0].productID)).ok).toBe(false);
         } else fail('testShop to be SimpleShop and testProducts to be array of products');
         done();
     })
@@ -520,8 +520,8 @@ describe('Shopping cart-tests', function () {
         if (testMember instanceof SimpleMember) {
             testShop = (await service.setUpShop("1", 'zara', testMember.username)).data;
             if (testShop instanceof SimpleShop) {
-                (await service.addProductToShop("1", testMember.username, testShop.ID, ProductCategory.A, 'blue shirt', 50, 10));
-                (await service.addProductToShop("1", testMember.username, testShop.ID, ProductCategory.A, 'red shirt', 50, 10));
+                (await service.addProductToShop("1", testShop.ID, ProductCategory.A, 'blue shirt', 50, 10));
+                (await service.addProductToShop("1", testShop.ID, ProductCategory.A, 'red shirt', 50, 10));
                 testProducts = (await service.searchProducts(testMember.username, SearchType.category, "product")).data;
                 if (testProducts instanceof Array)
                     testProduct = testProducts[0];

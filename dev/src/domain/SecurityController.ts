@@ -33,6 +33,7 @@ export class MemberCredentials implements Entity{
 
     }
 }
+import bcrypt from "bcrypt";
 
 @injectable()
 export class SecurityController {
@@ -41,7 +42,7 @@ export class SecurityController {
     private readonly _members: Map<string, string>; //Username <-> Password
     private readonly _activeSessions: Set<string>; //Session IDs
     private readonly _loggedInMembers: Map<string, string>; //Session ID <-> Username
-
+    private readonly saltRounds = 10;
     constructor() {
         this._members = new Map<string, string>();
         this._activeSessions = new Set<string>();
@@ -68,8 +69,8 @@ export class SecurityController {
         return this._loggedInMembers;
     }
 
-    checkPassword(username: string, password: string): boolean {
-        return this.members.get(username) === password
+    async checkPassword(username: string, password: string): Promise<boolean> {
+        return await bcrypt.compare(password, this.members.get(username));
     }
 
     accessMarketplace(sessionID: string): void {
@@ -92,7 +93,7 @@ export class SecurityController {
         this.activeSessions.delete(sessionID);
     }
 
-    register(sessionID: string, username: string, password: string): void {
+    async register(sessionID: string, username: string, password: string): void {
         if (!this.activeSessions.has(sessionID)) {
             logger.error(`There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
@@ -111,11 +112,13 @@ export class SecurityController {
         }
 
         logger.info(`[SecurityController/register] ${username} has registered successfully to the marketplace`);
-        this.members.set(username, password);
+        const hashed = await bcrypt.hash(password, this.saltRounds);
+        this.members.set(username, hashed);
+
         new MemberCredentials(username, password); //Saves to database
     }
 
-    login(sessionID: string, username: string, password: string): void {
+    async login(sessionID: string, username: string, password: string): void {
         if (!this.activeSessions.has(sessionID)) {
             logger.error(`There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
@@ -128,18 +131,19 @@ export class SecurityController {
             logger.warn(`A member with the username '${username}' does not exist`);
             throw new Error(`A member with the username '${username}' does not exist`);
         }
-        if (this.members.get(username) != password) {
-            logger.warn(`The password is invalid, please try again`);
+        if (!(await this.checkPassword(username, password))) {
+            logger.warn(`[SecurityController/login] The password is invalid, please try again`);
             throw new Error(`The password is invalid, please try again`);
         }
 
         logger.info(`[SecurityController/login] ${username} has logged in successfully to the system`);
         this.loggedInMembers.set(sessionID, username);
+        this.activeSessions.delete(sessionID);
     }
 
     logout(sessionID: string, username: string): void {
-        if (!this.activeSessions.has(sessionID)) {
-            logger.error(`There is no active session with ID ${sessionID}`);
+        if(!this.activeSessions.has(sessionID) && !this._loggedInMembers.has(sessionID)) {
+            logger.error(`[SecurityController/logout] There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
         }
         if (!this.members.has(username)) {
@@ -163,7 +167,10 @@ export class SecurityController {
         if (this.loggedInMembers.has(sessionID)) {
             return this.loggedInMembers?.get(sessionID);
         }
-        logger.warn(`[SecurityController/hasActiveSession]  exit`);
+        if(this.loggedInMembers.has(sessionID)) {
+            // @ts-ignore
+            return this.loggedInMembers.get(sessionID) as string;
+        }
         return "";
     }
 }

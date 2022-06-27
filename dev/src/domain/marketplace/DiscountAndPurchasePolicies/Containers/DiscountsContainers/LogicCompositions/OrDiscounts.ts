@@ -1,6 +1,8 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
 import {Product} from "../../../../Product";
 import {ContainerDiscountComponent} from "../ContainerDiscountComponent";
+import prisma from "../../../../../../utilities/PrismaClient";
+import {DiscountRelation} from "../../../../../../utilities/Enums";
 
 export class OrDiscounts extends ContainerDiscountComponent{
 
@@ -23,10 +25,10 @@ export class OrDiscounts extends ContainerDiscountComponent{
     }
 
 
-    addDiscountElement(toAdd: DiscountComponent){
+    override addDiscountElement(toAdd: DiscountComponent){
         this.discounts.push(toAdd);
     }
-    removeDiscountElement(toRemove: DiscountComponent){
+    override removeDiscountElement(toRemove: DiscountComponent){
         let i = this.discounts.indexOf(toRemove);
         this.discounts.splice(i, 1);
     }
@@ -34,6 +36,46 @@ export class OrDiscounts extends ContainerDiscountComponent{
     predicate(products: [Product, number, number][]): boolean {
         let predCallbak = (acc:boolean, dc:DiscountComponent) => acc || dc.predicate(products);
         return this.discounts.reduce(predCallbak, true);
+    }
+
+    async save(shopId: number) {
+        // await prisma.discount.create({
+        //     data:{
+        //         id: this.id,
+        //         shopId: shopId,
+        //     },
+        // });
+        //
+        // await prisma.discountContainer.create({
+        //     data: {
+        //         id: this.id,
+        //         shopId: shopId,
+        //         description: this.description,
+        //         type: DiscountRelation.Or,
+        //     },
+        // });
+        //
+        // for(let disc of this._discounts)
+        //     disc.save(shopId);
+    }
+
+    async update(shopId: number) {
+        await prisma.discountContainer.update({
+            where: {id_shopId: {id: this.id, shopId: shopId}},
+            data: {description: this._description},
+        });
+    }
+
+    async findById(shopId: number){
+        await prisma.discountContainer.findUnique({
+            where: {id_shopId: {id: this.id, shopId: shopId}}
+        })
+    }
+
+    async delete(shopId: number) {
+        await prisma.discount.delete({
+            where: {id_shopId: {id: this.id, shopId: shopId}},
+        });
     }
 
 }

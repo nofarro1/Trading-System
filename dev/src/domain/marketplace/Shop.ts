@@ -43,8 +43,16 @@ import {
 import {Offer} from "../user/Offer";
 import {Entity} from "../../utilities/Entity";
 import prisma from "../../utilities/PrismaClient";
-import {DiscountRelation, ProductCategory, PurchasePoliciesRelation, ShopRate, ShopStatus} from "../../utilities/Enums";
+import {
+    DiscountKinds,
+    DiscountRelation,
+    ProductCategory,
+    PurchasePoliciesRelation,
+    ShopRate,
+    ShopStatus
+} from "../../utilities/Enums";
 import {AppointmentAgreement} from "./AppointmentAgreement";
+import {Discount, DiscountInContainer} from "../../../prisma/prisma";
 
 
 
@@ -352,9 +360,36 @@ export class Shop implements Entity{
         this._discountsArray = [...this._discounts.values()];
     }
 
-    getDiscount(id2return: number): DiscountComponent {
-        return this.discounts.get(id2return);
+    getDiscount(discId: number): number | DiscountComponent | undefined{
+        let toReturn:DiscountComponent = this.discounts.get(discId);
+        if(!toReturn){
+            this.searchDiscInDB(discId).then((disc: DiscountComponent)=>{
+                return 1;
+            }).catch((e)=>{
+                console.log(e)
+                return 1});
+        }
+        return toReturn;
     }
+
+    private async searchDiscInDB(discId: number): Promise<DiscountComponent> {
+        let dalDisc: Discount= await prisma.discount.findUnique({
+            where: {id_shopId : {id: discId, shopId: this.id}},
+        });
+        return this.dalDisc2Component(dalDisc);
+    }
+
+    private dalDisc2Component(dalDisc: Discount): Promise<DiscountComponent>{
+        let type = dalDisc.kind;
+        if(type === DiscountKinds.SimpleDiscount)
+            return SimpleDiscount.findById(dalDisc.id);
+        if(type === DiscountKinds.ConditionalDiscount)
+            return ConditionalDiscount.findById(dalDisc.id);
+        if(type === DiscountKinds.ContainerDiscount)
+            return ContainerDiscountComponent.findById(dalDisc.id);
+    }
+
+
 
     addPurchasePolicy(puPolicy: ImmediatePurchaseData): number {
         let toAdd: ImmediatePurchasePolicyComponent = this.policyData2Component(puPolicy);
@@ -460,6 +495,10 @@ export class Shop implements Entity{
                     return new MaxDiscounts(this.discountCounter, discComponents);
             }
         }
+        else{
+            throw new Error("Discount");
+            return null;
+        }
     }
 
     private policyData2Component(puPolicy: ImmediatePurchaseData): ImmediatePurchasePolicyComponent {
@@ -486,6 +525,9 @@ export class Shop implements Entity{
                     break;
             }
         }
+        else
+            throw new Error("Discount");
+            return null;
     }
 
     submitOwnerAppointment(member: string, assigner: string) {

@@ -33,4 +33,16 @@ export abstract class ContainerDiscountComponent implements DiscountComponent{
         this.discounts.splice(i, 1);
     }
 
+    static findById(containingDiscount: any): Promise<ContainerDiscountComponent> {
+        return undefined;
+    }
+
+    delete(...params: any) {
+    }
+
+    save(...params: any) {
+    }
+
+    update(...params: any) {
+    }
 }

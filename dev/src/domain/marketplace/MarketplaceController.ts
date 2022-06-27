@@ -361,7 +361,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     getDiscount(shopId: number, id2return: number){
         let shop = this._shops.get(shopId);
         if(shop){
-            let disc =  shop.getDiscount(id2return);
+            let disc: DiscountComponent =  shop.getDiscount(id2return);
             if(disc){
                 logger.info(`Discount with id: ${id2return} was returned from Shop with id: ${shopId} successfully.`)
                 return new Result(true, disc);

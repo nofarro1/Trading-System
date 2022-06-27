@@ -1,4 +1,5 @@
 import {SecurityController} from "../../../src/domain/SecurityController";
+import bcrypt from "bcrypt";
 
 let controller: SecurityController;
 const sessionID: string = "some-sessionID-with-the-following-string";
@@ -25,74 +26,90 @@ describe('SecurityController - tests', function () {
        expect(function() { controller.accessMarketplace(sessionID) }).toThrow(new Error(`There already exists a guest with ${sessionID} in the marketplace`));
    })
 
-    test("Register - valid input", () => {
+    test("Register - valid input", async () => {
         controller.activeSessions.add(sessionID);
 
-        controller.register(sessionID, username, password);
-        expect(controller.members.get(username)).toBe(password);
+        await controller.register(sessionID, username, password);
+        expect(await bcrypt.compare(password, controller.members.get(username))).toBe(true);
     })
 
     test("Register - invalid session ID", () => {
-        expect(function() { controller.register(sessionID, username, password) }).toThrow(new Error(`There is no active session with ID ${sessionID}`));
+        expect(async function () {
+            await controller.register(sessionID, username, password)
+        }).rejects.toThrow(new Error(`There is no active session with ID ${sessionID}`));
     })
 
     test("Register - username already exists", () => {
         controller.activeSessions.add(sessionID);
         controller.members.set(username, password);
 
-        expect(function() { controller.register(sessionID, username, password) }).toThrow(new Error(`A member with the username ${username} already exists`));
+        expect(async function () {
+            await controller.register(sessionID, username, password)
+        }).rejects.toThrow(new Error(`A member with the username ${username} already exists`));
     })
 
     test("Register - invalid password", () => {
         controller.activeSessions.add(sessionID);
 
-        expect(function() { controller.register(sessionID, username, shortPassword) }).toThrow(new RangeError(`Password is too short and must contain at least ${controller.MINIMUM_PASSWORD_LENGTH} characters`));
+        expect(async function () {
+            await controller.register(sessionID, username, shortPassword)
+        }).rejects.toThrow(new RangeError(`Password is too short and must contain at least ${controller.MINIMUM_PASSWORD_LENGTH} characters`));
     })
 
     test("Register - long username", () => {
         controller.activeSessions.add(sessionID);
 
-        expect(function() { controller.register(sessionID, longUsername, password) }).toThrow(new Error(`Username '${longUsername}' cannot be empty or longer than 31 characters`));
+        expect(async function () {
+            await controller.register(sessionID, longUsername, password)
+        }).rejects.toThrow(new Error(`Username '${longUsername}' cannot be empty or longer than 31 characters`));
     })
 
     test("Register - empty username", () => {
         controller.activeSessions.add(sessionID);
 
-        expect(function() { controller.register(sessionID, emptyUsername, password) }).toThrow(new Error(`Username '${emptyUsername}' cannot be empty or longer than 31 characters`));
+        expect(async function () {
+            await controller.register(sessionID, emptyUsername, password)
+        }).rejects.toThrow(new Error(`Username '${emptyUsername}' cannot be empty or longer than 31 characters`));
     })
 
-    test("Login - valid input", () => {
+    test("Login - valid input", async () => {
         //valid access marketplace
         controller.activeSessions.add(sessionID);
         //valid register
         controller.members.set(username, password);
 
-        controller.login(sessionID, username, password);
+        await controller.login(sessionID, username, password);
         expect(controller.loggedInMembers.get(sessionID)).toBe(username);
         expect(controller.activeSessions).not.toContain(sessionID);
     })
 
     test("Login - invalid session ID", () => {
-        expect(function() { controller.login(sessionID, username, password) }).toThrow(new Error(`There is no active session with ID ${sessionID}`));
+        expect(async function () {
+            await controller.login(sessionID, username, password)
+        }).rejects.toThrow(new Error(`There is no active session with ID ${sessionID}`));
     })
 
     test("Login - username does not exist", () => {
         //valid access marketplace
         controller.activeSessions.add(sessionID);
 
-        expect(function() { controller.login(sessionID, username, password) }).toThrow(new Error(`A member with the username '${username}' does not exist`));
+        expect(async function () {
+            await controller.login(sessionID, username, password)
+        }).rejects.toThrow(new Error(`A member with the username '${username}' does not exist`));
     })
 
-    test("Login - member already logged in", () => {
+    test("Login - member already logged in", async () => {
         //valid access marketplace
         controller.activeSessions.add(sessionID);
         //valid register
-        controller.members.set(username, password);
+        controller.members.set(username, await bcrypt.hash(password, 10));
 
         //valid login
         controller.loggedInMembers.set(sessionID, username);
 
-        expect(function() { controller.login(sessionID, username, password) }).toThrow(new Error(`The member ${username} is already logged into the system`));
+        expect(async function () {
+            await controller.login(sessionID, username, password)
+        }).rejects.toThrow(new Error(`The member ${username} is already logged into the system`));
     })
 
     test("Login - invalid password", () => {
@@ -101,7 +118,9 @@ describe('SecurityController - tests', function () {
         //valid register
         controller.members.set(username, password);
 
-        expect(function() { controller.login(sessionID, username, shortPassword) }).toThrow(new Error(`The password is invalid, please try again`));
+        expect(async function () {
+            await controller.login(sessionID, username, shortPassword)
+        }).rejects.toThrow(new Error(`The password is invalid, please try again`));
     })
 
     test("Logout - valid input", () => {

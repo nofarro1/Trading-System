@@ -16,28 +16,25 @@ export class PredicatePurchasePolicy {
         this.relation = relation;
         this.value = value;
         let idMSG: string;
-        switch (this.type) {
-            case SimplePolicyType.Product:
+        if (this.type === SimplePolicyType.Product)
                 idMSG = `the number of products with id: ${this.object} `;
-            case SimplePolicyType.Category:
+        else if (this.type ===  SimplePolicyType.Category)
                 idMSG = `the number of products from ${this.object} `;
-            case SimplePolicyType.ShoppingBag:
+        else if (this.type ===   SimplePolicyType.ShoppingBag)
                 idMSG = `the number of products in the bag `;
-            case SimplePolicyType.UserInfo:
-                idMSG = `the name of the user `
-
-        }
+        else
+                idMSG = `the name of the user `;
         this.description = `The purchase can only be made if ${idMSG} is ${this.relation} then ${this.value}.`
     }
 
     checkPredicate(purchaseInfo: [ShoppingBag, Guest]): boolean {
             if (this.type === SimplePolicyType.Product)
                 return this.predicateOnProduct(purchaseInfo);
-            if (this.type === SimplePolicyType.Category)
+            else if (this.type === SimplePolicyType.Category)
                 return this.predicateOnCategory(purchaseInfo);
-            if (this.type === SimplePolicyType.ShoppingBag)
+            else if (this.type === SimplePolicyType.ShoppingBag)
                 return this.predicateOnShoppingBag(purchaseInfo);
-            if (this.type === SimplePolicyType.UserInfo)
+            else
                 return this.predicateOnUserInfo(purchaseInfo);
     }
 

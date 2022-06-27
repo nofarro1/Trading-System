@@ -75,4 +75,17 @@ export class SimpleDiscount implements DiscountComponent{
     predicate(products: [Product, number, number][]): boolean {
         return true;
     }
+
+    static findById(containingDiscount: number) : Promise<SimpleDiscount>{
+        return undefined;
+    }
+
+    delete(...params: any) {
+    }
+
+    save(...params: any) {
+    }
+
+    update(...params: any) {
+    }
 }
