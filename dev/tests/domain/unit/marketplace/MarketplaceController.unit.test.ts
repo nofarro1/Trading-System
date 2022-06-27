@@ -74,106 +74,106 @@ describe("MarketPlaceController", ()=>{
         }
     })
 
-    test("CloseShop", ()=>{
+    test("CloseShop", async () => {
 
-        if(shop_res.data){
-            let res = controller.closeShop("OfirPovi", shop_res.data.id);
+        if (shop_res.data) {
+            let res = await controller.closeShop("OfirPovi", shop_res.data.id);
             expect(res.ok).toBe(true);
-            let shop_actual= controller.shops.get(shop_res.data.id);
-            if(shop_actual){
+            let shop_actual = controller.shops.get(shop_res.data.id);
+            if (shop_actual) {
                 expect(shop_actual.status).toBe(ShopStatus.close);
             }
         }
     })
 
-    test("reopenShop", ()=>{
+    test("reopenShop", async () => {
 
-        if(shop_res.data){
-            let shop= shop_res.data;
-            shop.status=ShopStatus.close
-            let res = controller.reopenShop("OfirPovi", shop.id);
+        if (shop_res.data) {
+            let shop = shop_res.data;
+            shop.status = ShopStatus.close
+            let res = await controller.reopenShop("OfirPovi", shop.id);
             expect(res.ok).toBe(true);
             let shop_actual = controller.shops.get(shop.id);
-            if(shop_actual){
+            if (shop_actual) {
                 expect(shop_actual.status).toBe(ShopStatus.open);
             }
         }
     })
 
-    test("Add product to shop - valid input", ()=>{
-        const mock_addP = mockMethod(Shop.prototype, "addProduct", (productName, productCategory, fullPrice, quantity,  productDes)=> {
+    test("Add product to shop - valid input", async () => {
+        const mock_addP = mockMethod(Shop.prototype, "addProduct", (productName, productCategory, fullPrice, quantity, productDes) => {
             let toAdd = new Product(productName, shop.id, shop.productsCounter, productCategory, fullPrice);
             shop.products.set(0, [toAdd, quantity]);
             return toAdd;
         })
 
         let shop: Shop;
-        if(shop_res.data){
+        if (shop_res.data) {
             shop = shop_res.data;
-            let res = controller.addProductToShop(shop.id, p1.category, p1.name, 3, p1.fullPrice);
+            let res = await controller.addProductToShop(shop.id, p1.category, p1.name, 3, p1.fullPrice);
             expect(res.ok).toBe(true);
             let product_tupl = shop.products.get(p1.id);
-            if(product_tupl){
+            if (product_tupl) {
                 let actual_quantity = product_tupl[1];
                 expect(actual_quantity).toEqual(3);
             }
         }
     })
 
-    test("Add product to shop - invalid input", ()=>{
-        const mock_addP = mockMethod(Shop.prototype, "addProduct", (productName, productCategory, fullPrice, quantity,  productDes)=> {
+    test("Add product to shop - invalid input", async () => {
+        const mock_addP = mockMethod(Shop.prototype, "addProduct", (productName, productCategory, fullPrice, quantity, productDes) => {
             let toAdd = new Product(productName, shop.id, shop.productsCounter, productCategory, fullPrice);
             shop.products.set(0, [toAdd, quantity]);
             return toAdd;
         })
 
-        let shop:Shop;
-        if(shop_res.data){
+        let shop: Shop;
+        if (shop_res.data) {
             shop = shop_res.data;
-            let res = controller.addProductToShop(shop.id, p1.category, p1.name, -1, p1.fullPrice);
+            let res = await controller.addProductToShop(shop.id, p1.category, p1.name, -1, p1.fullPrice);
             expect(res.ok).toBe(false);
         }
     })
 
-    test( "Remove product to shop", ()=> {
-        const mock_addP = mockMethod(Shop.prototype, "addProduct", (productName, productCategory, fullPrice, quantity,  productDes)=> {
+    test( "Remove product to shop", async () => {
+        const mock_addP = mockMethod(Shop.prototype, "addProduct", (productName, productCategory, fullPrice, quantity, productDes) => {
             let toAdd = new Product(productName, shop.id, shop.productsCounter, productCategory, fullPrice);
             shop.products.set(0, [toAdd, quantity]);
             return toAdd;
         })
-        const mock_removeP = mockMethod(Shop.prototype, "removeProduct", (pId)=> shop.products.delete(pId))
+        const mock_removeP = mockMethod(Shop.prototype, "removeProduct", (pId) => shop.products.delete(pId))
 
-        let shop:Shop;
-        if(shop_res.data){
+        let shop: Shop;
+        if (shop_res.data) {
             shop = shop_res.data;
-            let product_res = controller.addProductToShop(shop.id, ProductCategory.A, "Ski", 1, 5.9);
-            if(product_res.data){
-                let res = controller.removeProductFromShop(shop.id, product_res.data.id);
+            let product_res = await controller.addProductToShop(shop.id, ProductCategory.A, "Ski", 1, 5.9);
+            if (product_res.data) {
+                let res = await controller.removeProductFromShop(shop.id, product_res.data.id);
                 expect(res.ok).toBe(true);
                 expect(shop.products.has(product_res.data.id)).toBe(false);
             }
         }
     })
 
-    test("update product quantity", ()=>{
-        const mock_addP = mockMethod(Shop.prototype, "addProduct", (productName, productCategory, fullPrice, quantity,  productDes)=> {
+    test("update product quantity", async () => {
+        const mock_addP = mockMethod(Shop.prototype, "addProduct", (productName, productCategory, fullPrice, quantity, productDes) => {
             let toAdd = new Product(productName, shop.id, shop.productsCounter, productCategory, fullPrice);
             shop.products.set(0, [toAdd, quantity]);
             return toAdd;
         })
-        const mock_updateQP = mockMethod(Shop.prototype, "updateProductQuantity", (pId, quantity)=> {
+        const mock_updateQP = mockMethod(Shop.prototype, "updateProductQuantity", (pId, quantity) => {
             shop.products = new Map().set(pId, [shop.products.get(pId), quantity]);
         })
 
-        let shop:Shop;
+        let shop: Shop;
 
-        if(shop_res.data){
+        if (shop_res.data) {
             shop = shop_res.data;
-            let product_res = controller.addProductToShop(shop.id, ProductCategory.A, "Ski", 1, 5.9);
-            if(product_res.data){
-                controller.updateProductQuantity(shop.id, product_res.data.id, 4);
+            let product_res = await controller.addProductToShop(shop.id, ProductCategory.A, "Ski", 1, 5.9);
+            if (product_res.data) {
+                await controller.updateProductQuantity(shop.id, product_res.data.id, 4);
                 let actual_tuple = shop.products.get(product_res.data.id);
-                if(actual_tuple)
+                if (actual_tuple)
                     expect(actual_tuple[1]).toEqual(4);
             }
         }
@@ -193,40 +193,40 @@ describe("MarketPlaceController", ()=>{
     //     }
     // })
 
-    test("Appoint shop Manager", ()=>{
-        const mock_appoint = mockMethod(Shop.prototype, "appointShopManager", (ownerId)=>{
+    test("Appoint shop Manager", async () => {
+        const mock_appoint = mockMethod(Shop.prototype, "appointShopManager", (ownerId) => {
             shop.shopManagers.add(ownerId);
         })
 
-        let shop:Shop;
-        if(shop_res.data){
+        let shop: Shop;
+        if (shop_res.data) {
             shop = shop_res.data;
-            let res= controller.appointShopManager("ShaharAlon", shop.id);
+            let res = await controller.appointShopManager("ShaharAlon", shop.id);
             expect(res.ok).toBe(true);
             expect(shop.shopManagers.has("ShaharAlon")).toBe(true);
         }
     })
 
-    test("Show shop products - No Products to show", ()=>{
+    test("Show shop products - No Products to show", async () => {
         let shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");
         let shop = shop_res.data;
         if (shop) {
-            let res = controller.showShopProducts(shop.id);
+            let res = await controller.showShopProducts(shop.id);
             expect(res.message).toBe("No products to show");
         }
     })
 
-    test("Show shop products - There is Products to show", ()=>{
+    test("Show shop products - There is Products to show", async () => {
         let shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");
         let shop = shop_res.data;
         if (shop) {
             controller.addProductToShop(shop.id, ProductCategory.A, "Ski", 1, 5.9);
             controller.addProductToShop(shop.id, ProductCategory.A, "Cottage", 1, 5.9);
-            let res = controller.showShopProducts(shop.id);
-            if(res.data){
+            let res = await controller.showShopProducts(shop.id);
+            if (res.data) {
                 let p1 = res.data.get(0);
                 let p2 = res.data.get(1);
-                if(p1 && p2 && p1[0] && p2[0]){
+                if (p1 && p2 && p1[0] && p2[0]) {
                     expect(p1[0].name).toBe("Ski");
                     expect(p2[0].name).toBe("Cottage");
                 }
@@ -234,61 +234,61 @@ describe("MarketPlaceController", ()=>{
         }
     })
 
-    test("Search product - By Name", ()=>{
+    test("Search product - By Name", async () => {
         let shop_1 = shop_res;
         let shop_2 = controller.setUpShop("NofarShop", "Nofar's shop");
-        if( shop_1.data && shop_2.data){
-            let p1_res = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.9);
-            let p2_res = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Cottage", 1, 5.9);
-            let p3_res = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 5.9);
-            let search_res = controller.searchProduct(SearchType.productName, "Ski");
-            if(p1_res.data && p2_res.data && p3_res.data && search_res.data){
+        if (shop_1.data && shop_2.data) {
+            let p1_res = await controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.9);
+            let p2_res = await controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Cottage", 1, 5.9);
+            let p3_res = await controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 5.9);
+            let search_res = await controller.searchProduct(SearchType.productName, "Ski");
+            if (p1_res.data && p2_res.data && p3_res.data && search_res.data) {
                 expect(search_res.data.length).toBe(2);
             }
         }
     })
 
-    test("Search product - By keyword", ()=>{
+    test("Search product - By keyword", async () => {
         let shop_1 = shop_res;
         let shop_2 = controller.setUpShop("NofarShop", "Nofar's shop");
-        if( shop_1.data && shop_2.data){
-            let p1_res = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.9,"Yami cheesy");
-            let p2_res = controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9, "Yami chees");
-            let p3_res = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 5.9, "Yami cheesyyy");
+        if (shop_1.data && shop_2.data) {
+            let p1_res = await controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.9);
+            let p2_res = await controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Cottage", 1, 5.9);
+            let p3_res = await controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 5.9);
             let search_res = controller.searchProduct(SearchType.keyword, "chees");
-            if(p1_res.data && p2_res.data && p3_res.data && search_res.data){
+            if (p1_res.data && p2_res.data && p3_res.data && search_res.data) {
                 expect(search_res.data.length).toBe(3);
             }
         }
     })
 
-    test("Sort product- By price ", ()=>{
+    test("Sort product- By price ", async () => {
         let shop_1 = shop_res;
         let shop_2 = controller.setUpShop("NofarShop", "Nofar's shop");
-        if( shop_1.data && shop_2.data) {
-            let p1 = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.2, "Yami cheesy").data;
-            let p2 = controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9,  "Yami chees").data;
-            let p3 = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 6, "Yami cheesyyy").data;
-            if( p1 && p2 && p3){
+        if (shop_1.data && shop_2.data) {
+            let p1 = (await controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.2, "Yami cheesy")).data;
+            let p2 = (await controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9, "Yami chees")).data;
+            let p3 = (await controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 6, "Yami cheesyyy")).data;
+            if (p1 && p2 && p3) {
                 let filter_res = controller.filterProducts(FilterType.price, new Range(5, 5.9), [p1, p2, p3]);
-                if(filter_res.data){
-                    expect(filter_res.data).toEqual([p1,p2]);
+                if (filter_res.data) {
+                    expect(filter_res.data).toEqual([p1, p2]);
                 }
             }
         }
     })
 
-    test("sort product -By category", ()=>{
+    test("sort product -By category", async () => {
         let shop_1 = shop_res;
         let shop_2 = controller.setUpShop("NofarShop", "Nofar's shop");
-        if( shop_1.data && shop_2.data) {
-            let p1 = controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.9,  "Yami cheesy").data;
-            let p2 = controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9,  "Yami chees").data;
-            let p3 = controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 5.9,  "Yami cheesyyy").data;
-            if( p1 && p2 && p3){
+        if (shop_1.data && shop_2.data) {
+            let p1 = (await controller.addProductToShop(shop_1.data.id, ProductCategory.A, "Ski", 1, 5.2, "Yami cheesy")).data;
+            let p2 = (await controller.addProductToShop(shop_2.data.id, ProductCategory.B, "Cottage", 1, 5.9, "Yami chees")).data;
+            let p3 = (await controller.addProductToShop(shop_2.data.id, ProductCategory.A, "Ski", 1, 6, "Yami cheesyyy")).data;
+            if (p1 && p2 && p3) {
                 let filter_res = controller.filterProducts(FilterType.category, ProductCategory.A, [p1, p2, p3]);
-                if(filter_res.data){
-                    expect(filter_res.data).toEqual([p1,p3]);
+                if (filter_res.data) {
+                    expect(filter_res.data).toEqual([p1, p3]);
                 }
             }
         }
@@ -313,18 +313,18 @@ describe("MarketPlaceController", ()=>{
         clearMocks(mock_addOffer, mock_notify);
     })
 
-    test("getOffer" , ()=>{
-        const mock_addOffer = mockMethod(Shop.prototype, "addOfferPrice2Product", (userId: string, pId: number, offeredPrice: number )=>{
-            if(shop){
+    test("getOffer" , async () => {
+        const mock_addOffer = mockMethod(Shop.prototype, "addOfferPrice2Product", (userId: string, pId: number, offeredPrice: number) => {
+            if (shop) {
                 let offer = new Offer(0, userId, shop.id, pId, offeredPrice, shop.shopOwners);
                 shop.offers.set(0, offer);
                 return offer
             }
         })
         let shop = shop_res.data;
-        if (shop){
-            let offer = shop.addOfferPrice2Product("NofarRoz", 0,4.5);
-            expect(controller.getOffer(shop.id, offer.id).data).toEqual(offer);
+        if (shop) {
+            let offer = shop.addOfferPrice2Product("NofarRoz", 0, 4.5);
+            expect((await controller.getOffer(shop.id, offer.id)).data).toEqual(offer);
         }
         clearMocks(mock_addOffer);
     })
@@ -336,13 +336,17 @@ describe("MarketPlaceController", ()=>{
         clearMocks(mock_answerOffer);
     })
 
-    test("filing counter offer", ()=>{
-        const mock_approveOffer = mockMethod(MarketplaceController.prototype, "approveOffer", ()=>{});
-        const mock_filingOffer = mockMethod(Shop.prototype, "filingCounterOffer", (offerId: number, counterPrice: number)=>{return shop?  new Offer(0, "NofarRoz", shop.id, p1.id, counterPrice, shop.shopOwners):  undefined});
-        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
+    test("filing counter offer", async () => {
+        const mock_approveOffer = mockMethod(MarketplaceController.prototype, "approveOffer", () => {
+        });
+        const mock_filingOffer = mockMethod(Shop.prototype, "filingCounterOffer", (offerId: number, counterPrice: number) => {
+            return shop ? new Offer(0, "NofarRoz", shop.id, p1.id, counterPrice, shop.shopOwners) : undefined
+        });
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", () => {
+        });
         let res: Result<void | Offer>;
-        if (shop){
-            res = controller.filingCounterOffer(shop.id, 0, "NofarRoz", 4.5);
+        if (shop) {
+            res = await controller.filingCounterOffer(shop.id, 0, "NofarRoz", 4.5);
         }
         expect(mock_approveOffer).toHaveBeenCalled();
         expect(mock_filingOffer).toHaveBeenCalled();
@@ -351,25 +355,32 @@ describe("MarketPlaceController", ()=>{
         clearMocks(mock_approveOffer, mock_filingOffer, mock_notify);
     })
 
-    test("deny counter offer", ()=>{
-        const mock_removeOffer = mockMethod(Shop.prototype, "removeOffer", ()=>{});
-        const mock_getOffer = mockMethod(Shop.prototype, "getOffer", (offerId: number)=>{return shop?  new Offer(0, "NofarRoz", shop.id, p1.id, 3.5, shop.shopOwners):  undefined});
+    test("deny counter offer", async () => {
+        const mock_removeOffer = mockMethod(Shop.prototype, "removeOffer", () => {
+        });
+        const mock_getOffer = mockMethod(Shop.prototype, "getOffer", (offerId: number) => {
+            return shop ? new Offer(0, "NofarRoz", shop.id, p1.id, 3.5, shop.shopOwners) : undefined
+        });
         let res: Result<void | Offer>;
-        if (shop){
-            res = controller.denyCounterOffer(shop.id, 0);
+        if (shop) {
+            res = await controller.denyCounterOffer(shop.id, 0);
         }
         expect(mock_removeOffer).toHaveBeenCalled();
         expect(res.ok).toBe(true);
         clearMocks(mock_removeOffer, mock_getOffer);
     })
 
-    test("accept counter offer", ()=>{
-        const mock_acceptCounterOffer = mockMethod(Shop.prototype, "acceptCounterOffer", ()=>{});
-        const mock_getOffer = mockMethod(Shop.prototype, "getOffer", (offerId: number)=>{return shop?  new Offer(0, "NofarRoz", shop.id, p1.id, 3.5, shop.shopOwners):  undefined});
-        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
+    test("accept counter offer", async () => {
+        const mock_acceptCounterOffer = mockMethod(Shop.prototype, "acceptCounterOffer", () => {
+        });
+        const mock_getOffer = mockMethod(Shop.prototype, "getOffer", (offerId: number) => {
+            return shop ? new Offer(0, "NofarRoz", shop.id, p1.id, 3.5, shop.shopOwners) : undefined
+        });
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", () => {
+        });
         let res: Result<void | Offer>;
-        if (shop){
-            res = controller.acceptCounterOffer(shop.id, 0);
+        if (shop) {
+            res = await controller.acceptCounterOffer(shop.id, 0);
         }
         expect(mock_acceptCounterOffer).toHaveBeenCalled();
         expect(mock_getOffer).toHaveBeenCalled();
@@ -378,38 +389,42 @@ describe("MarketPlaceController", ()=>{
         clearMocks(mock_acceptCounterOffer, mock_getOffer, mock_notify);
     })
 
-    test("submit owner appointment in shop - success", ()=>{
-        const mock_submitOA = mockMethod(Shop.prototype, "submitOwnerAppointment", (member: string, assigner: string)=>{
+    test("submit owner appointment in shop - success", async () => {
+        const mock_submitOA = mockMethod(Shop.prototype, "submitOwnerAppointment", (member: string, assigner: string) => {
             return new AppointmentAgreement(member, assigner, shopData.shopOwners);
         })
-        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
-        let res: Result<void | AppointmentAgreement> = controller.submitOwnerAppointmentInShop(shopData.id, "Nofar", shopData.shopFounder);
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", () => {
+        });
+        let res: Result<void | AppointmentAgreement> = await controller.submitOwnerAppointmentInShop(shopData.id, "Nofar", shopData.shopFounder);
         expect(mock_notify).toHaveBeenCalled();
         expect(res.ok).toBe(true);
         clearMocks(mock_notify);
     })
 
-    test("submit owner appointment in shop - fail- assigner isn't shop owner", ()=>{
-        const mock_submitOA = mockMethod(Shop.prototype, "submitOwnerAppointment", (member: string, assigner: string)=>{
+    test("submit owner appointment in shop - fail- assigner isn't shop owner", async () => {
+        const mock_submitOA = mockMethod(Shop.prototype, "submitOwnerAppointment", (member: string, assigner: string) => {
             return new AppointmentAgreement(member, assigner, shopData.shopOwners);
         })
-        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
-        let res: Result<void | AppointmentAgreement> = controller.submitOwnerAppointmentInShop(shopData.id, "Nofar", "shahar");
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", () => {
+        });
+        let res: Result<void | AppointmentAgreement> = await controller.submitOwnerAppointmentInShop(shopData.id, "Nofar", "shahar");
         expect(mock_notify).not.toHaveBeenCalled();
         expect(res.ok).toBe(false);
         expect(res.message).toBe(`Cannot submit owner appointment in ${shopData.name} because shahar is not a shop owner.`)
         clearMocks(mock_submitOA, mock_notify);
     })
 
-    test("answer appointment agreement in shop - appointment agreement is not done - succsess ", ()=>{
-        const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", ()=>{
+    test("answer appointment agreement in shop - appointment agreement is not done - succsess ", async () => {
+        const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", () => {
             let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("EladIn"));
             agreement.setAnswer("OfirPovi", true);
             return agreement;
         })
-        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
-        const mock_appointShopOwner = mockMethod(MarketplaceController.prototype, "appointShopOwner", ()=>{});
-        let res: Result<void> = controller.answerAppointmentAgreementInShop(shopData.id,"", "", true);
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", () => {
+        });
+        const mock_appointShopOwner = mockMethod(MarketplaceController.prototype, "appointShopOwner", () => {
+        });
+        let res: Result<void> = await controller.answerAppointmentAgreementInShop(shopData.id, "", "", true);
         expect(res.ok).toBe(true);
         expect(mock_answerAA).toHaveBeenCalled();
         expect(mock_appointShopOwner).not.toHaveBeenCalled();
@@ -418,16 +433,18 @@ describe("MarketPlaceController", ()=>{
 
     })
 
-    test("answer appointment agreement in shop - appointment agreement is done - succsess ", ()=>{
-        const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", ()=>{
+    test("answer appointment agreement in shop - appointment agreement is done - succsess ", async () => {
+        const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", () => {
             let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("EladIn"));
             agreement.setAnswer("OfirPovi", true);
             agreement.setAnswer("EladIn", true);
             return agreement;
         })
-        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
-        const mock_appointShopOwner = mockMethod(MarketplaceController.prototype, "appointShopOwner", ()=>{});
-        let res: Result<void> = controller.answerAppointmentAgreementInShop(shopData.id,"", "", true);
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", () => {
+        });
+        const mock_appointShopOwner = mockMethod(MarketplaceController.prototype, "appointShopOwner", () => {
+        });
+        let res: Result<void> = await controller.answerAppointmentAgreementInShop(shopData.id, "", "", true);
         expect(res.ok).toBe(true);
         expect(mock_answerAA).toHaveBeenCalled();
         expect(mock_appointShopOwner).toHaveBeenCalled();
@@ -435,13 +452,13 @@ describe("MarketPlaceController", ()=>{
         clearMocks(mock_answerAA, mock_notify, mock_appointShopOwner);
     })
 
-    test("answer appointment agreement in shop - failure because the approver isn't owner ", ()=>{
-        const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", ()=>{
+    test("answer appointment agreement in shop - failure because the approver isn't owner ", async () => {
+        const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", () => {
             let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("EladIn"));
             agreement.setAnswer("IdanLe", true);
             return agreement;
         })
-        let res: Result<void> = controller.answerAppointmentAgreementInShop(shopData.id,"Nofar", "IdanLe", true);
+        let res: Result<void> = await controller.answerAppointmentAgreementInShop(shopData.id, "Nofar", "IdanLe", true);
         expect(mock_answerAA).toHaveBeenCalled();
         expect(res.ok).toBe(false);
         expect(res.message).toBe(`In shop- ${shopData.name}: IdanLe cannot answer on Nofar's appointment agreement because he isn't one of the shop owners`);
