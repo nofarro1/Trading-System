@@ -399,18 +399,30 @@ export class Shop implements Entity{
         return false;
     }
 
-    filingCounterOffer(offerId: number, counterOffer) {
+    filingCounterOffer(offerId: number, owner: string, bid: number) {
         let offer = this._offers.get(offerId);
-        if (offer) {
-            offer.price = counterOffer;
-            offer.resetApproves();
+        if (offer){
+            offer.price = bid;
+            offer.setAnswer(owner, false);
         }
+
         return offer;
     }
 
-    acceptCounterOffer(id: number) {
+    acceptCounterOfferByMember(id: number) {
         let offer: Offer = this.offers.get(id);
         offer.resetApproves();
+    }
+// Check if there is an offer price on this product. If there is return the offered price else return -1.
+    hasOffer(pId: number): number{
+        let price: number = -1;
+        for (let offer of this.offers.values()){
+            if (offer.pId === pId){
+                price = offer.price;
+                break;
+            }
+        }
+        return price;
     }
 
     private extractProducts(shopProducts: Map<number, [Product, number]>): Product[] {
