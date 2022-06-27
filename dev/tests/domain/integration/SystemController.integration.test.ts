@@ -714,8 +714,7 @@ describe('system controller - integration', () => {
                 member: username2,
                 shopId: shop1.id,
                 assigner: username1,
-                permissions: [],
-                title: "title"
+                permissions: []
             })
 
             //act
@@ -765,16 +764,8 @@ describe('system controller - integration', () => {
         test("remove shop manager permissions - success", () => {
             //prepare
             sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
             sys.login(sess4, {username: username1, password: pass1});
-
-            sys.setUpShop(username1, shop1.name);
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
-            sys.addShopManagerPermission(username1, username2, shop1.id, Permissions.AddProduct);
-
             //act
-            let res = sys.removeShopManagerPermission(username1, username2, shop1.id, Permissions.AddProduct);
             sys.accessMarketplace(sess5);
             sys.registerMember(sess5, {username: username2, password: pass2});
             sys.addShopManagerPermission(sess4, username2, shop1.id, Permissions.AddProduct);
@@ -880,8 +871,6 @@ describe('system controller - integration', () => {
             sys.deactivateShop(username1, shop1.id);
 
             //act
-            let res = sys.reactivateShop(username1, shop1.id);
-            sys.deactivateShop(sess4, shop1.id);
 
             //act
             let res = sys.reactivateShop(sess4, shop1.id);

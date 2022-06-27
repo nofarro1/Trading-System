@@ -1,11 +1,13 @@
 import {logger} from "../helpers/logger";
 import {injectable} from "inversify";
 import "reflect-metadata";
+import bcrypt from "bcrypt";
 
 @injectable()
 export class SecurityController {
     private readonly _MINIMUM_PASSWORD_LENGTH = 6;
     private readonly _MAXIMUM_USERNAME_LENGTH = 31;
+    private readonly saltRounds = 10;
 
       _members: Map<string, string>; //Username <-> Password
       _activeGuests: Set<string>; //Session IDs
@@ -37,8 +39,8 @@ export class SecurityController {
         return this._loggedInMembers;
     }
 
-    checkPassword(username: string, password: string): boolean {
-        return this.members.get(username) === password
+    async checkPassword(username: string, password: string): Promise<boolean> {
+        return await bcrypt.compare(password, this.members.get(username));
     }
 
     accessMarketplace(sessionID: string): void {
@@ -60,42 +62,43 @@ export class SecurityController {
         this.activeGuests.delete(sessionID);
     }
 
-    register(sessionID: string, username: string, password: string): void {
-        if(!this.activeGuests.has(sessionID)) {
+    async register(sessionID: string, username: string, password: string): Promise<void> {
+        if (!this.activeGuests.has(sessionID)) {
             logger.error(`[SecurityController/register] There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
         }
-        if(username.length > this.MAXIMUM_USERNAME_LENGTH || username.length === 0) {
+        if (username.length > this.MAXIMUM_USERNAME_LENGTH || username.length === 0) {
             logger.warn(`[SecurityController/register] Username '${username}' cannot be empty or longer than 31 characters`);
             throw new Error(`Username '${username}' cannot be empty or longer than 31 characters`);
         }
-        if(this.members.has(username)) {
+        if (this.members.has(username)) {
             logger.warn(`[SecurityController/register] A member with the username ${username} already exists`);
             throw new Error(`A member with the username ${username} already exists`);
         }
-        if(password.length < this.MINIMUM_PASSWORD_LENGTH) {
+        if (password.length < this.MINIMUM_PASSWORD_LENGTH) {
             logger.warn(`[SecurityController/register] Password is too short and must contain at least ${this.MINIMUM_PASSWORD_LENGTH} characters`);
             throw new RangeError(`Password is too short and must contain at least ${this.MINIMUM_PASSWORD_LENGTH} characters`);
         }
 
         logger.info(`[SecurityController/register] ${username} has registered successfully to the marketplace`);
-        this.members.set(username, password);
+        const hashed = await bcrypt.hash(password, this.saltRounds);
+        this.members.set(username, hashed);
     }
 
-    login(sessionID: string, username: string, password: string): void {
-        if(!this.activeGuests.has(sessionID)) {
+    async login(sessionID: string, username: string, password: string): Promise<void> {
+        if (!this.activeGuests.has(sessionID)) {
             logger.error(`[SecurityController/login] There is no active session with ID ${sessionID}`);
             throw new Error(`There is no active session with ID ${sessionID}`);
         }
-        if(!this.members.has(username)) {
+        if (!this.members.has(username)) {
             logger.warn(`[SecurityController/login] A member with the username '${username}' does not exist`);
             throw new Error(`A member with the username '${username}' does not exist`);
         }
-        if(this.loggedInMembers.get(sessionID) == username) {
+        if (this.loggedInMembers.get(sessionID) == username) {
             logger.error(`[SecurityController/login] The member ${username} is already logged into the system`);
             throw new Error(`The member ${username} is already logged into the system`);
         }
-        if(this.members.get(username) != password) {
+        if (await this.checkPassword(username, password)) {
             logger.warn(`[SecurityController/login] The password is invalid, please try again`);
             throw new Error(`The password is invalid, please try again`);
         }

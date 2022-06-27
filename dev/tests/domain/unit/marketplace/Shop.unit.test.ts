@@ -423,7 +423,7 @@ describe('Shop.units', function() {
         const mock_resetApproves = mockMethod(Offer.prototype, "resetApproves", ()=>{})
         let offer: Offer = new Offer(0, "NofarRoz", s1.id, 0,4.5, s1.shopOwners);
         s1.offers.set(0, offer);
-        s1.filingCounterOffer(offer.id, 4);
+        s1.filingCounterOffer(offer.id,"NofarRoz" ,4);
         expect(mock_resetApproves).toHaveBeenCalled();
         expect(offer.price).toEqual(4);
         clearMocks(mock_resetApproves);

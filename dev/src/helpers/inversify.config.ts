@@ -41,6 +41,8 @@ function bind(fresh: Container) {
     fresh.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController)
     fresh.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)
 
+    fresh.bind<string>("adminUsername").toConstantValue(process.env.ADMIN_USERNAME);
+    fresh.bind<string>("adminPassword").toConstantValue(process.env.ADMIN_PASSWORD);
 //external services
     fresh.bind<string>("payment").toDynamicValue(() => env === "dev" ? "stub payment service" : " real payment")
     fresh.bind<string>("delivery").toDynamicValue(() => env === "dev" ? "stub delivery service" : " real delivery")
