@@ -163,7 +163,6 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
         try{
             shop.appointShopOwner(ownerId);
-            shop.removeAppointmentAgreement(ownerId);
             logger.info(`${ownerId} was appointed as a ${shop.name} shop owner.`)
             return new Result(true, undefined);
         }
@@ -468,7 +467,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         this.approveOffer(shopId, offerId,username, false);
         let shop = this._shops.get(shopId);
         if(shop){
-            let offer: Offer = shop.filingCounterOffer(offerId, counterPrice);
+            let offer: Offer = shop.filingCounterOffer(offerId, username,  counterPrice);
             this.notifySubscribers(new counterOfferMessage(offer, shop.name));
             logger.info(`${username} filing a counter-offer to offer with id ${offer.id} in shop with id ${offer.shopId}`);
             return new Result<Offer>(true, offer);
@@ -493,7 +492,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         let shop = this._shops.get(shopId);
         if(shop){
             let offer = shop.getOffer(offerId);
-            shop.acceptCounterOffer(offerId);
+            shop.acceptCounterOfferByMember(offerId);
             this.notifySubscribers(new AddedNewOffer2ShopMessage(shop.shopOwners, offer, shop.name));
             logger.info(`${offer.user} accepted the counter-offer made on his bid with id: ${offerId}.`)
             return new Result(true, offer);
@@ -527,8 +526,11 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
                 let agreement = shop.answerAppointmentAgreement(member, owner, answer);
                 if (agreement) {
                     if (agreement.isDone()) {
-                        this.appointShopOwner(member, shopId);
-                        this.notifySubscribers(new newOwnerInShopMessage(shop, member));
+                        if(agreement.getAnswer){
+                            this.appointShopOwner(member, shopId);
+                            this.notifySubscribers(new newOwnerInShopMessage(shop, member));
+                        }
+                        shop.removeAppointmentAgreement(member);
                     }
                     return new Result<void>(true, undefined);
                 }

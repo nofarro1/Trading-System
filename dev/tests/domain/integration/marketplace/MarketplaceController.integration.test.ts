@@ -2,6 +2,8 @@ import {Product} from "../../../../src/domain/marketplace/Product";
 import {FilterType, ProductCategory, SearchType, ShopStatus} from "../../../../src/utilities/Enums";
 import {MarketplaceController} from "../../../../src/domain/marketplace/MarketplaceController";
 import {Range} from "../../../../src/utilities/Range";
+import {Offer} from "../../../../src/domain/user/Offer";
+import {Result} from "../../../../src/utilities/Result";
 
 let controller: MarketplaceController;
 const p1: Product = new Product("Ski", 0,0, ProductCategory.A, 5.9);
@@ -202,6 +204,35 @@ describe("MarketPlaceController", ()=>{
                     expect(filter_res.data).toEqual([p1,p3]);
                 }
             }
+        }
+    })
+
+    test("Offer & filing Counter offer - member deny counter offer", ()=>{
+        let shop_1 = controller.setUpShop("OfirPovi", "Ofir's shop");
+        if(shop_1.data){
+            let shop = shop_1.data;
+            let offer: Offer | void = controller.addOffer2Product(shop.id, "Elad", p1.id, 2.5).data;
+            if(offer){
+                expect(controller.getOffer(shop.id, offer.id).data).toEqual(offer);
+                controller.approveOffer(shop.id, offer.id, "OfirPovi", false);
+                expect(offer.isDone()).toBe(true);
+                expect(offer.answer).toBe(false);
+                controller.filingCounterOffer(shop.id, offer.id, "OfirPovi", 3);
+                expect(offer.answer).toBe(false);
+                controller.denyCounterOffer(shop.id, offer.id);
+                expect(controller.getOffer(shop.id, offer.id).ok).toBe(false);
+            }
+        }
+    })
+
+    test("Appointment agreement", ()=>{
+        let shop_1 = controller.setUpShop("OfirPovi", "Ofir's shop");
+        if(shop_1.data) {
+            let shop = shop_1.data;
+            let agreement = shop.submitOwnerAppointment("Idan", "OfirPovi");
+            expect(shop.appointmentAgreements.has("Idan")).toBe(true);
+            controller.answerAppointmentAgreementInShop(shop.id, "Idan", "OfirPovi", true);
+            expect(shop.appointmentAgreements.has("Idan")).toBe(false);
         }
     })
 

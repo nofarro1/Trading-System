@@ -15,7 +15,7 @@ export class Offer{
         this._price= price;
         this._approves = new Map<string, [boolean, boolean]>(); //(owner name, [has answered, answer]
         for (let owner of approves){
-            this._approves.set(owner, [false, true])
+            this._approves.set(owner, [false, false])
         }
         this._answer= true;
     }
@@ -79,7 +79,7 @@ export class Offer{
             if(this._approves.has(owner) && ans)
                 newApproves.set(owner, ans);
             else
-                newApproves.set(owner, [false, true]);
+                newApproves.set(owner, [false, false]);
         }
         this._approves = newApproves;
     }
@@ -87,10 +87,9 @@ export class Offer{
     resetApproves(){
         let keys = this._approves.keys();
         for(let key of keys){
-            this._approves.set(key, [false, true]);
+            this._approves.set(key, [false, false]);
         }
     }
-
 
     getApproves(): Map<string, [boolean, boolean]> {
         return this._approves;
