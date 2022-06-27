@@ -120,26 +120,26 @@ export class Product implements Entity{
             data: {
                 product_quantity: quantity,
             }
-        })
+        });
     }
 
-    static async findById(id: number) {
-        await prisma.product.findUnique({
+    static findById(id: number) {
+        return prisma.product.findUnique({
             where: {
                 id: id,
             }
-        })
+        });
     }
 
-    async findProductInShop(shopId: number) {
-        await prisma.productInShop.findUnique({
+    findProductInShop(shopId: number) {
+        return prisma.productInShop.findUnique({
             where: {
                 shopId_productId: {
                     shopId: shopId,
                     productId: this.id,
                 }
             }
-        })
+        });
     }
 
     async delete() {

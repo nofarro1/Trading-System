@@ -34,8 +34,13 @@ export class Member extends Guest implements Entity{
     }
 
     removeRole(shopId: number, assigner: string) {
-        if (this.roles.has(shopId) && this.roles.get(shopId).assigner === assigner)
-            this.roles.delete(shopId);
+        if (this.roles.has(shopId)) {
+            let role: Role = this.roles.get(shopId);
+            if(role.assigner === assigner) {
+                role.delete(this.username);
+                this.roles.delete(shopId);
+            }
+        }
     }
 
     hasRole(shopId: number) {
@@ -51,21 +56,23 @@ export class Member extends Guest implements Entity{
             this.roles.get(shopId).addPermission(perm);
         }
         this.roles.forEach((role) => {
-            if (role.shopId === shopId)
+            if (role.shopId === shopId) {
                 role.addPermission(perm);
+                role.update(this.username, Array.from(role.permissions));
+            }
         })
     }
 
     removePermission(shopId: number, perm: Permissions) {
         if(this.roles.has(shopId)) {
-            this.roles.get(shopId).removePermission(perm);
+            let role: Role = this.roles.get(shopId);
+            role.removePermission(perm);
+            role.update(this.username, Array.from(role.permissions));
         }
     }
+
     public getIdentifier(): string {
         return this.username;
-    }
-
-    findById() {
     }
 
     async save() {
@@ -76,11 +83,23 @@ export class Member extends Guest implements Entity{
         });
     }
 
+    static findById(username: string) {
+        return prisma.member.findUnique({
+            where: {
+                username: username,
+            }
+        })
+    }
+
     update() {
     }
 
-    delete() {
-
+    async delete() {
+        await prisma.member.delete({
+            where: {
+                username: this.username,
+            },
+        });
     }
 }
 
