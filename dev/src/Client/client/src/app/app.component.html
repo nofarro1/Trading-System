@@ -37,7 +37,7 @@
       >Sign-Up</p-button
     >
     <p-button
-      *ngIf="member?.getJobTypeValue() === ADMIN"
+      *ngIf="ADMIN === ADMIN"
       [style]="{ 'margin-left': '10px' }"
       name="initBtn"
       >init System</p-button
@@ -69,13 +69,13 @@
 
 <app-shops
   *ngIf="showShops"
-  (shopIdClicked)="goToShop($event)"
+  (shopToShow)="goToShop($event)"
   [member]="member"
   [session]="session"
 ></app-shops>
 <app-shop
   *ngIf="showShop"
-  (shopId)="shopToShow"
+  [shop]="shopToShow"
   [session]="session"
 ></app-shop>
 <app-cart *ngIf="showCart" [session]="session"></app-cart>

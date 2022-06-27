@@ -20,7 +20,9 @@ import {IDeliveryService} from "../domain/external_services/IDeliveryService";
 import {DeliveryService} from "../domain/external_services/DeliveryService";
 import {IPaymentService} from "../domain/external_services/IPaymentService";
 import {PaymentService} from "../domain/external_services/PaymentService";
+import dotenv from "dotenv";
 
+dotenv.config({path:`${__dirname}/../../.env.${process.env.NODE_ENV}`})
 const env = process.env.NODE_ENV;
 
 function bind(fresh: Container) {
@@ -40,7 +42,10 @@ function bind(fresh: Container) {
     fresh.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController).inSingletonScope()
     fresh.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController)
     fresh.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)
-
+    const adminName:string = process.env.ADMIN_USERNAME;
+    const adminPass:string = process.env.ADMIN_PASSWORD;
+    fresh.bind<string>("adminUsername").toDynamicValue(() => adminName !== undefined ? adminName : "NO USERNAME PASSED");
+    fresh.bind<string>("adminPassword").toDynamicValue(() => adminPass !== undefined ? adminPass : "NO PASSWORD PASSED");
 //external services
     fresh.bind<string>("payment").toDynamicValue(() => env === "dev" ? "stub payment service" : " real payment")
     fresh.bind<string>("delivery").toDynamicValue(() => env === "dev" ? "stub delivery service" : " real delivery")

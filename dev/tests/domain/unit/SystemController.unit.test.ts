@@ -1012,7 +1012,6 @@ describe('system controller - unit', () => {
                 shopId: 0,
                 assigner: username2,
                 permissions: [],
-                title: "title"
             })
 
             //assert
@@ -1045,7 +1044,6 @@ describe('system controller - unit', () => {
                 shopId: 0,
                 assigner: username2,
                 permissions: [],
-                title: "title"
             })
 
             //assert
@@ -1078,7 +1076,6 @@ describe('system controller - unit', () => {
                 shopId: 0,
                 assigner: username2,
                 permissions: [],
-                title: "title"
             })
 
             //assert
@@ -1110,8 +1107,7 @@ describe('system controller - unit', () => {
                 member: username2,
                 shopId: 0,
                 assigner: username2,
-                permissions: [],
-                title: "title"
+                permissions: []
             })
 
             //assert
@@ -1498,6 +1494,5 @@ describe('system controller - unit', () => {
         expect(box1.getAllMessages()).toHaveLength(1);
         expect(box2.getAllMessages()).toHaveLength(1);
         clearMocks(mock_acceptCO, mock_updateOff);
-
     })
 })

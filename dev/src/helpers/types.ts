@@ -19,5 +19,6 @@ export const TYPES = {
     NotificationService: Symbol.for("NotificationService"),
     PaymentService: Symbol.for("PaymentService"),
     DeliveryService: Symbol.for("DeliveryService"),
-    ServiceName: Symbol.for("string"),
+    ServiceName: Symbol.for("string")
+
 }

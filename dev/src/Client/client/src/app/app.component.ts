@@ -5,6 +5,7 @@ import { JobType } from '../../../../utilities/Enums';
 import { SimpleMember } from '../../../../utilities/simple_objects/user/SimpleMember';
 import { SimpleGuest } from '../../../../utilities/simple_objects/user/SimpleGuest';
 import { MessageService } from 'primeng/api';
+import { SimpleShop } from '../../../../utilities/simple_objects/marketplace/SimpleShop';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,7 @@ import { MessageService } from 'primeng/api';
   providers: [MessageService],
 })
 export class AppComponent {
-  shopToShow: any;
+  shopToShow: SimpleShop;
   disableLoginBtn: boolean = true;
   isLoggedIn: boolean = false;
   title = 'client';
@@ -109,8 +110,8 @@ export class AppComponent {
     }
   }
 
-  goToShop(shopId: number) {
-    this.shopToShow = shopId;
+  goToShop(shop: SimpleShop) {
+    this.shopToShow = shop;
     this.goToPage('shop');
   }
 

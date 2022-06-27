@@ -401,10 +401,50 @@ describe("MarketPlaceController", ()=>{
         clearMocks(mock_submitOA, mock_notify);
     })
 
-    // test("answer appointment agreement in shop - succsess", ()=>{
-    //     const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", ()=>{
-    //         let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("Elad"));
-    //         agreement.approves =
-    //     })
-    // })
+    test("answer appointment agreement in shop - appointment agreement is not done - succsess ", ()=>{
+        const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", ()=>{
+            let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("EladIn"));
+            agreement.setAnswer("OfirPovi", true);
+            return agreement;
+        })
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
+        const mock_appointShopOwner = mockMethod(MarketplaceController.prototype, "appointShopOwner", ()=>{});
+        let res: Result<void> = controller.answerAppointmentAgreementInShop(shopData.id,"", "", true);
+        expect(res.ok).toBe(true);
+        expect(mock_answerAA).toHaveBeenCalled();
+        expect(mock_appointShopOwner).not.toHaveBeenCalled();
+        expect(mock_notify).not.toHaveBeenCalled();
+        clearMocks(mock_answerAA, mock_notify, mock_appointShopOwner);
+
+    })
+
+    test("answer appointment agreement in shop - appointment agreement is done - succsess ", ()=>{
+        const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", ()=>{
+            let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("EladIn"));
+            agreement.setAnswer("OfirPovi", true);
+            agreement.setAnswer("EladIn", true);
+            return agreement;
+        })
+        const mock_notify = mockMethod(MarketplaceController.prototype, "notifySubscribers", ()=>{});
+        const mock_appointShopOwner = mockMethod(MarketplaceController.prototype, "appointShopOwner", ()=>{});
+        let res: Result<void> = controller.answerAppointmentAgreementInShop(shopData.id,"", "", true);
+        expect(res.ok).toBe(true);
+        expect(mock_answerAA).toHaveBeenCalled();
+        expect(mock_appointShopOwner).toHaveBeenCalled();
+        expect(mock_notify).toHaveBeenCalled();
+        clearMocks(mock_answerAA, mock_notify, mock_appointShopOwner);
+    })
+
+    test("answer appointment agreement in shop - failure because the approver isn't owner ", ()=>{
+        const mock_answerAA = mockMethod(Shop.prototype, "answerAppointmentAgreement", ()=>{
+            let agreement: AppointmentAgreement = new AppointmentAgreement("Nofar", "OfirPovi", new Set<string>().add("OfirPovi").add("EladIn"));
+            agreement.setAnswer("IdanLe", true);
+            return agreement;
+        })
+        let res: Result<void> = controller.answerAppointmentAgreementInShop(shopData.id,"Nofar", "IdanLe", true);
+        expect(mock_answerAA).toHaveBeenCalled();
+        expect(res.ok).toBe(false);
+        expect(res.message).toBe(`In shop- ${shopData.name}: IdanLe cannot answer on Nofar's appointment agreement because he isn't one of the shop owners`);
+        clearMocks(mock_answerAA);
+    })
 })

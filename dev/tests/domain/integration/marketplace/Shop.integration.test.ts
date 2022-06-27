@@ -18,6 +18,7 @@ import {
 } from "../../../../src/utilities/DataObjects";
 import {add} from "winston";
 import {Offer} from "../../../../src/domain/user/Offer";
+import {AppointmentAgreement} from "../../../../src/domain/marketplace/AppointmentAgreement";
 
 const mockInstance = (dependency: string) => {
     jest.mock(dependency)
@@ -289,6 +290,50 @@ describe('SimpleShop- Appointed Members', function(){
         s1.answerOffer(offer.id, s1.shopFounder, false);
         expect(offer.isDone()).toBe(true);
         expect(offer.answer).toBe(false);
+    })
+
+    test("Offer's logic- offer approved", ()=>{
+        p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
+        let offer: Offer = s1.addOfferPrice2Product("Nofar", p1.id, 3.5);
+        expect(s1.offers.has(offer.id));
+        s1.answerOffer(offer.id, "ofir", true);
+        expect(offer.isDone()).toBe(true);
+        expect(offer.answer).toBe(true);
+    })
+
+    test("Offer's logic- offer not approved", ()=>{
+        p1= s1.addProduct("cottage", ProductCategory.A, 5.9,  2, "Yami chees");
+        let offer: Offer = s1.addOfferPrice2Product("Nofar", p1.id, 3.5);
+        expect(s1.offers.has(offer.id));
+        s1.answerOffer(offer.id, "ofir", false);
+        expect(offer.isDone()).toBe(true);
+        expect(offer.answer).toBe(false);
+    })
+
+    test("Offer's logic-filing counter offer - accepted by member and approved by owner", ()=>{
+        p1= s1.addProduct("cottage", ProductCategory.A, 5.9,  2, "Yami chees");
+        let offer: Offer = s1.addOfferPrice2Product("Nofar", p1.id, 3.5);
+        expect(s1.offers.has(offer.id));
+        expect(s1.hasOffer(p1.id)).toBe(3.5);
+        expect(s1.answerOffer(offer.id, s1.shopFounder, false));
+        expect(offer.isDone()).toBe(true);
+        s1.filingCounterOffer(offer.id, "ofir", 2.5);
+        expect(offer.price).toBe(2.5);
+        s1.acceptCounterOfferByMember(p1.id);
+        expect(offer.isDone()).toBe(false);
+        s1.answerOffer(offer.id, s1.shopFounder, true);
+        expect(offer.isDone()).toBe(true);
+        expect(offer.answer).toBe(true);
+    })
+
+    test("Appointment agreement submitted - success", ()=>{
+        let agreement:AppointmentAgreement | void = s1.submitOwnerAppointment("Nofar", "ofir");
+        expect(s1.appointmentAgreements.has(agreement.member)).toBe(true);
+        agreement = s1.answerAppointmentAgreement("Nofar", "ofir", true);
+        if(agreement){
+            expect(agreement.isDone()).toBe(true);
+            expect(agreement.getAnswer()).toBe(true);
+        }
     })
 })
 

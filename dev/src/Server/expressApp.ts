@@ -32,6 +32,7 @@ router.get('/check', (req, res) => {
 //access marketpalce - return the index.html in the future
 router.get('/access', async (req, res) => {
     let sessId = req.session.id;
+    req.socket.setKeepAlive(true);
     logger.warn("[in access - expressApp]");
     try {
         console.log("guest " + sessId + " try to access marketplace");
@@ -142,12 +143,8 @@ router.post('/guest/login', async (req, res) => {
         let username = req.body.username;
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
-        req.session.username = username;
-        req.session.loggedIn = true;
         res.send(ans)
     } catch (e: any) {
-        req.session.username = "";
-        req.session.loggedIn = false;
         res.status(404)
         res.send(e.message)
     }
@@ -162,8 +159,6 @@ router.get('/member/logout/:username/:session', async (req, res) => {
         let username = req.params.username
         logger.warn("in logout session");
         let ans = await service.logout(sessId, username)
-        req.session.loggedIn = false;
-        req.session.username = "";
         res.send(ans)
     } catch (e: any) {
         res.status(404)
@@ -187,6 +182,29 @@ router.post('/member/shopManagement/assignOwner', async (req, res) => {
         let shopId = req.body.shopId
         let newOwner = req.body.newOwnerId
         let ans = await service.appointShopOwner(sessId, newOwner, shopId, owner)
+        res.send(ans)
+    } catch (e: any) {
+        res.status(404)
+        res.send(e.message)
+    }
+})
+
+/**
+ * request to appoint shop Owner
+ * {
+ * newOwnerID: string,
+ * shopID: number,
+ * assigningOwnerID: string,
+ * title?: string}
+ */
+router.post('/member/shopManagement/requestAppOwner', async (req, res) => {
+
+    try {
+        let sessId = req.session.id
+        let owner = req.body.owner
+        let shopId = Number(req.body.shopId)
+        let newOwner = req.body.newOwnerId
+        let ans = await service.submitOwnerAppointmentInShop(sessId, shopId,newOwner, owner)
         res.send(ans)
     } catch (e: any) {
         res.status(404)
@@ -354,9 +372,27 @@ router.post('/product/:shopId', async (req, res) => {
         res.status(404)
         res.send(e.message)
     }
-
-
 })
+
+/**
+ * add discount to shop
+ */
+router.post('/discount/:shopId', async (req, res) => {
+
+    try {
+        let sessId = req.body.session;
+        let shopId = Number(req.params.shopId);
+        let info = req.body.info;
+        let discountPercent = req.body.discountPercent;
+        let description = req.body.description;
+        let ans = await service.addDiscount(sessId, shopId, info);
+        res.status(201).send(ans)
+    } catch (e: any) {
+        res.status(404)
+        res.send(e.message)
+    }
+})
+
 /**
  * delete product in shop
  */
@@ -424,14 +460,15 @@ router.get('/shop/:shopId', async (req, res) => {
 /**
  * get all shops
  */
-router.get('/shops', async (req, res) => {
+router.get('/shops/:session', async (req, res) => {
     try {
-        const sessID = req.body.id;
+        const sessID = req.params.session;
         console.log("in the function that return all shops");
         // let sessId = req.session.id;
         // let ans = await service.getAllShopsInfo(sessId)
         let ans = await service.getAllShopsInfo(sessID);
         console.log("after the return shops");
+        console.log(ans);
         res.status(200).send(ans);
     } catch (e: any) {
         res.status(404).send(e.message)
@@ -441,10 +478,10 @@ router.get('/shops', async (req, res) => {
 /**
  * close shop
  */
-router.patch('/shop/close/:shopId', async (req, res) => {
+router.patch('/shop/close', async (req, res) => {
     try {
-        let sessId = req.session.id;
-        let shopId = Number(req.params.shopId);
+        let sessId = req.body.session;
+        let shopId = Number(req.body.shopId);
         let founder = req.body.founder;
         let ans = await service.closeShop(sessId, founder, shopId)
         res.status(200).send(ans)
@@ -556,6 +593,118 @@ router.get('/cart', async (req, res) => {
 
 })
 
+//------------------------ discounts -------------------------------//
+
+router.post('/shop/discounts', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        let ans = await service.getDiscounts(sessID,shopID);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+router.post('/shop/discount', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const discount = req.body.discount;
+        let ans = await service.addDiscount(sessID,shopID,discount);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+router.delete('/shop/discount/:sessID/:shopID/:dId', async (req, res) => {
+    try {
+        const sessID = req.params.sessID;
+        const shopID = Number(req.params.shopID);
+        const dId = Number(req.params.dId);
+        let ans = await service.removeDiscount(sessID,shopID,dId);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+//------------------------ policy -------------------------------//
+
+router.get('/shop/policies', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        let ans = await service.getPolicies(sessID,shopID);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+router.post('/shop/policy', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const policy = req.body.policy;
+        let ans = await service.addPurchasePolicy(sessID,shopID,policy);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+router.delete('/shop/policy/:sessID/:shopID/:pId', async (req, res) => {
+    try {
+        const sessID = req.params.sessID;
+        const shopID = Number(req.params.shopID);
+        const pId = Number(req.params.pId);
+        let ans = await service.removePurchasePolicy(sessID,shopID,pId);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+//------------------------ offers -------------------------------//
+
+router.post('/shop/offer', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const pId = Number(req.body.pId);
+        const price = Number(req.body.price);
+        let ans = await service.addOffer2Shop(sessID,shopID,pId,price);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+router.post('/shop/counteroffer', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const offerID = Number(req.body.offerID);
+        const counterPrice = Number(req.body.counterPrice);
+        let ans = await service.filingCounterOffer(sessID,shopID,offerID,counterPrice);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+router.post('/shop/denycounteroffer', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const offerID = Number(req.body.offerID);
+        const username = req.body.username;
+        let ans = await service.denyCounterOffer(sessID,username,shopID,offerID);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
 /**
  * swap service
  * body:
@@ -651,7 +800,6 @@ router.post('/admin/setup/clean', async (req, res) => {
     }
 })
 
-
 //------------------------ messages -------------------------------//
 
 router.get('/messages/:memberId', async (req, res) => {
@@ -692,7 +840,10 @@ export const sessionConfig = {
     cookie: {secure: false}
 }
 export const sessionMiddleware = session(sessionConfig)
-app.use(cors())
+app.use(cors({
+    credentials: true,
+    origin: '*/*'
+}))
 app.use(sessionMiddleware);
 app.use(express.json())
 

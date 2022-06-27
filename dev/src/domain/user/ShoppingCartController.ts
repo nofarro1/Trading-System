@@ -77,7 +77,7 @@ export class ShoppingCartController {
     }
 
     addCart(username: string): Result<ShoppingCart>{
-        this.carts.set(username, new ShoppingCart());
+        this.carts.set(username, new ShoppingCart(username));
         logger.info(`[ShoppingCartController/addCart] New cart was created for ${username}`);
         return new Result(true, this.carts.get(username),undefined);
     }

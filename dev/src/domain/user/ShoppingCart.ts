@@ -1,22 +1,25 @@
 //import PriorityQueue from "ts-priority-queue"
-import { Product } from "../marketplace/Product"
+import {Product} from "../marketplace/Product"
+import {ShoppingBag as DBShoppingBag, ShoppingCart as DBShoppingCart} from "../../../prisma/prisma"
 //import { Sale } from "./Sale"
 //import Comparator from "ts-priority-queue/src/PriorityQueue"
 //import { Result } from "../../utilities/Result";
-import { ShoppingBag } from "./ShoppingBag";
+import {ShoppingBag} from "./ShoppingBag";
 import {Offer} from "./Offer";
 import {Entity} from "../../utilities/Entity";
 import prisma from "../../utilities/PrismaClient";
+
 //import { exceptions } from "winston";
 
 
-export class ShoppingCart implements Entity{
+export class ShoppingCart implements Entity {
 
     private _bags: Map<number, ShoppingBag>; //ShopID -> ShoppingBag
     private _offers: Offer[]
-   
+    private username: string
 
-    constructor() {
+    constructor(username: string) {
+        this.username = username
         this._bags = new Map<number, ShoppingBag>();
         this.offers = [];
     }
@@ -41,66 +44,70 @@ export class ShoppingCart implements Entity{
     //check if there is a discount to be included on the product.
     //If there is, update the total price accordingly.
 
-    addProduct(toAdd:Product, quantity: number): void{
-        let shopId= toAdd.shopId;
-        let bag= this._bags.get(shopId);
-        if(bag){
+    async addProduct(toAdd: Product, quantity: number): Promise<void> {
+        let shopId = toAdd.shopId;
+        let bag = this._bags.get(shopId);
+        if (bag) {
             bag.addProduct(toAdd, quantity);
-        }
-        else{
-            let newBag= new ShoppingBag(shopId);
-            newBag.addProduct(toAdd, quantity);
-            this.bags.set(shopId, newBag);
+        } else {
+            let bag;
+            try {
+                bag = await ShoppingBag.findById(this.username, shopId);
+            } catch (e){
+                 bag = new ShoppingBag(shopId);
+            }
+            bag.addProduct(toAdd, quantity);
+            this.bags.set(shopId, bag);
         }
     }
 
-    removeProduct(toRemove: Product): void{
+    removeProduct(toRemove: Product): void {
         let shopId = toRemove.shopId;
         let bag = this.bags.get(shopId);
-        if(!bag)
+        if (!bag)
             throw new Error("Failed to remove product because the needed bag wasn't found");
         bag.products.delete(toRemove.id);
-        if(bag.isEmpty())
+        if (bag.isEmpty())
             this.emptyBag(bag.shopId);
-       // this._totalPrice= this._totalPrice - bag.totalPrice + bag.removeProduct(toRemove);
+        // this._totalPrice= this._totalPrice - bag.totalPrice + bag.removeProduct(toRemove);
     }
 
-    emptyBag(shopId: number){
-      let bag = this.bags.get(shopId);
-      if(bag){
-          this.bags.delete(bag.shopId);
-      }
+    emptyBag(shopId: number) {
+        let bag = this.bags.get(shopId);
+        if (bag) {
+            this.bags.delete(bag.shopId);
+        }
     }
 
-    emptyCart(): void{
+    emptyCart(): void {
         this.bags.clear();
-      //  this._totalPrice=0;
+        //  this._totalPrice=0;
     }
 
     updateProductQuantity(toUpdate: Product, quantity: number): void {
         let shopId = toUpdate.shopId;
         let bag = this._bags.get(shopId)
-        if(!bag)
+        if (!bag)
             throw new Error("Failed to update product's quantity because the needed bag wasn't found");
-       // this._totalPrice= this._totalPrice - bag.totalPrice + bag.updateProductQuantity(toUpdate, quantity);
+        // this._totalPrice= this._totalPrice - bag.totalPrice + bag.updateProductQuantity(toUpdate, quantity);
         bag.updateProductQuantity(toUpdate, quantity);
     }
 
-    addOffer(offer: Offer){
+    addOffer(offer: Offer) {
         this._offers.push(offer);
     }
 
-    removeOffer(offer: Offer){
-       this._offers = this._offers.filter((curr: Offer)=> curr != offer);
+    removeOffer(offer: Offer) {
+        this._offers = this._offers.filter((curr: Offer) => curr != offer);
     }
 
-    checksOffers(): [Offer[], Offer[]]{
+    checksOffers(): [Offer[], Offer[]] {
         let waitings: Offer[] = [];
         let rejected: Offer[] = [];
 
         for (let offer of this._offers) {
-            if(offer.isDone()){
-                if(!offer.answer)
+            if (offer.isDone()) {
+                if (!offer.answer)
                     rejected.push(offer);
             }
             waitings.push(offer);
@@ -108,7 +115,13 @@ export class ShoppingCart implements Entity{
         return [waitings, rejected];
     }
 
-    findById() {
+    async findById(username: string) {
+        const result: DBShoppingCart = await prisma.shoppingCart.findUnique({
+            where: {
+                username: username
+            }
+        })
+        return result;
     }
 
     async save(username: string) {
@@ -122,8 +135,12 @@ export class ShoppingCart implements Entity{
     update() {
     }
 
-    delete() {
-
+    async delete(username: string) {
+        await prisma.shoppingCart.delete({
+            where: {
+                username: username
+            }
+        });
     }
 }
 
