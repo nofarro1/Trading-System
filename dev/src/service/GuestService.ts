@@ -4,6 +4,7 @@ import {SimpleMember} from "../utilities/simple_objects/user/SimpleMember";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../helpers/types";
 import "reflect-metadata";
+import { logger } from "../helpers/logger";
 
 @injectable()
 export class GuestService {

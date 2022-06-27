@@ -142,7 +142,7 @@ export class StateInitializer {
 
     private async addProductsToShop(shop: { Id: number, sessionId: string, founder: string, shopName: string }, products: ProductData[]) {
         const promises: Promise<Result<SimpleProduct | void>>[] = products.map(async (pd) => {
-            const res = await this.service.addProductToShop(shop.sessionId, shop.founder, shop.Id, ProductCategory.A, pd.name, pd.price, pd.quantity, pd.description);
+            const res = await this.service.addProductToShop(shop.sessionId, shop.Id, ProductCategory.A, pd.name, pd.price, pd.quantity);
             if (checkRes(res)) {
                 pd.id = res.data.productID;
                 this._addedProducts.push(res.data)

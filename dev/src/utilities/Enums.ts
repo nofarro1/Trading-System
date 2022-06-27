@@ -17,12 +17,12 @@ export enum DiscountRelation {And, Or, Xor, Addition, Max}
 export enum PurchasePoliciesKinds {SimplePurchase, ContainerPurchasePolicy}
 export enum PurchasePoliciesRelation { And, Conditional, Or}
 
-
-export function toCategoryEnum(productData: NewProductData) {
-    const str = productData.productCategory;
-    const enumType: ProductCategory = str as unknown as ProductCategory;
-    const cateEnum = ProductCategory[productData[enumType]];
-    console.log(cateEnum);
-    return cateEnum;
-
-}
+//
+// export function toCategoryEnum(productData: NewProductData) {
+//     const str = productData.productCategory;
+//     const enumType: ProductCategory = str as unknown as ProductCategory;
+//     const cateEnum = ProductCategory[productData[enumType]];
+//     console.log(cateEnum);
+//     return cateEnum;
+//
+// }

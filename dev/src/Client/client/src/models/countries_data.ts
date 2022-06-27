@@ -1,3 +1,4 @@
+
 export var countries: Country [] = [
     { code: "AF", code3: "AFG", name: "Afghanistan", number: "004" },
     { code: "AL", code3: "ALB", name: "Albania", number: "008" },
@@ -250,9 +251,21 @@ export var countries: Country [] = [
     { code: "AX", code3: "ALA", name: "Åland Islands", number: "248" }
 ];
 
+export var productCatagories: ProductCategoryScroll[] = [
+    {code: 0, catagory: "A"},
+    {code: 1, catagory: "B"},
+    {code: 2, catagory: "C"},
+
+];
+
 export interface Country{
     code: string;
     code3: string;
     name: string;
     number: string;
+}
+
+export interface ProductCategoryScroll{
+    code: number;
+    catagory: string;
 }

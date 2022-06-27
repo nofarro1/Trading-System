@@ -38,14 +38,14 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     private _shops: Map<number, Shop>;
     private _shopCounter: number;
-    private _allProductsInMP: Map<[number, number], Product>;
+    private _allProductsInMP: Map<{ shop:number, id:number }, Product>;
 
     subscribers: IMessageListener<ShopStatusChangedMessage>[];
 
     constructor(){
         this._shops= new Map<number,Shop>();
         this._shopCounter= 0;
-        this._allProductsInMP= new Map<[number, number], Product>();
+        this._allProductsInMP= new Map<{ shop:number, id:number }, Product>();
         this.subscribers= [];
     }
 
@@ -62,11 +62,11 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         this._shops = value;
     }
 
-    get allProductsInMP(): Map<[number, number], Product> {
+    get allProductsInMP(): Map<{ shop:number, id:number }, Product> {
         return this._allProductsInMP;
     }
 
-    set allProductsInMP(value: Map<[number, number], Product>) {
+    set allProductsInMP(value: Map<{ shop:number, id:number }, Product>) {
         this._allProductsInMP = value;
     }
 
@@ -87,7 +87,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         let toClose= this._shops.get(shopId);
         if(toClose){
             toClose.status= ShopStatus.close;
-            // this.notify(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
+            this.notifySubscribers(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
             logger.info(`The ${toClose.name} was closed in the market.`);
             return new Result(true, undefined);
         }
@@ -99,7 +99,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         let toReopen= this._shops.get(shopId);
         if(toReopen){
             toReopen.status= ShopStatus.open;
-            // this.notify(new ShopStatusChangedMessage(true, toReopen.shopOwners, toReopen.name));
+            this.notifySubscribers(new ShopStatusChangedMessage(true, toReopen.shopOwners, toReopen.name));
             logger.info(`The ${toReopen.name} was reopend in the market.`);
             return new Result(true, undefined);
         }
@@ -115,8 +115,8 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
         }
-        let product = shop.addProduct(productName, productCategory, fullPrice, quantity,  productDesc);
-
+        let product: Product = shop.addProduct(productName, productCategory, fullPrice, quantity,  productDesc);
+        this.allProductsInMP.set({shop:product.shopId,id:product.id},product)
         logger.info(`${productName} was added to ${shop.name}.`);
         return new Result(true, product,undefined);
     }
@@ -129,6 +129,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
         }
         try{
             shop.removeProduct(productId)
+            this.allProductsInMP.delete({ shop:shop.id, id:productId });
             logger.info(`${productId} was removed from ${shop.name}.`)
             return new Result(true, undefined);
         }
@@ -156,6 +157,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
      appointShopOwner(ownerId: string, shopId: number): Result<void>{
+
         let shop= this._shops.get(shopId);
         if(!shop) {
             logger.error(`Failed to appoint ${ownerId} to shop with id: ${shopId}, because the shop does not exist.`)
@@ -306,10 +308,14 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
 
     //no products in allProductsInMP
     getProduct(shopId: number, productId: number): Result<Product | void>{
-        let toReturn= this._allProductsInMP.get([shopId, productId]);
-        if(toReturn){
-            logger.info(`Product with id: ${productId} was Returned successfully.`)
-            return new Result(true,toReturn);
+        let shop = this._shops.get(shopId);
+        if(shop){
+            let product: Product =  shop.getProduct(productId);
+            logger.info(`Discount with id: ${product} was added to Shop with id: ${shopId} successfully.`)
+            return new Result(true, product);
+        }
+        else{
+            return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
         }
         logger.error(`Product with id: ${productId} was not found.`)
         return new Result(false,undefined,`Product with id: ${productId} was not found.`);
