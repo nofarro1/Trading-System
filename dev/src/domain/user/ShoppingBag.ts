@@ -44,8 +44,9 @@ export class ShoppingBag implements Entity{
         }
         else
             this.products.set(toAdd.id, [toAdd, quantity]);
+
         }
-    
+
     removeProduct(toRemove: Product):void {
         if(!this.products.has(toRemove.id))
             throw new Error("Failed to remove product because the product wasn't found in bag.")
@@ -68,7 +69,28 @@ export class ShoppingBag implements Entity{
         return this.products.size == 0;
     }
 
-    findById() {
+    static async findById(username:string, shopId:number) {
+        const result = await prisma.shoppingBag.findUnique({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: shopId
+                },
+            }
+        })
+        return result;
+    }
+    static async findProductInBag(username:string, shopId:number,product:number) {
+        const result = await prisma.productInBag.findUnique({
+            where: {
+                username_shopId_productId:{
+                    username:username,
+                    shopId:shopId,
+                    productId:product
+                }
+            }
+        })
+        return result;
     }
 
     async save(username: string) {
@@ -78,6 +100,8 @@ export class ShoppingBag implements Entity{
                 shopId: this.shopId,
             },
         });
+
+
     }
 
     async saveProductInBag(username: string, productId: number, quantity: number) {
@@ -94,7 +118,45 @@ export class ShoppingBag implements Entity{
     update() {
     }
 
-    delete() {
+    async updateProductInBag(username: string, productId: number, quantity: number) {
+        await prisma.productInBag.update({
+            where:{
+                username_shopId_productId: {
+                    username: username,
+                    shopId: this.shopId,
+                    productId:productId
+                },
 
+            },
+            data: {
+                product_quantity: quantity
+            },
+        });
     }
+
+    async delete(username:string) {
+        await prisma.shoppingBag.delete({
+            where:{
+            username_shopId: {
+                username: username,
+                shopId: this.shopId
+            }
+        }});
+        for(let pid of this.products.keys()){
+            await this.deleteProductInBag(username,pid);
+        }
+    }
+
+    async deleteProductInBag(username: string, productId: number) {
+        await prisma.productInBag.delete({
+            where: {
+                username_shopId_productId: {
+                    username: username,
+                    shopId: this.shopId,
+                    productId:productId
+                },
+            },
+        });
+    }
+
 }

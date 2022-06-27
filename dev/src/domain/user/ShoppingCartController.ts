@@ -5,7 +5,6 @@ import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
 import "reflect-metadata";
 import {Offer} from "./Offer";
-import {Shop} from "../marketplace/Shop";
 
 @injectable()
 export class ShoppingCartController {
