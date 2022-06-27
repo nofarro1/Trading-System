@@ -9,6 +9,11 @@ import {TYPES} from './../helpers/types';
 import "reflect-metadata";
 import {Offer} from "../domain/user/Offer";
 import {AppointmentAgreement} from "../domain/marketplace/AppointmentAgreement";
+import {SimpleDiscountDescriber} from "../utilities/simple_objects/marketplace/SimpleDiscountDescriber";
+import {DiscountData, ImmediatePurchaseData} from "../utilities/DataObjects";
+import {
+    ImmediatePurchasePolicyComponent
+} from "../domain/marketplace/DiscountAndPurchasePolicies/Components/ImmediatePurchasePolicyComponent";
 
 @injectable()
 export class MarketplaceService {
@@ -122,9 +127,9 @@ export class MarketplaceService {
         });
     }
 
-    addOffer2Shop (sessionId, shopId: number, pId: number, price: number ){
-        return new Promise<Result<void>>((resolve, reject)=>{
-            let result: Result<void> = this.systemController.addOffer2Shop(sessionId, shopId, pId, price);
+    addOffer2Shop (sessionId: string, shopId: number, pId: number, price: number ){
+        return new Promise<Result<void|Offer>>((resolve, reject)=>{
+            let result: Result<void|Offer> = this.systemController.addOffer2Shop(sessionId, shopId, pId, price);
             result.ok ? resolve(result) : reject(result.message);
         })
     }
@@ -146,6 +151,46 @@ export class MarketplaceService {
     submitOwnerAppointmentInShop(sessionId: string, shopId: number, member: string, assigner: string){
         return new Promise<Result<void | AppointmentAgreement>>((resolve, reject)=>{
             let result: Result<void | AppointmentAgreement> = this.systemController.submitOwnerAppointmentInShop(sessionId, shopId, member, assigner);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+
+    getDiscounts(sessionId: string, shopId: number){
+        return new Promise<Result<void | SimpleDiscountDescriber[]>>((resolve, reject)=>{
+            let result: Result<void | SimpleDiscountDescriber[]> = this.systemController.getDiscounts(sessionId, shopId);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+
+    addDiscount(sessionId: string, shopId: number,discount:DiscountData){
+        return new Promise<Result<void | number>>((resolve, reject)=>{
+            let result: Result<void | number> = this.systemController.addDiscount(sessionId, shopId,discount);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+    removeDiscount(sessionId: string, shopId: number,dId:number){
+        return new Promise<Result<void>>((resolve, reject)=>{
+            let result: Result<void> = this.systemController.removeDiscount(sessionId, shopId,dId);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+
+    getPolicies(sessionId: string, shopId: number){
+        return new Promise<Result<void | ImmediatePurchasePolicyComponent[]>>((resolve, reject)=>{
+            let result: Result<void | ImmediatePurchasePolicyComponent[]> = this.systemController.getPolicies(sessionId, shopId);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+
+    addPurchasePolicy(sessionId: string, shopId: number,policy:ImmediatePurchaseData){
+        return new Promise<Result<void | number>>((resolve, reject)=>{
+            let result: Result<void | number> = this.systemController.addPurchasePolicy(sessionId, shopId,policy);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+    removePurchasePolicy(sessionId: string, shopId: number,pId:number){
+        return new Promise<Result<void>>((resolve, reject)=>{
+            let result: Result<void> = this.systemController.removePurchasePolicy(sessionId, shopId,pId);
             result.ok ? resolve(result) : reject(result.message);
         })
     }
