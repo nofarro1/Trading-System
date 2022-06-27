@@ -7,6 +7,7 @@ import {Service} from "../service/Service";
 import {SimpleMessage} from "../domain/notifications/Message";
 import {LiveNotificationSubscriber, NotificationService} from "../service/NotificationService";
 import {logger} from "../helpers/logger"
+import { Session } from 'express-session';
 
 
 
@@ -83,14 +84,13 @@ export class Server {
         if (process.env.NODE_ENV === 'dev') {
             listen();
         } else {
-            // this.backendService.stateInit
-            //     .initialize()
-            //     .then(() => listen())
-            //     .catch(() => {
-            //     logger.error("was unable to initialize data to the system");
-            //     listen();
-            // });
-            listen();
+            this.backendService.stateInit
+                .initialize()
+                .then(() => listen())
+                .catch(() => {
+                logger.error("was unable to initialize data to the system");
+                listen();
+            });
         }
 
     }

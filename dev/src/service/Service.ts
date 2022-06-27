@@ -237,7 +237,7 @@ export class Service {
     }
 
     async getAllShopsInfo(sessionID: string) {
-        logger.info(`${sessionID} is requesting All shops`);
+        logger.info(`[Service/getAllShopsInfo] ${sessionID} is requesting All shops`);
         console.log("[Service/getAllShopsInfo] start");
         return this.marketplaceService.getAllShopInfo(sessionID);
     }

@@ -257,8 +257,8 @@ export class api {
     return data.data;
   }
 
-  async getAllShops() {
-    const res = await axios.get(base + '/shops');
+  async getAllShops(session: string) {
+    const res = await axios.get(base + `/shops/${session}`);
     const data = res.data;
     return data.data;
   }
@@ -269,9 +269,10 @@ export class api {
     return data.data;
   }
 
-  async closeShop(shopId: number, founder: string) {
-    const res = await axios.patch(base + '/shop/close/' + shopId, {
-      founder: founder,
+  async closeShop(session: string, shopId: number) {
+    const res = await axios.patch(base + '/shop/close', {
+      session: session,
+      shopIp: shopId,
     });
     const data: Result<void> = res.data;
     return data.ok;

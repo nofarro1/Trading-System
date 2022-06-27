@@ -142,12 +142,8 @@ router.post('/guest/login', async (req, res) => {
         let username = req.body.username;
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
-        req.session.username = username;
-        req.session.loggedIn = true;
         res.send(ans)
     } catch (e: any) {
-        req.session.username = "";
-        req.session.loggedIn = false;
         res.status(404)
         res.send(e.message)
     }
@@ -424,14 +420,15 @@ router.get('/shop/:shopId', async (req, res) => {
 /**
  * get all shops
  */
-router.get('/shops', async (req, res) => {
+router.get('/shops/:session', async (req, res) => {
     try {
-        const sessID = req.body.id;
+        const sessID = req.params.session;
         console.log("in the function that return all shops");
         // let sessId = req.session.id;
         // let ans = await service.getAllShopsInfo(sessId)
         let ans = await service.getAllShopsInfo(sessID);
         console.log("after the return shops");
+        console.log(ans);
         res.status(200).send(ans);
     } catch (e: any) {
         res.status(404).send(e.message)
@@ -441,10 +438,10 @@ router.get('/shops', async (req, res) => {
 /**
  * close shop
  */
-router.patch('/shop/close/:shopId', async (req, res) => {
+router.patch('/shop/close', async (req, res) => {
     try {
-        let sessId = req.session.id;
-        let shopId = Number(req.params.shopId);
+        let sessId = req.body.session;
+        let shopId = Number(req.body.shopId);
         let founder = req.body.founder;
         let ans = await service.closeShop(sessId, founder, shopId)
         res.status(200).send(ans)

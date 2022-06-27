@@ -446,6 +446,10 @@ export class Shop {
                     return new MaxDiscounts(this.discountCounter, discComponents);
             }
         }
+        else{
+            throw new Error("Discount");
+            return null;
+        }
     }
 
     private policyData2Component(puPolicy: ImmediatePurchaseData): ImmediatePurchasePolicyComponent {
@@ -472,6 +476,9 @@ export class Shop {
                     break;
             }
         }
+        else
+            throw new Error("Discount");
+            return null;
     }
 
     submitOwnerAppointment(member: string, assigner: string) {

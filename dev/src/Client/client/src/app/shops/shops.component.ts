@@ -1,70 +1,87 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
-import {TableModule} from 'primeng/table';
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
-import { CartComponent } from '../cart/cart.component';
-import {api} from "../../backendService/Service"
-import { Product } from '../shop/shop.component';
+import { api } from '../../backendService/Service';
 import { Output } from '@angular/core';
 import { Input } from '@angular/core';
-import { JobType } from '../../../../../utilities/Enums';
+import { JobType, ShopStatus } from '../../../../../utilities/Enums';
 import { SimpleMember } from '../../../../../utilities/simple_objects/user/SimpleMember';
+import { SimpleShop } from '../../../../../utilities/simple_objects/marketplace/SimpleShop';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-shops',
   templateUrl: './shops.component.html',
-  styleUrls: ['./shops.component.scss']
+  styleUrls: ['./shops.component.scss'],
+  providers: [MessageService],
 })
 export class ShopsComponent implements OnInit {
   @Output() shopIdClicked: any = new EventEmitter<any>();
+  @Output() shopToShow: any = new EventEmitter<SimpleShop>();
   @Input() member: SimpleMember | any;
   @Input() session: string;
   memberRoleType: any;
   newShopName: string = '';
-  shops: {id: string, name: string, status: boolean}[] = [];
+  shops: SimpleShop[] = [];
+  shopStatus: Map<number, string> = new Map<number, string>();
   ADMIN = JobType.admin;
   FOUNDER = JobType.Founder;
   OWNER = JobType.Owner;
   MANAGER = JobType.Manager;
 
-
-  constructor(private service: api) {
-
-  }
+  constructor(private service: api, private messageService: MessageService) {}
 
   ngOnInit(): void {
     this.memberRoleType = this.member?.getJobTypeValue();
-    this.service.getAllShops().then((retShops)=>{
-      console.log(retShops);
-      retShops.forEach((item: any)=>{
-        this.shops.push({id: item["ID"], name: item["name"], status: item["status"]});
-        // this.shopsProducts.push({shopId: item["_ID"], products: item["products"]});
-      })
-      if (this.shops.length === 0){
-        this.shops.push({id: '123', name: 'myShop1', status: true});
-        this.shops.push({id: 'dsfdsfg', name: 'Adika', status: true});
-        this.shops.push({id: 'dfse3eed43', name: 'Renuar', status: false});
-      }
+    this.service.getAllShops(this.session).then((retShops) => {
+      retShops.forEach((shop: any) => {
+        this.shops.push(
+          new SimpleShop(
+            shop['_ID'],
+            shop['_name'] || 'SHLOAM',
+            shop['_founder'],
+            shop['_status'],
+            shop['_products']
+          )
+        );
+        this.shopStatus.set(shop['_ID'], ShopStatus[shop['_status']]);
+      });
+    });
+    console.log(this.shops);
+  }
+
+  showProducts(shop: SimpleShop) {
+    this.shopToShow.emit(shop);
+  }
+
+  addShop() {
+    this.service
+      .setUpShop(this.member.username, this.newShopName)
+      .then((shop) => {
+        if (shop instanceof SimpleShop) {
+          this.showSuccessMsg(`The shop ${shop.name} opened`);
+        } else {
+          this.showErrorMsg(`Error happend, shop not opened`);
+        }
+      });
+    this.newShopName = '';
+  }
+
+  showErrorMsg(msg: string) {
+    console.log('error add product');
+    this.messageService.add({
+      severity: 'error',
+      key: 'tc',
+      summary: 'Error',
+      detail: msg,
     });
   }
 
-  showProducts(shopId: string){
-    this.shopIdClicked.emit(shopId);
+  showSuccessMsg(msg: string) {
+    console.log('success add product');
+    this.messageService.add({
+      severity: 'success',
+      key: 'tc',
+      summary: 'success',
+      detail: msg,
+    });
   }
-
-  addShop(){
-    this.service.setUpShop(this.member.username, this.newShopName);
-    this.newShopName='';
-  }
-
-  closeShop(shopId: any){
-    this.service.closeShop(shopId, this.member.username);
-  }
-
-}
-
-export class Shop {
-  id: number;
-  name: string;
-  status: boolean;
-  products: [];
 }
