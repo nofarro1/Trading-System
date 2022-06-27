@@ -76,6 +76,7 @@ export class api {
   }
 
   async adminRegister(
+    session: string,
     username: string,
     password: string,
     firstName: string,
@@ -84,6 +85,7 @@ export class api {
     country: string
   ) {
     const res = await axios.post(base + 'admin/register', {
+      session,
       username: username,
       password: password,
       firstName: firstName,
@@ -95,8 +97,9 @@ export class api {
     return data.data;
   }
 
-  async login(username: string, password: string) {
+  async login(session: string, username: string, password: string) {
     const res = await axios.post(base + '/guest/login', {
+      session,
       username,
       password,
     });
@@ -118,8 +121,9 @@ export class api {
     return data.data;
   }
 
-  async appointShopOwner(owner: string, shopId: number, newOwnerId: string, title: string) {
+  async appointShopOwner(session:string, owner: string, shopId: number, newOwnerId: string, title: string) {
     const res = await axios.post(base + '/member/shopManagement/assignOwner', {
+      session, 
       owner: owner,
       shopId: shopId,
       newOwnerId: newOwnerId,
@@ -129,9 +133,10 @@ export class api {
     return data.ok;
   }
 
-  async requestAppShopOwner(owner: string, shopId: number, newOwnerId: string, title: string) {
+  async requestAppShopOwner(session, owner: string, shopId: number, newOwnerId: string, title: string) {
     const res = await axios.post(base + '/member/shopManagement/requestAppOwner', {
       owner: owner,
+      session, 
       shopId: shopId,
       newOwnerId: newOwnerId,
       title: title,
@@ -141,6 +146,7 @@ export class api {
   }
 
   async appointShopManager(
+    session: string,
     owner: string,
     shopId: number,
     newManager: string,
@@ -149,6 +155,7 @@ export class api {
     const res = await axios.post(
       base + '/member/shopManagement/assignManager',
       {
+        session,
         owner: owner,
         shopId: shopId,
         newManager: newManager,
@@ -160,12 +167,14 @@ export class api {
   }
 
   async addPermissions(
+    session: string,
     owner: string,
     shopId: number,
     manager: string,
     permissions: Permissions[]
   ) {
     const res = await axios.post(base + '/member/shopManagement/Permissions', {
+      session,
       owner: owner,
       shopId: shopId,
       manager: manager,
@@ -176,6 +185,7 @@ export class api {
   }
 
   async removePermissions(
+    session: string,
     owner: string,
     shopId: number,
     manager: string,
@@ -185,6 +195,7 @@ export class api {
       base + '/member/shopManagement/Permissions',
       {
         data: {
+          session,
           owner: owner,
           shopId: shopId,
           manager: manager,
@@ -196,17 +207,17 @@ export class api {
     return data.ok;
   }
 
-  async shopPersonnelInfo(username: string, shopId: number) {
+  async shopPersonnelInfo(session, username: string, shopId: number) {
     const res = await axios.get(
-      base + '/member/shopManagement/Personnel/' + username + '/' + shopId
+      base + '/member/shopManagement/Personnel/' + session + '/' + shopId
     );
     const data: Result<void | SimpleMember[]> = res.data;
     return data.data;
   }
 
-  async addDisc(username: string, shopId: number) {
+  async addDisc(session, username: string, shopId: number) {
     const res = await axios.get(
-      base + '/member/shopManagement/Personnel/' + username + '/' + shopId
+      base + '/member/shopManagement/Personnel/' + session + '/' + shopId
     );
     const data: Result<void | SimpleMember[]> = res.data;
     return data.data;
@@ -274,8 +285,9 @@ export class api {
     return data.ok;
   }
 
-  async setUpShop(username: string, shopName: string) {
+  async setUpShop(session: string, username: string, shopName: string) {
     const res = await axios.post(base + '/shop/setup', {
+      session,
       username,
       shopName,
     });

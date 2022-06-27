@@ -27,6 +27,8 @@ export class ShopsComponent implements OnInit {
   OWNER = JobType.Owner;
   MANAGER = JobType.Manager;
 
+  wantToAddShop: boolean = false;
+
   constructor(private service: api, private messageService: MessageService) {}
 
   ngOnInit(): void {
@@ -54,7 +56,7 @@ export class ShopsComponent implements OnInit {
 
   addShop() {
     this.service
-      .setUpShop(this.member.username, this.newShopName)
+      .setUpShop(this.session, this.member.username, this.newShopName)
       .then((shop) => {
         if (shop instanceof SimpleShop) {
           this.showSuccessMsg(`The shop ${shop.name} opened`);

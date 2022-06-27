@@ -44,6 +44,11 @@ export class AppComponent {
     );
   }
 
+  clickedSignup(){
+    this.goToPage("signup");
+  }
+
+
   async afterSignUp(member: any) {
     this.showSignUp = false;
     this.loginUser(member['username'], member['password']);
@@ -84,7 +89,7 @@ export class AppComponent {
   }
 
   async loginUser(username: string, password: string) {
-    this.member = await this.service.login(username, password);
+    this.member = await this.service.login(this.session, username, password);
     console.log(this.member);
     if (this.member) {
       this.username = this.member["_username"];

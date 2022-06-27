@@ -25,6 +25,7 @@ import {InputNumberModule} from 'primeng/inputnumber';
 import {ToastModule} from 'primeng/toast';
 import { AddProductComponent } from './addForms/addProduct.component';
 import { AddDiscountComponent } from './addForms/addDiscount.component';
+import { AddShopComponent } from './addForms/addShop.component';
 
 
 
@@ -48,7 +49,7 @@ const config: SocketIoConfig = {
     SignupComponent,
     AddProductComponent,
     AddDiscountComponent,
-
+    AddShopComponent,
     ],
   imports: [
     BrowserModule,

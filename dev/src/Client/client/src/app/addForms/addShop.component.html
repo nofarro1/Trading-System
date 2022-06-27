@@ -1,0 +1,26 @@
+<p-toast position="top-center" key="tc"></p-toast>
+
+<ng-container class="container">
+    <tr>
+      <th>Shop Name</th>
+      <th style="color: white"></th>
+    </tr>
+    <tr>
+      <td>
+      <input
+      class="form-control"
+      id="floatingInput"
+        [style]="{ 'margin-left': '20px', width: '180px' }"
+        type="text"
+        pInputText
+        placeholder="Enter Shop Name"
+        [(ngModel)]="newShopName"
+      />
+      </td>
+  </tr>
+  <p-button
+      name="addShop"
+      (onClick)="addNewShop()"
+      [disabled]="newShopName === ''"
+      >Add Shop</p-button>
+  </ng-container>
