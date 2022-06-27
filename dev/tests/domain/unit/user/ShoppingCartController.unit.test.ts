@@ -4,17 +4,25 @@ import {Product} from "../../../../src/domain/marketplace/Product";
 import {ProductCategory} from "../../../../src/utilities/Enums";
 import {Shop} from "../../../../src/domain/marketplace/Shop";
 import {Result} from "../../../../src/utilities/Result";
+import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
+import {Offer} from "../../../../src/domain/user/Offer";
+import {mockMethod} from "../../../mockHelper";
 
 
 let shoppingCartController: ShoppingCartController;
-const member: Member = new Member("1", "Mario");
-const shop: Shop = new Shop(1, "THE Shop", "Luigi");
-const quantity: number = 10;
-const product: Product = new Product("Pizza", 1, 0, ProductCategory.A, 15);
+let member: Member;
+let shop: Shop;
+let cart: ShoppingCart;
+let quantity: number;
+let product: Product;
 
 describe("Shopping Cart - unit tests", function () {
     beforeEach(function () {
         shoppingCartController = new ShoppingCartController();
+        member = new Member("1", "Mario");
+        shop = new Shop(1, "THE Shop", "Luigi");
+        quantity = 10;
+        product = new Product("Pizza", 1, 0, ProductCategory.A, 15);
     })
 
     test("Add Product - invalid cart", () => {
@@ -50,9 +58,6 @@ describe("Shopping Cart - unit tests", function () {
         //add cart
         shoppingCartController.addCart(member.username);
         expect(shoppingCartController.carts.get(member.username)).toBeDefined();
-
-        //act
-        //assert
         expect(shoppingCartController.getCart(member.username).data).toBe(shoppingCartController.carts.get(member.username));
     })
 
@@ -66,5 +71,31 @@ describe("Shopping Cart - unit tests", function () {
 
     test("Empty Bag - invalid username", () => {
         expect(shoppingCartController.emptyBag(member.username, shop.id)).toStrictEqual(new Result(true, undefined, `Tried to empty ${member.username}'s bag in shop with id: ${shop.id}, but the bag wasn't found.`));
+    })
+
+    test("add offer to cart", ()=>{
+        let res : Result<ShoppingCart> = shoppingCartController.addCart(member.username);
+        let offer : Offer = new Offer(0, member.username, shop.id, 0, 4.5, shop.shopOwners);
+        shoppingCartController.addOffer2cart(member.username, offer);
+        expect(res.data.offers).toContain(offer);
+    })
+
+    test("update offer from cart", ()=>{
+        let offer : Offer = new Offer(0, member.username, shop.id, 0, 4.5, shop.shopOwners);
+        let updateoffer : Offer = new Offer(0, member.username, shop.id, 0, 3, shop.shopOwners);
+        let res : Result<ShoppingCart> = shoppingCartController.addCart(member.username);
+        let cart: ShoppingCart = res.data;
+        cart.offers.push(offer);
+        shoppingCartController.updateOfferFromCart(updateoffer);
+        expect(cart.offers).not.toContain(offer);
+        expect(cart.offers).toContain(updateoffer);
+    })
+
+    test("remove offer", ()=>{
+        let offer : Offer = new Offer(0, member.username, shop.id, 0, 4.5, shop.shopOwners);
+        let updateoffer : Offer = new Offer(0, member.username, shop.id, 0, 3, shop.shopOwners);
+        let res : Result<ShoppingCart> = shoppingCartController.addCart(member.username);
+        shoppingCartController.removeOffer(member.username, offer.id);
+        expect(res.data.offers).not.toContain(offer);
     })
 })

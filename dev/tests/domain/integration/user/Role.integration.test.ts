@@ -8,14 +8,14 @@ class TestRole extends Role {
 
     constructor(role: Role) {
         let perms = new Set<Permissions>();
-        super(12, "myShop", JobType.Founder, perms);
+        super(12, JobType.Founder,"Assigner" , perms);
     }
 }
 
 const founder = new Member("1", "founder");
 const shop1 = new Shop(12, "myShop", founder.username);
 const emptyPerm = new Set<Permissions>();
-const r1 = new Role(shop1.id, "manager of myShop", JobType.Manager, emptyPerm);
+const r1 = new Role(shop1.id, JobType.Manager,"Assigner", emptyPerm);
 
     describe('Role - test', function () {
 

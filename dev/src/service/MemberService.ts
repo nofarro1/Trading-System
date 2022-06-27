@@ -17,35 +17,27 @@ export class MemberService {
     }
 
     //General Member - Use-Case 1
-    logout(sessionID: string): Promise<Result<void | SimpleGuest>> {
-
-        return new Promise<Result<void | SimpleGuest>>((resolve, reject) => {
-            let result: Result<void | SimpleGuest> = this.systemController.logout(sessionID);
-            result.ok ? resolve(result) : reject(result.message);
-        });
+    async logout(sessionID: string): Promise<Result<void | SimpleGuest>> {
+        return this.systemController.logout(sessionID);
     }
 
-    //Shop Owner - Use-Case 4
-    appointShopOwner(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string, title?: string,
-                     permissions?: Permissions[]): Promise<Result<void>> {
+    //Shop Owner - Modified Use-Case 4 according version 4
+    appointShopOwner(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string): Promise<Result<void>> {
         return new Promise<Result<void>>((resolve, reject) => {
-            if(!permissions)
-                permissions = new Array<Permissions>();
-            let result: Result<void> = this.systemController.appointShopOwner(sessionID, {member: newOwnerID, shopId: shopID, assigner: assigningOwnerID,
-                title: title, permissions: permissions});
+            let result: Result<void> = this.systemController.submitOwnerAppointmentInShop(sessionID, shopID, newOwnerID, assigningOwnerID);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     //Shop Owner - Use-Case 6
-    appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string, title?: string,
+    appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string,
                        permissions?: Permissions[]): Promise<Result<void>> {
 
         return new Promise<Result<void>>((resolve, reject) => {
             if(!permissions)
                 permissions = new Array<Permissions>();
             let result: Result<void> = this.systemController.appointShopManager(sessionID, {member: newManagerID, shopId: shopID, assigner: assigningOwnerID,
-                title: title, permissions: permissions});
+                permissions: permissions});
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -82,5 +74,19 @@ export class MemberService {
             let result: Result<void | Message[]> = this.systemController.getMessages(sessionId);
             result.ok ? resolve(result) : reject(result.message);
         });
+    }
+
+    approveOffer(sessionId: string, username: string, shopId:number, offerId: number, answer: boolean){
+        return new Promise <Result<void>>((resolve, reject)=>{
+            let result: Result<void> = this.systemController.approveOffer(sessionId, shopId, offerId, answer);
+            result.ok ? resolve(result) : reject(result.message);
+        })
+    }
+
+    checkAdminPermissions(sessionID: string, username: any, password: any) {
+        return new Promise <Result<boolean>>((resolve, reject)=>{
+            let result: Result<boolean> = this.systemController.checkAdminPermissions(sessionID,username,password);
+            result.ok ? resolve(result) : reject(result.message);
+        })
     }
 }

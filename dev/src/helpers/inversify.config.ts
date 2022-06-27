@@ -20,38 +20,64 @@ import {IDeliveryService} from "../domain/external_services/IDeliveryService";
 import {DeliveryService} from "../domain/external_services/DeliveryService";
 import {IPaymentService} from "../domain/external_services/IPaymentService";
 import {PaymentService} from "../domain/external_services/PaymentService";
-import config from "../config";
 
+const env = process.env.NODE_ENV;
 
-const systemContainer = new Container();
+function bind(fresh: Container) {
 //services
-systemContainer.bind<Service>(TYPES.Service).to(Service).inSingletonScope()
-systemContainer.bind<GuestService>(TYPES.GuestService).to(GuestService)
-systemContainer.bind<MarketplaceService>(TYPES.MarketplaceService).to(MarketplaceService)
-systemContainer.bind<MemberService>(TYPES.MemberService).to(MemberService)
-systemContainer.bind<OrderService>(TYPES.OrderService).to(OrderService)
-systemContainer.bind<ShoppingCartService>(TYPES.ShoppingCartService).to(ShoppingCartService)
-systemContainer.bind<NotificationService>(TYPES.NotificationService).to(NotificationService)
+    fresh.bind<Service>(TYPES.Service).to(Service)
+    fresh.bind<GuestService>(TYPES.GuestService).to(GuestService)
+    fresh.bind<MarketplaceService>(TYPES.MarketplaceService).to(MarketplaceService)
+    fresh.bind<MemberService>(TYPES.MemberService).to(MemberService)
+    fresh.bind<OrderService>(TYPES.OrderService).to(OrderService)
+    fresh.bind<ShoppingCartService>(TYPES.ShoppingCartService).to(ShoppingCartService)
+    fresh.bind<NotificationService>(TYPES.NotificationService).to(NotificationService)
 //controllers
-systemContainer.bind<SystemController>(TYPES.SystemController).to(SystemController).inSingletonScope()
-systemContainer.bind<ShoppingCartController>(TYPES.ShoppingCartController).to(ShoppingCartController)
-systemContainer.bind<MessageController>(TYPES.MessageController).to(MessageController)
-systemContainer.bind<UserController>(TYPES.UserController).to(UserController)
-systemContainer.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController).inSingletonScope()
-systemContainer.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController)
-systemContainer.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)
+    fresh.bind<SystemController>(TYPES.SystemController).to(SystemController).inSingletonScope()
+    fresh.bind<ShoppingCartController>(TYPES.ShoppingCartController).to(ShoppingCartController)
+    fresh.bind<MessageController>(TYPES.MessageController).to(MessageController)
+    fresh.bind<UserController>(TYPES.UserController).to(UserController)
+    fresh.bind<MarketplaceController>(TYPES.MarketplaceController).to(MarketplaceController).inSingletonScope()
+    fresh.bind<PurchaseController>(TYPES.PurchaseController).to(PurchaseController)
+    fresh.bind<SecurityController>(TYPES.SecurityController).to(SecurityController)
 
 //external services
-systemContainer.bind<string>("payment").toDynamicValue(() => config.env === "dev" ? "stub payment service" : " real payment")
-systemContainer.bind<string>("delivery").toDynamicValue(() => config.env === "dev" ? "stub delivery service" : " real delivery")
-systemContainer.bind<string>("RealPayment").toConstantValue("real payment")
-systemContainer.bind<string>("RealDelivery").toConstantValue("real delivery")
-systemContainer.bind<PaymentServiceAdaptor>(TYPES.PaymentServiceAdaptor).to(PaymentServiceAdaptor)
-systemContainer.bind<DeliveryServiceAdaptor>(TYPES.DeliveryServiceAdaptor).to(DeliveryServiceAdaptor)
+    fresh.bind<string>("payment").toDynamicValue(() => env === "dev" ? "stub payment service" : " real payment")
+    fresh.bind<string>("delivery").toDynamicValue(() => env === "dev" ? "stub delivery service" : " real delivery")
+    fresh.bind<string>("RealPayment").toConstantValue("real payment")
+    fresh.bind<string>("RealDelivery").toConstantValue("real delivery")
+    fresh.bind<PaymentServiceAdaptor>(TYPES.PaymentServiceAdaptor).to(PaymentServiceAdaptor)
+    fresh.bind<DeliveryServiceAdaptor>(TYPES.DeliveryServiceAdaptor).to(DeliveryServiceAdaptor)
 
-if(config.env === "prod") {
-    systemContainer.bind<IDeliveryService>(TYPES.DeliveryService).to(DeliveryService);
-    systemContainer.bind<IPaymentService>(TYPES.PaymentService).to(PaymentService);
+    if (env === "prod") {
+        fresh.bind<IDeliveryService>(TYPES.DeliveryService).to(DeliveryService);
+        fresh.bind<IPaymentService>(TYPES.PaymentService).to(PaymentService);
+    }
 }
 
-export {systemContainer}
+const createContainer = () => {
+    const fresh = new Container();
+    bind(fresh);
+    fresh.snapshot()
+    return fresh;
+};
+
+export const systemContainer = createContainer();
+
+export const resetContainer = () => {
+    systemContainer.unbindAll();
+    systemContainer.restore()
+    systemContainer.snapshot();
+}
+
+export const clearContainer = () => {
+    systemContainer.unbindAll();
+    bind(systemContainer)
+}
+
+const rebind = () => {
+    clearContainer();
+
+}
+
+

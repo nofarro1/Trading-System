@@ -8,10 +8,9 @@ import { api } from '../../backendService/Service';
 })
 export class MainComponent implements OnInit {
 
-  constructor() { }
+  constructor(private service: api) { }
 
   ngOnInit(): void {
-    new api().accessMarketPlace().then(r => console.log("success " + r))
   }
 
 }

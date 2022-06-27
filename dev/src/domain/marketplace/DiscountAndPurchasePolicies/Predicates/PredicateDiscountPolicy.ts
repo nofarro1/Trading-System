@@ -17,24 +17,23 @@ export class PredicateDiscountPolicy {
         this.relation = relation;
         this.value = value;
         let idMSG: string;
-        switch (this.type) {
-            case DiscountType.Product:
+        if (this.type === DiscountType.Product )
                 idMSG = `products with id: ${this.object}.`;
-            case DiscountType.Category:
+        else if (this.type === DiscountType.Category)
                 idMSG = `products from ${this.object}.`;
-            case DiscountType.Bag:
+        else (this.type === DiscountType.Bag)
                 idMSG = ``;
-        }
         this.description = `if there is ${this.relation} ${this.value} in bag.`;
     }
 
     checkPredicate(products: [Product, number, number][]): boolean {
         if (this.type === DiscountType.Product)
             return this.predicateOnProduct(products);
-        if (this.type === DiscountType.Category)
+        else if (this.type === DiscountType.Category)
             return this.predicateOnCategory(products);
-        if (this.type === DiscountType.Bag)
+        else
             return this.predicateOnShoppingBag(products);
+
     }
 
     private predicateOnProduct(products: [Product, number, number][]): boolean {
@@ -44,7 +43,9 @@ export class PredicateDiscountPolicy {
                     return this.applyRelation(quantity, this.value);
         }
         else
-            throw Error("Type problem");
+            throw new Error("Type problem");
+            return false;
+
     }
 
     private predicateOnCategory(products: [Product, number, number][]): boolean {
@@ -57,7 +58,7 @@ export class PredicateDiscountPolicy {
 
         }
         else
-            throw Error("Type problem");
+            throw new Error("Type problem");
     }
 
     private predicateOnShoppingBag(products: [Product, number, number][]): boolean {
@@ -69,7 +70,7 @@ export class PredicateDiscountPolicy {
             return this.applyRelation(totalPrice, this.value);
         }
         else
-            throw Error("Type problem");
+            throw new Error("Type problem");
     }
 
     private applyRelation(quantity: any, value: number): boolean {

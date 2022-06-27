@@ -1,29 +1,31 @@
-<form action="action_page.php">
-  <div class="container">
+<p-toast position="top-center" key="tc"></p-toast>
+
+<form action="action_page.php" [formGroup]="form" (ngSubmit)="register()">
+    <div class="container">
     <div class="header">
       <h1>Register</h1>
       <p>Please fill in this form to create an account.</p>
     </div>
     <hr>
+      <label for="username"><b>Username</b></label>
+      <input class="form-control" type="text" formControlName="username" placeholder="Enter Username" id="username" required>
 
-    <label for="username"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="username" id="username" required>
-
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
-
-    <label for="firstname"><b>Firstname</b></label>
-    <input type="text" placeholder="Enter Firstname" name="firstname" id="firstname" required>
-
-    <label for="lastname"><b>Lastname</b></label>
-    <input type="text" placeholder="Enter Lastname" name="lastname" id="lastname" required>
-
-    <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Enter Email" name="email" id="email" required>
-
-    <label for="country"><b>Country</b></label>
-    <input type="text" placeholder="Enter Country" name="country" id="country" required>
-    <hr>
-    <button type="submit" class="registerbtn">Register</button>
+      <label for="psw"><b>Password</b></label>
+      <input class="form-control" type="password" formControlName="password" placeholder="Enter Password" id="password" required>
+  
+      <label for="firstname"><b>Firstname</b></label>
+      <input class="form-control" type="text" formControlName="firstname" placeholder="Enter Firstname" id="firstname" required>
+  
+      <label for="lastname"><b>Lastname</b></label>
+      <input class="form-control" type="text" formControlName="lastname" placeholder="Enter Lastname"id="lastname" required>
+  
+      <label for="email"><b>Email</b></label>
+      <input class="form-control" type="text" formControlName="email" placeholder="Enter Email" id="email" required>
+  
+      <label for="country"><b>Country</b></label>
+      <div></div>
+      <p-dropdown class="form-control" formControlName="country" [options]="countries" [(ngModel)]="selectedCountry" placeholder="Select a Country" optionLabel="name" [showClear]="true"></p-dropdown>
+      
+      <button class="btn btn-primary" type="submit" class="registerbtn">Register</button>
   </div>
 </form>

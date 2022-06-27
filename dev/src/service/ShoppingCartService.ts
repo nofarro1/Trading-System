@@ -16,9 +16,9 @@ export class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 4.1
-    addToCart(sessionID: string, productID: number, productQuantity: number): Promise<Result<void>> {
+    addToCart(sessionID: string, shopId: number, productID: number, productQuantity: number): Promise<Result<void>> {
         return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.addToCart(sessionID, productID, productQuantity);
+            let result: Result<void> = this.systemController.addToCart(sessionID, shopId, productID, productQuantity);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -32,9 +32,9 @@ export class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 4.3
-    removeFromCart(sessionID: string, productID: number): Promise<Result<void>> {
+    removeFromCart(sessionID: string, shopId: number, productID: number): Promise<Result<void>> {
         return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.removeProductFromCart(sessionID, productID);
+            let result: Result<void> = this.systemController.removeProductFromCart(sessionID, shopId, productID);
             result.ok ? resolve(result) : reject(result.message);
         });
     }

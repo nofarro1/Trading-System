@@ -3,19 +3,19 @@ export class Offer{
     private readonly _user: string;
     private readonly _shopId: number;
     private readonly _pId: number;
-    private readonly _price: number;
-    private _approvers: Map<string, boolean>;
+    private _price: number;
+    private _approves: Map<string, [boolean, boolean]>;
     private _answer: boolean;
 
-    constructor(id: number, userId: string, shopId: number,  pId: number, price: number, approvers: Set<string>){
+    constructor(id: number, userId: string, shopId: number,  pId: number, price: number, approves: Set<string>){
         this._id= id;
         this._user= userId;
         this._shopId = shopId;
         this._pId= pId;
         this._price= price;
-        this._approvers = new Map<string, boolean>();
-        for (let owner of approvers){
-            this._approvers.set(owner, false)
+        this._approves = new Map<string, [boolean, boolean]>(); //(owner name, [has answered, answer]
+        for (let owner of approves){
+            this._approves.set(owner, [false, true])
         }
         this._answer= true;
     }
@@ -23,6 +23,11 @@ export class Offer{
 
     get id(): number {
         return this._id;
+    }
+
+
+    get user(): string {
+        return this._user;
     }
 
     get shopId(): number {
@@ -37,23 +42,57 @@ export class Offer{
         return this._price;
     }
 
-    get answer(): boolean {
-        return this._answer;
+    set price(value: number) {
+        this._price = value;
     }
 
-    setAnswer(userId: string, value: boolean) {
-        if(this._approvers.has(userId)){
-            this._answer = this._answer && value;
-            this._approvers.set(userId, true);
+    get answer(): boolean {
+      let answer: boolean = true;
+      for(let tuple of [...this._approves.values()]){
+          if(tuple[0])
+              answer = answer && tuple[1];
+      }
+      return answer;
+    }
+
+    setAnswer(userId: string, answer: boolean) {
+        if(this._approves.has(userId)){
+            this._approves.set(userId, [true, answer]);
         }
-        throw new Error("Only a shop owner can approve a price offer.")
+        else
+            throw new Error("Only a shop owner can approve a price offer.");
     }
 
     isDone(){
-        return [...this._approvers.values()].reduce((acc:boolean, curr:boolean)=> acc&&curr);
+        return [...this._approves.values()].filter((curr)=> !curr[0]).length===0;
     }
 
-    set approvers(value: Map<string, boolean>) {
-        this._approvers = value;
+
+    approves_for_test(value: Map<string, [boolean, boolean]>) {
+        this._approves = value;
+    }
+
+    set approves(value: Set<string>) {
+        let newApproves = new Map<string, [boolean, boolean]>();
+        for (let owner of value){
+            let ans = this._approves.get(owner);
+            if(this._approves.has(owner) && ans)
+                newApproves.set(owner, ans);
+            else
+                newApproves.set(owner, [false, true]);
+        }
+        this._approves = newApproves;
+    }
+
+    resetApproves(){
+        let keys = this._approves.keys();
+        for(let key of keys){
+            this._approves.set(key, [false, true]);
+        }
+    }
+
+
+    getApproves(): Map<string, [boolean, boolean]> {
+        return this._approves;
     }
 }

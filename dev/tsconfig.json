@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "es2021",
+    "target": "es2015",
     "sourceMap": true,
     "outDir": "dist",
     "strict": false,
@@ -14,13 +14,13 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "rootDirs": ["./src","./tests"],
+    "resolveJsonModule": true,
     "skipLibCheck": true,
 //    "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "lib": [
-      "es2021",
-      "dom"
-    ]
+    "lib": ["es2018", "dom"],
+    "importHelpers": true,
+    "strictPropertyInitialization": false
   },
   "ts-node": {
     "files": true

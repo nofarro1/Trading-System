@@ -1,12 +1,17 @@
 
 const env = process.env.NODE_ENV.trim();
 console.log("running in environment: " + env)
+
+const defaultAdminCredentials = {
+    username: "admin",
+    password: ""
+}
 const dev = {
     env: "dev",
     app: {
-        port: 3000,
+        port: 3000 || process.env.PORT,
         external_services_config: {
-            min:10000,
+            min:1000,
             max: 10000,
             url: ""
         }

@@ -24,7 +24,8 @@ export const mockDependencies = {
     AdditionDiscounts: "../src/domain/marketplace/DiscountAndPurchasePolicies/Containers/DiscountsContainers/NumericConditions/AdditionDiscounts",
     SimplePurchase: "../src/domain/marketplace/DiscountAndPurchasePolicies/leaves/SimplePurchase",
     Service: "../src/service/Service",
-    NotificationService: "../src/service/NotificationService"
+    NotificationService: "../src/service/NotificationService",
+    Offer: "../src/domain/user/Offer"
 
 }
 export const mockInstance = (dependency: string) => {
