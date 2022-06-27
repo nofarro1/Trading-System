@@ -61,7 +61,13 @@ export const DiscountRelation: { [x: string]: 'And' | 'Or' | 'Xor' | 'Addition' 
 }
 export type DiscountRelation = typeof DiscountRelation[keyof typeof DiscountRelation]
 export enum PurchasePoliciesKinds {SimplePurchase, ContainerPurchasePolicy}
-export enum PurchasePoliciesRelation { And, Conditional, Or}
+export const PurchasePoliciesRelation: { [x: string]: 'And' | 'Conditional' | 'Or'} = {
+    And: 'And',
+    Conditional: 'Conditional',
+    Or: 'Or',
+}
+export type PurchasePoliciesRelation = typeof PurchasePoliciesRelation[keyof typeof PurchasePoliciesRelation]
+
 
 //
 // export function toCategoryEnum(productData: NewProductData) {
