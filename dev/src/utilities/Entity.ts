@@ -3,7 +3,5 @@ export interface Entity {
 
     update(...params: any);
 
-    findById(...params: any);
-
     delete(...params: any);
 }
