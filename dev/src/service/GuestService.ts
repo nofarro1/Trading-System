@@ -18,9 +18,11 @@ export class GuestService {
     //General Guest - Use-Case 3
     register(sessionID: string, username: string, password: string, firstName?: string, lastName?: string,
              email?: string, country?: string): Promise<Result<void | SimpleMember>> {
-        return new Promise<Result<void | SimpleMember>>((resolve, reject) => {
-            let result: Result<void | SimpleMember> = this.systemController.registerMember(sessionID, {username: username, password: password,
-                firstName: firstName, lastName: lastName, email: email, country: country});
+        return new Promise<Result<void | SimpleMember>>(async (resolve, reject) => {
+            let result: Result<void | SimpleMember> = await this.systemController.registerMember(sessionID, {
+                username: username, password: password,
+                firstName: firstName, lastName: lastName, email: email, country: country
+            });
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -29,9 +31,15 @@ export class GuestService {
     registerAdmin(sessionID: string, username: string, password: string, firstName?: string, lastName?: string,
                   email?: string, country?: string): Promise<Result<void>> {
 
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.registerAsAdmin(sessionID, {
-                username: username, password: password, firstName: firstName, lastName: lastName, email: email, country: country});
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.registerAsAdmin(sessionID, {
+                username: username,
+                password: password,
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                country: country
+            });
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -39,8 +47,11 @@ export class GuestService {
     //General Guest - Use-Case 4
     login(sessionID: string, username: string, password: string): Promise<Result<void | SimpleMember>> {
 
-        return new Promise<Result<void | SimpleMember>>((resolve, reject) => {
-            let result: Result<void | SimpleMember> = this.systemController.login(sessionID, { username: username, password: password });
+        return new Promise<Result<void | SimpleMember>>(async (resolve, reject) => {
+            let result: Result<void | SimpleMember> = await this.systemController.login(sessionID, {
+                username: username,
+                password: password
+            });
             result.ok ? resolve(result) : reject(result.message);
         });
     }
