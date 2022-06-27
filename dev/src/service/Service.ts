@@ -21,6 +21,7 @@ import {PaymentDetails} from "../domain/external_services/IPaymentService";
 import {StateInitializer} from "../Server/StateInitializer";
 import config from "../config";
 import {discountInf} from "../utilities/Types";
+import {DiscountData, ImmediatePurchaseData} from "../utilities/DataObjects";
 
 @injectable()
 export class Service {
@@ -160,13 +161,6 @@ export class Service {
         return this.marketplaceService.addProductToShop(sessionID, shopID, category, name, price, quantity, description);
     }
 
-    adddiscountToShop(sessionID: string, shopID: number, info: discountInf, discountPercent: number, description: string): Promise<Result<SimpleProduct | void>> {
-        logger.info(`${sessionID}:  user wants to add a new product to shop ${shopID}`);
-        if (description)
-            logger.info(`The product contains the following description: ${description}`);
-        return this.marketplaceService.addDiscountToShop(sessionID, shopID, category, name, price, quantity, description);
-    }
-
     //Shop Owner - Use-Case 1.2
     removeProductFromShop(sessionID: string, shopID: number, productID: number): Promise<Result<void>> {
         logger.info(`${sessionID}: wants to remove from shop ${shopID} the product ${productID}`);
@@ -252,7 +246,7 @@ export class Service {
 
 
     async getMessages(sessionId: string) {
-        return this.memberService.getMessages(sessionId)
+        return this.memberService.getMessages(sessionId);
 
     }
 
@@ -260,4 +254,56 @@ export class Service {
         logger.info(`checking admin permissions for session ${sessionID}`);
         return this.memberService.checkAdminPermissions(sessionID, username, password)
     }
+
+    async addOffer2Shop(sessionID: string, shopId: number, pId: number,price: number) {
+        logger.info(`${sessionID} is adding offer to shop`);
+        return this.marketplaceService.addOffer2Shop(sessionID, shopId, pId,price);
+    }
+
+    async filingCounterOffer(sessionID: string, shopId: number, offerId: number,counterPrice: number) {
+        logger.info(`${sessionID} is filing counter offer`);
+        return this.marketplaceService.filingCounterOffer(sessionID, shopId, offerId,counterPrice);
+    }
+
+    async denyCounterOffer(sessionID: string,username:string, shopId: number, offerId: number) {
+        logger.info(`${sessionID} is denying counter offer`);
+        return this.marketplaceService.denyCounterOffer(sessionID,username,shopId, offerId);
+    }
+
+    async submitOwnerAppointmentInShop(sessionID: string, shopId: number,member:string, assigner: string) {
+        logger.info(`${sessionID} is appointing new owner in shop`);
+        return this.marketplaceService.submitOwnerAppointmentInShop(sessionID,shopId,member,assigner);
+    }
+
+    async getDiscounts(sessionID: string, shopId: number) {
+        logger.info(`${sessionID} is requesting shop discounts`);
+        return this.marketplaceService.getDiscounts(sessionID,shopId);
+    }
+
+    async addDiscount(sessionID: string, shopId: number, discount:DiscountData) {
+        logger.info(`${sessionID} is adding discount`);
+        return this.marketplaceService.addDiscount(sessionID,shopId,discount);
+    }
+
+    async removeDiscount(sessionID: string, shopId: number, dId:number) {
+        logger.info(`${sessionID} is removing discount`);
+        return this.marketplaceService.removeDiscount(sessionID,shopId,dId);
+    }
+
+    async getPolicies(sessionID: string, shopId: number) {
+        logger.info(`${sessionID} is requesting shop Policies`);
+        return this.marketplaceService.getPolicies(sessionID,shopId);
+    }
+
+    async addPurchasePolicy(sessionID: string, shopId: number, policy:ImmediatePurchaseData) {
+        logger.info(`${sessionID} is adding discount`);
+        return this.marketplaceService.addPurchasePolicy(sessionID,shopId,policy);
+    }
+
+    async removePurchasePolicy(sessionID: string, shopId: number, pId:number) {
+        logger.info(`${sessionID} is removing discount`);
+        return this.marketplaceService.removePurchasePolicy(sessionID,shopId,pId);
+    }
+
+
 }

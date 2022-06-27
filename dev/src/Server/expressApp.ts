@@ -190,6 +190,29 @@ router.post('/member/shopManagement/assignOwner', async (req, res) => {
     }
 })
 
+/**
+ * request to appoint shop Owner
+ * {
+ * newOwnerID: string,
+ * shopID: number,
+ * assigningOwnerID: string,
+ * title?: string}
+ */
+router.post('/member/shopManagement/requestAppOwner', async (req, res) => {
+
+    try {
+        let sessId = req.session.id
+        let owner = req.body.owner
+        let shopId = Number(req.body.shopId)
+        let newOwner = req.body.newOwnerId
+        let ans = await service.submitOwnerAppointmentInShop(sessId, shopId,newOwner, owner)
+        res.send(ans)
+    } catch (e: any) {
+        res.status(404)
+        res.send(e.message)
+    }
+})
+
 
 /**
  * appoint shop manager
@@ -571,6 +594,118 @@ router.get('/cart', async (req, res) => {
 
 })
 
+//------------------------ discounts -------------------------------//
+
+router.post('/shop/discounts', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        let ans = await service.getDiscounts(sessID,shopID);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+router.post('/shop/discount', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const discount = req.body.discount;
+        let ans = await service.addDiscount(sessID,shopID,discount);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+router.delete('/shop/discount/:sessID/:shopID/:dId', async (req, res) => {
+    try {
+        const sessID = req.params.sessID;
+        const shopID = Number(req.params.shopID);
+        const dId = Number(req.params.dId);
+        let ans = await service.removeDiscount(sessID,shopID,dId);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+//------------------------ policy -------------------------------//
+
+router.get('/shop/policies', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        let ans = await service.getPolicies(sessID,shopID);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+router.post('/shop/policy', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const policy = req.body.policy;
+        let ans = await service.addPurchasePolicy(sessID,shopID,policy);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+router.delete('/shop/policy/:sessID/:shopID/:pId', async (req, res) => {
+    try {
+        const sessID = req.params.sessID;
+        const shopID = Number(req.params.shopID);
+        const pId = Number(req.params.pId);
+        let ans = await service.removePurchasePolicy(sessID,shopID,pId);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+//------------------------ offers -------------------------------//
+
+router.post('/shop/offer', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const pId = Number(req.body.pId);
+        const price = Number(req.body.price);
+        let ans = await service.addOffer2Shop(sessID,shopID,pId,price);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+router.post('/shop/counteroffer', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const offerID = Number(req.body.offerID);
+        const counterPrice = Number(req.body.counterPrice);
+        let ans = await service.filingCounterOffer(sessID,shopID,offerID,counterPrice);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
+router.post('/shop/denycounteroffer', async (req, res) => {
+    try {
+        const sessID = req.body.sessID;
+        const shopID = Number(req.body.shopID);
+        const offerID = Number(req.body.offerID);
+        const username = req.body.username;
+        let ans = await service.denyCounterOffer(sessID,username,shopID,offerID);
+        res.status(200).send(ans);
+    } catch (e: any) {
+        res.status(404).send(e.message)
+    }
+})
+
 /**
  * swap service
  * body:
@@ -665,7 +800,6 @@ router.post('/admin/setup/clean', async (req, res) => {
         res.status(500).send(Result.Fail(e.message))
     }
 })
-
 
 //------------------------ messages -------------------------------//
 
