@@ -179,10 +179,13 @@ model Discount {
   simpleDiscount      SimpleDiscount?
   conditionalDiscount ConditionalDiscount?
   discountContainer   DiscountContainer?
-  discountInContainer DiscountInContainer?
+  discountInContainer DiscountInContainer? @relation(fields: [discountInContainerContainedDiscount, discountInContainerContainingDiscount, discountInContainerShopId], references: [containedDiscount, containingDiscount, shopId])
 
   @@id([id, shopId])
   @@map("discount")
+  discountInContainerContainedDiscount  Int?
+  discountInContainerContainingDiscount Int?
+  discountInContainerShopId             Int?
 }
 
 model SimpleDiscount {
@@ -235,7 +238,7 @@ model DiscountContainer {
   id          Int
   shopId      Int
   description String
-  type       DiscountRelation
+  type        DiscountRelation
   //Foreign Key references
   discounts   DiscountInContainer[]
 
@@ -252,6 +255,7 @@ model DiscountInContainer {
 
   @@id([containedDiscount, containingDiscount, shopId])
   @@map("discount_in_container")
+  Discount Discount[]
 }
 
 model Policy {
@@ -262,10 +266,13 @@ model Policy {
   simplePolicy      SimplePolicy?
   conditionalPolicy ConditionalPolicy?
   logicalPolicy     LogicalPolicy?
-  policyInContainer PolicyInContainer?
+  policyInContainer PolicyInContainer? @relation(fields: [policyInContainerContainedPolicy, policyInContainerContainingPolicy, policyInContainerShopId], references: [containedPolicy, containingPolicy, shopId])
 
   @@id([id, shopId])
   @@map("policy")
+  policyInContainerContainedPolicy  Int?
+  policyInContainerContainingPolicy Int?
+  policyInContainerShopId           Int?
 }
 
 model SimplePolicy {
@@ -329,10 +336,11 @@ model PolicyInContainer {
   policyContainer  LogicalPolicy @relation(fields: [containingPolicy, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   containingPolicy Int
   shopId           Int
-  kind PolicyKinds
+  kind             PolicyKinds
 
   @@id([containedPolicy, containingPolicy, shopId])
   @@map("policy_in_container")
+  Policy Policy[]
 }
 
 model Offer {
@@ -353,7 +361,7 @@ model Offer {
 model OfferApprover {
   member   Member  @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
   username String
-  offer Offer @relation(fields: [offerId], references: [id])
+  offer    Offer   @relation(fields: [offerId], references: [id])
   offerId  Int     @unique
   answered Boolean @default(false)
   approved Boolean @default(false)
@@ -477,13 +485,13 @@ enum MessageType {
 }
 
 enum DiscountKinds {
- SimpleDiscount
- ConditionalDiscount
- ContainerDiscount
+  SimpleDiscount
+  ConditionalDiscount
+  ContainerDiscount
 }
 
 enum PolicyKinds {
- SimplePolicy
- ConditionalPolicy
- ContainerPolicy
+  SimplePolicy
+  ConditionalPolicy
+  ContainerPolicy
 }
