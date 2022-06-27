@@ -17,32 +17,32 @@ export class ShoppingCartService {
 
     //Guest Payment - Use-Case 4.1
     addToCart(sessionID: string, shopId: number, productID: number, productQuantity: number): Promise<Result<void>> {
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.addToCart(sessionID, shopId, productID, productQuantity);
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.addToCart(sessionID, shopId, productID, productQuantity);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     //Guest Payment - Use-Case 4.2
     checkShoppingCart(sessionID: string): Promise<Result<void | SimpleShoppingCart>> {
-        return new Promise<Result<void | SimpleShoppingCart>>((resolve, reject) => {
-            let result: Result<void | SimpleShoppingCart> = this.systemController.getCart(sessionID);
+        return new Promise<Result<void | SimpleShoppingCart>>(async (resolve, reject) => {
+            let result: Result<void | SimpleShoppingCart> = await this.systemController.getCart(sessionID);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     //Guest Payment - Use-Case 4.3
     removeFromCart(sessionID: string, shopId: number, productID: number): Promise<Result<void>> {
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.removeProductFromCart(sessionID, shopId, productID);
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.removeProductFromCart(sessionID, shopId, productID);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     //Guest Payment - Use-Case 4.4
     editProductInCart(sessionID: string, productID: number, productQuantity: number, additionalDetails?: any): Promise<Result<void>> {
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.editCart(sessionID, productID, productQuantity, additionalDetails);
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.editCart(sessionID, productID, productQuantity, additionalDetails);
             result.ok ? resolve(result) : reject(result.message);
         });
     }

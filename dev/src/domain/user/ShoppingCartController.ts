@@ -1,6 +1,6 @@
-import { Result } from "../../utilities/Result";
-import { Product } from "../marketplace/Product";
-import { ShoppingCart } from "./ShoppingCart";
+import {Result} from "../../utilities/Result";
+import {Product} from "../marketplace/Product";
+import {ShoppingCart} from "./ShoppingCart";
 import {logger} from "../../helpers/logger";
 import {injectable} from "inversify";
 import "reflect-metadata";
@@ -10,7 +10,7 @@ import {Offer} from "./Offer";
 export class ShoppingCartController {
     private readonly _carts: Map<string, ShoppingCart>;
 
-    constructor(){
+    constructor() {
         this._carts = new Map<string, ShoppingCart>();
     }
 
@@ -21,7 +21,7 @@ export class ShoppingCartController {
     //remove cart missing
     async addProduct(cartId: string, toAdd: Product, quantity: number): Promise<Result<void>> {
         //TODO - Ensure that quantity does not exceed product quantity in shop
-        let cart = await this.getCartWithDB(cartId)
+        let cart: ShoppingCart = await this.getCartWithDB(cartId)
         if (cart) {
             try {
                 cart.addProduct(toAdd, quantity);
@@ -37,7 +37,7 @@ export class ShoppingCartController {
         return new Result(false, undefined, "Failed to addProduct to cart because the needed cart wasn't found");
     }
 
-    private async fetchCart(shopId: string) {
+    private async fetchCart(shopId: string): Promise<ShoppingCart> {
         try {
             let shop = await ShoppingCart.findById(shopId);
             return shop
@@ -46,14 +46,15 @@ export class ShoppingCartController {
         }
     }
 
-        private async getCartWithDB(cartId: string) {
+    private async getCartWithDB(cartId: string): Promise<ShoppingCart> {
         let cart = this.carts.get(cartId);
-        if(cart){
+        if (cart) {
             return cart;
         } else {
             return await this.fetchCart(cartId);
         }
     }
+
     async removeProduct(cartId: string, toRemove: Product): Promise<Result<void>> {
         let cart = await this.getCartWithDB(cartId)
         if (cart) {
@@ -90,19 +91,19 @@ export class ShoppingCartController {
         }
     }
 
-    addCart(username: string): Result<ShoppingCart>{
-        let cart =  new ShoppingCart(username)
-        this.carts.set(username,cart);
+    addCart(username: string): Result<ShoppingCart> {
+        let cart = new ShoppingCart(username)
+        this.carts.set(username, cart);
         logger.info(`[ShoppingCartController/addCart] New cart was created for ${username}`);
         cart.save(username);
-        return new Result(true, this.carts.get(username),undefined);
+        return new Result(true, this.carts.get(username), undefined);
     }
 
     async removeCart(username: string): Promise<Result<void>> {
         let toDelete = await this.getCartWithDB(username)
         if (this.carts.has(username) && this.carts.delete(username)) {
             logger.info(`[ShoppingCartController/removeCart] ${username}'s cart was deleted.`)
-            toDelete.delete();
+            toDelete.delete(username);
             return new Result(true, undefined, `${username}'s cart was deleted.`);
         }
         logger.error(`[ShoppingCartController/removeCart] Failed to delete ${username}'s cart, because the cart was not found.`);

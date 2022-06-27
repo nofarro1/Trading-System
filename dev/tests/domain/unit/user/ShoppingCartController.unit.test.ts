@@ -54,11 +54,11 @@ describe("Shopping Cart - unit tests", function () {
         expect(shoppingCartController.removeCart(member.username)).toStrictEqual(new Result(false, undefined, `Failed to delete ${member.username}'s cart, because the cart was not found.`));
     })
 
-    test("Get Cart - valid input", () => {
+    test("Get Cart - valid input", async () => {
         //add cart
         shoppingCartController.addCart(member.username);
         expect(shoppingCartController.carts.get(member.username)).toBeDefined();
-        expect(shoppingCartController.getCart(member.username).data).toBe(shoppingCartController.carts.get(member.username));
+        expect((await shoppingCartController.getCart(member.username)).data).toBe(shoppingCartController.carts.get(member.username));
     })
 
     test("Get Cart - invalid username", () => {

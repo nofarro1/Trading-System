@@ -354,7 +354,7 @@ describe('Shop.units', function() {
             return p;
         })
 
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("usercart");
         cart.addProduct(p1, 2);
         let bag = cart.bags.get(0);
         let user = new Guest("1");
@@ -378,7 +378,7 @@ describe('Shop.units', function() {
             return p;
         })
 
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("usercart");
         cart.addProduct(p1, 6);
         let bag = cart.bags.get(0);
         let user = new Guest("1");

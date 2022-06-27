@@ -206,7 +206,7 @@ export class SystemController {
     }
 
     //General Member - Use-Case 1 //General Guest - Use-Case 2
-     async exitMarketplace(sessionId: string): Promise<Result<void>> {
+    async exitMarketplace(sessionId: string): Promise<Result<void>> {
         const callback = async (id: string) => {
             let toLogout = id;
             let res = await this.logout(sessionId); // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
@@ -215,8 +215,8 @@ export class SystemController {
             }
             try {
                 this.securityController.exitMarketplace(toLogout);
-                const toExit =  this.uController.getGuest(toLogout);
-                const delCart = this.scController.removeCart(toLogout);
+                const toExit = this.uController.getGuest(toLogout);
+                const delCart = await this.scController.removeCart(toLogout);
                 if (checkRes(toExit) && checkRes(delCart)) {
                     this.uController.exitGuest(toExit.data);
                     return new Result(true, undefined, "bye bye!");
@@ -257,7 +257,7 @@ export class SystemController {
                 user.session = sessionId;
                 //delete the guest
                 const toExit = this.uController.getGuest(sessionId);
-                const delCart = this.scController.removeCart(sessionId);
+                const delCart = await this.scController.removeCart(sessionId);
                 if (checkRes(toExit) && checkRes(delCart)) {
                     this.uController.exitGuest(toExit.data);
                     return new Result(true, toSimpleMember(user), "member logged in");
@@ -518,11 +518,11 @@ export class SystemController {
 
     //Shop Owner - Use-Case 1.1
     async addProduct(sessionId: string, p: NewProductData): Promise<Result<SimpleProduct | void>> {
-        const authCallback = (id: string) => {
+        const authCallback = async (id: string) => {
             if (this.uController.checkPermission(id, p.shopId, Permissions.AddProduct).data ||
                 this.uController.checkPermission(id, p.shopId, Permissions.ShopOwner).data) {
 
-                let res = this.mpController.addProductToShop(
+                let res = await this.mpController.addProductToShop(
                     p.shopId, p.productCategory, p.productName,
                     p.quantity, p.fullPrice, p.productDesc);
 
@@ -532,7 +532,7 @@ export class SystemController {
             }
             return new Result(false, undefined, "member does not have permissions");
         };
-        return this.authenticateMarketVisitor(sessionId, authCallback);
+        return this.authenticateMarketVisitorAsync(sessionId, authCallback);
     }
 
     //Shop Owner - Use-Case 1.3
@@ -608,7 +608,7 @@ export class SystemController {
                 this.uController.checkPermission(userId, shopId, Permissions.ShopOwner)
                     .data
             ) {
-                const res = this.mpController.addDiscount(shopId, discount);
+                const res = await this.mpController.addDiscount(shopId, discount);
                 if (checkRes(res)) {
                     return Result.Ok(res.data, `new discount add with Id ${res.data}`);
                 }
@@ -620,8 +620,8 @@ export class SystemController {
         });
     }
 
-    removeDiscount(sessId: string, shopId: number, idDisc: number): Result<void> {
-        return this.authenticateMarketVisitor(sessId, (userId) => {
+    async removeDiscount(sessId: string, shopId: number, idDisc: number): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(sessId, async (userId) => {
             if (
                 this.uController.checkPermission(
                     userId,
@@ -631,7 +631,7 @@ export class SystemController {
                 this.uController.checkPermission(userId, shopId, Permissions.ShopOwner)
                     .data
             ) {
-                const res: Result<void> = this.mpController.removeDiscount(
+                const res: Result<void> = await this.mpController.removeDiscount(
                     shopId,
                     idDisc
                 );
@@ -658,7 +658,7 @@ export class SystemController {
                 this.uController.checkPermission(userId, shopId, Permissions.ShopOwner)
                     .data
             ) {
-                const res =  this.mpController.getPolicies(shopId);
+                const res = this.mpController.getPolicies(shopId);
                 if (checkRes(res)) {
                     return Result.Ok(res.data, `new discount add with Id ${res.data}`);
                 }
@@ -678,7 +678,7 @@ export class SystemController {
         return this.authenticateMarketVisitorAsync(sessId, async (userId) => {
             if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
                 this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
-                const res = this.mpController.addPurchasePolicy(shopId, puPolicy);
+                const res = await this.mpController.addPurchasePolicy(shopId, puPolicy);
                 if (checkRes(res)) {
                     return Result.Ok(res.data, `new discount add with Id ${res.data}`);
                 }
@@ -705,7 +705,7 @@ export class SystemController {
                 this.uController.checkPermission(userId, shopId, Permissions.ShopOwner)
                     .data
             ) {
-                const res = this.mpController.removePurchasePolicy(shopId, idPuPolicy);
+                const res = await this.mpController.removePurchasePolicy(shopId, idPuPolicy);
                 if (checkRes(res)) {
                     return Result.Ok(res.data, `new discount add with Id ${res.data}`);
                 }
@@ -804,7 +804,7 @@ export class SystemController {
                 !this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
             }
-            let shopRes = this.mpController.getShopInfo(shop);
+            let shopRes = await this.mpController.getShopInfo(shop);
             if (checkRes(shopRes)) {
                 let data = shopRes.data;
                 let collectedMembers: Member[] = [];
@@ -957,7 +957,7 @@ export class SystemController {
     /*-----------------------------------Offer (bid on product)----------------------------------------------*/
     async addOffer2Shop(sessionId, shopId: number, pId: number, price: number): Promise<Result<void>> {
         return this.authenticateMarketVisitorAsync(sessionId, async (username) => {
-            let offer: Result<void | Offer> = this.mpController.addOffer2Product(shopId, username, pId, price);
+            let offer: Result<void | Offer> = await this.mpController.addOffer2Product(shopId, username, pId, price);
             if (checkRes(offer)) {
                 return this.scController.addOffer2cart(username, offer.data);
             }
@@ -972,7 +972,7 @@ export class SystemController {
 
     async filingCounterOffer(sessionId: string, shopId: number, offerId: number, counterPrice: number): Promise<Result<void>> {
         return this.authenticateMarketVisitorAsync(sessionId, async (username) => {
-            let result: Result<void | Offer> = this.mpController.filingCounterOffer(shopId, offerId, username, counterPrice);
+            let result: Result<void | Offer> = await this.mpController.filingCounterOffer(shopId, offerId, username, counterPrice);
             if (checkRes(result)) {
                 this.scController.updateOfferFromCart(result.data);
                 return Result.Ok(result.data);
@@ -990,7 +990,7 @@ export class SystemController {
 
     async acceptCounterOffer(sessionId: string, shopId: number, offerId: number): Promise<Result<void>> {
         return this.authenticateMarketVisitorAsync(sessionId, async (username) => {
-            let result: Result<void | Offer> = this.mpController.acceptCounterOffer(shopId, offerId);
+            let result: Result<void | Offer> = await this.mpController.acceptCounterOffer(shopId, offerId);
             if (checkRes(result)) {
                 this.scController.updateOfferFromCart(result.data);
                 return Result.Ok(result.data);

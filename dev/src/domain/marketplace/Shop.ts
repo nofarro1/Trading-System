@@ -612,6 +612,7 @@ export class Shop implements Entity{
                 id: id,
             }
         });
+        return null;
     }
 
     private async findShopOwner(username: string) {

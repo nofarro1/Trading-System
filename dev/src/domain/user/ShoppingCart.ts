@@ -50,12 +50,6 @@ export class ShoppingCart implements Entity {
         if (bag) {
             bag.addProduct(toAdd, quantity);
         } else {
-            let bag;
-            try {
-                bag = await ShoppingBag.findById(this.username, shopId);
-            } catch (e){
-                 bag = new ShoppingBag(shopId);
-            }
             bag.addProduct(toAdd, quantity);
             this.bags.set(shopId, bag);
         }
@@ -115,13 +109,13 @@ export class ShoppingCart implements Entity {
         return [waitings, rejected];
     }
 
-    async findById(username: string) {
+    static async findById(username: string): Promise<ShoppingCart> {
         const result: DBShoppingCart = await prisma.shoppingCart.findUnique({
             where: {
                 username: username
             }
         })
-        return result;
+        return new ShoppingCart((username));
     }
 
     async save(username: string) {

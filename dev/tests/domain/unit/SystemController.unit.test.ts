@@ -122,20 +122,20 @@ describe('system controller - unit', () => {
     })
 
     beforeEach(() => {
-        cart1 = new ShoppingCart()
+        cart1 = new ShoppingCart(sess1)
         user1 = new Guest(sess1)
 
-        cart2 = new ShoppingCart()
+        cart2 = new ShoppingCart(sess2)
         user2 = new Guest(sess2)
 
-        cart2 = new ShoppingCart()
+        cart2 = new ShoppingCart(sess3)
         user2 = new Guest(sess3)
 
-        cart4 = new ShoppingCart()
+        cart4 = new ShoppingCart(sess4)
         member1 = new Member(sess4, username1)
         box1 = new MessageBox(username1);
 
-        cart5 = new ShoppingCart()
+        cart5 = new ShoppingCart(sess5)
         member2 = new Member(sess5, username2)
         box2 = new MessageBox(username1);
         mController.messageBoxes.set(username1, box1);
