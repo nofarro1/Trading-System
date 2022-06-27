@@ -54,13 +54,17 @@ export type RelationType = typeof RelationType[keyof typeof RelationType]
 
 export const DiscountKinds: { [x: string]: 'SimpleDiscount' | 'ConditionalDiscount' | 'ContainerDiscount'} = {
     SimpleDiscount : 'SimpleDiscount',
-    Conditionaldiscount : 'ConditionalDiscount',
+    ConditionalDiscount : 'ConditionalDiscount',
     ContainerDiscount: 'ContainerDiscount',
 }
 export type DiscountKinds = typeof DiscountKinds[keyof typeof DiscountKinds]
 
-
-
+export const PolicyKinds: { [x: string]: 'SimplePolicy' | 'ConditionalPolicy' | 'ContainerPolicy'} = {
+    SimplePolicy: 'SimplePolicy',
+    ConditionalPolicy : 'ConditionalPolicy',
+    ContainerPolicy: 'ContainerPolicy',
+}
+export type PolicyKinds = typeof PolicyKinds[keyof typeof PolicyKinds]
 
 export const DiscountRelation: { [x: string]: 'And' | 'Or' | 'Xor' | 'Addition' | 'Max'} = {
     And: 'And',

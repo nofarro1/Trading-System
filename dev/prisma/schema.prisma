@@ -244,12 +244,11 @@ model DiscountContainer {
 }
 
 model DiscountInContainer {
-  discount           Discount          @relation(fields: [containedDiscount, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   containedDiscount  Int
-  shopId             Int
-  //type               DiscountKinds
   discountContainer  DiscountContainer @relation(fields: [containingDiscount, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   containingDiscount Int
+  shopId             Int
+  kind               DiscountKinds
 
   @@id([containedDiscount, containingDiscount, shopId])
   @@map("discount_in_container")
@@ -326,11 +325,11 @@ model LogicalPolicy {
 }
 
 model PolicyInContainer {
-  policy           Policy        @relation(fields: [containedPolicy, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   containedPolicy  Int
-  shopId           Int
   policyContainer  LogicalPolicy @relation(fields: [containingPolicy, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   containingPolicy Int
+  shopId           Int
+  kind PolicyKinds
 
   @@id([containedPolicy, containingPolicy, shopId])
   @@map("policy_in_container")
@@ -481,4 +480,10 @@ enum DiscountKinds {
  SimpleDiscount
  ConditionalDiscount
  ContainerDiscount
+}
+
+enum PolicyKinds {
+ SimplePolicy
+ ConditionalPolicy
+ ContainerPolicy
 }
