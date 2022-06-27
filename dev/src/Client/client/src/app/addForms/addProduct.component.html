@@ -1,32 +1,55 @@
+<p-toast position="top-center" key="tc"></p-toast>
+
 <ng-container class="container">
+    <tr>
+      <th>Name</th>
+      <th>Price</th>
+      <th>Quantity</th>
+      <th>Description</th>
+      <th>Catagory</th>
+      <!-- <th></th> -->
+      <th style="color: white"></th>
+    </tr>
+    <tr>
+      <td>
       <input
+      class="form-control"
+      id="floatingInput"
         [style]="{ 'margin-left': '20px', width: '180px' }"
         type="text"
         pInputText
         placeholder="Enter Product Name"
         [(ngModel)]="newProductName"
       />
-      <input
-        [style]="{ 'margin-left': '20px', width: '120px' }"
-        type="text"
-        pInputText
-        placeholder="Enter Price"
-        [(ngModel)]="newProductPrice"
-      />
-      <input
-        [style]="{ 'margin-left': '20px', width: '130px' }"
-        type="text"
-        pInputText
-        placeholder="Enter Quantity"
-        [(ngModel)]="newProductQuantity"
-      />
-      <input
-        [style]="{ 'margin-left': '20px' }"
-        type="text"
-        pInputText
-        placeholder="Enter Description"
-        [(ngModel)]="newProductDescription"
-      />
+      </td>
+<td>
+  <input
+    [style]="{ 'margin-left': '20px', width: '120px' }"
+    type="number"
+    pInputText
+    placeholder="Enter Price"
+    [(ngModel)]="newProductPrice"
+  />
+</td>
+<td>
+    <input
+      [style]="{ 'margin-left': '20px', width: '130px' }"
+      type="number"
+      pInputText
+      placeholder="Enter Quantity"
+      [(ngModel)]="newProductQuantity"
+    />
+    </td>
+    <td>
+    <input
+      [style]="{ 'margin-left': '20px' }"
+      type="text"
+      pInputText
+      placeholder="Enter Description"
+      [(ngModel)]="newProductDescription"
+    />
+  </td>
+  <td>
       <p-dropdown
         [style]="{ 'margin-left': '20px', width: '220px' }"
         [options]="productCatagory"
@@ -35,7 +58,8 @@
         optionLabel="catagory"
         [showClear]="true"
       ></p-dropdown>
-  
+    </td>
+  </tr>
       <p-button
         [style]="{ 'margin-left': '20px' }"
         name="loginbtn"

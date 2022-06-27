@@ -111,7 +111,11 @@ export class ShopComponent implements OnInit {
         );
       }
     });
+  }
 
+  finishAddProduct($event){
+    console.log("here?");
+    this.wantToAddProduct = false;
   }
 
   showErrorMsg(msg: string) {

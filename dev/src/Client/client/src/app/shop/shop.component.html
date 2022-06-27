@@ -6,40 +6,27 @@
 </div>
 
 <div class="container">
-
+  <div class="container" style="margin: 10px;">
     <p-button
     name="addProduct"
-    (onClick)="wantToAddProduct = true"
+    (onClick)="wantToAddProduct = true; wantToAddDiscount = false"
     >Add New Product</p-button>
 
     <p-button
     name="addDiscount"
-    (onClick)="wantToAddDiscount = true"
+    (onClick)="wantToAddProduct = false; wantToAddDiscount = true"
     >Add Discount</p-button>
 
     <p-button
     name="closeShop"
     (onClick)="closeShop()"
     >Close Shop</p-button>
+  </div>
 
-    <app-Add-Product [session]="session" [shopId]="shop.ID"></app-Add-Product>
-    <app-add-discount [session]="session" [shopId]="shop.ID" ></app-add-discount>
+    <app-Add-Product *ngIf="wantToAddProduct" [session]="session" [shopId]="shop.ID" (finishAddProduct)="finishAddProduct($event)"></app-Add-Product>
+    <app-add-discount *ngIf="wantToAddDiscount" [session]="session" [shopId]="shop.ID" ></app-add-discount>
   
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 <p-table [value]="products">
@@ -50,6 +37,7 @@
       <th>Rate</th>
       <th>Description</th>
       <th>Price</th>
+      <th>Quantity To Add</th>
       <th></th>
       <th style="color: white"></th>
     </tr>
@@ -62,23 +50,25 @@
       <td>{{ product.description }}</td>
       <td>{{ product.price }}</td>
       <td>
+        <span class="p-float-label">
+        <input
+        [style]="{ 'margin-left': '20px', width: '70px' }"
+        type="number"
+        pInputText
+        [min]="0"
+        [max]="product.quantity"
+        placeholder="Quantity to Add"
+        [(ngModel)]="product.quantityToCart"
+      />
+        </span>
+      </td>
+      <td>
         <p-button
           name="addToCartBtn"
           [disabled]="product.quantityToCart === 0"
           (click)="addProductToCart(product.id,product.name, product.quantityToCart)"
           >Add To Cart</p-button
         >
-      </td>
-      <td>
-        <p-inputNumber
-          [(ngModel)]="product.quantityToCart"
-          mode="decimal"
-          [showButtons]="true"
-          inputId="minmax-buttons"
-          [min]="0"
-          [max]="product.quantity"
-        >
-        </p-inputNumber>
       </td>
       <td>
         <button

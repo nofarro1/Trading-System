@@ -26,6 +26,8 @@ import {ToastModule} from 'primeng/toast';
 import { AddProductComponent } from './addForms/addProduct.component';
 import { AddDiscountComponent } from './addForms/addDiscount.component';
 
+
+
 const apiConfig: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
 const config: SocketIoConfig = {

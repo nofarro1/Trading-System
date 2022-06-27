@@ -23,10 +23,10 @@ export class AdditionDiscounts extends ContainerDiscountComponent{
         return this.discounts.reduce(callBack, products);
     }
 
-    override addDiscountElement(toAdd: DiscountComponent){
+    addDiscountElement(toAdd: DiscountComponent){
         this.discounts.push(toAdd);
     }
-    override removeDiscountElement(toRemove: DiscountComponent){
+    removeDiscountElement(toRemove: DiscountComponent){
         let i = this.discounts.indexOf(toRemove);
         this.discounts.splice(i, 1);
     }
