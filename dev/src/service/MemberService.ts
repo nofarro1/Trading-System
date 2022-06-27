@@ -23,15 +23,20 @@ export class MemberService {
 
     //Shop Owner - Modified Use-Case 4 according version 4
     appointShopOwner(sessionID: string, member: string, shopID: number, assigningOwnerID: string): Promise<Result<void>> {
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.appointShopOwner(sessionID, {member,shopId: shopID, assigner:assigningOwnerID, permissions: [Permissions.ShopOwner]});
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.appointShopOwner(sessionID, {
+                member,
+                shopId: shopID,
+                assigner: assigningOwnerID,
+                permissions: [Permissions.ShopOwner]
+            });
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     submitAppointmentAgreement(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string): Promise<Result<void>> {
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.submitOwnerAppointmentInShop(sessionID, shopID, newOwnerID, assigningOwnerID);
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.submitOwnerAppointmentInShop(sessionID, shopID, newOwnerID, assigningOwnerID);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -40,11 +45,13 @@ export class MemberService {
     appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string,
                        permissions?: Permissions[]): Promise<Result<void>> {
 
-        return new Promise<Result<void>>((resolve, reject) => {
-            if(!permissions)
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            if (!permissions)
                 permissions = new Array<Permissions>();
-            let result: Result<void> = this.systemController.appointShopManager(sessionID, {member: newManagerID, shopId: shopID, assigner: assigningOwnerID,
-                permissions: permissions});
+            let result: Result<void> = await this.systemController.appointShopManager(sessionID, {
+                member: newManagerID, shopId: shopID, assigner: assigningOwnerID,
+                permissions: permissions
+            });
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -52,8 +59,8 @@ export class MemberService {
     //Shop Owner - Use-Case 7.1
     addPermissions(sessionID: string, promotedManagerID: string, shopID: number, permissions: Permissions): Promise<Result<void>> {
 
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.addShopManagerPermission(sessionID, promotedManagerID, shopID, permissions);
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.addShopManagerPermission(sessionID, promotedManagerID, shopID, permissions);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -61,8 +68,8 @@ export class MemberService {
     //Shop Owner - Use-Case 7.2
     removePermissions(sessionID: string, demotedManagerID: string, shopID: number, permissions: Permissions): Promise<Result<void>> {
 
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.removeShopManagerPermission(sessionID, demotedManagerID, shopID, permissions);
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.removeShopManagerPermission(sessionID, demotedManagerID, shopID, permissions);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -70,29 +77,29 @@ export class MemberService {
     //Shop Owner - Use-Case 11
     requestShopPersonnelInfo(sessionID: string, shopID: number): Promise<Result<void | SimpleMember[]>> {
 
-        return new Promise<Result<void | SimpleMember[]>>((resolve, reject) => {
-            let result: Result<void | SimpleMember[]> = this.systemController.getPersonnelInfoOfShop(sessionID, shopID);
+        return new Promise<Result<void | SimpleMember[]>>(async (resolve, reject) => {
+            let result: Result<void | SimpleMember[]> = await this.systemController.getPersonnelInfoOfShop(sessionID, shopID);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     getMessages(sessionId: string) {
-        return new Promise<Result<void | Message[]>>((resolve, reject) => {
-            let result: Result<void | Message[]> = this.systemController.getMessages(sessionId);
+        return new Promise<Result<void | Message[]>>(async (resolve, reject) => {
+            let result: Result<void | Message[]> = await this.systemController.getMessages(sessionId);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
 
     approveOffer(sessionId: string, username: string, shopId:number, offerId: number, answer: boolean){
-        return new Promise <Result<void>>((resolve, reject)=>{
-            let result: Result<void> = this.systemController.approveOffer(sessionId, shopId, offerId, answer);
+        return new Promise <Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.approveOffer(sessionId, shopId, offerId, answer);
             result.ok ? resolve(result) : reject(result.message);
         })
     }
 
     checkAdminPermissions(sessionID: string, username: any, password: any) {
-        return new Promise <Result<boolean>>((resolve, reject)=>{
-            let result: Result<boolean> = this.systemController.checkAdminPermissions(sessionID,username,password);
+        return new Promise <Result<boolean>>(async (resolve, reject) => {
+            let result: Result<boolean> = await this.systemController.checkAdminPermissions(sessionID, username, password);
             result.ok ? resolve(result) : reject(result.message);
         })
     }

@@ -11,7 +11,7 @@ let product11: Product;
 
 describe("Shopping Cart - unit tests", function () {
     beforeEach(function () {
-         shoppingCart = new ShoppingCart();
+         shoppingCart = new ShoppingCart("user");
          shop1= new Shop(1, "Super Shop", "Mario");
          product1 = new Product("Pizza", 1, 0, ProductCategory.A, 15);
          product11 = new Product("Pizza 2", 1, 1, ProductCategory.A, 15);

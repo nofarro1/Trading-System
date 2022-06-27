@@ -96,7 +96,7 @@ describe('system controller - integration', () => {
     //
     // })
 
-    beforeEach(() => {
+    beforeEach(async () => {
 
         sys = systemContainer.get(TYPES.SystemController)
         mpController = sys.mpController
@@ -105,33 +105,39 @@ describe('system controller - integration', () => {
         scController = sys.securityController
         uController = sys.uController
 
-        cart1 = new ShoppingCart();
+        cart1 = new ShoppingCart(sess1);
         guest1 = new Guest(sess1);
 
-        cart2 = new ShoppingCart();
+        cart2 = new ShoppingCart(sess2);
         guest2 = new Guest(sess2);
 
-        cart3 = new ShoppingCart();
+        cart3 = new ShoppingCart(sess3);
         guest3 = new Guest(sess3);
 
-        cart4 = new ShoppingCart();
+        cart4 = new ShoppingCart(sess4);
         member1 = new Member(sess4, username1)
         box1 = new MessageBox(username1);
 
-        cart5 = new ShoppingCart();
+        cart5 = new ShoppingCart(sess5);
         member2 = new Member(sess5, username2)
         box2 = new MessageBox(username1);
 
 
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
         //act
-        sys.login(sess4, {username: username1, password: pass1});
-        shop = sys.setUpShop(sess4, shop1.name).data as SimpleShop;
+        await sys.login(sess4, {username: username1, password: pass1});
+        shop = (await sys.setUpShop(sess4, shop1.name)).data as SimpleShop;
 
-        const res = sys.addProduct(sess4,{shopId: shop.ID, productCategory:p1.category, productName:p1.name, quantity:10,fullPrice:p1.fullPrice});
+        const res = await sys.addProduct(sess4, {
+            shopId: shop.ID,
+            productCategory: p1.category,
+            productName: p1.name,
+            quantity: 10,
+            fullPrice: p1.fullPrice
+        });
         simple_p1 = res.data as SimpleProduct;
-        sys.exitMarketplace(sess4)
+        await sys.exitMarketplace(sess4)
     })
 
     afterEach(() => {
@@ -147,9 +153,9 @@ describe('system controller - integration', () => {
         expect(sys.securityController).toBeDefined();
     })
 
-    test("access marketplace test", () => {
+    test("access marketplace test", async () => {
         //act
-        const res = sys.accessMarketplace(sess1);
+        const res = await sys.accessMarketplace(sess1);
 
         //assert
         expect(res.ok).toBeTruthy();
@@ -157,13 +163,13 @@ describe('system controller - integration', () => {
         expect(res.data).toEqual(toSimpleGuest(guest1))
     })
 
-    test("exit marketplace - guest", () => {
+    test("exit marketplace - guest", async () => {
         //prepare
         //previus test accessMarketplace
-        sys.accessMarketplace(sess1);
+        await sys.accessMarketplace(sess1);
 
         //act
-        let res = sys.exitMarketplace(sess1);
+        let res = await sys.exitMarketplace(sess1);
 
         //assert
         expect(res.ok).toBe(true);
@@ -171,14 +177,14 @@ describe('system controller - integration', () => {
         expect(res.message).toEqual("bye bye!");
     })
 
-    test("exit marketplace - member", () => {
+    test("exit marketplace - member", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess1, {username: member1.username, password: pass1});
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess1, {username: member1.username, password: pass1});
 
         //act
-        let res = sys.exitMarketplace(sess4);
+        let res = await sys.exitMarketplace(sess4);
 
         //assert
         expect(res.ok).toBe(true)
@@ -201,12 +207,12 @@ describe('system controller - integration', () => {
             expect(res.data).toBeDefined()
         })
 
-        test("login test - failure - recover from security failure", () => {
+        test("login test - failure - recover from security failure", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
+            await sys.accessMarketplace(sess4);
 
             //act
-            let res = sys.login(sess4, {username: username1, password: pass2});
+            let res = await sys.login(sess4, {username: username1, password: pass2});
 
             //assert
             expect(res.ok).toBe(false);
@@ -214,14 +220,14 @@ describe('system controller - integration', () => {
         })
     })
 
-    test("logout test - success", () => {
+    test("logout test - success", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
+        await sys.accessMarketplace(sess4);
         // sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.logout(sess4);
+        let res = await sys.logout(sess4);
 
         //assert
         expect(res.ok).toBe(true);
@@ -229,22 +235,22 @@ describe('system controller - integration', () => {
     })
 
     describe("register tests", () => {
-        test("register member - success", () => {
+        test("register member - success", async () => {
             //prepare
-            sys.accessMarketplace(sess5);
+            await sys.accessMarketplace(sess5);
 
             //act
-            let res = sys.registerMember(sess5, {username: username2, password: pass2});
+            let res = await sys.registerMember(sess5, {username: username2, password: pass2});
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).toBeDefined();
         })
 
-        test("register member - failure from security", () => {
+        test("register member - failure from security", async () => {
             //act
-            sys.accessMarketplace(sess5);
-            let res = sys.registerMember(sess5, {username: username1, password: pass1});
+            await sys.accessMarketplace(sess5);
+            let res = await sys.registerMember(sess5, {username: username1, password: pass1});
 
             //assert
             expect(res.ok).toBe(false);
@@ -252,58 +258,58 @@ describe('system controller - integration', () => {
         })
     })
 
-    test("get shop", () => {
+    test("get shop", async () => {
         //prepare
-        sys.accessMarketplace(sess1);
+        await sys.accessMarketplace(sess1);
 
         //act
-        let res = sys.getShop(sess1, shop1.id);
+        let res = await sys.getShop(sess1, shop1.id);
         expect(res.ok).toBe(true);
         expect(res.data).toBeDefined()
         let data: SimpleShop = res.data as SimpleShop;
         expect(data.ID).toBe(shop.ID);
     })
 
-    test("search product", () => {
+    test("search product", async () => {
         //prepare
-        sys.accessMarketplace(sess1);
+        await sys.accessMarketplace(sess1);
 
         //act
-        let res = sys.searchProducts(sess1, SearchType.productName, "ps1");
+        let res = await sys.searchProducts(sess1, SearchType.productName, "ps1");
 
         //assert
         expect(res.ok).toBe(true);
         expect(res.data).toEqual([simple_p1]);
     })
 
-    test("add to cart - success", () => {
+    test("add to cart - success", async () => {
         //prepare
-        sys.accessMarketplace(sess1);
+        await sys.accessMarketplace(sess1);
 
         //act
-        let res = sys.addToCart(sess1, simple_p1.shopID, simple_p1.productID, 2);
+        let res = await sys.addToCart(sess1, simple_p1.shopID, simple_p1.productID, 2);
 
         //assert
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
     })
 
-    test("add to cart - failure", () => {
+    test("add to cart - failure", async () => {
         //act
 
-        let res = sys.addToCart(username1, p1.shopId, p1.id, 2);
+        let res = await sys.addToCart(username1, p1.shopId, p1.id, 2);
 
         //assert
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
     })
 
-    test("get cart", () => {
+    test("get cart", async () => {
         //prepare
-        sys.accessMarketplace(sess1);
+        await sys.accessMarketplace(sess1);
 
         //act
-        let res = sys.getCart(sess1);
+        let res = await sys.getCart(sess1);
 
         //assert
         expect(res.ok).toBe(true);
@@ -311,13 +317,13 @@ describe('system controller - integration', () => {
         expect(res.data).toEqual(toSimpleShoppingCart(sess1, cart1));
     })
 
-    test("remove product from cart", () => {
+    test("remove product from cart", async () => {
         //prepare
-        sys.accessMarketplace(sess1);
-        sys.addToCart(sess1, p1.shopId, p1.id, 2);
+        await sys.accessMarketplace(sess1);
+        await sys.addToCart(sess1, p1.shopId, p1.id, 2);
 
         //act
-        let res = sys.removeProductFromCart(sess1, p1.shopId, p1.id);
+        let res = await sys.removeProductFromCart(sess1, p1.shopId, p1.id);
 
         //assert
         expect(res.ok).toBe(true);
@@ -326,11 +332,11 @@ describe('system controller - integration', () => {
 
     test("checkout - success", async () => {
         //prepare
-        sys.accessMarketplace(sess1);
-        sys.addToCart(sess1, p1.shopId, p1.id, 2);
+        await sys.accessMarketplace(sess1);
+        await sys.addToCart(sess1, p1.shopId, p1.id, 2);
 
         //act
-        let res = await sys.checkout(sess1, paymentDetails, deliveryDetails)
+        let res = await await sys.checkout(sess1, paymentDetails, deliveryDetails)
 
         //assert
         expect(res.ok).toBe(true);
@@ -338,66 +344,66 @@ describe('system controller - integration', () => {
     })
 
 
-    test("setup shop", () => {
+    test("setup shop", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.setUpShop(sess4, "shop1");
-
-        //assert
-        expect(res.ok).toBe(true);
-        expect(res.data).toBeDefined();
-    })
-
-    test("setup shop - failed", () => {
-        //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-
-        //act
-        let res = sys.setUpShop(username1, "shop1");
-
-        //assert
-        expect(res.ok).toBe(false);
-        expect(res.data).not.toBeDefined();
-    })
-
-    test("add product to shop - success", () => {
-        //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
-        sys.setUpShop(username1, shop1.name);
-
-        //act
-        let res = sys.addProduct(sess4, {
-            shopId: p1.shopId,
-            productCategory: p1.category,
-            productName: p1.name,
-            quantity: 5,
-            fullPrice: p1.fullPrice
-        })
+        let res = await sys.setUpShop(sess4, "shop1");
 
         //assert
         expect(res.ok).toBe(true);
         expect(res.data).toBeDefined();
     })
 
-    test("add product to shop - failure - permissions", () => {
+    test("setup shop - failed", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
-        sys.setUpShop(username1, shop1.name);
-        sys.accessMarketplace(sess5);
-        sys.registerMember(sess5, {username: username2, password: pass2});
-        sys.login(sess5, {username: username2, password: pass2});
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.addProduct(username2, {
+        let res = await sys.setUpShop(username1, "shop1");
+
+        //assert
+        expect(res.ok).toBe(false);
+        expect(res.data).not.toBeDefined();
+    })
+
+    test("add product to shop - success", async () => {
+        //prepare
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
+        await sys.setUpShop(username1, shop1.name);
+
+        //act
+        let res = await sys.addProduct(sess4, {
+            shopId: p1.shopId,
+            productCategory: p1.category,
+            productName: p1.name,
+            quantity: 5,
+            fullPrice: p1.fullPrice
+        })
+
+        //assert
+        expect(res.ok).toBe(true);
+        expect(res.data).toBeDefined();
+    })
+
+    test("add product to shop - failure - permissions", async () => {
+        //prepare
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
+        await sys.setUpShop(username1, shop1.name);
+        await sys.accessMarketplace(sess5);
+        await sys.registerMember(sess5, {username: username2, password: pass2});
+        await sys.login(sess5, {username: username2, password: pass2});
+
+        //act
+        let res = await sys.addProduct(username2, {
             shopId: p1.shopId,
             productCategory: p1.category,
             productName: p1.name,
@@ -410,15 +416,15 @@ describe('system controller - integration', () => {
         expect(res.data).not.toBeDefined();
     })
 
-    test("add product to shop - failure - addProduct", () => {
+    test("add product to shop - failure - addProduct", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
-        sys.setUpShop(username1, shop1.name);
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
+        await sys.setUpShop(username1, shop1.name);
 
         //act
-        let res = sys.addProduct(username1, {
+        let res = await sys.addProduct(username1, {
             shopId: p1.shopId,
             productCategory: p1.category,
             productName: p1.name,
@@ -431,13 +437,13 @@ describe('system controller - integration', () => {
         expect(res.data).not.toBeDefined();
     })
 
-    test("delete product - success", () => {
+    test("delete product - success", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
-        sys.setUpShop(sess4, shop1.name);
-        sys.addProduct(sess4, {
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
+        await sys.setUpShop(sess4, shop1.name);
+        await sys.addProduct(sess4, {
             shopId: p1.shopId,
             productCategory: p1.category,
             productName: p1.name,
@@ -446,57 +452,57 @@ describe('system controller - integration', () => {
         })
 
         //act
-        let res = sys.deleteProduct(sess4, shop1.id, shop1.id);
+        let res = await sys.deleteProduct(sess4, shop1.id, shop1.id);
 
         //assert
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
     })
 
-    test("delete product - failure - permissions", () => {
+    test("delete product - failure - permissions", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
-        sys.addProduct(sess4, {
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
+        await sys.addProduct(sess4, {
             shopId: p1.shopId,
             productCategory: p1.category,
             productName: p1.name,
             quantity: 5,
             fullPrice: p1.fullPrice
         });
-        sys.accessMarketplace(sess5);
-        sys.registerMember(sess5, {username: username2, password: pass2});
-        sys.login(sess5, {username: username2, password: pass2});
+        await sys.accessMarketplace(sess5);
+        await sys.registerMember(sess5, {username: username2, password: pass2});
+        await sys.login(sess5, {username: username2, password: pass2});
 
         //act
-        let res = sys.deleteProduct(sess5, shop1.id, p1.id);
+        let res = await sys.deleteProduct(sess5, shop1.id, p1.id);
 
         //assert
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
     })
 
-    test("delete product - failure - remove", () => {
+    test("delete product - failure - remove", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.deleteProduct(sess5, shop1.id, p1.id);
+        let res = await sys.deleteProduct(sess5, shop1.id, p1.id);
 
         //assert
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
     })
 
-    test("update product - success", () => {
+    test("update product - success", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
-        sys.addProduct(sess4, {
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
+        await sys.addProduct(sess4, {
             shopId: p1.shopId,
             productCategory: p1.category,
             productName: p1.name,
@@ -505,46 +511,46 @@ describe('system controller - integration', () => {
         });
 
         //act
-        let res = sys.updateProductQuantity(sess4, shop1.id, shop1.id, 6);
+        let res = await sys.updateProductQuantity(sess4, shop1.id, shop1.id, 6);
 
         //assert
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
     })
 
-    test("update product - failure - permissions", () => {
+    test("update product - failure - permissions", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
-        sys.setUpShop(username1, shop1.name);
-        sys.addProduct(username1, {
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
+        await sys.setUpShop(username1, shop1.name);
+        await sys.addProduct(username1, {
             shopId: p1.shopId,
             productCategory: p1.category,
             productName: p1.name,
             quantity: 5,
             fullPrice: p1.fullPrice
         });
-        sys.accessMarketplace(sess5);
-        sys.registerMember(sess5, {username: username2, password: pass2});
-        sys.login(sess5, {username: username2, password: pass2});
+        await sys.accessMarketplace(sess5);
+        await sys.registerMember(sess5, {username: username2, password: pass2});
+        await sys.login(sess5, {username: username2, password: pass2});
 
         //act
-        let res = sys.updateProductQuantity(sess5, shop1.id, p1.id, 6);
+        let res = await sys.updateProductQuantity(sess5, shop1.id, p1.id, 6);
 
         //assert
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
     })
 
-    test("update product - failure - update", () => {
+    test("update product - failure - update", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.updateProductQuantity(username1, shop1.id, p1.id, 5);
+        let res = await sys.updateProductQuantity(username1, shop1.id, p1.id, 5);
 
         //assert
         expect(res.ok).toBe(false);
@@ -552,17 +558,17 @@ describe('system controller - integration', () => {
     })
 
     describe("appoint owner", () => {
-        test("appoint owner - success", () => {
+        test("appoint owner - success", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess5);
+            await sys.registerMember(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.appointShopOwner(sess4, {
+            let res = await sys.appointShopOwner(sess4, {
                 member: username2,
                 shopId: shop1.id,
                 assigner: username1,
@@ -574,18 +580,18 @@ describe('system controller - integration', () => {
             expect(res.data).not.toBeDefined();
         })
 
-        test("appoint owner - failure - permissions", () => {
+        test("appoint owner - failure - permissions", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
-            sys.login(sess5, {username: username2, password: pass2});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess5);
+            await sys.registerMember(sess5, {username: username2, password: pass2});
+            await sys.login(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.appointShopOwner(sess4, {
+            let res = await sys.appointShopOwner(sess4, {
                 member: username1,
                 shopId: shop1.id,
                 assigner: username2,
@@ -596,15 +602,15 @@ describe('system controller - integration', () => {
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
         })
-        test("appoint owner - failure - addRole - nominee doesn't exist", () => {
+        test("appoint owner - failure - addRole - nominee doesn't exist", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
 
             //act
-            let res = sys.appointShopOwner(sess4, {
+            let res = await sys.appointShopOwner(sess4, {
                 member: username2,
                 shopId: shop1.id,
                 assigner: username1,
@@ -616,14 +622,14 @@ describe('system controller - integration', () => {
             expect(res.data).not.toBeDefined();
         })
 
-        test("appoint owner - failure - appointShopOwner - no shop", () => {
+        test("appoint owner - failure - appointShopOwner - no shop", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
 
             //act
-            let res = sys.appointShopOwner(sess4, {
+            let res = await sys.appointShopOwner(sess4, {
                 member: username2,
                 shopId: shop1.id,
                 assigner: username1,
@@ -637,17 +643,17 @@ describe('system controller - integration', () => {
     })
 
     describe("appoint manager", () => {
-        test("appoint manager - success", () => {
+        test("appoint manager - success", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess5);
+            await sys.registerMember(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.appointShopManager(sess4, {
+            let res = await sys.appointShopManager(sess4, {
                 member: username2,
                 shopId: shop1.id,
                 assigner: username1,
@@ -660,15 +666,15 @@ describe('system controller - integration', () => {
         })
 
 
-        test("appoint manager - failure - addRole - nominee doesn't exist", () => {
+        test("appoint manager - failure - addRole - nominee doesn't exist", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
 
             //act
-            let res = sys.appointShopManager(sess4, {
+            let res = await sys.appointShopManager(sess4, {
                 member: username2,
                 shopId: shop1.id,
                 assigner: username1,
@@ -680,14 +686,14 @@ describe('system controller - integration', () => {
             expect(res.data).not.toBeDefined();
         })
 
-        test("appoint manager - failure - appointShopOwner - no shop", () => {
+        test("appoint manager - failure - appointShopOwner - no shop", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
 
             //act
-            let res = sys.appointShopManager(sess4, {
+            let res = await sys.appointShopManager(sess4, {
                 member: username2,
                 shopId: shop1.id,
                 assigner: username1,
@@ -702,15 +708,15 @@ describe('system controller - integration', () => {
 
 
     describe('add permissions to shop manager', () => {
-        test("add permissions to shop manager - success", () => {
+        test("add permissions to shop manager - success", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
 
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
-            sys.appointShopManager(sess5, {
+            await sys.accessMarketplace(sess5);
+            await sys.registerMember(sess5, {username: username2, password: pass2});
+            await sys.appointShopManager(sess5, {
                 member: username2,
                 shopId: shop1.id,
                 assigner: username1,
@@ -718,40 +724,40 @@ describe('system controller - integration', () => {
             })
 
             //act
-            let res = sys.addShopManagerPermission(sess4, username2, shop1.id, Permissions.AddProduct)
+            let res = await sys.addShopManagerPermission(sess4, username2, shop1.id, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
         })
 
-        test("add permissions to shop manager - failure - permissions", () => {
+        test("add permissions to shop manager - failure - permissions", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
-            sys.login(sess5, {username: username2, password: pass2});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess5);
+            await sys.registerMember(sess5, {username: username2, password: pass2});
+            await sys.login(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.addShopManagerPermission(username2, username1, shop1.id, Permissions.AddProduct)
+            let res = await sys.addShopManagerPermission(username2, username1, shop1.id, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
         })
 
-        test("add permissions to shop manager - failure - no user", () => {
+        test("add permissions to shop manager - failure - no user", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
 
             //act
-            let res = sys.addShopManagerPermission(username1, username2, shop1.id, Permissions.AddProduct);
+            let res = await sys.addShopManagerPermission(username1, username2, shop1.id, Permissions.AddProduct);
 
             //assert
             expect(res.ok).toBe(false);
@@ -761,50 +767,50 @@ describe('system controller - integration', () => {
 
 
     describe('remove permissions to shop manager', () => {
-        test("remove shop manager permissions - success", () => {
+        test("remove shop manager permissions - success", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.login(sess4, {username: username1, password: pass1});
+            await sys.accessMarketplace(sess4);
+            await sys.login(sess4, {username: username1, password: pass1});
             //act
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
-            sys.addShopManagerPermission(sess4, username2, shop1.id, Permissions.AddProduct);
+            await sys.accessMarketplace(sess5);
+            await sys.registerMember(sess5, {username: username2, password: pass2});
+            await sys.addShopManagerPermission(sess4, username2, shop1.id, Permissions.AddProduct);
 
             //act
-            let res = sys.removeShopManagerPermission(sess4, username2, shop1.id, Permissions.AddProduct);
+            let res = await sys.removeShopManagerPermission(sess4, username2, shop1.id, Permissions.AddProduct);
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
         })
 
-        test("remove shop manager permissions - failure - checkPermission", () => {
+        test("remove shop manager permissions - failure - checkPermission", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
-            sys.login(sess5, {username: username2, password: pass2});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess5);
+            await sys.registerMember(sess5, {username: username2, password: pass2});
+            await sys.login(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.removeShopManagerPermission(username2, username1, shop1.id, Permissions.AddProduct)
+            let res = await sys.removeShopManagerPermission(username2, username1, shop1.id, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
         })
 
-        test("remove shop manager permissions - failure - remove - no member", () => {
+        test("remove shop manager permissions - failure - remove - no member", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
 
             //act
-            let res = sys.removeShopManagerPermission(username1, username2, shop1.id, Permissions.AddProduct)
+            let res = await sys.removeShopManagerPermission(username1, username2, shop1.id, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(false);
@@ -814,46 +820,46 @@ describe('system controller - integration', () => {
 
 
     describe('deactivate shop', () => {
-        test("deactivate shop - success", () => {
+        test("deactivate shop - success", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
 
             //act
-            let res = sys.deactivateShop(sess4, shop1.id);
+            let res = await await sys.deactivateShop(sess4, shop1.id);
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
         })
 
-        test("deactivate shop - failure - permissions", () => {
+        test("deactivate shop - failure - permissions", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
-            sys.login(sess5, {username: username2, password: pass2});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
+            await sys.accessMarketplace(sess5);
+            await sys.registerMember(sess5, {username: username2, password: pass2});
+            await sys.login(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.deactivateShop(username2, shop1.id);
+            let res = await await sys.deactivateShop(username2, shop1.id);
 
             //assert
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
         })
 
-        test("deactivate shop - failure to deactivate", () => {
+        test("deactivate shop - failure to deactivate", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
 
             //act
-            let res = sys.deactivateShop(username1, shop1.id);
+            let res = await await sys.deactivateShop(username1, shop1.id);
 
             //assert
             expect(res.ok).toBe(false);
@@ -862,51 +868,51 @@ describe('system controller - integration', () => {
     });
 
     describe('reactivate shop', () => {
-        test("reactivate shop - success", () => {
+        test("reactivate shop - success", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-          
-            sys.deactivateShop(username1, shop1.id);
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+
+            await sys.deactivateShop(username1, shop1.id);
 
             //act
 
             //act
-            let res = sys.reactivateShop(sess4, shop1.id);
+            let res = await sys.reactivateShop(sess4, shop1.id);
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
         })
 
-        test("reactivate shop - failure - permissions", () => {
+        test("reactivate shop - failure - permissions", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
-            sys.setUpShop(username1, shop1.name);
-            sys.deactivateShop(username1, shop1.id);
-            sys.accessMarketplace(sess5);
-            sys.registerMember(sess5, {username: username2, password: pass2});
-            sys.login(sess5, {username: username2, password: pass2});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
+            await sys.setUpShop(username1, shop1.name);
+            await sys.deactivateShop(username1, shop1.id);
+            await sys.accessMarketplace(sess5);
+            await sys.registerMember(sess5, {username: username2, password: pass2});
+            await sys.login(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.reactivateShop(username2, shop1.id);
+            let res = await sys.reactivateShop(username2, shop1.id);
 
             //assert
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
         })
 
-        test("deactivate shop - failure to reactivate - shop doesn't exist", () => {
+        test("deactivate shop - failure to reactivate - shop doesn't exist", async () => {
             //prepare
-            sys.accessMarketplace(sess4);
-            sys.registerMember(sess4, {username: username1, password: pass1});
-            sys.login(sess4, {username: username1, password: pass1});
+            await sys.accessMarketplace(sess4);
+            await sys.registerMember(sess4, {username: username1, password: pass1});
+            await sys.login(sess4, {username: username1, password: pass1});
 
             //act
-            let res = sys.reactivateShop(username1, shop1.id);
+            let res = await sys.reactivateShop(username1, shop1.id);
 
             //assert
             expect(res.ok).toBe(false);
@@ -915,13 +921,13 @@ describe('system controller - integration', () => {
     });
 
 
-    test("get personnel info - success", () => {
+    test("get personnel info - success", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
         //act
-        let res = sys.getPersonnelInfoOfShop(sess4, shop1.id);
+        let res = await sys.getPersonnelInfoOfShop(sess4, shop1.id);
 
         //assert
         expect(res.ok).toBe(true);
@@ -929,40 +935,40 @@ describe('system controller - integration', () => {
         expect(res.data).toContain(toSimpleMember(member1));
     })
 
-    test("get shop purchases - success", () => {
+    test("get shop purchases - success", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerMember(sess4, {username: username1, password: pass1});
-        sys.login(sess4, {username: username1, password: pass1});
+        await sys.accessMarketplace(sess4);
+        await sys.registerMember(sess4, {username: username1, password: pass1});
+        await sys.login(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.getShopPurchases(sess4, shop1.id, new Date(), new Date())
+        let res = await sys.getShopPurchases(sess4, shop1.id, new Date(), new Date())
 
         //assert
         expect(res.ok).toBe(true)
         expect(res.data).toEqual([]);
     })
 
-    test("register admin", () => {
+    test("register admin", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
+        await sys.accessMarketplace(sess4);
 
         //act
-        let res = sys.registerAsAdmin(sess4, {username: username1, password: pass1});
+        let res = await await sys.registerAsAdmin(sess4, {username: username1, password: pass1});
 
         //assert
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
     })
 
-    test("edit external connection service", () => {
+    test("edit external connection service", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerAsAdmin(sess4, {username: username1, password: pass1});
+        await sys.accessMarketplace(sess4);
+        await sys.registerAsAdmin(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.editConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment,
-                                                {min:1,max:10,url:"google.com"});
+        let res = await sys.editConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment,
+            {min: 1, max: 10, url: "google.com"});
 
         //assert
         expect(res.ok).toBeTruthy();
@@ -970,13 +976,13 @@ describe('system controller - integration', () => {
         expect(res.message).toBe("services updated");
     })
 
-    test("swap external connection service", () => {
+    test("swap external connection service", async () => {
         //prepare
-        sys.accessMarketplace(sess4);
-        sys.registerAsAdmin(sess4, {username: username1, password: pass1});
+        await sys.accessMarketplace(sess4);
+        await sys.registerAsAdmin(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.swapConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment, "settings");
+        let res = await sys.swapConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment, "settings");
 
         //assert
         expect(res.ok).toBeTruthy();

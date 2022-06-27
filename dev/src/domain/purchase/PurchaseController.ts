@@ -209,8 +209,8 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
 
     }
 
-    private createAndSendNotify(buyer: string, shopId: number, order: string) {
-        const shopRes = this._marketPlaceController.getShopInfo(shopId);
+    private async createAndSendNotify(buyer: string, shopId: number, order: string) {
+        const shopRes = await this._marketPlaceController.getShopInfo(shopId);
         if (checkRes(shopRes)) {
             const owners = shopRes.data.shopOwners;
             const message = new ShopPurchaseMessage(order, owners, buyer)
