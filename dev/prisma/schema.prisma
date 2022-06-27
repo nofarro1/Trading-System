@@ -13,16 +13,16 @@ datasource db {
 }
 
 model Member {
-  username              String                 @id
+  username          String              @id
   //Foreign Keys referenced
-  roles                 Role[] //One To Many
-  shops                 Shop[] //One To Many
-  ShoppingCart          ShoppingCart? //One To One
-  MemberCredentials     MemberCredentials? //One To One
-  offers                Offer[]
-  offerApprovers        OfferApprover[]
-  appointmentAgreements AppointmentAgreement[]
-  messageRecipients     MessageRecipients[]
+  roles             Role[] //One To Many
+  shops             Shop[] //One To Many
+  ShoppingCart      ShoppingCart? //One To One
+  MemberCredentials MemberCredentials? //One To One
+  offers            Offer[]
+  offerApprovers    OfferApprover[]
+  appointments      Appointment[]
+  messageRecipients MessageRecipients[]
 
   @@map("member")
 }
@@ -59,22 +59,22 @@ model Product {
 }
 
 model Shop {
-  id                    Int                    @id
-  name                  String
-  status                ShopStatus
-  member                Member                 @relation(fields: [shop_founder], references: [username], onDelete: Cascade, onUpdate: Cascade)
-  shop_founder          String //FK - One To One
-  rate                  ShopRate               @default(NotRated)
-  description           String?
+  id               Int             @id
+  name             String
+  status           ShopStatus
+  member           Member          @relation(fields: [shop_founder], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  shop_founder     String //FK - One To One
+  rate             ShopRate        @default(NotRated)
+  description      String?
   //Foreign Keys referenced
-  role                  Role[]
-  products              Product[]
-  products_in_shop      ProductInShop[]
-  bags                  ShoppingBag[]
-  discounts             Discount[]
-  policies              Policy[]
-  offers                Offer[]
-  appointmentAgreements AppointmentAgreement[]
+  role             Role[]
+  products         Product[]
+  products_in_shop ProductInShop[]
+  bags             ShoppingBag[]
+  discounts        Discount[]
+  policies         Policy[]
+  offers           Offer[]
+  appointments     Appointment[]
 
   @@map("shop")
 }
@@ -291,12 +291,12 @@ model PolicyPredicate {
 }
 
 model LogicalPolicy {
-  policy      Policy              @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  id          Int                 @id
-  description String
+  policy                   Policy                   @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id                       Int                      @id
+  description              String
   purchasePoliciesRelation PurchasePoliciesRelation
   //Foreign Key references
-  policies    PolicyInContainer[]
+  policies                 PolicyInContainer[]
 
   @@map("logical_policy")
 }
@@ -306,41 +306,45 @@ model PolicyInContainer {
   containedPolicy  Int           @unique
   policyContainer  LogicalPolicy @relation(fields: [containingPolicy], references: [id], onDelete: Cascade, onUpdate: Cascade)
   containingPolicy Int
+
   @@id([containedPolicy, containingPolicy])
   @@map("policy_in_container")
 }
 
 model Offer {
-  id            Int            @id
-  member        Member         @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  id            Int             @id
+  member        Member          @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
   username      String
-  shop          Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shop          Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   shopId        Int
-  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product       Product         @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   productId     Int
   price         Float
   //Foreign Keys referenced
-  offerApprover OfferApprover?
+  offerApprover OfferApprover[]
 
   @@map("offer")
 }
 
 model OfferApprover {
-  offer    Offer   @relation(fields: [username, offerId], references: [username, id], onDelete: Cascade, onUpdate: Cascade)
+  member   Member  @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
   username String
   offerId  Int     @unique
   answered Boolean @default(false)
   approved Boolean @default(false)
 
   @@map("offer_approver")
+  Offer Offer @relation(fields: [offerId], references: [id])
 }
 
 model Appointment {
-  member   Member  @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
-  username String
-  shop     Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  shopId   Int
-  assigner String
+  member                Member                 @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username              String
+  shop                  Shop                   @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shopId                Int
+  assigner              String
+  //Foreign Keys referenced
+  appointmentAgreements AppointmentAgreement[]
 
   @@id([username, shopId])
   @@map("appointment")
@@ -348,11 +352,11 @@ model Appointment {
 
 model AppointmentAgreement {
   appointment Appointment @relation(fields: [username, shopId], references: [username, shopId], onDelete: Cascade, onUpdate: Cascade)
-  username String
-  shopId Int
-  approver String
-  answered Boolean @default(false)
-  approved Boolean @default(false)
+  username    String
+  shopId      Int
+  approver    String
+  answered    Boolean     @default(false)
+  approved    Boolean     @default(false)
 
   @@id([username, shopId])
   @@map("appointment_agreement")
