@@ -148,7 +148,7 @@ export class SystemController {
         }
 
         cart.addCart(newMember.username);
-        let res = cart.getCart(newMember.username);
+        let res = await cart.getCart(newMember.username);
         if (res.ok) {
             let mb = box.addMessageBox(newMember.username);
             if (mb.ok) {
@@ -158,6 +158,7 @@ export class SystemController {
             return new Result(false, undefined, "could not Register");
         }
         return new Result(false, undefined, "could not Register");
+
     }
 
     private authenticateMarketVisitor<T>(
@@ -189,7 +190,7 @@ export class SystemController {
     /*------------------------------------Guest management actions----------------------------------------------*/
 
     //General Guest - Use-Case 1
-    accessMarketplace(session: string): Result<void | SimpleGuest> {
+    async accessMarketplace(session: string): Promise<Result<void | SimpleGuest>> {
         logger.warn(`[systemController/accessMarketplace] start w/ ${session}`);
         let newGuest: Result<Guest> = this.uController.createGuest(session);
         if (!newGuest.ok) {
@@ -205,16 +206,16 @@ export class SystemController {
     }
 
     //General Member - Use-Case 1 //General Guest - Use-Case 2
-    exitMarketplace(sessionId: string): Result<void> {
-        const callback = (id: string) => {
+     async exitMarketplace(sessionId: string): Promise<Result<void>> {
+        const callback = async (id: string) => {
             let toLogout = id;
-            let res = this.logout(sessionId); // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
+            let res = await this.logout(sessionId); // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
             if (checkRes(res)) {
                 toLogout = res.data.guestID;
             }
             try {
                 this.securityController.exitMarketplace(toLogout);
-                const toExit = this.uController.getGuest(toLogout);
+                const toExit =  this.uController.getGuest(toLogout);
                 const delCart = this.scController.removeCart(toLogout);
                 if (checkRes(toExit) && checkRes(delCart)) {
                     this.uController.exitGuest(toExit.data);
@@ -230,7 +231,7 @@ export class SystemController {
             }
         };
 
-        return this.authenticateMarketVisitor(sessionId, callback);
+        return this.authenticateMarketVisitorAsync(sessionId, callback);
     }
 
     // disconnectGuest(guestId: UserID): void {
@@ -250,7 +251,7 @@ export class SystemController {
                 return new Result(false, undefined, e.message);
             }
             //retrieve member and add it to active users
-            const res = this.uController.getMember(d.username)
+            const res = await this.uController.getMember(d.username);
             if (checkRes(res)) {
                 const user: Member = res.data
                 user.session = sessionId;
@@ -261,7 +262,7 @@ export class SystemController {
                     this.uController.exitGuest(toExit.data);
                     return new Result(true, toSimpleMember(user), "member logged in");
                 }
-                return new Result(true, undefined, res.message)
+                return new Result(true, undefined, res.message);
             } else {
                 return new Result(false, undefined, "member does not exist");
             }
@@ -271,8 +272,8 @@ export class SystemController {
     }
 
     //General Member - Use-Case 1
-    logout(sessionID: string): Result<SimpleGuest | void> {
-        const secCallback = (id: string) => {
+    async logout(sessionID: string): Promise<Result<SimpleGuest | void>> {
+        const secCallback = async (id: string) => {
             // remove member and live notification
             try {
                 this.securityController.logout(sessionID, id);
@@ -281,7 +282,7 @@ export class SystemController {
                 return new Result(false, undefined, e.message);
             }
         };
-        return this.authenticateMarketVisitor(sessionID, secCallback);
+        return this.authenticateMarketVisitorAsync(sessionID, secCallback);
     }
 
     //General Guest - Use-Case 3
@@ -319,7 +320,7 @@ export class SystemController {
             return new Result(false, undefined, e.message);
         }
         let add = this.scController.addCart(newMember.username);
-        let res = this.scController.getCart(newMember.username);
+        let res = await this.scController.getCart(newMember.username);
         if (checkRes(res)) {
             let mb = this.mController.addMessageBox(newMember.username);
             if (checkRes(mb)) {
@@ -341,15 +342,15 @@ export class SystemController {
 
     /*------------------------------------Marketplace Interaction actions----------------------------------------------*/
 
-    getProduct(
+    async getProduct(
         sessionID: string,
         shopId: number,
         productId: number
-    ): Result<SimpleProduct | void> {
+    ): Promise<Result<SimpleProduct | void>> {
         //market visitor authentication
 
-        return this.authenticateMarketVisitor(sessionID, () => {
-            const res = this.mpController.getProduct(shopId, productId);
+        return this.authenticateMarketVisitor(sessionID, async () => {
+            const res = await this.mpController.getProduct(shopId, productId);
             if (checkRes(res)) {
                 return new Result(true, toSimpleProduct(res.data), res.message);
             }
@@ -362,9 +363,9 @@ export class SystemController {
     //     return new Result(false, null, "no implementation");
     // }
 
-    getShop(sessionId: string, shopId: number): Result<SimpleShop | void> {
-        return this.authenticateMarketVisitor(sessionId, () => {
-            const res = this.mpController.getShopInfo(shopId);
+    async getShop(sessionId: string, shopId: number): Promise<Result<SimpleShop | void>> {
+        return this.authenticateMarketVisitor(sessionId, async () => {
+            const res = await this.mpController.getShopInfo(shopId);
             if (checkRes(res)) {
                 return new Result(true, toSimpleShop(res.data), res.message);
             }
@@ -383,23 +384,23 @@ export class SystemController {
     //     return Result.Ok(shops);
     // }
 
-    getShops(sessionId: string): Result<SimpleShop[] | void> {
-        return this.authenticateMarketVisitor(sessionId, (id) => {
-            const shops: SimpleShop[] = this.mpController.Shops.map(toSimpleShop);
+    async getShops(sessionId: string): Promise<Result<SimpleShop[] | void>> {
+        return this.authenticateMarketVisitor(sessionId, async (id) => {
+            const shops: SimpleShop[] = await this.mpController.Shops.map(toSimpleShop);
             return Result.Ok(shops);
         });
     }
 
     //Guest Payment - Use-Case 2
-    searchProducts(
+    async searchProducts(
         sessionId: string,
         searchBy: SearchType,
         searchTerm: string | ProductCategory,
         filter?: any
-    ): Result<SimpleProduct[] | void> {
+    ): Promise<Result<SimpleProduct[] | void>> {
         //market visitor authentication
-        return this.authenticateMarketVisitor(sessionId, () => {
-            const res = this.mpController.searchProduct(searchBy, searchTerm);
+        return this.authenticateMarketVisitor(sessionId, async () => {
+            const res = await this.mpController.searchProduct(searchBy, searchTerm);
             if (checkRes(res)) {
                 return new Result(true, toSimpleProducts(res.data), res.message);
             }
@@ -408,14 +409,14 @@ export class SystemController {
     }
 
     //Guest Payment - Use-Case 4.1
-    addToCart(
+    async addToCart(
         sessionId: string,
         shopId: number,
         productId: number,
         quantity: number
-    ): Result<void> {
-        const authCallback = (id: string) => {
-            const productRes = this.mpController.getProduct(shopId, productId);
+    ): Promise<Result<void>> {
+        const authCallback = async (id: string) => {
+            const productRes = await this.mpController.getProduct(shopId, productId);
             if (checkRes(productRes))
                 return this.scController.addProduct(id, productRes.data, quantity);
             else {
@@ -426,9 +427,9 @@ export class SystemController {
     }
 
     //Guest Payment - Use-Case 4.2
-    getCart(sessionId: string): Result<SimpleShoppingCart | void> {
-        const authCallback = (id: string): Result<SimpleShoppingCart | void> => {
-            const result = this.scController.getCart(id);
+    async getCart(sessionId: string): Promise<Result<SimpleShoppingCart | void>> {
+        const authCallback = async (id: string): Promise<Result<SimpleShoppingCart | void>> => {
+            const result = await this.scController.getCart(id);
             return checkRes(result)
                 ? new Result(true, toSimpleShoppingCart(id, result.data))
                 : new Result(false, undefined, result.message);
@@ -437,9 +438,9 @@ export class SystemController {
     }
 
     //Guest Payment - Use-Case 4.4
-    editCart(sessionId: string, shopId: number, productId: number, quantity: number, additionalData?: any): Result<void> {
-        const authCallback = (id: string) => {
-            const productRes = this.mpController.getProduct(shopId, productId);
+    async editCart(sessionId: string, shopId: number, productId: number, quantity: number, additionalData?: any): Promise<Result<void>> {
+        const authCallback = async (id: string) => {
+            const productRes = await this.mpController.getProduct(shopId, productId);
             if (checkRes(productRes)) {
                 return this.scController.updateProductQuantity(id, productRes.data, quantity)
             } else
@@ -450,9 +451,9 @@ export class SystemController {
     }
 
     //Guest Payment - Use-Case 4.3
-    removeProductFromCart(sessionId: string, shopId: number, productId: number): Result<void> {
-        const authCallback = (id: string) => {
-            const productRes = this.mpController.getProduct(shopId, productId);
+    async removeProductFromCart(sessionId: string, shopId: number, productId: number): Promise<Result<void>> {
+        const authCallback = async (id: string) => {
+            const productRes = await this.mpController.getProduct(shopId, productId);
             if (checkRes(productRes)) {
                 return this.scController.removeProduct(id, productRes.data)
             }
@@ -495,9 +496,9 @@ export class SystemController {
     /*------------------------------------Marketplace Interaction actions----------------------------------------------*/
 
     //Member Payment - Use-Case 2
-    setUpShop(sessionId: string, shopName: string): Result<void | SimpleShop> {
-        const authCallback = (founderId: string): Result<void | SimpleShop> => {
-            const result = this.uController.getMember(founderId);
+    async setUpShop(sessionId: string, shopName: string): Promise<Result<void | SimpleShop>> {
+        const authCallback = async (founderId: string): Promise<Result<void | SimpleShop>> => {
+            const result = await this.uController.getMember(founderId);
             if (checkRes(result)) {
                 let shop = this.mpController.setUpShop(founderId, shopName)
                 if (checkRes(shop)) {
@@ -516,7 +517,7 @@ export class SystemController {
     }
 
     //Shop Owner - Use-Case 1.1
-    addProduct(sessionId: string, p: NewProductData): Result<SimpleProduct | void> {
+    async addProduct(sessionId: string, p: NewProductData): Promise<Result<SimpleProduct | void>> {
         const authCallback = (id: string) => {
             if (this.uController.checkPermission(id, p.shopId, Permissions.AddProduct).data ||
                 this.uController.checkPermission(id, p.shopId, Permissions.ShopOwner).data) {
@@ -535,32 +536,32 @@ export class SystemController {
     }
 
     //Shop Owner - Use-Case 1.3
-    updateProductQuantity(sessionId: string, shop: number, product: number, quantity: number): Result<void> {
-        const authCallback = (id: string): Result<void> => {
+    async updateProductQuantity(sessionId: string, shop: number, product: number, quantity: number): Promise<Result<void>> {
+        const authCallback = async (id: string): Promise<Result<void>> => {
             if (this.uController.checkPermission(id, shop, Permissions.ModifyProduct).data ||
                 this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.mpController.updateProductQuantity(shop, product, quantity)
             }
             return new Result(false, undefined, "member does not have permissions");
         }
-        return this.authenticateMarketVisitor(sessionId, authCallback);
+        return this.authenticateMarketVisitorAsync(sessionId, authCallback);
     }
 
     //Shop Owner - Use-Case 1.2
-    deleteProduct(sessId: string, shop: number, product: number): Result<void> {
-        const authCallback = (id: string): Result<void> => {
+    async deleteProduct(sessId: string, shop: number, product: number): Promise<Result<void>> {
+        const authCallback = async (id: string): Promise<Result<void>> => {
             if (this.uController.checkPermission(id, shop, Permissions.RemoveProduct).data ||
                 this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.mpController.removeProductFromShop(shop, product);
             }
             return new Result(false, undefined, "member does not have permissions");
         }
-        return this.authenticateMarketVisitor(sessId, authCallback);
+        return this.authenticateMarketVisitorAsync(sessId, authCallback);
     }
 
     //Shop Owner - Use-Case 9
-    deactivateShop(sessId: string, shop: number): Result<void> {
-        return this.authenticateMarketVisitor(sessId, (id: string) => {
+    async deactivateShop(sessId: string, shop: number): Promise<Result<void>> {
+        return this.authenticateMarketVisitor(sessId, async (id: string) => {
             if (this.uController.checkPermission(id, shop, Permissions.CloseShop).data ||
                 this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.mpController.closeShop(id, shop)
@@ -570,11 +571,11 @@ export class SystemController {
     }
 
     //todo; undo commet  when missing the methods in marketplace controller are declared
-    getDiscounts(
+    async getDiscounts(
         sessId: string,
         shopId: number
-    ): Result<SimpleDiscountDescriber[] | void> {
-        return this.authenticateMarketVisitor(sessId, () => {
+    ): Promise<Result<SimpleDiscountDescriber[] | void>> {
+        return this.authenticateMarketVisitorAsync(sessId, async () => {
             const discounts: DiscountComponent[] =
                 this.mpController.getDiscounts(shopId);
             return Result.Ok(discounts.map(toSimpleDiscountDescriber));
@@ -592,12 +593,12 @@ export class SystemController {
     //     });
     // }
 
-    addDiscount(
+    async addDiscount(
         sessId: string,
         shopId: number,
         discount: DiscountData
-    ): Result<number | void> {
-        return this.authenticateMarketVisitor(sessId, (userId) => {
+    ): Promise<Result<number | void>> {
+        return this.authenticateMarketVisitorAsync(sessId, async (userId) => {
             if (
                 this.uController.checkPermission(
                     userId,
@@ -643,11 +644,11 @@ export class SystemController {
         });
     }
 
-    getPolicies(
+    async getPolicies(
         sessId: string,
         shopId: number
-    ): Result<ImmediatePurchasePolicyComponent[]> {
-        return this.authenticateMarketVisitor(sessId, (userId) => {
+    ): Promise<Result<ImmediatePurchasePolicyComponent[]>> {
+        return this.authenticateMarketVisitorAsync(sessId, async (userId) => {
             if (
                 this.uController.checkPermission(
                     userId,
@@ -657,7 +658,7 @@ export class SystemController {
                 this.uController.checkPermission(userId, shopId, Permissions.ShopOwner)
                     .data
             ) {
-                const res = this.mpController.getPolicies(shopId);
+                const res =  this.mpController.getPolicies(shopId);
                 if (checkRes(res)) {
                     return Result.Ok(res.data, `new discount add with Id ${res.data}`);
                 }
@@ -669,12 +670,12 @@ export class SystemController {
         });
     }
 
-    addPurchasePolicy(
+    async addPurchasePolicy(
         sessId: string,
         shopId: number,
         puPolicy: ImmediatePurchaseData
-    ): Result<number | void> {
-        return this.authenticateMarketVisitor(sessId, (userId) => {
+    ): Promise<Result<number | void>> {
+        return this.authenticateMarketVisitorAsync(sessId, async (userId) => {
             if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
                 this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
                 const res = this.mpController.addPurchasePolicy(shopId, puPolicy);
@@ -689,12 +690,12 @@ export class SystemController {
         });
     }
 
-    removePurchasePolicy(
+    async removePurchasePolicy(
         sessId: string,
         shopId: number,
         idPuPolicy: number
-    ): Result<void> {
-        return this.authenticateMarketVisitor(sessId, (userId) => {
+    ): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(sessId, async (userId) => {
             if (
                 this.uController.checkPermission(
                     userId,
@@ -716,8 +717,8 @@ export class SystemController {
 
     /*-----------------------------------shop Personnel Actions actions----------------------------------------------*/
 
-    appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
-        const authCallback = (id: string) => {
+    async appointShopOwner(sessionId: string, r: NewRoleData): Promise<Result<void>> {
+        const authCallback = async (id: string) => {
             if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
                 this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data) {
                 const result = this.uController.addRole(r.assigner, r.member, JobType.Owner, r.shopId, new Set(r.permissions.concat(Permissions.ShopOwner)))
@@ -728,13 +729,13 @@ export class SystemController {
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
-        return this.authenticateMarketVisitor(sessionId, authCallback)
+        return this.authenticateMarketVisitorAsync(sessionId, authCallback)
     }
 
 
     //Shop Owner - Use-Case 6
-    appointShopManager(sessionId: string, r: NewRoleData): Result<void> {
-        const authCallback = (appointerId: string) => {
+    async appointShopManager(sessionId: string, r: NewRoleData): Promise<Result<void>> {
+        const authCallback = async (appointerId: string) => {
             if (this.uController.checkPermission(appointerId, r.shopId, Permissions.AddShopManager).data ||
                 this.uController.checkPermission(appointerId, r.shopId, Permissions.ShopOwner).data) {
                 const result = this.uController.addRole(r.assigner, r.member, JobType.Manager, r.shopId, new Set(r.permissions)) //todo: adding an assigner to the method?
@@ -745,7 +746,7 @@ export class SystemController {
             }
             return new Result(false, undefined, "no permissions to appoint shopOwner")
         }
-        return this.authenticateMarketVisitor(sessionId, authCallback)
+        return this.authenticateMarketVisitorAsync(sessionId, authCallback)
     }
 
     /* not for this version
@@ -761,8 +762,8 @@ export class SystemController {
       */
 
     //Shop Owner - Use-Case 7.1
-    addShopManagerPermission(sessionId: string, manager: string, shop: number, permission: Permissions): Result<void> {
-        const authCallback = (ownerId: string) => {
+    async addShopManagerPermission(sessionId: string, manager: string, shop: number, permission: Permissions): Promise<Result<void>> {
+        const authCallback = async (ownerId: string) => {
             if (this.uController.checkPermission(ownerId, shop, Permissions.AddPermission).data ||
                 this.uController.checkPermission(ownerId, shop, Permissions.ShopOwner).data) {
                 return this.uController.addPermission(manager, shop, permission)
@@ -770,12 +771,12 @@ export class SystemController {
                 return new Result(false, undefined, "No permission to add permissions");
             }
         }
-        return this.authenticateMarketVisitor(sessionId, authCallback)
+        return this.authenticateMarketVisitorAsync(sessionId, authCallback)
     }
 
     //Shop Owner - Use-Case 7.2
-    removeShopManagerPermission(sessionId: string, manager: string, shop: number, permission: Permissions): Result<void> {
-        const authCallback = (id: string) => {
+    async removeShopManagerPermission(sessionId: string, manager: string, shop: number, permission: Permissions): Promise<Result<void>> {
+        const authCallback = async (id: string) => {
             if (this.uController.checkPermission(id, shop, Permissions.RemovePermission).data ||
                 this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.uController.removePermission(manager, shop, permission)
@@ -783,11 +784,11 @@ export class SystemController {
                 return new Result(false, undefined, "No permission to add permissions");
             }
         }
-        return this.authenticateMarketVisitor(sessionId, authCallback)
+        return this.authenticateMarketVisitorAsync(sessionId, authCallback)
     }
 
-    reactivateShop(sessId: string, shop: number): Result<void> {
-        return this.authenticateMarketVisitor(sessId, (id: string) => {
+    async reactivateShop(sessId: string, shop: number): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(sessId, async (id: string) => {
             if (this.uController.checkPermission(id, shop, Permissions.ReopenShop).data ||
                 this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return this.mpController.reopenShop(id, shop)
@@ -797,8 +798,8 @@ export class SystemController {
     }
 
     //Shop Owner - Use-Case 11
-    getPersonnelInfoOfShop(sessId: string, shop: number): Result<SimpleMember[] | void> {
-        const callback = (id: string) => {
+    async getPersonnelInfoOfShop(sessId: string, shop: number): Promise<Result<SimpleMember[] | void>> {
+        const callback = async (id: string) => {
             if (!this.uController.checkPermission(id, shop, Permissions.RequestPersonnelInfo).data ||
                 !this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
@@ -818,14 +819,14 @@ export class SystemController {
 
             return new Result(false, [], "not shop with that Id exists");
         };
-        return this.authenticateMarketVisitor(sessId, callback);
+        return this.authenticateMarketVisitorAsync(sessId, callback);
     }
 
     //Shop Owner - Use-Case 13
     //System Admin - Use-Case 4
-    getShopPurchases(sessId: string, shop: number, startDate: Date, endDate: Date, filter?: any): Result<string[] | void> {
+    async getShopPurchases(sessId: string, shop: number, startDate: Date, endDate: Date, filter?: any): Promise<Result<string[] | void>> {
 
-        const callback = (id: string) => {
+        const callback = async (id: string) => {
             //check if can preview History
             if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data ||
                 !this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
@@ -836,7 +837,7 @@ export class SystemController {
             return new Result(true, orders, orders.length !== 0 ? undefined : "no SimpleShop order were found");
         }
 
-        return this.authenticateMarketVisitor(sessId, callback);
+        return this.authenticateMarketVisitorAsync(sessId, callback);
     }
 
     /*-----------------------------------shop Personnel Actions actions----------------------------------------------*/
@@ -858,9 +859,9 @@ export class SystemController {
         return new Result(false, undefined, "admin name cannot be registered");
     }
 
-    checkAdminPermissions(sessionID: string, admin_username: string, admin_password: string): Result<boolean> {
-        return this.authenticateMarketVisitor(sessionID, (username) => {
-            if (this.securityController.checkPassword(username, admin_password)) {
+    async checkAdminPermissions(sessionID: string, admin_username: string, admin_password: string): Promise<Result<boolean>> {
+        return this.authenticateMarketVisitorAsync(sessionID, async (username) => {
+            if (await this.securityController.checkPassword(username, admin_password)) {
                 return this.uController.checkPermission(admin_username, -1, Permissions.AdminControl);
             } else {
                 return Result.Fail("password does not match");
@@ -870,8 +871,8 @@ export class SystemController {
     }
 
 
-    editConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, settings: ServiceSettings): Result<void> {
-        return this.authenticateMarketVisitor(admin, (id: string) => {
+    async editConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, settings: ServiceSettings): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(admin, async (id: string) => {
             if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
             }
@@ -929,8 +930,8 @@ export class SystemController {
     //     })
     // }
 
-    swapConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, newServiceName: string): Result<void> {
-        return this.authenticateMarketVisitor(admin, (id: string) => {
+    async swapConnectionWithExternalService(sessionID: string, admin: string, type: ExternalServiceType, newServiceName: string): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(admin, async (id: string) => {
             if (!this.uController.checkPermission(id, -1, Permissions.AdminControl)) {
                 return new Result(false, undefined, "no admin Privileges");
             }
@@ -947,15 +948,15 @@ export class SystemController {
     }
 
 
-    getMessages(sessionId: string) {
-        return this.authenticateMarketVisitor(sessionId, (id) => {
-            return this.mController.getMessages(id);
+    async getMessages(sessionId: string) {
+        return this.authenticateMarketVisitorAsync(sessionId, async (id) => {
+            return await this.mController.getMessages(id);
         })
     }
 
     /*-----------------------------------Offer (bid on product)----------------------------------------------*/
-    addOffer2Shop(sessionId, shopId: number, pId: number, price: number): Result<void> {
-        return this.authenticateMarketVisitor(sessionId, (username) => {
+    async addOffer2Shop(sessionId, shopId: number, pId: number, price: number): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(sessionId, async (username) => {
             let offer: Result<void | Offer> = this.mpController.addOffer2Product(shopId, username, pId, price);
             if (checkRes(offer)) {
                 return this.scController.addOffer2cart(username, offer.data);
@@ -963,14 +964,14 @@ export class SystemController {
         })
     }
 
-    approveOffer(sessionId: string, shopId: number, offerId: number, answer: boolean): Result<void> {
-        return this.authenticateMarketVisitor(sessionId, (username) => {
+    async approveOffer(sessionId: string, shopId: number, offerId: number, answer: boolean): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(sessionId, async (username) => {
             return this.mpController.approveOffer(shopId, offerId, username, answer);
         });
     }
 
-    filingCounterOffer(sessionId: string, shopId: number, offerId: number, counterPrice: number): Result<void> {
-        return this.authenticateMarketVisitor(sessionId, (username) => {
+    async filingCounterOffer(sessionId: string, shopId: number, offerId: number, counterPrice: number): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(sessionId, async (username) => {
             let result: Result<void | Offer> = this.mpController.filingCounterOffer(shopId, offerId, username, counterPrice);
             if (checkRes(result)) {
                 this.scController.updateOfferFromCart(result.data);
@@ -980,15 +981,15 @@ export class SystemController {
         })
     }
 
-    denyCounterOffer(sessionId: string, username: string, shopId: number, offerId: number): Result<void> {
-        return this.authenticateMarketVisitor(sessionId, () => {
+    async denyCounterOffer(sessionId: string, username: string, shopId: number, offerId: number): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(sessionId, async () => {
             this.scController.removeOffer(username, offerId);
             return this.mpController.denyCounterOffer(shopId, offerId);
         })
     }
 
-    acceptCounterOffer(sessionId: string, shopId: number, offerId: number): Result<void> {
-        return this.authenticateMarketVisitor(sessionId, (username) => {
+    async acceptCounterOffer(sessionId: string, shopId: number, offerId: number): Promise<Result<void>> {
+        return this.authenticateMarketVisitorAsync(sessionId, async (username) => {
             let result: Result<void | Offer> = this.mpController.acceptCounterOffer(shopId, offerId);
             if (checkRes(result)) {
                 this.scController.updateOfferFromCart(result.data);
@@ -999,7 +1000,7 @@ export class SystemController {
     }
 
     /*-----------------------------------Appointment agreement----------------------------------------------*/
-    submitOwnerAppointmentInShop(sessionId: string, shopId: number, member: string, assigner: string): Result<void> {
+    async submitOwnerAppointmentInShop(sessionId: string, shopId: number, member: string, assigner: string): Promise<Result<void>> {
         return this.authenticateMarketVisitor(sessionId, () => {
             return this.mpController.submitOwnerAppointmentInShop(shopId, member, assigner);
         })
