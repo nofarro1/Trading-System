@@ -1,8 +1,11 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
 import {Product} from "../../../../Product";
 import {ContainerDiscountComponent} from "../ContainerDiscountComponent";
+import {Entity} from "../../../../../../utilities/Entity";
+import prisma from "../../../../../../utilities/PrismaClient";
 
-export class AndDiscounts extends ContainerDiscountComponent{
+
+export class AndDiscounts extends ContainerDiscountComponent implements Entity{
 
      constructor(id: number, discounts: DiscountComponent[]) {
          super(id, discounts);
@@ -34,5 +37,27 @@ export class AndDiscounts extends ContainerDiscountComponent{
     predicate(products: [Product, number, number][]): boolean {
         let predCallbak = (acc:boolean, dc:DiscountComponent) => acc && dc.predicate(products);
         return this.discounts.reduce(predCallbak, true);
+    }
+
+    async save(...params) {
+         await prisma.discountContainer.create({
+             data: {
+                 id: this.id,
+                 description: this.description,
+             },
+         });
+        for(let disc of this._discounts){
+            disc.save();
+            saveInDiscountTable(disc.id, this.id);
+        }
+    }
+
+    update() {
+    }
+
+    findById() {
+    }
+
+    delete() {
     }
 }

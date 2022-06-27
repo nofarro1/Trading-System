@@ -1,6 +1,7 @@
 import {DiscountComponent} from "../../Components/DiscountComponent";
 import {Product} from "../../../Product";
 import {DiscountData} from "../../../../../utilities/DataObjects";
+import {Entity} from "../../../../../utilities/Entity";
 
 export abstract class ContainerDiscountComponent implements DiscountComponent{
     protected _id: number;
