@@ -146,18 +146,28 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     }
 
     //does not work currectly
-    addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, productDesc?: string): Result<void | Product> {
+    async addProductToShop(shopId: number, productCategory: ProductCategory, productName: string, quantity: number, fullPrice: number, productDesc?: string): Promise<Result<void | Product>> {
         if (quantity < 0)
             return new Result<void>(false, undefined, "Cannot add negative amount of product to a shop ");
         let shop = this._shops.get(shopId);// fatch from db
         if (!shop) {
+            let shop = await this.fetchShop(shopId)
+            if(shop){
+                let product: Product = shop.addProduct(productName, productCategory, fullPrice, quantity, productDesc);
+                this.allProductsInMP.set({shop: product.shopId, id: product.id}, product) // save shop to database
+                logger.info(`${productName} was added to ${shop.name}.`);
+                this.saveShop(shop);
+                return new Result(true, product, undefined);
+            }
             logger.error(`Failed to add product to shop because the shop with id:${shopId} does not exit .`)
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
+        }else {
+            let product: Product = shop.addProduct(productName, productCategory, fullPrice, quantity, productDesc);
+            this.allProductsInMP.set({shop: product.shopId, id: product.id}, product) // save shop to database
+            logger.info(`${productName} was added to ${shop.name}.`);
+            this.saveShop(shop);
+            return new Result(true, product, undefined);
         }
-        let product: Product = shop.addProduct(productName, productCategory, fullPrice, quantity, productDesc);
-        this.allProductsInMP.set({shop: product.shopId, id: product.id}, product) // save shop to database
-        logger.info(`${productName} was added to ${shop.name}.`);
-        return new Result(true, product, undefined);
     }
 
     removeProductFromShop(shopId: number, productId: number): Result<void> {
