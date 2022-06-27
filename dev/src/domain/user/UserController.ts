@@ -48,8 +48,10 @@ export class UserController {
         }
         const member = this.members.get(username);
         let role = new Role(shopId, jobType, assigner, perm);
-        if(member)
+        if(member) {
             member.addRole(role);
+            role.save(username);
+        }
         logger.info(`[addRole] Role ${role} added to member ${username}`);
         return new Result(true, role);
     }
@@ -86,6 +88,7 @@ export class UserController {
         else{
             let member = new Member(session, username);
             this.members.set(username, member);
+            member.save();
             logger.info(`[addMember] Member ${username} added to the marketPlace`); 
             return new Result(true, member);
         }

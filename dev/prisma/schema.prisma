@@ -361,10 +361,11 @@ model OfferApprover {
   member   Member  @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
   username String
   offer    Offer   @relation(fields: [offerId], references: [id])
-  offerId  Int     @unique
+  offerId  Int
   answered Boolean @default(false)
   approved Boolean @default(false)
 
+  @@id([offerId, username])
   @@map("offer_approver")
 }
 
