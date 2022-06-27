@@ -294,6 +294,7 @@ model LogicalPolicy {
   policy      Policy              @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   id          Int                 @id
   description String
+  purchasePoliciesRelation PurchasePoliciesRelation
   //Foreign Key references
   policies    PolicyInContainer[]
 
@@ -305,14 +306,13 @@ model PolicyInContainer {
   containedPolicy  Int           @unique
   policyContainer  LogicalPolicy @relation(fields: [containingPolicy], references: [id], onDelete: Cascade, onUpdate: Cascade)
   containingPolicy Int
-
   @@id([containedPolicy, containingPolicy])
   @@map("policy_in_container")
 }
 
 model Offer {
-  member        Member         @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
   id            Int            @id
+  member        Member         @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
   username      String
   shop          Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   shopId        Int
@@ -326,9 +326,8 @@ model Offer {
 }
 
 model OfferApprover {
-  member   Member  @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  offer    Offer   @relation(fields: [username, offerId], references: [username, id], onDelete: Cascade, onUpdate: Cascade)
   username String
-  offer    Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   offerId  Int     @unique
   answered Boolean @default(false)
   approved Boolean @default(false)
@@ -336,12 +335,22 @@ model OfferApprover {
   @@map("offer_approver")
 }
 
-model AppointmentAgreement {
+model Appointment {
   member   Member  @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
   username String
   shop     Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   shopId   Int
   assigner String
+
+  @@id([username, shopId])
+  @@map("appointment")
+}
+
+model AppointmentAgreement {
+  appointment Appointment @relation(fields: [username, shopId], references: [username, shopId], onDelete: Cascade, onUpdate: Cascade)
+  username String
+  shopId Int
+  approver String
   answered Boolean @default(false)
   approved Boolean @default(false)
 

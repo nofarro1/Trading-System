@@ -21,10 +21,20 @@ export const ShopStatus: { [x: string]: 'Open' | 'Closed'} = {
     Closed: 'Closed',
 }
 export type ShopStatus = typeof ShopStatus[keyof typeof ShopStatus]
-export enum DiscountType {Product, Category, Bag}
+export const DiscountType: { [x: string]: 'Product' | 'Category' | 'Bag'} = {
+    Product: 'Product',
+    Category: 'Category',
+    Bag: 'Bag',
+}
+export type DiscountType = typeof DiscountType[keyof typeof DiscountType]
 export enum PolicyType {LogicalPolicy, SimplePolicy }
-export enum SimplePolicyType {Product, Category, ShoppingBag, UserInfo}
-// export enum LogicalPolicy {AndPolicy, OrPolicy, ConditionalPolicy}
+export const SimplePolicyType: { [x: string]: 'Product' | 'Category' | 'ShoppingBag' | 'UserInfo'} = {
+    Product: 'Product',
+    Category: 'Category',
+    ShoppingBag: 'ShoppingBag',
+    UserInfo: 'UserInfo',
+}
+export type SimplePolicyType = typeof SimplePolicyType[keyof typeof SimplePolicyType]
 export const JobType: { [x: string]: 'Admin' | 'Founder' | 'Owner' | 'Manager'} = {
     Admin: 'Admin',
     Founder: 'Founder',
@@ -32,7 +42,15 @@ export const JobType: { [x: string]: 'Admin' | 'Founder' | 'Owner' | 'Manager'} 
     Manager: 'Manager',
 }
 export type JobType = typeof JobType[keyof typeof JobType]
-export enum RelationType {LessThen, LessThenOrEqual, Equal, GreaterThen, GreaterThenOrEqual, NotEqual }
+export const RelationType: { [x: string]: 'LessThan' | 'LessThanOrEqual' | 'Equal' | 'GreaterThan' | 'GreaterThanOrEqual' | 'NotEqual'} = {
+    LessThan: 'LessThan',
+    LessThanOrEqual: 'LessThanOrEqual',
+    Equal: 'Equal',
+    GreaterThan: 'GreaterThan',
+    GreaterThanOrEqual: 'GreaterThanOrEqual',
+    NotEqual: 'NotEqual',
+}
+export type RelationType = typeof RelationType[keyof typeof RelationType]
 export enum DiscountKinds {SimpleDiscount, ConditionalDiscount, ContainerDiscount}
 export const DiscountRelation: { [x: string]: 'And' | 'Or' | 'Xor' | 'Addition' | 'Max'} = {
     And: 'And',

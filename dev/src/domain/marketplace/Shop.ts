@@ -481,26 +481,6 @@ export class Shop implements Entity{
         this._appointmentAgreements.set(member, agreement);
         return agreement;
     }
-    findById() {
-    }
-
-    async save(...params: any) {
-        await prisma.shop.create({
-            data: {
-                id: this.id,
-                name: this.name,
-                status: this.status,
-                shop_founder: this.shopFounder,
-                rate: this.rate,
-                description: this.description,
-            },
-        });
-
-        for(const shop_owner of this.shopOwners)
-            await this.createShopOwner(shop_owner, this.id);
-        for(const shop_manager of this.shopManagers)
-            await this.createShopManager(shop_manager, this.id);
-    }
 
     answerAppointmentAgreement(member: string, owner: string, answer: boolean): void | AppointmentAgreement {
         let agreement: AppointmentAgreement = this._appointmentAgreements.get(member);
@@ -521,6 +501,27 @@ export class Shop implements Entity{
                 shopId: shopId,
             },
         });
+    }
+
+    findById() {
+    }
+
+    async save(...params: any) {
+        await prisma.shop.create({
+            data: {
+                id: this.id,
+                name: this.name,
+                status: this.status,
+                shop_founder: this.shopFounder,
+                rate: this.rate,
+                description: this.description,
+            },
+        });
+
+        for(const shop_owner of this.shopOwners)
+            await this.createShopOwner(shop_owner, this.id);
+        for(const shop_manager of this.shopManagers)
+            await this.createShopManager(shop_manager, this.id);
     }
 
     private async createShopManager(username: string, shopId: number) {
