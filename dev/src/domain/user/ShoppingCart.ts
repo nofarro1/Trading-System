@@ -121,6 +121,10 @@ export class ShoppingCart implements Entity{
 
     update() {
     }
+
+    delete() {
+
+    }
 }
 
  

@@ -93,4 +93,8 @@ export class ShoppingBag implements Entity{
 
     update() {
     }
+
+    delete() {
+
+    }
 }

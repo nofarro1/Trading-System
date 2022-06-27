@@ -494,19 +494,11 @@ export class Shop implements Entity{
     removeAppointmentAgreement(member: string){
         this._appointmentAgreements.delete(member);
     }
-    private async createShopOwner(username: string, shopId: number) {
-        await prisma.shopOwner.create({
-            data: {
-                username: username,
-                shopId: shopId,
-            },
-        });
-    }
 
     findById() {
     }
 
-    async save(...params: any) {
+    async save() {
         await prisma.shop.create({
             data: {
                 id: this.id,
@@ -533,6 +525,19 @@ export class Shop implements Entity{
         });
     }
 
+    private async createShopOwner(username: string, shopId: number) {
+        await prisma.shopOwner.create({
+            data: {
+                username: username,
+                shopId: shopId,
+            },
+        });
+    }
+
     update() {
+    }
+
+    delete() {
+
     }
 }

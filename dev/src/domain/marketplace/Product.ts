@@ -105,6 +105,10 @@ export class Product implements Entity{
     update() {
     }
 
+    delete() {
+
+    }
+
 
 
 }

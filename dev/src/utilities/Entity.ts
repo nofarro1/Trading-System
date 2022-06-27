@@ -4,4 +4,6 @@ export interface Entity {
     update();
 
     findById();
+
+    delete();
 }

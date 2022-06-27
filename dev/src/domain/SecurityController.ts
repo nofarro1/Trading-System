@@ -28,6 +28,10 @@ export class MemberCredentials implements Entity{
 
     update() {
     }
+
+    delete() {
+
+    }
 }
 
 @injectable()

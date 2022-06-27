@@ -71,4 +71,8 @@ export class Role implements Entity{
 
     update() {
     }
+
+    delete() {
+
+    }
 }

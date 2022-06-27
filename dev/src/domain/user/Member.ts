@@ -78,5 +78,9 @@ export class Member extends Guest implements Entity{
 
     update() {
     }
+
+    delete() {
+
+    }
 }
 
