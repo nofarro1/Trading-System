@@ -201,12 +201,12 @@ describe('system controller - integration', () => {
             expect(res.data).toBeDefined()
         })
 
-        test("login test - failure - recover from security failure", () => {
+        test("login test - failure - recover from security failure", async () => {
             //prepare
             sys.accessMarketplace(sess4);
 
             //act
-            let res = sys.login(sess4, {username: username1, password: pass2});
+            let res = await sys.login(sess4, {username: username1, password: pass2});
 
             //assert
             expect(res.ok).toBe(false);
@@ -214,14 +214,14 @@ describe('system controller - integration', () => {
         })
     })
 
-    test("logout test - success", () => {
+    test("logout test - success", async () => {
         //prepare
         sys.accessMarketplace(sess4);
         // sys.registerMember(sess4, {username: username1, password: pass1});
         sys.login(sess4, {username: username1, password: pass1});
 
         //act
-        let res = sys.logout(sess4);
+        let res = await sys.logout(sess4);
 
         //assert
         expect(res.ok).toBe(true);
@@ -229,22 +229,22 @@ describe('system controller - integration', () => {
     })
 
     describe("register tests", () => {
-        test("register member - success", () => {
+        test("register member - success", async () => {
             //prepare
             sys.accessMarketplace(sess5);
 
             //act
-            let res = sys.registerMember(sess5, {username: username2, password: pass2});
+            let res = await sys.registerMember(sess5, {username: username2, password: pass2});
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).toBeDefined();
         })
 
-        test("register member - failure from security", () => {
+        test("register member - failure from security", async () => {
             //act
             sys.accessMarketplace(sess5);
-            let res = sys.registerMember(sess5, {username: username1, password: pass1});
+            let res = await sys.registerMember(sess5, {username: username1, password: pass1});
 
             //assert
             expect(res.ok).toBe(false);
@@ -814,21 +814,21 @@ describe('system controller - integration', () => {
 
 
     describe('deactivate shop', () => {
-        test("deactivate shop - success", () => {
+        test("deactivate shop - success", async () => {
             //prepare
             sys.accessMarketplace(sess4);
             sys.registerMember(sess4, {username: username1, password: pass1});
             sys.login(sess4, {username: username1, password: pass1});
 
             //act
-            let res = sys.deactivateShop(sess4, shop1.id);
+            let res = await sys.deactivateShop(sess4, shop1.id);
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
         })
 
-        test("deactivate shop - failure - permissions", () => {
+        test("deactivate shop - failure - permissions", async () => {
             //prepare
             sys.accessMarketplace(sess4);
             sys.registerMember(sess4, {username: username1, password: pass1});
@@ -839,21 +839,21 @@ describe('system controller - integration', () => {
             sys.login(sess5, {username: username2, password: pass2});
 
             //act
-            let res = sys.deactivateShop(username2, shop1.id);
+            let res = await sys.deactivateShop(username2, shop1.id);
 
             //assert
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
         })
 
-        test("deactivate shop - failure to deactivate", () => {
+        test("deactivate shop - failure to deactivate", async () => {
             //prepare
             sys.accessMarketplace(sess4);
             sys.registerMember(sess4, {username: username1, password: pass1});
             sys.login(sess4, {username: username1, password: pass1});
 
             //act
-            let res = sys.deactivateShop(username1, shop1.id);
+            let res = await sys.deactivateShop(username1, shop1.id);
 
             //assert
             expect(res.ok).toBe(false);
@@ -943,12 +943,12 @@ describe('system controller - integration', () => {
         expect(res.data).toEqual([]);
     })
 
-    test("register admin", () => {
+    test("register admin", async () => {
         //prepare
         sys.accessMarketplace(sess4);
 
         //act
-        let res = sys.registerAsAdmin(sess4, {username: username1, password: pass1});
+        let res = await sys.registerAsAdmin(sess4, {username: username1, password: pass1});
 
         //assert
         expect(res.ok).toBe(true);

@@ -156,7 +156,7 @@ describe('system controller - unit', () => {
         expect(mpControllerMockMethod).toBeCalled();
     })
 
-    test("access marketplace test", () => {
+    test("access marketplace test", async () => {
         //prepare
 
         scControllerMockMethod = mockMethod(SecurityController.prototype, "accessMarketplace", (id) => {
@@ -168,7 +168,7 @@ describe('system controller - unit', () => {
             return new Result<Guest>(true, user1);
         })
         //act
-        const res = sys.accessMarketplace(sess1);
+        const res = await sys.accessMarketplace(sess1);
 
         //assert
         expect(res.ok).toBeTruthy();
@@ -180,7 +180,7 @@ describe('system controller - unit', () => {
         clearMocks(scControllerMockMethod, uControllerMockMethod);
     })
 
-    test("exit marketplace - guest", () => {
+    test("exit marketplace - guest", async () => {
         mockInstance(mockDependencies.SystemController);
         let logoutMockMethod = mockMethod(SystemController.prototype, 'logout', () => {
             return new Result(false, user2);
@@ -199,7 +199,7 @@ describe('system controller - unit', () => {
             return new Result(true, user1)
         })
 
-        let res = sys.exitMarketplace("1");
+        let res = await sys.exitMarketplace("1");
 
         expect(res.ok).toBe(true)
         expect(res.data).toEqual(undefined)
@@ -213,7 +213,7 @@ describe('system controller - unit', () => {
         clearMocks(...mocks);
     })
 
-    test("exit marketplace - member", () => {
+    test("exit marketplace - member", async () => {
         mockInstance(mockDependencies.SystemController);
         let logoutMockMethod = mockMethod(SystemController.prototype, 'logout', () => {
             return new Result(true, user1);
@@ -232,7 +232,7 @@ describe('system controller - unit', () => {
             return new Result(true, user1)
         })
 
-        let res = sys.exitMarketplace("1");
+        let res = await sys.exitMarketplace("1");
 
         expect(res.ok).toBe(true)
         expect(res.data).toEqual(undefined)
@@ -246,7 +246,7 @@ describe('system controller - unit', () => {
 
 
     describe("login tests", () => {
-        test("login test - success", () => {
+        test("login test - success", async () => {
             //prepare
             let loginMockMethod = mockMethod(SecurityController.prototype, 'login',
                 (_: any) => {
@@ -269,7 +269,7 @@ describe('system controller - unit', () => {
                 return new Result(true, undefined);
             })
             //act
-            let res = sys.login(sess4, {username: username1, password: pass1});
+            let res = await sys.login(sess4, {username: username1, password: pass1});
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).toBeDefined()
@@ -281,12 +281,12 @@ describe('system controller - unit', () => {
 
         })
 
-        test("login test - failure - recover from security failure", () => {
+        test("login test - failure - recover from security failure", async () => {
             let loginMockMethod = mockMethod(SecurityController.prototype, 'login',
                 (_: any) => {
                     throw new Error("mock throw")
                 });
-            let res = sys.login(sess4, {username: username1, password: pass1});
+            let res = await sys.login(sess4, {username: username1, password: pass1});
             //assert
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined()
@@ -294,12 +294,12 @@ describe('system controller - unit', () => {
             clearMocks(loginMockMethod)
         })
 
-        test("login test - failure - recover from Member Controller failure", () => {
+        test("login test - failure - recover from Member Controller failure", async () => {
             let loginMockMethod = mockMethod(SecurityController.prototype, 'login',
                 (_: any) => {
                     throw new Error("mock throw")
                 });
-            let res = sys.login(sess4, {username: username1, password: pass1});
+            let res = await sys.login(sess4, {username: username1, password: pass1});
             //assert
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined()
@@ -314,7 +314,7 @@ describe('system controller - unit', () => {
     })
 
     describe("register tests", () => {
-            test("register member - success", () => {
+            test("register member - success", async () => {
                 //prepare
                 let registerMockMethod = mockMethod(SecurityController.prototype, 'register',
                     (_: any) => {
@@ -332,7 +332,7 @@ describe('system controller - unit', () => {
                 })
 
                 //act
-                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+                let res = await sys.registerMember(sess4, {username: username1, password: pass1});
 
                 //assert
                 expect(res.ok).toBe(true);
@@ -344,7 +344,7 @@ describe('system controller - unit', () => {
                 clearMocks(...mocks)
             })
 
-            test("register member - failure from security", () => {
+            test("register member - failure from security", async () => {
                 //prepare
                 let registerMockMethod = mockMethod(SecurityController.prototype, 'register',
                     (_: any) => {
@@ -363,7 +363,7 @@ describe('system controller - unit', () => {
                 })
 
                 //act
-                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+                let res = await sys.registerMember(sess4, {username: username1, password: pass1});
                 expect(res.ok).toBe(false);
                 expect(res.data).not.toBeDefined();
                 let mocks = [addBoxMM, addMemberMM, getCartMM];
@@ -374,7 +374,7 @@ describe('system controller - unit', () => {
                 clearMocks(...mocks)
             })
 
-            test("register member - failure from shoppingCart", () => {
+            test("register member - failure from shoppingCart", async () => {
                 //prepare
                 let registerMockMethod = mockMethod(SecurityController.prototype, 'register',
                     () => {
@@ -391,7 +391,7 @@ describe('system controller - unit', () => {
                     return new Result(true, member1)
                 })
                 //act
-                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+                let res = await sys.registerMember(sess4, {username: username1, password: pass1});
                 expect(res.ok).toBe(false);
                 expect(res.data).not.toBeDefined();
                 let mocksNotCalled = [addMemberMM, addBoxMM]
@@ -406,7 +406,7 @@ describe('system controller - unit', () => {
                 clearMocks(...mocksNotCalled, ...mocksCalled)
             })
 
-            test("register member - failure from MessageBox", () => {
+            test("register member - failure from MessageBox", async () => {
                 //prepare
                 let registerMockMethod = mockMethod(SecurityController.prototype, 'register',
                     (_: any) => {
@@ -424,7 +424,7 @@ describe('system controller - unit', () => {
                 })
 
                 //act
-                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+                let res = await sys.registerMember(sess4, {username: username1, password: pass1});
                 expect(res.ok).toBe(false);
                 expect(res.data).not.toBeDefined();
                 expect(addMemberMM).not.toBeCalled();
@@ -437,7 +437,7 @@ describe('system controller - unit', () => {
                 clearMocks(...mocks)
             })
 
-            test("register member - failure from user", () => {
+            test("register member - failure from user", async () => {
                 //prepare
                 let registerMockMethod = mockMethod(SecurityController.prototype, 'register',
                     (_: any) => {
@@ -455,7 +455,7 @@ describe('system controller - unit', () => {
                 })
 
                 //act
-                let res = sys.registerMember(sess4, {username: username1, password: pass1});
+                let res = await sys.registerMember(sess4, {username: username1, password: pass1});
                 expect(res.ok).toBe(false);
                 expect(res.data).not.toBeDefined();
                 let mocks = [registerMockMethod, addBoxMM, addMemberMM, getCartMM]
@@ -469,13 +469,13 @@ describe('system controller - unit', () => {
     )
 
 
-    test("get product - success", () => {
+    test("get product - success", async () => {
         //prepare
         let getProductMM = mockMethod(MarketplaceController.prototype, 'getProduct', () => {
             return new Result(true, p1);
         });
         //act
-        let res = sys.getProduct(sess1, 0, 0);
+        let res = await sys.getProduct(sess1, 0, 0);
         expect(res.ok).toBe(true);
         expect(res.data).toEqual(toSimpleProduct(p1));
         expect(getProductMM).toBeCalled()
@@ -483,29 +483,29 @@ describe('system controller - unit', () => {
 
     })
 
-    test("get shop", () => {
+    test("get shop", async () => {
         let getShopMM = mockMethod(MarketplaceController.prototype, 'getShopInfo', () => {
             return new Result(true, shop1);
         });
         //act
-        let res = sys.getShop(sess1, 0);
+        let res = await sys.getShop(sess1, 0);
         expect(res.ok).toBe(true);
         expect(res.data).toEqual(toSimpleShop(shop1));
         expect(getShopMM).toBeCalled()
         clearMocks(getShopMM)
     })
 
-    test("search product", () => {
+    test("search product", async () => {
         let searchMM = mockMethod(MarketplaceController.prototype, 'searchProduct', () => {
             return new Result(true, [p1, p2, p3]);
         });
-        let res = sys.searchProducts(username1, SearchType.productName, "some Search");
+        let res = await sys.searchProducts(username1, SearchType.productName, "some Search");
         expect(res.ok).toBe(true);
         expect(res.data).toEqual(toSimpleProducts([p1, p2, p3]));
         expect(searchMM).toBeCalled()
         clearMocks(searchMM)
     })
-    test("add to cart - success", () => {
+    test("add to cart - success", async () => {
         let addMM = mockMethod(ShoppingCartController.prototype, 'addProduct', () => {
             return new Result(true, undefined);
         });
@@ -514,7 +514,7 @@ describe('system controller - unit', () => {
             return new Result(true, p1);
         });
 
-        let res = sys.addToCart(username1, 0, 0, 2);
+        let res = await sys.addToCart(username1, 0, 0, 2);
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
         expect(getProdMM).toBeCalled()
@@ -523,12 +523,12 @@ describe('system controller - unit', () => {
         clearMocks(addMM, getProdMM);
     })
 
-    test("add to cart - failure - getting the product", () => {
+    test("add to cart - failure - getting the product", async () => {
         let getProdMM = mockMethod(MarketplaceController.prototype, 'getProduct', () => {
             return new Result(false, undefined);
         });
 
-        let res = sys.addToCart(username1, 0, 0, 2);
+        let res = await sys.addToCart(username1, 0, 0, 2);
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
         expect(getProdMM).toBeCalled()
@@ -536,11 +536,11 @@ describe('system controller - unit', () => {
         clearMocks(getProdMM)
     })
 
-    test("get cart", () => {
+    test("get cart", async () => {
         let getCartMM = mockMethod(ShoppingCartController.prototype, 'getCart', () => {
             return new Result(true, cart1);
         });
-        let res = sys.getCart(username1)
+        let res = await sys.getCart(username1)
         expect(res.ok).toBe(true);
         expect(res.data).toBeDefined();
         expect(res.data).toEqual(toSimpleShoppingCart(username1, cart1));
@@ -549,7 +549,7 @@ describe('system controller - unit', () => {
         clearMocks(getCartMM)
     })
 
-    test("remove product from cart", () => {
+    test("remove product from cart", async () => {
         let removeProdMM = mockMethod(ShoppingCartController.prototype, 'removeProduct', () => {
             return new Result(true, undefined);
         });
@@ -558,7 +558,7 @@ describe('system controller - unit', () => {
             return new Result(true, p1);
         });
 
-        let res = sys.removeProductFromCart(username1, 0, 0);
+        let res = await sys.removeProductFromCart(username1, 0, 0);
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
         expect(removeProdMM).toBeCalled()
@@ -620,7 +620,7 @@ describe('system controller - unit', () => {
         done()
     })
 
-    test("setup shop", () => {
+    test("setup shop", async () => {
         let getMemberMockMethod = mockMethod(UserController.prototype, 'getMember',
             () => {
                 return new Result(true, member1, "mock success")
@@ -631,7 +631,7 @@ describe('system controller - unit', () => {
         });
 
         //act
-        let res = sys.setUpShop(username1, "shop1");
+        let res = await sys.setUpShop(username1, "shop1");
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
         expect(getMemberMockMethod).toBeCalled()
@@ -640,13 +640,13 @@ describe('system controller - unit', () => {
         clearMocks(getMemberMockMethod, getShopMM);
     })
 
-    test("setup shop - failed", () => {
+    test("setup shop - failed", async () => {
         let getMemberMockMethod = mockMethod(UserController.prototype, 'getMember',
             () => {
                 return new Result(false, undefined, "mock success")
             })
         //act
-        let res = sys.setUpShop(username1, "shop1");
+        let res = await sys.setUpShop(username1, "shop1");
 
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
@@ -655,7 +655,7 @@ describe('system controller - unit', () => {
         clearMocks(getMemberMockMethod);
     })
 
-    test("add product to shop - success", () => {
+    test("add product to shop - success", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
             () => {
                 return new Result(true, true, "mock success")
@@ -665,7 +665,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, toSimpleProduct(p1), "mock success")
             })
-        let res = sys.addProduct(username1, {
+        let res = await sys.addProduct(username1, {
             shopId: p1.shopId,
             productCategory: p1.category,
             productName: p1.name,
@@ -681,7 +681,7 @@ describe('system controller - unit', () => {
         clearMocks(addProductToShopMM);
     })
 
-    test("add product to shop - failure - permissions", () => {
+    test("add product to shop - failure - permissions", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
             () => {
                 return new Result(false, false, "mock fail")
@@ -691,7 +691,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, toSimpleProduct(p1), "mock fail")
             })
-        let res = sys.addProduct(username1, {
+        let res = await sys.addProduct(username1, {
             shopId: p1.shopId,
             productCategory: p1.category,
             productName: p1.name,
@@ -707,7 +707,7 @@ describe('system controller - unit', () => {
         clearMocks(addProductToShopMM);
     })
 
-    test("add product to shop - failure - addProduct", () => {
+    test("add product to shop - failure - addProduct", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
             () => {
                 return new Result(true, true, "mock fail")
@@ -717,7 +717,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(false, undefined, "mock fail")
             })
-        let res = sys.addProduct(username1, {
+        let res = await sys.addProduct(username1, {
             shopId: p1.shopId,
             productCategory: p1.category,
             productName: p1.name,
@@ -733,7 +733,7 @@ describe('system controller - unit', () => {
         clearMocks(addProductToShopMM);
     })
 
-    test("delete product - successes", () => {
+    test("delete product - successes", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
             () => {
                 return new Result(true, true, "mock success")
@@ -743,7 +743,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, undefined, "mock success")
             })
-        let res = sys.deleteProduct(username1, 0, 0);
+        let res = await sys.deleteProduct(username1, 0, 0);
 
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
@@ -753,7 +753,7 @@ describe('system controller - unit', () => {
         clearMocks(addProductToShopMM);
     })
 
-    test("delete product - failure - permissions", () => {
+    test("delete product - failure - permissions", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
             () => {
                 return new Result(false, false, "mock fail")
@@ -763,7 +763,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, undefined, "mock success")
             })
-        let res = sys.deleteProduct(username1, 0, 0);
+        let res = await sys.deleteProduct(username1, 0, 0);
 
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
@@ -773,7 +773,7 @@ describe('system controller - unit', () => {
         clearMocks(removeProductFromShopMM);
     })
 
-    test("delete product - failure - remove", () => {
+    test("delete product - failure - remove", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
             () => {
                 return new Result(true, true, "mock success")
@@ -783,7 +783,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(false, undefined, "mock success")
             })
-        let res = sys.deleteProduct(username1, 0, 0);
+        let res = await sys.deleteProduct(username1, 0, 0);
 
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
@@ -793,7 +793,7 @@ describe('system controller - unit', () => {
         clearMocks(removeProductFromShopMM);
     })
 
-    test("update product - success", () => {
+    test("update product - success", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
             () => {
                 return new Result(true, true, "mock success")
@@ -803,7 +803,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, undefined, "mock success")
             })
-        let res = sys.updateProductQuantity(username1, 0, 0, 5);
+        let res = await sys.updateProductQuantity(username1, 0, 0, 5);
 
         expect(res.ok).toBe(true);
         expect(res.data).not.toBeDefined();
@@ -814,7 +814,7 @@ describe('system controller - unit', () => {
 
 
     })
-    test("update product - failure - permissions", () => {
+    test("update product - failure - permissions", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
             () => {
                 return new Result(false, false, "mock fail")
@@ -824,7 +824,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(true, undefined, "mock success")
             })
-        let res = sys.updateProductQuantity(username1, 0, 0, 5);
+        let res = await sys.updateProductQuantity(username1, 0, 0, 5);
 
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
@@ -833,7 +833,7 @@ describe('system controller - unit', () => {
 
         clearMocks(updateProductToShopMM);
     })
-    test("update product - failure - update", () => {
+    test("update product - failure - update", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission',
             () => {
                 return new Result(true, true, "mock success")
@@ -843,7 +843,7 @@ describe('system controller - unit', () => {
             () => {
                 return new Result(false, undefined, "mock success")
             })
-        let res = sys.updateProductQuantity(username1, 0, 0, 5);
+        let res = await sys.updateProductQuantity(username1, 0, 0, 5);
 
         expect(res.ok).toBe(false);
         expect(res.data).not.toBeDefined();
@@ -870,7 +870,7 @@ describe('system controller - unit', () => {
         //     })
         //
         //     //act
-        //     let res = sys.appointShopOwner(sess4, {
+        //     let res = await sys.appointShopOwner(sess4, {
         //         member: username2,
         //         shopId: 0,
         //         assigner: username2,
@@ -903,7 +903,7 @@ describe('system controller - unit', () => {
         //     })
         //
         //     //act
-        //     let res = sys.appointShopOwner(sess4, {
+        //     let res = await sys.appointShopOwner(sess4, {
         //         member: username2,
         //         shopId: 0,
         //         assigner: username2,
@@ -936,7 +936,7 @@ describe('system controller - unit', () => {
         //     })
         //
         //     //act
-        //     let res = sys.appointShopOwner(sess4, {
+        //     let res = await sys.appointShopOwner(sess4, {
         //         member: username2,
         //         shopId: 0,
         //         assigner: username2,
@@ -969,7 +969,7 @@ describe('system controller - unit', () => {
         //     })
         //
         //     //act
-        //     let res = sys.appointShopOwner(sess4, {
+        //     let res = await sys.appointShopOwner(sess4, {
         //         member: username2,
         //         shopId: 0,
         //         assigner: username2,
@@ -992,7 +992,7 @@ describe('system controller - unit', () => {
 
     describe("appoint Shop Manager", () => {
 
-        test("appoint Manager - success", () => {
+        test("appoint Manager - success", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1007,7 +1007,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.appointShopManager(sess4, {
+            let res = await sys.appointShopManager(sess4, {
                 member: username2,
                 shopId: 0,
                 assigner: username2,
@@ -1024,7 +1024,7 @@ describe('system controller - unit', () => {
             clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
 
         })
-        test("appoint manager - failure - permissions", () => {
+        test("appoint manager - failure - permissions", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(false, false, "mock success")
@@ -1039,7 +1039,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.appointShopManager(sess4, {
+            let res = await sys.appointShopManager(sess4, {
                 member: username2,
                 shopId: 0,
                 assigner: username2,
@@ -1056,7 +1056,7 @@ describe('system controller - unit', () => {
             clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
 
         })
-        test("appoint manager - failure - addRole", () => {
+        test("appoint manager - failure - addRole", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1071,7 +1071,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.appointShopManager(sess4, {
+            let res = await sys.appointShopManager(sess4, {
                 member: username2,
                 shopId: 0,
                 assigner: username2,
@@ -1088,7 +1088,7 @@ describe('system controller - unit', () => {
             clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
 
         })
-        test("appoint manager  - failure - appointShopOwner", () => {
+        test("appoint manager  - failure - appointShopOwner", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1103,7 +1103,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.appointShopManager(sess4, {
+            let res = await sys.appointShopManager(sess4, {
                 member: username2,
                 shopId: 0,
                 assigner: username2,
@@ -1125,7 +1125,7 @@ describe('system controller - unit', () => {
 
 
     describe('add permissions to shop manager', () => {
-        test("add permissions to shop Manager - success", () => {
+        test("add permissions to shop Manager - success", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1136,7 +1136,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.addShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+            let res = await sys.addShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(true);
@@ -1148,7 +1148,7 @@ describe('system controller - unit', () => {
 
         })
 
-        test("add permissions to shop Manager - failure - permissions", () => {
+        test("add permissions to shop Manager - failure - permissions", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(false, false, "mock success")
@@ -1159,7 +1159,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.addShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+            let res = await sys.addShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(false);
@@ -1171,7 +1171,7 @@ describe('system controller - unit', () => {
 
         })
 
-        test("add permissions to shop Manager - failure - add", () => {
+        test("add permissions to shop Manager - failure - add", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1182,7 +1182,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.addShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+            let res = await sys.addShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(false);
@@ -1197,7 +1197,7 @@ describe('system controller - unit', () => {
 
 
     describe('add permmissions to shop manager', () => {
-        test("remove shop manager permissions - success", () => {
+        test("remove shop manager permissions - success", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1208,7 +1208,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.removeShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+            let res = await sys.removeShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(true);
@@ -1219,7 +1219,7 @@ describe('system controller - unit', () => {
             clearMocks(checkPermissionMM, removePermissionMM)
         })
 
-        test("remove shop manager permissions - failure - checkPermission", () => {
+        test("remove shop manager permissions - failure - checkPermission", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(false, false, "mock success")
@@ -1230,7 +1230,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.removeShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+            let res = await sys.removeShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(false);
@@ -1241,7 +1241,7 @@ describe('system controller - unit', () => {
             clearMocks(checkPermissionMM, removePermissionMM)
         })
 
-        test("remove shop manager permissions - failure - remove", () => {
+        test("remove shop manager permissions - failure - remove", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1252,7 +1252,7 @@ describe('system controller - unit', () => {
             })
 
             //act
-            let res = sys.removeShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
+            let res = await sys.removeShopManagerPermission(username1, username2, 0, Permissions.AddProduct)
 
             //assert
             expect(res.ok).toBe(false);
@@ -1267,7 +1267,7 @@ describe('system controller - unit', () => {
 
     describe('deactivate shop', () => {
 
-        test("deactivate shop - success", () => {
+        test("deactivate shop - success", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1277,7 +1277,7 @@ describe('system controller - unit', () => {
                 return new Result(true, undefined, "mock");
             })
 
-            let res = sys.deactivateShop(username1, 0);
+            let res = await sys.deactivateShop(username1, 0);
 
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
@@ -1287,7 +1287,7 @@ describe('system controller - unit', () => {
             clearMocks(close, checkPermissionMM)
         })
 
-        test("deactivate shop - failure - permissions", () => {
+        test("deactivate shop - failure - permissions", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(false, false, "mock success")
@@ -1297,7 +1297,7 @@ describe('system controller - unit', () => {
                 return new Result(true, undefined, "mock");
             })
 
-            let res = sys.deactivateShop(username1, 0);
+            let res = await sys.deactivateShop(username1, 0);
 
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
@@ -1307,7 +1307,7 @@ describe('system controller - unit', () => {
             clearMocks(close, checkPermissionMM)
         })
 
-        test("deactivate shop - failure to deactivate", () => {
+        test("deactivate shop - failure to deactivate", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1317,7 +1317,7 @@ describe('system controller - unit', () => {
                 return new Result(false, undefined, "mock");
             })
 
-            let res = sys.deactivateShop(username1, 0);
+            let res = await sys.deactivateShop(username1, 0);
 
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
@@ -1330,7 +1330,7 @@ describe('system controller - unit', () => {
 
     describe('reactivate shop manager', () => {
 
-        test("reactivate shop - success", () => {
+        test("reactivate shop - success", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1340,7 +1340,7 @@ describe('system controller - unit', () => {
                 return new Result(true, undefined, "mock");
             })
 
-            let res = sys.reactivateShop(username1, 0);
+            let res = await sys.reactivateShop(username1, 0);
 
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
@@ -1350,7 +1350,7 @@ describe('system controller - unit', () => {
             clearMocks(open, checkPermissionMM)
         })
 
-        test("reactivate shop - failure - permissions", () => {
+        test("reactivate shop - failure - permissions", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(false, false, "mock success")
@@ -1360,7 +1360,7 @@ describe('system controller - unit', () => {
                 return new Result(true, undefined, "mock");
             })
 
-            let res = sys.reactivateShop(username1, 0);
+            let res = await sys.reactivateShop(username1, 0);
 
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
@@ -1370,7 +1370,7 @@ describe('system controller - unit', () => {
             clearMocks(open, checkPermissionMM)
         })
 
-        test("reactivate shop - failure to deactivate", () => {
+        test("reactivate shop - failure to deactivate", async () => {
             //prep
             let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
                 return new Result(true, true, "mock success")
@@ -1380,7 +1380,7 @@ describe('system controller - unit', () => {
                 return new Result(false, undefined, "mock");
             })
 
-            let res = sys.reactivateShop(username1, 0);
+            let res = await sys.reactivateShop(username1, 0);
 
             expect(res.ok).toBe(false);
             expect(res.data).not.toBeDefined();
@@ -1392,7 +1392,7 @@ describe('system controller - unit', () => {
     });
 
 
-    test("get personnel info - success", () => {
+    test("get personnel info - success", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
             return new Result(true, true, "mock success")
         })
@@ -1405,7 +1405,7 @@ describe('system controller - unit', () => {
             return new Result(true, member1)
         })
 
-        let res = sys.getPersonnelInfoOfShop(username1, 0);
+        let res = await sys.getPersonnelInfoOfShop(username1, 0);
 
         expect(res.ok).toBe(true);
         expect(res.data).toBeDefined()
@@ -1419,12 +1419,12 @@ describe('system controller - unit', () => {
 
     })
 
-    test("get shop purchases - success", () => {
+    test("get shop purchases - success", async () => {
         let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
             return new Result(true, true, "mock success")
         })
 
-        let res = sys.getShopPurchases(username1, 0, new Date(), new Date())
+        let res = await sys.getShopPurchases(username1, 0, new Date(), new Date())
 
         expect(res.ok).toBe(true)
         expect(res.data).toEqual([]);
@@ -1444,51 +1444,56 @@ describe('system controller - unit', () => {
 
     })
 
-    test("add offer to shop - testing notification to user", ()=>{
-        const mock_addOffer2shop = mockMethod(MarketplaceController.prototype, "addOffer2Product", (shopId:number, userId: string, pId: number, offeredPrice: number )=>{
-                let offer =    new Offer(0,userId, shopId, pId,offeredPrice, shop1.shopOwners);
-                mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners, offer, shop1.name));
-                return Result.Ok(offer)
+    test("add offer to shop - testing notification to user", async () => {
+        const mock_addOffer2shop = mockMethod(MarketplaceController.prototype, "addOffer2Product", (shopId: number, userId: string, pId: number, offeredPrice: number) => {
+            let offer = new Offer(0, userId, shopId, pId, offeredPrice, shop1.shopOwners);
+            mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners, offer, shop1.name));
+            return Result.Ok(offer)
         })
-        const mock_addOffer2cart = mockMethod(ShoppingCartController.prototype, "addOffer2cart", ()=>{});
-        sys.addOffer2Shop(member1.session, shop1.id, p1.id, 4.5);
+        const mock_addOffer2cart = mockMethod(ShoppingCartController.prototype, "addOffer2cart", () => {
+        });
+        await sys.addOffer2Shop(member1.session, shop1.id, p1.id, 4.5);
         expect(box1.getAllMessages()).toHaveLength(1);
         expect(mock_addOffer2cart).toHaveBeenCalled();
         clearMocks(mock_addOffer2shop, mock_addOffer2cart);
     })
 
-    test("filing counter to offer - testing notification to user", ()=>{
-        const mock_fcOffer= mockMethod(MarketplaceController.prototype, "filingCounterOffer", ()=>{
-            let offer =    new Offer(0,member2.username, shop1.id, p1.id,4.75, shop1.shopOwners);
+    test("filing counter to offer - testing notification to user", async () => {
+        const mock_fcOffer = mockMethod(MarketplaceController.prototype, "filingCounterOffer", () => {
+            let offer = new Offer(0, member2.username, shop1.id, p1.id, 4.75, shop1.shopOwners);
             mpController.notifySubscribers(new counterOfferMessage(offer, shop1.name));
             return Result.Ok(offer)
         })
-        const mock_updateOff = mockMethod(ShoppingCartController.prototype, "updateOfferFromCart", ()=>{});
-        sys.filingCounterOffer(member1.session, shop1.id, 0, 4.5);
+        const mock_updateOff = mockMethod(ShoppingCartController.prototype, "updateOfferFromCart", () => {
+        });
+        await sys.filingCounterOffer(member1.session, shop1.id, 0, 4.5);
         expect(box2.getAllMessages()).toHaveLength(1);
         expect(mock_fcOffer).toHaveBeenCalled();
         expect(mock_updateOff).toHaveBeenCalled();
         clearMocks(mock_fcOffer, mock_updateOff);
     })
 
-    test("deny counter offer", ()=>{
-        const mock_removeOffer = mockMethod(ShoppingCartController.prototype, "removeOffer", ()=>{});
-        const mock_denyCO = mockMethod(MarketplaceController.prototype, "denyCounterOffer", ()=>{});
-        sys.denyCounterOffer(member2.session, member2.username, 0, 0);
+    test("deny counter offer", async () => {
+        const mock_removeOffer = mockMethod(ShoppingCartController.prototype, "removeOffer", () => {
+        });
+        const mock_denyCO = mockMethod(MarketplaceController.prototype, "denyCounterOffer", () => {
+        });
+        await sys.denyCounterOffer(member2.session, member2.username, 0, 0);
         expect(mock_removeOffer).toHaveBeenCalled();
         expect(mock_denyCO).toHaveBeenCalled();
         clearMocks(mock_denyCO, mock_removeOffer);
     })
 
-    test("accept counter offer- testing notification to user", ()=>{
-        const mock_acceptCO = mockMethod(MarketplaceController.prototype, "acceptCounterOffer", ()=>{
+    test("accept counter offer- testing notification to user", async () => {
+        const mock_acceptCO = mockMethod(MarketplaceController.prototype, "acceptCounterOffer", () => {
             shop1.shopOwners.add(username2);
-            let offer =    new Offer(0,"NofarRoz", shop1.id, p1.id,4.75, shop1.shopOwners);
+            let offer = new Offer(0, "NofarRoz", shop1.id, p1.id, 4.75, shop1.shopOwners);
             mpController.notifySubscribers(new AddedNewOffer2ShopMessage(shop1.shopOwners, offer, shop1.name));
             return Result.Ok(offer);
         })
-        const mock_updateOff = mockMethod(ShoppingCartController.prototype, "updateOfferFromCart", ()=>{});
-        sys.acceptCounterOffer(member1.session, shop1.id, 0);
+        const mock_updateOff = mockMethod(ShoppingCartController.prototype, "updateOfferFromCart", () => {
+        });
+        await sys.acceptCounterOffer(member1.session, shop1.id, 0);
         expect(mock_acceptCO).toHaveBeenCalled();
         expect(mock_updateOff).toHaveBeenCalled();
         expect(box1.getAllMessages()).toHaveLength(1);

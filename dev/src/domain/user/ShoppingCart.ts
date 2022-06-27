@@ -14,11 +14,13 @@ export class ShoppingCart implements Entity{
 
     private _bags: Map<number, ShoppingBag>; //ShopID -> ShoppingBag
     private _offers: Offer[]
+    private username: string;
    
 
-    constructor() {
+    constructor(username:string) {
         this._bags = new Map<number, ShoppingBag>();
         this.offers = [];
+        this.username = username;
     }
 
     get bags(): Map<number, ShoppingBag> {
@@ -108,7 +110,8 @@ export class ShoppingCart implements Entity{
         return [waitings, rejected];
     }
 
-    findById() {
+    static findById(username: string):Promise<ShoppingCart> {
+        return null;
     }
 
     async save(username: string) {
