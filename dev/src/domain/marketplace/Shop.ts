@@ -253,6 +253,8 @@ export class Shop implements Entity{
             this._productsCounter++;
             return toAdd;
         }
+        //Persist Product and ProductInShop
+        toAdd.save(quantity);
 
         return toAdd;
     }
@@ -266,17 +268,23 @@ export class Shop implements Entity{
 
     //Delete a product from the store catalog
     removeProduct(productId: number): void {
-        if (!this.products.delete(productId))
+        let maybeProduct: [Product, number] | undefined = this.products.get(productId);
+        if(!maybeProduct)
             throw new Error(`Failed to remove product, because product id: ${productId} was not found`);
+        let product: Product = maybeProduct[0];
+        product.delete();
+        this.products.delete(productId);
     }
 
     updateProductQuantity(productId: number, quantity: number): void {
-        let product = this.products.get(productId);
-        if (!product)
+        let maybeProduct: [Product, number] | undefined  = this.products.get(productId);
+        if (!maybeProduct)
             throw new Error("Failed to update product quantity in shop because the product isn't exist in shop")
         if (quantity < 0)
             quantity = 0;
-        this.products.set(productId, [product[0], quantity]);
+        this.products.set(productId, [maybeProduct[0], quantity]);
+        let product = maybeProduct[0];
+        product.updateProductInShop(quantity);
     }
 
     getProduct(productId: number): Product {
@@ -292,12 +300,14 @@ export class Shop implements Entity{
         if (this.shopOwners?.has(ownerId))
             throw new Error("Failed to appoint owner because the member is already a owner of the shop")
         this.shopOwners?.add(ownerId);
+        this.createShopOwner(ownerId);
     }
 
     removeShopOwner(ownerId: string): boolean {
         for (let offer of this._offers.values()) {
             offer.approves.delete(ownerId);
         }
+        this.deleteShopOwner(ownerId);
         return this._shopOwners.delete(ownerId);
     }
 
@@ -305,9 +315,11 @@ export class Shop implements Entity{
         if (this.shopManagers?.has(managerId))
             throw new Error("Failed to appoint owner because the member is already a owner of the shop")
         this.shopManagers?.add(managerId);
+        this.createShopOwner(managerId);
     }
 
     removeShopManager(managerId: string) {
+        this.deleteShopOwner(managerId);
         return this.shopManagers.delete(managerId);
     }
 
@@ -374,7 +386,7 @@ export class Shop implements Entity{
 
     private async searchDiscInDB(discId: number): Promise<DiscountComponent> {
         let dalDisc: Discount= await prisma.discount.findUnique({
-            where: {id_shopId : {id: discId, shopId: this.id}},
+            where: {id_shopId: {id: discId, shopId: this.id}},
         });
         return this.dalDisc2Component(dalDisc);
     }
@@ -530,9 +542,6 @@ export class Shop implements Entity{
         this._appointmentAgreements.delete(member);
     }
 
-    findById() {
-    }
-
     async save() {
         await prisma.shop.create({
             data: {
@@ -546,33 +555,101 @@ export class Shop implements Entity{
         });
 
         for(const shop_owner of this.shopOwners)
-            await this.createShopOwner(shop_owner, this.id);
+            await this.createShopOwner(shop_owner);
         for(const shop_manager of this.shopManagers)
-            await this.createShopManager(shop_manager, this.id);
+            await this.createShopManager(shop_manager);
     }
 
-    private async createShopManager(username: string, shopId: number) {
+    private async createShopManager(username: string) {
         await prisma.shopManager.create({
             data: {
                 username: username,
-                shopId: shopId,
+                shopId: this.id,
             },
         });
     }
 
-    private async createShopOwner(username: string, shopId: number) {
+    private async createShopOwner(username: string) {
         await prisma.shopOwner.create({
             data: {
                 username: username,
-                shopId: shopId,
+                shopId: this.id,
             },
         });
     }
 
-    update() {
+    async update() {
+        await prisma.shop.update({
+            where: {
+                id: this.id,
+            },
+            data: {
+                name: this.name,
+                status: this.status,
+                shop_founder: this.shopFounder,
+                rate: this.rate,
+                description: this.description,
+            },
+        });
     }
 
-    delete() {
+    static async findById(id: number) {
+        await prisma.shop.findUnique({
+            where: {
+                id: id,
+            }
+        });
+    }
 
+    private async findShopOwner(username: string) {
+        await prisma.shopOwner.findUnique({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: this.id,
+                }
+            }
+        });
+    }
+
+    private async findShopManager(username: string) {
+        await prisma.shopOwner.findUnique({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: this.id,
+                }
+            }
+        });
+    }
+
+    async delete() {
+        await prisma.shop.delete({
+            where: {
+                id: this.id
+            },
+        })
+    }
+
+    private async deleteShopOwner(username: string) {
+        await prisma.shopOwner.delete({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: this.id,
+                }
+            }
+        });
+    }
+
+    private async deleteShopManager(username: string) {
+        await prisma.shopManager.delete({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: this.id,
+                }
+            }
+        });
     }
 }
