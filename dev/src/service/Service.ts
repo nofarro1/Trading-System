@@ -20,6 +20,7 @@ import {DeliveryDetails} from "../domain/external_services/IDeliveryService";
 import {PaymentDetails} from "../domain/external_services/IPaymentService";
 import {StateInitializer} from "../Server/StateInitializer";
 import config from "../config";
+import {discountInf} from "../utilities/Types";
 
 @injectable()
 export class Service {
@@ -157,6 +158,13 @@ export class Service {
         if (description)
             logger.info(`The product contains the following description: ${description}`);
         return this.marketplaceService.addProductToShop(sessionID, shopID, category, name, price, quantity, description);
+    }
+
+    adddiscountToShop(sessionID: string, shopID: number, info: discountInf, discountPercent: number, description: string): Promise<Result<SimpleProduct | void>> {
+        logger.info(`${sessionID}:  user wants to add a new product to shop ${shopID}`);
+        if (description)
+            logger.info(`The product contains the following description: ${description}`);
+        return this.marketplaceService.addDiscountToShop(sessionID, shopID, category, name, price, quantity, description);
     }
 
     //Shop Owner - Use-Case 1.2

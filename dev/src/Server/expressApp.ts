@@ -350,9 +350,27 @@ router.post('/product/:shopId', async (req, res) => {
         res.status(404)
         res.send(e.message)
     }
-
-
 })
+
+/**
+ * add discount to shop
+ */
+router.post('/discount/:shopId', async (req, res) => {
+
+    try {
+        let sessId = req.body.session;
+        let shopId = req.params.shopId;
+        let info = req.body.info;
+        let discountPercent = req.body.discountPercent;
+        let description = req.body.description;
+        let ans = await service.addDiscountToShop(sessId, shopId, info, discountPercent, description);
+        res.status(201).send(ans)
+    } catch (e: any) {
+        res.status(404)
+        res.send(e.message)
+    }
+})
+
 /**
  * delete product in shop
  */

@@ -10,6 +10,8 @@ import { SimpleProduct } from '../../../../utilities/simple_objects/marketplace/
 import { ProductCategory } from '../../../../utilities/Enums';
 import { SimpleShoppingCart } from '../../../../utilities/simple_objects/user/SimpleShoppingCart';
 import { Injectable } from '@angular/core';
+import {discountInf} from "../../../../utilities/Types";
+
 
 const base = 'https://localhost:3000/api';
 @Injectable({
@@ -187,6 +189,14 @@ export class api {
     return data.data;
   }
 
+  async addDisc(username: string, shopId: number) {
+    const res = await axios.get(
+      base + '/member/shopManagement/Personnel/' + username + '/' + shopId
+    );
+    const data: Result<void | SimpleMember[]> = res.data;
+    return data.data;
+  }
+
   async exitMarketplace() {
     const res = await axios.get(base + '/exit');
     const data: Result<void> = res.data;
@@ -223,6 +233,26 @@ export class api {
     const data: Result<void | SimpleProduct> = res.data;
     return data.data;
   }
+
+
+  async addDiscountToShop(
+    session: string,
+    shopId: number,
+    info: discountInf,
+    discountPercent: number,
+    description: string
+  ) {
+    const res = await axios.post(base + '/discount/' + shopId, {
+        session: session,
+        info: info,
+        discountPercent: discountPercent,
+        description: description,
+    });
+    const data: Result<void | SimpleProduct> = res.data;
+    return data.data;
+  }
+
+  
 
   async removeProductFromShop(
     session: string,
