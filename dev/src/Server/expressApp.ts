@@ -840,7 +840,10 @@ export const sessionConfig = {
     cookie: {secure: false}
 }
 export const sessionMiddleware = session(sessionConfig)
-app.use(cors())
+app.use(cors({
+    credentials: true,
+    origin: '*/*'
+}))
 app.use(sessionMiddleware);
 app.use(express.json())
 
