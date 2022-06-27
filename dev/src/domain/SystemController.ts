@@ -682,52 +682,21 @@ export class SystemController {
 
     /*-----------------------------------shop Personnel Actions actions----------------------------------------------*/
 
-    //Shop Owner - Use-Case 4
-    appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
+    appointShopOwner(sessionId: string, r:NewRoleData): Result<void> {
         const authCallback = (id: string) => {
-            if (
-                this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
-                this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data ) {
-                const result = this.uController.addRole(
-                    id,
-                    r.member,
-                    JobType.Owner,
-                    r.shopId,
-                    new Set(r.permissions.concat(Permissions.ShopOwner))
-                );
+            if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
+                this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data) {
+                const result = this.uController.addRole(r.assigner, r.member, JobType.Owner, r.shopId, new Set(r.permissions.concat(Permissions.ShopOwner)))
                 if (checkRes(result)) {
-                    return this.mpController.appointShopOwner(r.member, r.shopId);
+                    return this.mpController.appointShopOwner(r.member, r.shopId)
                 }
-                return new Result(
-                    false,
-                    undefined,
-                    "failed to add the role to the user"
-                );
+                return new Result(false, undefined, "failed to add the role to the user")
             }
-            return new Result(
-                false,
-                undefined,
-                "no permissions to appoint shopOwner"
-            );
-        };
-        return this.authenticateMarketVisitor(sessionId, authCallback);
+            return new Result(false, undefined, "no permissions to appoint shopOwner")
+        }
+        return this.authenticateMarketVisitor(sessionId, authCallback)
     }
 
-    //Shop Owner - Use-Case 4
-    // appointShopOwner(sessionId: string, r:NewRoleData): Result<void> {
-    //     const authCallback = (id: string) => {
-    //         if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
-    //             this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data) {
-    //             const result = this.uController.addRole(r.assigner, r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions.concat(Permissions.ShopOwner)))
-    //             if (checkRes(result)) {
-    //                 return this.mpController.appointShopOwner(r.member, r.shopId)
-    //             }
-    //             return new Result(false, undefined, "failed to add the role to the user")
-    //         }
-    //         return new Result(false, undefined, "no permissions to appoint shopOwner")
-    //     }
-    //     return this.authenticateMarketVisitor(sessionId, authCallback)
-    // }
 
     //Shop Owner - Use-Case 6
     appointShopManager(sessionId: string, r: NewRoleData): Result<void> {

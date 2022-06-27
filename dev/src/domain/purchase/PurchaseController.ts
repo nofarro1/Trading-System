@@ -133,8 +133,11 @@ export class PurchaseController implements IMessagePublisher<ShopPurchaseMessage
                 if (answer.ok) {
                     let productsInfo = shop.calculateBagPrice(bag);
                     for (let [p, price, quantity] of productsInfo) {
+                       let offerPrice: number = shop.hasOffer(p.id);
+                        if( offerPrice != -1)
+                            price = offerPrice;
                         totalBagPrice += price * quantity;
-                        shopOrder += `${p.id}, ${p.name}, ${p.fullPrice}, price\n`;
+                        shopOrder += `${p.id}, ${p.name}, ${p.fullPrice}, ${price}\n`;
                         let oldQuantity = shop.products.get(p.id)[1];
                         forUpdate.push([shop, p.id, oldQuantity - quantity]);
                         //shop.updateProductQuantity(p.id, oldQuantity-quantity);

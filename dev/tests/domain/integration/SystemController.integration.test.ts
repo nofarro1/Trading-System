@@ -128,13 +128,8 @@ describe('system controller - integration', () => {
         //act
         sys.login(sess4, {username: username1, password: pass1});
         shop = sys.setUpShop(sess4, shop1.name).data as SimpleShop;
-        const res = sys.addProduct(sess4, {
-            shopId: shop.ID,
-            productCategory: p1.category,
-            productName: p1.name,
-            quantity: 10,
-            fullPrice: p1.fullPrice
-        });
+
+        const res = sys.addProduct(sess4,{shopId: shop.ID, productCategory:p1.category, productName:p1.name, quantity:10,fullPrice:p1.fullPrice});
         simple_p1 = res.data as SimpleProduct;
         sys.exitMarketplace(sess4)
     })
@@ -201,7 +196,6 @@ describe('system controller - integration', () => {
 
             //act
             let res = await sys.login(sess4, {username: username1, password: pass1});
-
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).toBeDefined()
@@ -572,8 +566,7 @@ describe('system controller - integration', () => {
                 member: username2,
                 shopId: shop1.id,
                 assigner: username1,
-                permissions: [],
-                title: "title"
+                permissions: []
             })
 
             //assert
@@ -597,7 +590,6 @@ describe('system controller - integration', () => {
                 shopId: shop1.id,
                 assigner: username2,
                 permissions: [],
-                title: "title"
             })
 
             //assert
@@ -617,7 +609,6 @@ describe('system controller - integration', () => {
                 shopId: shop1.id,
                 assigner: username1,
                 permissions: [],
-                title: "title"
             })
 
             //assert
@@ -637,7 +628,6 @@ describe('system controller - integration', () => {
                 shopId: shop1.id,
                 assigner: username1,
                 permissions: [],
-                title: "title"
             })
 
             //assert
@@ -662,13 +652,13 @@ describe('system controller - integration', () => {
                 shopId: shop1.id,
                 assigner: username1,
                 permissions: [],
-                title: "title"
             })
 
             //assert
             expect(res.ok).toBe(true);
             expect(res.data).not.toBeDefined();
         })
+
 
         test("appoint manager - failure - addRole - nominee doesn't exist", () => {
             //prepare
@@ -683,7 +673,6 @@ describe('system controller - integration', () => {
                 shopId: shop1.id,
                 assigner: username1,
                 permissions: [],
-                title: "title"
             })
 
             //assert
@@ -703,7 +692,6 @@ describe('system controller - integration', () => {
                 shopId: shop1.id,
                 assigner: username1,
                 permissions: [],
-                title: "title"
             })
 
             //assert
@@ -719,6 +707,7 @@ describe('system controller - integration', () => {
             sys.accessMarketplace(sess4);
             sys.registerMember(sess4, {username: username1, password: pass1});
             sys.login(sess4, {username: username1, password: pass1});
+
             sys.accessMarketplace(sess5);
             sys.registerMember(sess5, {username: username2, password: pass2});
             sys.appointShopManager(sess5, {
@@ -771,12 +760,21 @@ describe('system controller - integration', () => {
         })
     });
 
+
     describe('remove permissions to shop manager', () => {
         test("remove shop manager permissions - success", () => {
             //prepare
             sys.accessMarketplace(sess4);
             sys.registerMember(sess4, {username: username1, password: pass1});
             sys.login(sess4, {username: username1, password: pass1});
+
+            sys.setUpShop(username1, shop1.name);
+            sys.accessMarketplace(sess5);
+            sys.registerMember(sess5, {username: username2, password: pass2});
+            sys.addShopManagerPermission(username1, username2, shop1.id, Permissions.AddProduct);
+
+            //act
+            let res = sys.removeShopManagerPermission(username1, username2, shop1.id, Permissions.AddProduct);
             sys.accessMarketplace(sess5);
             sys.registerMember(sess5, {username: username2, password: pass2});
             sys.addShopManagerPermission(sess4, username2, shop1.id, Permissions.AddProduct);
@@ -878,6 +876,11 @@ describe('system controller - integration', () => {
             sys.accessMarketplace(sess4);
             sys.registerMember(sess4, {username: username1, password: pass1});
             sys.login(sess4, {username: username1, password: pass1});
+          
+            sys.deactivateShop(username1, shop1.id);
+
+            //act
+            let res = sys.reactivateShop(username1, shop1.id);
             sys.deactivateShop(sess4, shop1.id);
 
             //act
@@ -928,7 +931,6 @@ describe('system controller - integration', () => {
         sys.accessMarketplace(sess4);
         sys.registerMember(sess4, {username: username1, password: pass1});
         sys.login(sess4, {username: username1, password: pass1});
-
         //act
         let res = sys.getPersonnelInfoOfShop(sess4, shop1.id);
 
@@ -971,7 +973,7 @@ describe('system controller - integration', () => {
 
         //act
         let res = sys.editConnectionWithExternalService(sess4, username1, ExternalServiceType.Payment,
-            {min: 1, max: 10, url: "google.com"});
+                                                {min:1,max:10,url:"google.com"});
 
         //assert
         expect(res.ok).toBeTruthy();

@@ -22,7 +22,14 @@ export class MemberService {
     }
 
     //Shop Owner - Modified Use-Case 4 according version 4
-    appointShopOwner(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string): Promise<Result<void>> {
+    appointShopOwner(sessionID: string, member: string, shopID: number, assigningOwnerID: string): Promise<Result<void>> {
+        return new Promise<Result<void>>((resolve, reject) => {
+            let result: Result<void> = this.systemController.appointShopOwner(sessionID, {member,shopId: shopID, assigner:assigningOwnerID, permissions: [Permissions.ShopOwner]});
+            result.ok ? resolve(result) : reject(result.message);
+        });
+    }
+
+    submitAppointmentAgreement(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string): Promise<Result<void>> {
         return new Promise<Result<void>>((resolve, reject) => {
             let result: Result<void> = this.systemController.submitOwnerAppointmentInShop(sessionID, shopID, newOwnerID, assigningOwnerID);
             result.ok ? resolve(result) : reject(result.message);
