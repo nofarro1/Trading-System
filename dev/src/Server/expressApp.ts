@@ -22,25 +22,28 @@ router.get("/check", (req, res) => {
 //set routes to api
 
 //access marketpalce - return the index.html in the future
-router.get("/access", async (req, res) => {
-  let sessId = req.session.id;
-  logger.warn("[in access - expressApp]");
-  try {
-    console.log("guest " + sessId + " try to access marketplace");
-    let guest = await service.accessMarketplace(sessId);
+router.get('/access', async (req, res) => {
+    let sessId = req.session.id;
+    req.socket.setKeepAlive(true);
+    logger.warn("[in access - expressApp]");
+    try {
+        console.log("guest " + sessId + " try to access marketplace");
+        let guest = await service.accessMarketplace(sessId);
 
-    req.socket.on("disconnect", async () => {
-      console.log(`client ${sessId} disconnected`);
-      await service.exitMarketplace(sessId);
-    });
 
-    res.status(200);
-    res.send(guest);
-  } catch (e: any) {
-    res.status(401);
-    res.send("could not access marketplace");
-  }
-});
+        req.socket.on("disconnect", async () => {
+            console.log(`client ${sessId} disconnected`);
+            await service.exitMarketplace(sessId)
+        })
+
+        res.status(200);
+        res.send(guest)
+
+    } catch (e: any) {
+        res.status(401)
+        res.send("could not access marketplace")
+    }
+})
 
 /**
  *
@@ -155,20 +158,18 @@ router.post("/guest/login", async (req, res) => {
 /**
  * logout
  */
-router.get("/member/logout/:username/:session", async (req, res) => {
-  try {
-    let sessId = req.params.session;
-    let username = req.params.username;
-    logger.warn("in logout session");
-    let ans = await service.logout(sessId, username);
-    // req.session.loggedIn = false;
-    // req.session.username = "";
-    res.send(ans);
-  } catch (e: any) {
-    res.status(404);
-    res.send(e.message);
-  }
-});
+router.get('/member/logout/:username/:session', async (req, res) => {
+    try {
+        let sessId = req.params.session;
+        let username = req.params.username
+        logger.warn("in logout session");
+        let ans = await service.logout(sessId, username)
+        res.send(ans)
+    } catch (e: any) {
+        res.status(404)
+        res.send(e.message)
+    }
+})
 
 /**
  * appoint shop Owner
@@ -414,21 +415,20 @@ router.post("/product/:shopId", async (req, res) => {
 // /**
 //  * add discount to shop
 //  */
-// router.post('/discount/:shopId', async (req, res) => {
-
-//     try {
-//         let sessId = req.body.session;
-//         let shopId = req.params.shopId;
-//         let info = req.body.info;
-//         let discountPercent = req.body.discountPercent;
-//         let description = req.body.description;
-//         let ans = await service.addDiscountToShop(sessId, shopId, info, discountPercent, description);
-//         res.status(201).send(ans)
-//     } catch (e: any) {
-//         res.status(404)
-//         res.send(e.message)
-//     }
-// })
+router.post('/discount/:shopId', async (req, res) => {
+    try {
+        let sessId = req.body.session;
+        let shopId = Number(req.params.shopId);
+        let info = req.body.info;
+        let discountPercent = req.body.discountPercent;
+        let description = req.body.description;
+        let ans = await service.addDiscount(sessId, shopId, info);
+        res.status(201).send(ans)
+    } catch (e: any) {
+        res.status(404)
+        res.send(e.message)
+    }
+})
 
 /**
  * delete product in shop
@@ -920,13 +920,16 @@ router.get("/", (req, res) => {
 const _app_folder = "./src/Client/client/dist/client";
 export const app = express();
 export const sessionConfig = {
-  secret: "this is a secret",
-  resave: true,
-  saveUninitialized: true,
-  cookie: { secure: false },
-};
-export const sessionMiddleware = session(sessionConfig);
-app.use(cors());
+    secret: "this is a secret",
+    resave: true,
+    saveUninitialized: true,
+    cookie: {secure: false}
+}
+export const sessionMiddleware = session(sessionConfig)
+app.use(cors({
+    credentials: true,
+    origin: '*/*'
+}))
 app.use(sessionMiddleware);
 app.use(express.json());
 app.use("/", express.static(_app_folder));

@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../prisma/PrismaClient'
+import { PrismaClient } from '../../prisma/prisma'
 
 let prisma = new PrismaClient()
 

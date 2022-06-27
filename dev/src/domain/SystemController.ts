@@ -164,13 +164,26 @@ export class SystemController {
         sessionId: string,
         callback: (id: string) => T
     ) {
+        // logger.warn("[authenticateMarketVisitor] start");
+        const userId: string = this.securityController.hasActiveSession(sessionId);
+        if (userId.length === 0) {
+            return new Result(false, undefined, "this is not one of our visitors!");
+        }
+        // logger.warn("[authenticateMarketVisitor] exit");
+        return callback(userId);
+    }
+
+    private async authenticateMarketVisitorAsync<T>(
+        sessionId: string,
+        callback: (id: string) => Promise<T>
+    ) {
         logger.warn("[authenticateMarketVisitor] start");
         const userId: string = this.securityController.hasActiveSession(sessionId);
         if (userId.length === 0) {
             return new Result(false, undefined, "this is not one of our visitors!");
         }
         logger.warn("[authenticateMarketVisitor] exit");
-        return callback(userId);
+        return await callback(userId);
     }
 
     /*------------------------------------Guest management actions----------------------------------------------*/
@@ -254,7 +267,7 @@ export class SystemController {
             }
         }
 
-        return this.authenticateMarketVisitor(sessionId, secCallback);
+        return this.authenticateMarketVisitorAsync(sessionId, secCallback);
     }
 
     //General Member - Use-Case 1
@@ -280,7 +293,6 @@ export class SystemController {
         const secCallback = async (id: string): Promise<Result<SimpleMember | void>> => {
             //register process
             const res = await this.register(id, newMember);
-            // console.log("register process");
             if (res.ok) {
                 logger.warn("[SystemController/registerMember] finish - member returned");
                 return new Result<SimpleMember | void>(true, res.data, res.message);
@@ -289,7 +301,7 @@ export class SystemController {
                 return new Result(false, undefined, res.message);
             }
         };
-        return this.authenticateMarketVisitor(sessionID, secCallback);
+        return this.authenticateMarketVisitorAsync(sessionID, secCallback);
     }
 
     private async register(
@@ -297,7 +309,7 @@ export class SystemController {
         newMember: RegisterMemberData
     ): Promise<Result<SimpleMember | void>> {
         try {
-            console.log(`[SystemController/register] start w/${newMember.username}`)
+            // console.log(`[SystemController/register] start w/${newMember.username}`)
             await this.securityController.register(
                 sessionId,
                 newMember.username,
@@ -569,6 +581,17 @@ export class SystemController {
             return Result.Ok(discounts.map(toSimpleDiscountDescriber));
         });
     }
+
+    // getDiscount(
+    //     sessId: string,
+    //     shopId: number
+    // ): Result<SimpleDiscountDescriber | void> {
+    //     return this.authenticateMarketVisitor(sessId, () => {
+    //         const discounts: DiscountComponent =
+    //             this.mpController.getDiscount(shopId);
+    //         return Result.Ok(discounts);
+    //     });
+    // }
 
     addDiscount(
         sessId: string,

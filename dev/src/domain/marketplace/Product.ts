@@ -1,7 +1,9 @@
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
 import {ProductCategory, ProductRate} from "../../utilities/Enums";
 
 
-export class Product {
+export class Product implements Entity{
 
     private _id: number;
     private _name: string;
@@ -9,20 +11,16 @@ export class Product {
     private _category: ProductCategory;
     private _rate: ProductRate;
     private _description: string;
+    private _fullPrice: number;
 
 
-
-    constructor(name: string, shopId: number, id: number, category: ProductCategory, fullPrice: number, description?: string){
+    constructor(name: string, shopId: number, id: number, category: ProductCategory, fullPrice: number, description: string = ""){
         this._id= id;
         this._name= name;
         this._shopId= shopId;
         this._category= category;
         this._rate= ProductRate.NotRated
-        if(description){
-            this._description = description;
-        }
-        else
-            this._description="";
+        this._description = description;
         this._fullPrice= fullPrice;
     }
 
@@ -68,7 +66,6 @@ export class Product {
         this._description = value;
     }
 
-    private _fullPrice: number;
     public get fullPrice(): number {
         return this._fullPrice;
     }
@@ -76,6 +73,80 @@ export class Product {
         this._fullPrice = value;
     }
 
+    async save(quantity: number) {
+        await prisma.product.create({
+            data: {
+                id: this.id,
+                name: this.name,
+                shopId: this.shopId,
+                category: this.category,
+                rate: this.rate,
+                description: this.description,
+            },
+        });
 
+        await prisma.productInShop.create({
+            data: {
+                shopId: this.shopId,
+                productId: this.id,
+                product_quantity: quantity,
+            },
+        });
+    }
 
+    async update(name: string = this.name, shopId: number = this.shopId, category: ProductCategory = this.category, rate: ProductRate = this.rate, description: string = this.description) {
+        await prisma.product.update({
+            where: {
+                id: this.id,
+            },
+            data: {
+                name: name,
+                shopId: shopId,
+                category: category,
+                rate: rate,
+                description: description,
+            },
+        });
+    }
+
+    async updateProductInShop(quantity: number) {
+        await prisma.productInShop.update({
+            where: {
+                shopId_productId: {
+                    shopId: this.shopId,
+                    productId: this.id,
+                }
+            },
+            data: {
+                product_quantity: quantity,
+            }
+        })
+    }
+
+    static async findById(id: number) {
+        await prisma.product.findUnique({
+            where: {
+                id: id,
+            }
+        })
+    }
+
+    async findProductInShop(shopId: number) {
+        await prisma.productInShop.findUnique({
+            where: {
+                shopId_productId: {
+                    shopId: shopId,
+                    productId: this.id,
+                }
+            }
+        })
+    }
+
+    async delete() {
+        await prisma.product.delete({
+            where: {
+                id: this.id,
+            },
+        });
+    }
 }

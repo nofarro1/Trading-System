@@ -7,9 +7,9 @@ export class SimpleShop {
     private readonly _name: string;
     private readonly _status: ShopStatus;
     private readonly _founder: string;
-    private readonly _products: Map<SimpleProduct, number>; //<SimpleProduct, quantity>
+    private readonly _products: {product:SimpleProduct, quantity:number}[]//Map<SimpleProduct, number>; //<SimpleProduct, quantity>
     
-    constructor(ID: number, name: string, shopFounder: string, status: ShopStatus, products: Map<SimpleProduct, number>) {
+    constructor(ID: number, name: string, shopFounder: string, status: ShopStatus, products:{product:SimpleProduct, quantity:number}[]) {
         this._ID = ID;
         this._founder = shopFounder;
         this._name = name;
@@ -28,11 +28,12 @@ export class SimpleShop {
     get status(): ShopStatus {
         return this._status;
     }
-    
-    get products(): Map<SimpleProduct, number> {
+
+
+    get products(): { product: SimpleProduct; quantity: number }[] {
         return this._products;
     }
-    
+
     public get founder(): string {
         return this._founder;
     }
