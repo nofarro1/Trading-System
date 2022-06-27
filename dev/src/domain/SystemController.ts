@@ -558,6 +558,17 @@ export class SystemController {
         });
     }
 
+    // getDiscount(
+    //     sessId: string,
+    //     shopId: number
+    // ): Result<SimpleDiscountDescriber | void> {
+    //     return this.authenticateMarketVisitor(sessId, () => {
+    //         const discounts: DiscountComponent =
+    //             this.mpController.getDiscount(shopId);
+    //         return Result.Ok(discounts);
+    //     });
+    // }
+
     addDiscount(
         sessId: string,
         shopId: number,

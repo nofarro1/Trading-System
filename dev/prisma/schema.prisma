@@ -174,6 +174,7 @@ model Discount {
   id                  Int
   shop                Shop                 @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   shopId              Int
+  kind                DiscountKinds
   //Foreign Key references
   simpleDiscount      SimpleDiscount?
   conditionalDiscount ConditionalDiscount?
@@ -234,7 +235,7 @@ model DiscountContainer {
   id          Int
   shopId      Int
   description String
-  type        DiscountRelation
+  type       DiscountRelation
   //Foreign Key references
   discounts   DiscountInContainer[]
 
@@ -246,9 +247,9 @@ model DiscountInContainer {
   discount           Discount          @relation(fields: [containedDiscount, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   containedDiscount  Int
   shopId             Int
-  discountContainer  DiscountContainer @relation(fields: [containingDiscount, containingShopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
+  //type               DiscountKinds
+  discountContainer  DiscountContainer @relation(fields: [containingDiscount, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   containingDiscount Int
-  containingShopId   Int
 
   @@id([containedDiscount, containingDiscount, shopId])
   @@map("discount_in_container")
@@ -328,9 +329,8 @@ model PolicyInContainer {
   policy           Policy        @relation(fields: [containedPolicy, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   containedPolicy  Int
   shopId           Int
-  policyContainer  LogicalPolicy @relation(fields: [containingPolicy, containingShopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
+  policyContainer  LogicalPolicy @relation(fields: [containingPolicy, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   containingPolicy Int
-  containingShopId Int
 
   @@id([containedPolicy, containingPolicy, shopId])
   @@map("policy_in_container")
@@ -475,4 +475,10 @@ enum MessageType {
   ShopStatusChanged
   AddedNewOffer2Shop
   CounterOffer
+}
+
+enum DiscountKinds {
+ SimpleDiscount
+ ConditionalDiscount
+ ContainerDiscount
 }

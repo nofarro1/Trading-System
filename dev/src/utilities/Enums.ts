@@ -51,7 +51,17 @@ export const RelationType: { [x: string]: 'LessThan' | 'LessThanOrEqual' | 'Equa
     NotEqual: 'NotEqual',
 }
 export type RelationType = typeof RelationType[keyof typeof RelationType]
-export enum DiscountKinds {SimpleDiscount, ConditionalDiscount, ContainerDiscount}
+
+export const DiscountKinds: { [x: string]: 'SimpleDiscount' | 'ConditionalDiscount' | 'ContainerDiscount'} = {
+    SimpleDiscount : 'SimpleDiscount',
+    Conditionaldiscount : 'ConditionalDiscount',
+    ContainerDiscount: 'ContainerDiscount',
+}
+export type DiscountKinds = typeof DiscountKinds[keyof typeof DiscountKinds]
+
+
+
+
 export const DiscountRelation: { [x: string]: 'And' | 'Or' | 'Xor' | 'Addition' | 'Max'} = {
     And: 'And',
     Or: 'Or',

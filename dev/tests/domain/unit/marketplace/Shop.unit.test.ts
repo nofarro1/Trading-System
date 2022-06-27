@@ -446,6 +446,14 @@ describe('Shop.units', function() {
     test("answer appointment agreement - success", ()=>{
        expect(s1.answerAppointmentAgreement("Nofar", "Shahar", true)).toThrow("Only an exist shop owner can approve the appointment of a new shop owner");
     })
+
+    test("getDisc", ()=>{
+        let discountInf1: discountInf = {type:DiscountType.Category, object:ProductCategory.A} as discountInf;
+        let disc1 = new SimpleDiscount(0, discountInf1, 5);
+       // s1.discounts.set(disc1.id, disc1);
+        let disc = s1.getDiscount(0);
+        expect(disc).not.toBeUndefined();
+    })
 })
 
 

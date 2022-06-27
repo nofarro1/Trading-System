@@ -1,6 +1,8 @@
 import {DiscountComponent} from "../../../Components/DiscountComponent";
 import {Product} from "../../../../Product";
 import {ContainerDiscountComponent} from "../ContainerDiscountComponent";
+import prisma from "../../../../../../utilities/PrismaClient";
+import {DiscountRelation} from "../../../../../../utilities/Enums";
 
 export class AdditionDiscounts extends ContainerDiscountComponent{
 
@@ -35,5 +37,43 @@ export class AdditionDiscounts extends ContainerDiscountComponent{
         return true;
     }
 
+    async save(shopId: number) {
+        // await prisma.discount.create({
+        //     data:{
+        //         id: this.id,
+        //         shopId: shopId,
+        //     },
+        // });
+        //
+        // await prisma.discountContainer.create({
+        //     data: {
+        //         id: this.id,
+        //         shopId: shopId,
+        //         description: this.description,
+        //         type: DiscountRelation.Addition,
+        //     },
+        // });
+        //
+        // for(let disc of this._discounts)
+        //     disc.save(shopId);
+    }
 
+    async update(shopId: number) {
+        await prisma.discountContainer.update({
+            where: {id_shopId: {id: this.id, shopId: shopId}},
+            data: {description: this._description},
+        });
+    }
+
+    async findById(shopId: number){
+        await prisma.discountContainer.findUnique({
+            where: {id_shopId: {id: this.id, shopId: shopId}}
+        })
+    }
+
+    async delete(shopId: number) {
+        await prisma.discount.delete({
+            where: {id_shopId: {id: this.id, shopId: shopId}},
+        });
+    }
 }
