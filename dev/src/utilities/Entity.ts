@@ -1,9 +1,9 @@
 export interface Entity {
     save(...params: any);
 
-    update();
+    update(...params: any);
 
-    findById();
+    findById(...params: any);
 
-    delete();
+    delete(...params: any);
 }
