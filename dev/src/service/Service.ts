@@ -84,6 +84,11 @@ export class Service {
         return this.memberService.appointShopOwner(sessionID, newOwnerID, shopID, assigningOwnerID);
     }
 
+    submitAppointmentAgreement(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string): Promise<Result<void>> {
+        logger.info(`${sessionID}: ${assigningOwnerID} is submitted ${newOwnerID}'s as a shop owner of shop ${shopID}`);
+        return this.memberService.submitAppointmentAgreement(sessionID, newOwnerID, shopID, assigningOwnerID);
+    }
+
     //Shop Owner - Use-Case 6
     appointShopManager(sessionID: string, newManagerID: string, shopID: number, assigningOwnerID: string, permissions?: Permissions[]): Promise<Result<void>> {
         logger.info(`${sessionID}: ${assigningOwnerID} is appointing ${newManagerID} to a manager of shop ${shopID}`);

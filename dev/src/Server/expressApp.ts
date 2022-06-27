@@ -142,14 +142,10 @@ router.post('/guest/login', async (req, res) => {
         let username = req.body.username;
         let password = req.body.password;
         let ans = await service.login(sessId, username, password)
-        req.session.username = username;
-        req.session.loggedIn = true;
         res.send(ans)
     } catch (e: any) {
-        req.session.username = "";
-        req.session.loggedIn = false;
-        res.status(404)
-        res.send(e.message)
+
+        res.status(404).send(e.message)
     }
 })
 

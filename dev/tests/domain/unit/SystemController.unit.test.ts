@@ -853,142 +853,138 @@ describe('system controller - unit', () => {
         clearMocks(updateProductToShopMM);
     })
 
-    // describe("appoint Owner", () => {
+    describe("appoint Owner", () => {
 
-        // test("appoint owner - success", () => {
-        //     //prep
-        //     let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
-        //         return new Result(true, true, "mock success")
-        //     })
-        //
-        //     let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
-        //         return new Result(true, role1)
-        //     })
-        //
-        //     let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
-        //         return new Result(true, undefined, "mock appoint message")
-        //     })
-        //
-        //     //act
-        //     let res = sys.appointShopOwner(sess4, {
-        //         member: username2,
-        //         shopId: 0,
-        //         assigner: username2,
-        //         permissions: [],
-        //         title: "title"
-        //     })
-        //
-        //     //assert
-        //     expect(res.ok).toBe(true);
-        //     expect(res.data).not.toBeDefined();
-        //     expect(checkPermissionMM).toBeCalled()
-        //     expect(addRoleMM).toBeCalled()
-        //     expect(appointOwnerMM).toBeCalled()
-        //
-        //     clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
-        //
-        // })
-        // test("appoint owner - failure - permissions", () => {
-        //     //prep
-        //     let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
-        //         return new Result(false, false, "mock success")
-        //     })
-        //
-        //     let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
-        //         return new Result(true, role1)
-        //     })
-        //
-        //     let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
-        //         return new Result(true, undefined, "mock appoint message")
-        //     })
-        //
-        //     //act
-        //     let res = sys.appointShopOwner(sess4, {
-        //         member: username2,
-        //         shopId: 0,
-        //         assigner: username2,
-        //         permissions: [],
-        //         title: "title"
-        //     })
-        //
-        //     //assert
-        //     expect(res.ok).toBe(false);
-        //     expect(res.data).not.toBeDefined();
-        //     expect(checkPermissionMM).toBeCalled()
-        //     expect(addRoleMM).not.toBeCalled()
-        //     expect(appointOwnerMM).not.toBeCalled()
-        //
-        //     clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
-        //
-        // })
-        // test("appoint owner - failure - addRole", () => {
-        //     //prep
-        //     let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
-        //         return new Result(true, true, "mock success")
-        //     })
-        //
-        //     let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
-        //         return new Result(false, undefined)
-        //     })
-        //
-        //     let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
-        //         return new Result(true, undefined, "mock appoint message")
-        //     })
-        //
-        //     //act
-        //     let res = sys.appointShopOwner(sess4, {
-        //         member: username2,
-        //         shopId: 0,
-        //         assigner: username2,
-        //         permissions: [],
-        //         title: "title"
-        //     })
-        //
-        //     //assert
-        //     expect(res.ok).toBe(false);
-        //     expect(res.data).not.toBeDefined();
-        //     expect(checkPermissionMM).toBeCalled()
-        //     expect(addRoleMM).toBeCalled()
-        //     expect(appointOwnerMM).not.toBeCalled()
-        //
-        //     clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
-        //
-        // })
-        // test("appoint owner  - failure - appointShopOwner", () => {
-        //     //prep
-        //     let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
-        //         return new Result(true, true, "mock success")
-        //     })
-        //
-        //     let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
-        //         return new Result(true, role1)
-        //     })
-        //
-        //     let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
-        //         return new Result(false, undefined, "mock appoint message")
-        //     })
-        //
-        //     //act
-        //     let res = sys.appointShopOwner(sess4, {
-        //         member: username2,
-        //         shopId: 0,
-        //         assigner: username2,
-        //         permissions: [],
-        //         title: "title"
-        //     })
-        //
-        //     //assert
-        //     expect(res.ok).toBe(false);
-        //     expect(res.data).not.toBeDefined();
-        //     expect(checkPermissionMM).toBeCalled()
-        //     expect(addRoleMM).toBeCalled()
-        //     expect(appointOwnerMM).toBeCalled()
-        //
-        //     clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
-        //
-        // })
-    //
-   //  })
+        test("appoint owner - success", () => {
+            //prep
+            let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                return new Result(true, true, "mock success")
+            })
+
+            let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
+                return new Result(true, role1)
+            })
+
+            let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
+                return new Result(true, undefined, "mock appoint message")
+            })
+
+            //act
+            let res = sys.appointShopOwner(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: []
+            })
+
+            //assert
+            expect(res.ok).toBe(true);
+            expect(res.data).not.toBeDefined();
+            expect(checkPermissionMM).toBeCalled()
+            expect(addRoleMM).toBeCalled()
+            expect(appointOwnerMM).toBeCalled()
+
+            clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
+
+        })
+        test("appoint owner - failure - permissions", () => {
+            //prep
+            let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                return new Result(false, false, "mock success")
+            })
+
+            let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
+                return new Result(true, role1)
+            })
+
+            let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
+                return new Result(true, undefined, "mock appoint message")
+            })
+
+            //act
+            let res = sys.appointShopOwner(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: []
+            })
+
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined();
+            expect(checkPermissionMM).toBeCalled()
+            expect(addRoleMM).not.toBeCalled()
+            expect(appointOwnerMM).not.toBeCalled()
+
+            clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
+
+        })
+        test("appoint owner - failure - addRole", () => {
+            //prep
+            let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                return new Result(true, true, "mock success")
+            })
+
+            let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
+                return new Result(false, undefined)
+            })
+
+            let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
+                return new Result(true, undefined, "mock appoint message")
+            })
+
+            //act
+            let res = sys.appointShopOwner(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: []
+            })
+
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined();
+            expect(checkPermissionMM).toBeCalled()
+            expect(addRoleMM).toBeCalled()
+            expect(appointOwnerMM).not.toBeCalled()
+
+            clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
+
+        })
+        test("appoint owner  - failure - appointShopOwner", () => {
+            //prep
+            let checkPermissionMM = mockMethod(UserController.prototype, 'checkPermission', () => {
+                return new Result(true, true, "mock success")
+            })
+
+            let addRoleMM = mockMethod(UserController.prototype, 'addRole', () => {
+                return new Result(true, role1)
+            })
+
+            let appointOwnerMM = mockMethod(MarketplaceController.prototype, 'appointShopOwner', () => {
+                return new Result(false, undefined, "mock appoint message")
+            })
+
+            //act
+            let res = sys.appointShopOwner(sess4, {
+                member: username2,
+                shopId: 0,
+                assigner: username2,
+                permissions: []
+            })
+
+            //assert
+            expect(res.ok).toBe(false);
+            expect(res.data).not.toBeDefined();
+            expect(checkPermissionMM).toBeCalled()
+            expect(addRoleMM).toBeCalled()
+            expect(appointOwnerMM).toBeCalled()
+
+            clearMocks(checkPermissionMM, addRoleMM, appointOwnerMM)
+
+        })
+
+    })
 
     describe("appoint Shop Manager", () => {
 
@@ -1012,7 +1008,6 @@ describe('system controller - unit', () => {
                 shopId: 0,
                 assigner: username2,
                 permissions: [],
-                title: "title"
             })
 
             //assert
@@ -1044,8 +1039,7 @@ describe('system controller - unit', () => {
                 member: username2,
                 shopId: 0,
                 assigner: username2,
-                permissions: [],
-                title: "title"
+                permissions: []
             })
 
             //assert
@@ -1077,8 +1071,7 @@ describe('system controller - unit', () => {
                 member: username2,
                 shopId: 0,
                 assigner: username2,
-                permissions: [],
-                title: "title"
+                permissions: []
             })
 
             //assert
@@ -1110,8 +1103,7 @@ describe('system controller - unit', () => {
                 member: username2,
                 shopId: 0,
                 assigner: username2,
-                permissions: [],
-                title: "title"
+                permissions: []
             })
 
             //assert

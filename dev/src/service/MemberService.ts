@@ -89,4 +89,8 @@ export class MemberService {
             result.ok ? resolve(result) : reject(result.message);
         })
     }
+
+    submitAppointmentAgreement(sessionID: string, newOwnerID: string, shopID: number, assigningOwnerID: string) {
+        return Promise.resolve(undefined);
+    }
 }

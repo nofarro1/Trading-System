@@ -526,7 +526,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             try {
                 let agreement = shop.answerAppointmentAgreement(member, owner, answer);
                 if (agreement) {
-                    if (agreement.isDone()) {
+                    if (agreement.isDone() && agreement.getAnswer()) {
                         this.appointShopOwner(member, shopId);
                         this.notifySubscribers(new newOwnerInShopMessage(shop, member));
                     }

@@ -422,26 +422,46 @@ describe('SimpleShop Management-tests', function () {
         done();
     })
     //User4.4
-    // test('appoint shop owner-success', async (done) => {
-    //     if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
-    //         expect((await service.appointShopOwner("1", 'owner', testShop.ID, testMember.username)).ok).toBe(true);
-    //     } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop');
-    //     done();
-    // })
+    test('appoint shop owner-success', async (done) => {
+        if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
+            expect((await service.appointShopOwner("1", 'owner', testShop.ID, testMember.username)).ok).toBe(true);
+        } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop');
+        done();
+    })
 
-    // test('appoint shop owner-fail', async (done) => {
-    //     if (testMember instanceof SimpleMember) {
-    //         expect((await service.appointShopOwner("1", 'owner', -1, testMember.username)).ok).toBe(false);
-    //     } else fail('expected testMember to be SimpleMember');
-    //     done();
-    // })
-    //
-    // test('appoint shop owner-fail', async (done) => {
-    //     if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
-    //         expect((await service.appointShopOwner("-1", 'nonuser', testShop.ID, testMember.username)).ok).toBe(false);
-    //     } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop');
-    //     done();
-    // })
+    test('appoint shop owner-fail', async (done) => {
+        if (testMember instanceof SimpleMember) {
+            expect((await service.appointShopOwner("1", 'owner', -1, testMember.username)).ok).toBe(false);
+        } else fail('expected testMember to be SimpleMember');
+        done();
+    })
+
+    test('appoint shop owner-fail', async (done) => {
+        if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
+            expect((await service.appointShopOwner("-1", 'nonuser', testShop.ID, testMember.username)).ok).toBe(false);
+        } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop');
+        done();
+    })
+    test('appoint shop owner-success', async (done) => {
+        if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
+            expect((await service.submitAppointmentAgreement("1", 'owner', testShop.ID, testMember.username)).ok).toBe(true);
+        } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop');
+        done();
+    })
+
+    test('appoint shop owner-fail', async (done) => {
+        if (testMember instanceof SimpleMember) {
+            expect((await service.submitAppointmentAgreement("1", 'owner', -1, testMember.username)).ok).toBe(false);
+        } else fail('expected testMember to be SimpleMember');
+        done();
+    })
+
+    test('appoint shop owner-fail', async (done) => {
+        if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
+            expect((await service.submitAppointmentAgreement("-1", 'nonuser', testShop.ID, testMember.username)).ok).toBe(false);
+        } else fail('expected testMember to be SimpleMember, testShop to be SimpleShop');
+        done();
+    })
     //User4.11
     test('request shop personnel-success', async (done) => {
         if (testMember instanceof SimpleMember && testShop instanceof SimpleShop) {
