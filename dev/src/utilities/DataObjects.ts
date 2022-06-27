@@ -41,7 +41,6 @@ export interface NewRoleData {
     member: string;
     shopId: number;
     assigner: string;
-    title?: string;
     permissions: Permissions[];
 }
 

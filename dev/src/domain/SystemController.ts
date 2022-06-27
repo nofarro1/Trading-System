@@ -51,7 +51,6 @@ import {DeliveryService} from "./external_services/DeliveryService";
 import {PaymentDetails} from "./external_services/IPaymentService";
 import {DeliveryDetails} from "./external_services/IDeliveryService";
 import {Offer} from "./user/Offer";
-import {AppointmentAgreement} from "./marketplace/AppointmentAgreement";
 
 @injectable()
 export class SystemController {
@@ -68,7 +67,9 @@ export class SystemController {
         @inject(TYPES.UserController) uController: UserController,
         @inject(TYPES.PurchaseController) pController: PurchaseController,
         @inject(TYPES.MessageController) msgController: MessageController,
-        @inject(TYPES.SecurityController) sController: SecurityController
+        @inject(TYPES.SecurityController) sController: SecurityController,
+        @inject("adminUsername") adminUsername: string,
+        @inject("adminPassword") adminPassword: string
     ) {
         this.mpController = mpController;
         this.scController = scController;
@@ -76,8 +77,11 @@ export class SystemController {
         this.pController = pController;
         this.mController = msgController;
         this.securityController = sController;
+        //todo: configure dependencies between controllers
+        this.pController.subscribe(this.mController);
+        this.mpController.subscribe(this.mController);
 
-        const defaultAdmin = SystemController.createDefaultAdmin(
+        SystemController.createDefaultAdmin(
             this.securityController,
             this.uController,
             this.scController,
@@ -86,19 +90,26 @@ export class SystemController {
                 username: "admin",
                 password: "adminadmin",
             }
-        );
-        if (defaultAdmin.data === undefined) {
-            logger.error(
-                "failed to initialize system. default admin registration failed"
-            );
-            throw new Error("failed to register default admin member");
-        } else {
-            logger.info("system controller initialize successfully");
-        }
+        ).then((defaultAdmin) => {
+            if (defaultAdmin.data === undefined) {
+                logger.error(
+                    "failed to initialize system. default admin registration failed"
+                );
+                throw new Error("failed to register default admin member");
+            } else {
 
-        //todo: configure dependencies between controllers
-        this.pController.subscribe(this.mController);
-        this.mpController.subscribe(this.mController);
+                logger.info("system controller initialize successfully");
+            }
+        }).then(async () => {
+            return await this.securityController.checkPassword(adminUsername, adminPassword);
+        }).then((verified) => {
+            if (!verified) {
+                logger.error("failed to verify the admin on system start up");
+                throw new Error("failed to verify the admin on system start up");
+            }
+        })
+
+
     }
 
     // static initialize(): SystemController {
@@ -122,7 +133,7 @@ export class SystemController {
     //
     // }
 
-    private static createDefaultAdmin(
+    private static async createDefaultAdmin(
         security: SecurityController,
         user: UserController,
         cart: ShoppingCartController,
@@ -131,7 +142,7 @@ export class SystemController {
     ) {
         try {
             security.accessMarketplace("-1");
-            security.register("-1", newMember.username, newMember.password);
+            await security.register("-1", newMember.username, newMember.password);
         } catch (e: any) {
             return new Result(false, undefined, e.message);
         }
@@ -184,7 +195,7 @@ export class SystemController {
     exitMarketplace(sessionId: string): Result<void> {
         const callback = (id: string) => {
             let toLogout = id;
-            let res = this.logout(id); // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
+            let res = this.logout(sessionId); // try to log out member if session id is connected to a member ,returns a guest on success. on fail the id is all ready a guest, and we can preside
             if (checkRes(res)) {
                 toLogout = res.data.guestID;
             }
@@ -217,11 +228,11 @@ export class SystemController {
     //
     // }
     //General Guest - Use-Case 4
-    login(sessionId: string, d: LoginData): Result<void | SimpleMember> {
-        const secCallback = (id: string) => {
+    async login(sessionId: string, d: LoginData): Promise<Result<void | SimpleMember>> {
+        const secCallback = async (id: string): Promise<Result<void | SimpleMember>> => {
             //if success get the member_id
             try {
-                this.securityController.login(id, d.username, d.password);
+                await this.securityController.login(id, d.username, d.password);
             } catch (e: any) {
                 return new Result(false, undefined, e.message);
             }
@@ -261,14 +272,14 @@ export class SystemController {
     }
 
     //General Guest - Use-Case 3
-    registerMember(
+    async registerMember(
         sessionID: string,
         newMember: RegisterMemberData
-    ): Result<SimpleMember | void> {
+    ): Promise<Result<SimpleMember | void>> {
         logger.warn("[SystemController/registerMember] in register member - system controller");
-        const secCallback = (id: string): Result<SimpleMember | void> => {
+        const secCallback = async (id: string): Promise<Result<SimpleMember | void>> => {
             //register process
-            const res = this.register(id, newMember);
+            const res = await this.register(id, newMember);
             console.log("register process");
             if (res.ok) {
                 logger.warn("[SystemController/registerMember] finish - member returned");
@@ -281,13 +292,13 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionID, secCallback);
     }
 
-    private register(
+    private async register(
         sessionId: string,
         newMember: RegisterMemberData
-    ): Result<SimpleMember | void> {
+    ): Promise<Result<SimpleMember | void>> {
         try {
             console.log(`[SystemController/register] start w/${newMember.username}`)
-            this.securityController.register(
+            await this.securityController.register(
                 sessionId,
                 newMember.username,
                 newMember.password
@@ -361,10 +372,10 @@ export class SystemController {
     // }
 
     getShops(sessionId: string): Result<SimpleShop[] | void> {
-      return this.authenticateMarketVisitor(sessionId, (id) => {
-        const shops: SimpleShop[] = this.mpController.Shops.map(toSimpleShop);
-        return Result.Ok(shops);
-      });
+        return this.authenticateMarketVisitor(sessionId, (id) => {
+            const shops: SimpleShop[] = this.mpController.Shops.map(toSimpleShop);
+            return Result.Ok(shops);
+        });
     }
 
     //Guest Payment - Use-Case 2
@@ -393,7 +404,6 @@ export class SystemController {
     ): Result<void> {
         const authCallback = (id: string) => {
             const productRes = this.mpController.getProduct(shopId, productId);
-            console.log(productRes);
             if (checkRes(productRes))
                 return this.scController.addProduct(id, productRes.data, quantity);
             else {
@@ -642,15 +652,8 @@ export class SystemController {
         puPolicy: ImmediatePurchaseData
     ): Result<number | void> {
         return this.authenticateMarketVisitor(sessId, (userId) => {
-            if (
-                this.uController.checkPermission(
-                    userId,
-                    shopId,
-                    Permissions.AddPurchasePolicy
-                ).data ||
-                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner)
-                    .data
-            ) {
+            if (this.uController.checkPermission(userId, shopId, Permissions.AddPurchasePolicy).data ||
+                this.uController.checkPermission(userId, shopId, Permissions.ShopOwner).data) {
                 const res = this.mpController.addPurchasePolicy(shopId, puPolicy);
                 if (checkRes(res)) {
                     return Result.Ok(res.data, `new discount add with Id ${res.data}`);
@@ -690,53 +693,21 @@ export class SystemController {
 
     /*-----------------------------------shop Personnel Actions actions----------------------------------------------*/
 
-    //Shop Owner - Use-Case 4
     appointShopOwner(sessionId: string, r: NewRoleData): Result<void> {
         const authCallback = (id: string) => {
-            if (
-                this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner)
-                    .data
-            ) {
-                const result = this.uController.addRole(
-                    id,
-                    r.member,
-                    JobType.Owner,
-                    r.shopId,
-                    new Set(r.permissions.concat(Permissions.ShopOwner))
-                );
+            if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
+                this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data) {
+                const result = this.uController.addRole(r.assigner, r.member, JobType.Owner, r.shopId, new Set(r.permissions.concat(Permissions.ShopOwner)))
                 if (checkRes(result)) {
-                    return this.mpController.appointShopOwner(r.member, r.shopId);
+                    return this.mpController.appointShopOwner(r.member, r.shopId)
                 }
-                return new Result(
-                    false,
-                    undefined,
-                    "failed to add the role to the user"
-                );
+                return new Result(false, undefined, "failed to add the role to the user")
             }
-            return new Result(
-                false,
-                undefined,
-                "no permissions to appoint shopOwner"
-            );
-        };
-        return this.authenticateMarketVisitor(sessionId, authCallback);
+            return new Result(false, undefined, "no permissions to appoint shopOwner")
+        }
+        return this.authenticateMarketVisitor(sessionId, authCallback)
     }
 
-    //Shop Owner - Use-Case 4
-    // appointShopOwner(sessionId: string, r:NewRoleData): Result<void> {
-    //     const authCallback = (id: string) => {
-    //         if (this.uController.checkPermission(id, r.shopId, Permissions.AddShopOwner).data ||
-    //             this.uController.checkPermission(id, r.shopId, Permissions.ShopOwner).data) {
-    //             const result = this.uController.addRole(r.assigner, r.member, r.title !== undefined ? r.title : "", JobType.Owner, r.shopId, new Set(r.permissions.concat(Permissions.ShopOwner)))
-    //             if (checkRes(result)) {
-    //                 return this.mpController.appointShopOwner(r.member, r.shopId)
-    //             }
-    //             return new Result(false, undefined, "failed to add the role to the user")
-    //         }
-    //         return new Result(false, undefined, "no permissions to appoint shopOwner")
-    //     }
-    //     return this.authenticateMarketVisitor(sessionId, authCallback)
-    // }
 
     //Shop Owner - Use-Case 6
     appointShopManager(sessionId: string, r: NewRoleData): Result<void> {
@@ -806,7 +777,7 @@ export class SystemController {
     getPersonnelInfoOfShop(sessId: string, shop: number): Result<SimpleMember[] | void> {
         const callback = (id: string) => {
             if (!this.uController.checkPermission(id, shop, Permissions.RequestPersonnelInfo).data ||
-                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
+                !this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
             }
             let shopRes = this.mpController.getShopInfo(shop);
@@ -834,7 +805,7 @@ export class SystemController {
         const callback = (id: string) => {
             //check if can preview History
             if (!this.uController.checkPermission(id, shop, Permissions.GetPurchaseHistory).data ||
-                this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
+                !this.uController.checkPermission(id, shop, Permissions.ShopOwner).data) {
                 return new Result(false, undefined, "no permission");
             }
             let orders: string[] = this.pController.shopOrders.has(shop) ?
@@ -849,11 +820,11 @@ export class SystemController {
 
     //System Admin actions
     //General Admin - Use-Case 0
-    registerAsAdmin(sessionID: string, registrationData: RegisterMemberData, adminSecretKey?: string): Result<void> {
+    async registerAsAdmin(sessionID: string, registrationData: RegisterMemberData, adminSecretKey?: string): Promise<Result<void>> {
         if (adminSecretKey === null || adminSecretKey !== "Edan Rules") {
             return new Result(false, undefined, "admin key not correct");
         }
-        let admin = this.register(sessionID, {
+        let admin = await this.register(sessionID, {
             username: registrationData.username,
             password: registrationData.password
         });
