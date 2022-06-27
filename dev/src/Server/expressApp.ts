@@ -32,6 +32,7 @@ router.get('/check', (req, res) => {
 //access marketpalce - return the index.html in the future
 router.get('/access', async (req, res) => {
     let sessId = req.session.id;
+    req.socket.setKeepAlive(true);
     logger.warn("[in access - expressApp]");
     try {
         console.log("guest " + sessId + " try to access marketplace");
@@ -158,8 +159,6 @@ router.get('/member/logout/:username/:session', async (req, res) => {
         let username = req.params.username
         logger.warn("in logout session");
         let ans = await service.logout(sessId, username)
-        req.session.loggedIn = false;
-        req.session.username = "";
         res.send(ans)
     } catch (e: any) {
         res.status(404)
@@ -382,11 +381,11 @@ router.post('/discount/:shopId', async (req, res) => {
 
     try {
         let sessId = req.body.session;
-        let shopId = req.params.shopId;
+        let shopId = Number(req.params.shopId);
         let info = req.body.info;
         let discountPercent = req.body.discountPercent;
         let description = req.body.description;
-        let ans = await service.addDiscountToShop(sessId, shopId, info, discountPercent, description);
+        let ans = await service.addDiscount(sessId, shopId, info);
         res.status(201).send(ans)
     } catch (e: any) {
         res.status(404)
