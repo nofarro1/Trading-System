@@ -43,4 +43,17 @@ export class ConditionalDiscount implements DiscountComponent{
     predicate(products: [Product, number, number][]): boolean {
         return this._pred.checkPredicate(products);
     }
+
+    static findById(containingDiscount: number): Promise<ConditionalDiscount> {
+        return undefined;
+    }
+
+    delete(...params: any) {
+    }
+
+    save(...params: any) {
+    }
+
+    update(...params: any) {
+    }
 }

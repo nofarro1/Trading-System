@@ -31,14 +31,14 @@ export function toSimpleProducts(products: Product[]): SimpleProduct[] {
 }
 
 export function toSimpleShop(shop: Shop): SimpleShop {
-    const products: Map<SimpleProduct, number> = new Map<SimpleProduct, number>();
+    const products: {product:SimpleProduct, quantity:number}[] = [];
     for (const [domainProduct, quantity] of shop.products.values()) {
         const product: SimpleProduct = new SimpleProduct(domainProduct.id, domainProduct.name, domainProduct.shopId,
             domainProduct.fullPrice, domainProduct.category, domainProduct.rate, domainProduct.description);
-        products.set(product, quantity);
+        products.push({product:product, quantity:quantity});
     }
 
-    return new SimpleShop(shop.id, shop.name,shop.shopFounder,shop.status, products);
+    return new SimpleShop(shop.id, shop.name,shop.shopFounder,shop.status,products);
 }
 
 export function toSimpleGuest(guest: Guest): SimpleGuest {
@@ -55,14 +55,14 @@ function toSimpleRole(role: Role): SimpleRole {
 }
 
 export function toSimpleShoppingCart(userID: string, shoppingCart: ShoppingCart): SimpleShoppingCart {
-    const simpleProducts: Map<SimpleProduct, number> = new Map<SimpleProduct, number>();
+    const simpleProducts: {product:SimpleProduct, quantity:number}[] = [];
     for (const [shopID, shoppingBag] of Object.entries(shoppingCart.bags)) {
 
         //Extract products and quantities from Domain Products
         for (const [product, quantity] of shoppingBag.products.values()) {
             const simpleProduct: SimpleProduct = new SimpleProduct(product.id, product.name, product.shopId,
                 product.fullPrice, product.category, product.rate, product.description);
-            simpleProducts.set(simpleProduct, quantity);
+            simpleProducts.push({product:simpleProduct, quantity:quantity});
         }
 
     }

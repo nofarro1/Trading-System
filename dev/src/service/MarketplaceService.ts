@@ -46,7 +46,10 @@ export class MarketplaceService {
 
     //Member Payment - Use-Case 2
     async setUpShop(sessionID: string, shopName: string): Promise<Result<void | SimpleShop>> {
-        return this.systemController.setUpShop(sessionID, shopName);
+        return new Promise<Result<void | SimpleShop>>((resolve, reject) => {
+            let result: Result<void | SimpleShop> = this.systemController.setUpShop(sessionID, shopName);
+            result.ok ? resolve(result) : reject(result.message);
+        });
     }
 
     //Shop Owner - Use-Case 1.1

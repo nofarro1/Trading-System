@@ -2,12 +2,12 @@ import { SimpleProduct } from "../marketplace/SimpleProduct";
 
 export class SimpleShoppingCart {
   private readonly _userId: string;
-  private readonly _products: Map<SimpleProduct, number>; //<SimpleProduct, quantity>
+  private readonly _products: {product:SimpleProduct, quantity:number}[]//Map<SimpleProduct, number>; //<SimpleProduct, quantity>
   private readonly _totalPrice: number;
 
   constructor(
     userId: string,
-    products: Map<SimpleProduct, number>,
+    products: {product:SimpleProduct, quantity:number}[],
     totalPrice: number
   ) {
     this._userId = userId;
@@ -19,7 +19,8 @@ export class SimpleShoppingCart {
     return this._userId;
   }
 
-  get products(): Map<SimpleProduct, number> {
+
+  get products(): { product: SimpleProduct; quantity: number }[] {
     return this._products;
   }
 
