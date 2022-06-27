@@ -98,7 +98,7 @@ export class SecurityController {
             logger.error(`[SecurityController/login] The member ${username} is already logged into the system`);
             throw new Error(`The member ${username} is already logged into the system`);
         }
-        if (await this.checkPassword(username, password)) {
+        if (!(await this.checkPassword(username, password))) {
             logger.warn(`[SecurityController/login] The password is invalid, please try again`);
             throw new Error(`The password is invalid, please try again`);
         }
