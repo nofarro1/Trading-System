@@ -41,7 +41,7 @@ export class ShoppingBag implements Entity{
         if (productPair) {
             let updateQuantity = productPair[1] + quantity;
             this.products.set(toAdd.id, [toAdd, updateQuantity]);
-            toAdd.save(updateQuantity);
+
         }
         else
             this.products.set(toAdd.id, [toAdd, quantity]);
@@ -53,14 +53,12 @@ export class ShoppingBag implements Entity{
             throw new Error("Failed to remove product because the product wasn't found in bag.")
         let pTuple= this.products.get(toRemove.id);
         this.products.delete(toRemove.id);
-        toRemove.delete();
     }
 
     updateProductQuantity(toUpdate: Product, quantity: number): void {
         if(!this.products.has(toUpdate.id))
             throw new Error("Failed to update product because the product wasn't found in bag.")
         this.products.set(toUpdate.id, [toUpdate, quantity]);
-        toUpdate.updateProductInShop(quantity);
     }
 
     emptyBag(): void{
@@ -81,8 +79,25 @@ export class ShoppingBag implements Entity{
                 },
             }
         })
-        return result;
+        let products = await this.findAllBagProducts(username, shopId);
+        let bag =  new ShoppingBag(shopId);
+        bag.products = products;
+        return bag;
     }
+
+    static async findAllBagProducts(member: string, shopId: number): Promise<Map<number, [Product, number]>> {
+        let products = await prisma.productInBag.findMany({
+            where: {username: member, shopId: shopId},
+        });
+        let productsMap = new Map<number, [Product, number]>()
+        for(let dalP of products){
+            let p = await Product.findById(dalP.productId, dalP.shopId)
+            if(p)
+                productsMap.set(dalP.productId,[p, dalP.product_quantity])
+        }
+        return productsMap;
+    }
+
     static async findProductInBag(username:string, shopId:number,product:number) {
         const result = await prisma.productInBag.findUnique({
             where: {

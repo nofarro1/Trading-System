@@ -26,17 +26,12 @@ describe("MarketPlaceController", () => {
     })
 
     test("getShop", async () => {
-        let shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");
-        expect(shop_res.ok).toBe(true);
-        if (shop_res.data) {
-            expect(controller.shops.has(shop_res.data.id)).toBe(true);
-            let actual = controller.shops.get(shop_res.data.id);
-            expect(actual).toEqual(shop_res.data);
-            shop_res.data.appointShopManager("Shahar");
-            let res= await controller.getShopInfo(shop_res.data.id);
+        // let shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");
+        // expect(shop_res.ok).toBe(true);
+            let res= await controller.getShopInfo(0);
             expect(res.ok).toBe(true);
-            expect(res.data).toEqual(shop_res.data);
-        }
+            expect([...res.data.products.values()]).toHaveLength(2);
+
     })
 
     test("CloseShop", async () => {

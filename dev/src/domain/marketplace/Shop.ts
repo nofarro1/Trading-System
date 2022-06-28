@@ -252,10 +252,11 @@ export class Shop implements Entity{
         if (!this.products.has(toAdd.id)) {
             this.products.set(toAdd.id, [toAdd, quantity]);
             this._productsCounter++;
+            //Persist Product and ProductInShop
+            toAdd.save(quantity);
             return toAdd;
         }
-        //Persist Product and ProductInShop
-        toAdd.save(quantity);
+
 
         return toAdd;
     }
@@ -594,21 +595,20 @@ export class Shop implements Entity{
             where: {id: id}
         });
         let shop = new Shop(id, dalShop.name, dalShop.shop_founder, dalShop. description);
-        let owners = shop.findAllShopOwner(id);
-        owners.then((value)=>{
-           for( let username of value.values()){
+        let owners = await shop.findAllShopOwner(id);
+           for( let username of owners){
                shop._shopOwners.add(username.username)
-           };
-        })
-        let managers = shop.findAllShopManager(id);
-        managers.then((value)=>{
-            for( let username of value.values()){
+           }
+
+        let managers = await shop.findAllShopManager(id);
+            for( let username of managers){
                 shop._shopManagers.add(username.username)
-            };
-        })
-        let products = Shop.findAllShopProducts(id);
-        products.then((value)=> shop.products = value).catch(()=> shop.products = new Map<number,[Product, number]>())
-        return null;
+            }
+
+        let products = await Shop.findAllShopProducts(id);
+        shop.products = products;
+
+        return shop;
     }
 
     private async findShopOwner(username: string) {
@@ -647,7 +647,7 @@ export class Shop implements Entity{
         })
         let productsMap = new Map<number, [Product, number]>()
         for(let dalP of products){
-            let p = Product.findById(dalP.productId, dalP.shopId)
+            let p = await Product.findById(dalP.productId, dalP.shopId)
             if(p)
                 productsMap.set(dalP.productId,[p, dalP.product_quantity])
         }

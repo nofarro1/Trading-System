@@ -122,15 +122,13 @@ export class Product implements Entity{
         });
     }
 
-    static findById(id: number, shopId: number): Product | undefined {
+    static async findById(id: number, shopId: number): Promise<Product | undefined> {
         let p: Product | undefined;
-        let dalP = prisma.product.findUnique({
+        let dalP = await prisma.product.findUnique({
             where: { id_shopId: {id, shopId}}
         });
-        dalP.then((value)=>{
-            p = new Product(value.name, value.shopId, value.id, value.category, value.price, value.description);
-        }).catch(()=> p =undefined)
-        return p;
+            return new Product(dalP.name, dalP.shopId, dalP.id, dalP.category, dalP.price, dalP.description);
+
     }
 
     findProductInShop(shopId: number) {

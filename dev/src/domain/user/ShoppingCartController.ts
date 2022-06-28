@@ -19,22 +19,32 @@ export class ShoppingCartController {
     }
 
     //remove cart missing
-    async addProduct(cartId: string, toAdd: Product, quantity: number): Promise<Result<void>> {
+    async addProduct(cartId: string, toAdd: Product, quantity: number): Promise<Result<Product | void>> {
         //TODO - Ensure that quantity does not exceed product quantity in shop
+        let res: Result<Product | void>;
         let cart: ShoppingCart = await this.getCartWithDB(cartId)
         if (cart) {
             try {
-                cart.addProduct(toAdd, quantity);
+                let p = await cart.addProduct(toAdd, quantity);
                 logger.info(`[ShoppingCartController/addProduct] The product: ${toAdd.name} was added to ${cartId}'s cart.`);
-                await cart.save(cartId);
-                return new Result(true, undefined, `The product: ${toAdd.name} was added to ${cartId}'s cart.`);
+                res= new Result(true, p, `The product: ${toAdd.name} was added to ${cartId}'s cart.`);
+                //await cart.save(cartId);
+                // return new Promise<Result<void | Product>>(async (resolve, reject) => {
+                //     let result: Result<Product | void> = new Result(true, p, `The product: ${toAdd.name} was added to ${cartId}'s cart.`);
+                //     result.ok ? resolve(result) : reject(result.message);
+                // });
             } catch (error: any) {
                 logger.error(`[ShoppingCartController/addProduct] In ShoppingCartController-> addProduct(${cartId}, ${toAdd.name}, ${quantity}): ${error.message}.`);
-                return new Result(false, undefined, error.message);
+                res = new Result(false, undefined, error.message);
             }
         }
-        logger.error(`[ShoppingCartController/addProduct] Failed adding ${toAdd.name} to cart because the needed cart wasn't found.`)
-        return new Result(false, undefined, "Failed to addProduct to cart because the needed cart wasn't found");
+        else{
+            logger.error(`[ShoppingCartController/addProduct] Failed adding ${toAdd.name} to cart because the needed cart wasn't found.`)
+            res =  new Result(false, undefined, "Failed to addProduct to cart because the needed cart wasn't found");
+        }
+        return new Promise<Result<void | Product>>(async (resolve, reject) => {
+            res.ok ? resolve(res) : reject(res.message);
+        });
     }
 
     private async fetchCart(shopId: string): Promise<ShoppingCart> {
@@ -92,10 +102,11 @@ export class ShoppingCartController {
     }
 
     addCart(username: string): Result<ShoppingCart> {
-        let cart = new ShoppingCart(username)
+        let cart = new ShoppingCart(username);
         this.carts.set(username, cart);
-        logger.info(`[ShoppingCartController/addCart] New cart was created for ${username}`);
         cart.save(username);
+        logger.info(`[ShoppingCartController/addCart] New cart was created for ${username}`);
+
         return new Result(true, this.carts.get(username), undefined);
     }
 

@@ -3,6 +3,7 @@ import {Member} from "../../../../src/domain/user/Member";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {ProductCategory} from "../../../../src/utilities/Enums";
 import {Result} from "../../../../src/utilities/Result";
+import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 
 
 let shoppingCartController: ShoppingCartController;

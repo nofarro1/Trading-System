@@ -44,15 +44,18 @@ export class ShoppingCart implements Entity {
     //check if there is a discount to be included on the product.
     //If there is, update the total price accordingly.
 
-    async addProduct(toAdd: Product, quantity: number): Promise<void> {
+    async addProduct(toAdd: Product, quantity: number): Promise<Product> {
         let shopId = toAdd.shopId;
         let bag = this._bags.get(shopId);
         if (bag) {
             bag.addProduct(toAdd, quantity);
         } else {
-            bag.addProduct(toAdd, quantity);
+            bag = new ShoppingBag(toAdd.shopId);
             this.bags.set(shopId, bag);
+            bag.addProduct(toAdd, quantity);
         }
+       // await bag.saveProductInBag(this.username, toAdd.id, quantity);
+        return toAdd;
     }
 
     removeProduct(toRemove: Product): void {
@@ -63,6 +66,7 @@ export class ShoppingCart implements Entity {
         bag.products.delete(toRemove.id);
         if (bag.isEmpty())
             this.emptyBag(bag.shopId);
+        bag.deleteProductInBag(this.username, toRemove.id);
         // this._totalPrice= this._totalPrice - bag.totalPrice + bag.removeProduct(toRemove);
     }
 
@@ -89,15 +93,17 @@ export class ShoppingCart implements Entity {
             throw new Error("Failed to update product's quantity because the needed bag wasn't found");
         // this._totalPrice= this._totalPrice - bag.totalPrice + bag.updateProductQuantity(toUpdate, quantity);
         bag.updateProductQuantity(toUpdate, quantity);
-        toUpdate.update();
+        bag.update(this.username, toUpdate.id, quantity);
     }
 
     addOffer(offer: Offer) {
         this._offers.push(offer);
+        offer.save(this.username, offer.pId, [...offer.getApproves().keys()])
     }
 
     removeOffer(offer: Offer) {
         this._offers = this._offers.filter((curr: Offer) => curr != offer);
+        offer.delete();
     }
 
     checksOffers(): [Offer[], Offer[]] {
@@ -115,12 +121,17 @@ export class ShoppingCart implements Entity {
     }
 
     static async findById(username: string): Promise<ShoppingCart> {
-        const result: DBShoppingCart = await prisma.shoppingCart.findUnique({
-            where: {
-                username: username
-            }
+        const result: DBShoppingBag[] = await prisma.shoppingBag.findMany({
+            where: {username: username}
         })
-        return new ShoppingCart((username));
+        const bags = new Map<number, ShoppingBag>();
+        for(let dalBag of result){
+           let bag = await ShoppingBag.findById(dalBag.username, dalBag.shopId);
+           bags.set(bag.shopId,bag);
+        }
+        let cart = new  ShoppingCart(username);
+        cart.bags = bags;
+        return cart;
     }
 
     async save(username: string) {
@@ -129,6 +140,9 @@ export class ShoppingCart implements Entity {
                 username: username,
             },
         });
+        // for(let b of this.bags.values()){
+        //     b.save(username);
+        // }
     }
 
     update() {
