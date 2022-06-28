@@ -23,10 +23,10 @@ export class ShopsComponent implements OnInit {
   newShopName: string = '';
   shops: SimpleShop[] = [];
   shopStatus: Map<number, string> = new Map<number, string>();
-  ADMIN = JobType.admin;
-  FOUNDER = JobType.Founder;
-  OWNER = JobType.Owner;
-  MANAGER = JobType.Manager;
+  // ADMIN = JobType.admin;
+  // FOUNDER = JobType.Founder;
+  // OWNER = JobType.Owner;
+  // MANAGER = JobType.Manager;
 
   wantToAddShop: boolean = false;
 

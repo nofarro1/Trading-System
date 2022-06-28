@@ -57,7 +57,7 @@ export class SimpleDiscountData implements DiscountData{
     discountPresent: number; // between 0-100
 
     constructor(discType: DiscountType, discObject:number | ProductCategory | undefined, discPresent: number ) {
-        this.kind= DiscountKinds.SimpleDiscount;
+        this.kind= DiscountKinds['SimpleDiscount'];
         this.discountType = discType;
         this.object = discObject;
         this.discountPresent= discPresent;
@@ -74,7 +74,7 @@ export class ConditionalDiscountData implements DiscountData{
     predValue: number;
 
     constructor(discount: SimpleDiscountData, predTypeObject: DiscountType, predObject: number | ProductCategory | undefined, predRelation: RelationType,predValue: number ){
-        this.kind = DiscountKinds.ConditionalDiscount;
+        this.kind = DiscountKinds['ConditionalDiscount'];
         this.discount = discount;
         this.predTypeObject = predTypeObject;
         this.predObject = predObject;
@@ -89,22 +89,22 @@ export class ContainerDiscountData implements DiscountData{
     discounts: DiscountData[];
 
     constructor(discountRelation: DiscountRelation, discounts: DiscountData[]){
-        this.kind = DiscountKinds.ContainerDiscount;
+        this.kind = DiscountKinds['ContainerDiscount'];
         this.discountRelation = discountRelation;
         this.discounts = discounts;
     }
 }
 
 export const isSimpleDiscount = (disc:DiscountData): disc is SimpleDiscountData =>{
-    return disc.kind === DiscountKinds.SimpleDiscount;
+    return disc.kind === DiscountKinds['SimpleDiscount'];
 }
 
 export const isConditionalDiscount = (disc:DiscountData): disc is ConditionalDiscountData =>{
-    return disc.kind === DiscountKinds.ConditionalDiscount;
+    return disc.kind === DiscountKinds['ConditionalDiscount'];
 }
 
 export const isContainerDiscount = (disc: DiscountData): disc is ContainerDiscountData=>{
-    return disc.kind === DiscountKinds.ContainerDiscount;
+    return disc.kind === DiscountKinds['ContainerDiscount'];
 }
 //---------------------------purchase policy data object -------------------//
 

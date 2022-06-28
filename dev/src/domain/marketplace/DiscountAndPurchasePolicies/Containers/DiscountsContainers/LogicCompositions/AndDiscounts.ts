@@ -53,33 +53,33 @@ export class AndDiscounts extends ContainerDiscountComponent implements Entity{
         return this.discounts.reduce(predCallbak, true);
     }
 
-    async save(shopId: number) {
-        // await prisma.discount.create({
-        //     data:{
-        //         id: this.id,
-        //         shopId: shopId,
-        //     },
-        // });
-        //
-        //  await prisma.discountContainer.create({
-        //      data: {
-        //          id: this.id,
-        //          shopId: shopId,
-        //          description: this.description,
-        //          type: DiscountRelation.And,
-        //      },
-        //  });
-        //
-        //  for(let disc of this._discounts)
-        //      disc.save(shopId);
-    }
+    // async save(shopId: number) {
+    //     // await prisma.discount.create({
+    //     //     data:{
+    //     //         id: this.id,
+    //     //         shopId: shopId,
+    //     //     },
+    //     // });
+    //     //
+    //     //  await prisma.discountContainer.create({
+    //     //      data: {
+    //     //          id: this.id,
+    //     //          shopId: shopId,
+    //     //          description: this.description,
+    //     //          type: DiscountRelation.And,
+    //     //      },
+    //     //  });
+    //     //
+    //     //  for(let disc of this._discounts)
+    //     //      disc.save(shopId);
+    // }
 
-    async update(shopId: number) {
-         await prisma.discountContainer.update({
-             where: {id_shopId: {id: this.id, shopId: shopId}},
-             data: {description: this._description},
-         });
-    }
+    // async update(shopId: number) {
+    //      await prisma.discountContainer.update({
+    //          where: {id_shopId: {id: this.id, shopId: shopId}},
+    //          data: {description: this._description},
+    //      });
+    // }
 
     // static async findById(id: number, shopId: number){
     //     let dalObj = await prisma.discountContainer.findUnique({
@@ -89,11 +89,11 @@ export class AndDiscounts extends ContainerDiscountComponent implements Entity{
     //     return new AndDiscounts(dalObj.id, this.findSubDisc(shopId))
     // }
 
-    async delete(shopId: number) {
-         await prisma.discount.delete({
-             where: {id_shopId: {id: this.id, shopId: shopId}},
-         });
-    }
+    // async delete(shopId: number) {
+    //      await prisma.discount.delete({
+    //          where: {id_shopId: {id: this.id, shopId: shopId}},
+    //      });
+    // }
 
 
 }

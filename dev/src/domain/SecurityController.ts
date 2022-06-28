@@ -11,7 +11,7 @@ export class MemberCredentials implements Entity{
     constructor(username: string, password: string) {
         this.username = username;
         this.password = password;
-        this.save();
+        // this.save();
     }
 
     findById() {

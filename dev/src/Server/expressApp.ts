@@ -79,8 +79,6 @@ router.post("/guest/register", async (req, res) => {
       country
     );
     logger.warn("[/guest/register] after service.register");
-    console.log("end /guest/register - ans returned : ");
-    console.log(ans);
     res.status(201);
     res.send(ans);
   } catch (e: any) {
@@ -490,7 +488,6 @@ router.get("/shop/:shopId/:session", async (req, res) => {
   try {
     // let sessId = req.session.id;
     let sessId = req.params.session;
-    console.log("session", sessId);
     let shopId = Number(req.params.shopId);
     let ans = await service.getShopInfo(sessId, shopId);
     res.status(200).send(ans);
@@ -506,12 +503,7 @@ router.get("/shop/:shopId/:session", async (req, res) => {
 router.get("/shops/:session", async (req, res) => {
   try {
     const sessID = req.params.session;
-    console.log("in the function that return all shops");
-    // let sessId = req.session.id;
-    // let ans = await service.getAllShopsInfo(sessId)
     let ans = await service.getAllShopsInfo(sessID);
-    console.log("after the return shops");
-    console.log(ans);
     res.status(200).send(ans);
   } catch (e: any) {
     res.status(404).send(e.message);
@@ -567,8 +559,8 @@ router.get(
 router.post("/cart/add", async (req, res) => {
   try {
     let sess = req.body.session;
-    let product = req.body.product;
-    let shopID = req.body.shop;
+    let product = req.body.productId;
+    let shopID = req.body.shopId;
     let quantity = req.body.quantity;
     console.log(
       `[expressApp/addToCart] start w/ sess = ${sess} product = ${product} quantity = ${quantity}`
@@ -582,15 +574,16 @@ router.post("/cart/add", async (req, res) => {
 });
 
 //removeFromCart
-router.delete("/cart/remove", async (req, res) => {
+router.delete("/cart/remove/:shopId/:productId/:session", async (req, res) => {
   try {
     // let sess = req.session.id;
-    let sess = req.body.session;
-    let product = req.body.product;
+    let sess = req.params.session
+    let productId = Number(req.params.productId);
+    let shopId = Number(req.params.shopId);
     let ans: Result<void> = await service.removeFromCart(
       sess,
-      product.shopId,
-      product
+      shopId,
+      productId
     );
     res.status(202).send(ans);
   } catch (e: any) {
@@ -638,11 +631,12 @@ router.post("/cart/checkout", async (req, res) => {
   }
 });
 
-router.get("/cart", async (req, res) => {
+router.get("/cart/:session", async (req, res) => {
   try {
-    // let sess = req.session.id;
-    let sess = req.body.session;
+    let sess = req.params.session;
     let ans = await service.checkShoppingCart(sess);
+    console.log("in get cart");
+    console.log(ans);
     res.status(200).send(ans);
   } catch (e: any) {
     res.status(404);
@@ -928,7 +922,7 @@ export const sessionConfig = {
 export const sessionMiddleware = session(sessionConfig)
 app.use(cors({
     credentials: true,
-    origin: '*/*'
+    //origin: '*/*'
 }))
 app.use(sessionMiddleware);
 app.use(express.json());

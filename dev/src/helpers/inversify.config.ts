@@ -23,6 +23,7 @@ import {PaymentService} from "../domain/external_services/PaymentService";
 import dotenv from "dotenv";
 
 dotenv.config({path:`${__dirname}/../../.env.${process.env.NODE_ENV}`})
+console.log("enviorment is: " + process.env.NODE_ENV)
 const env = process.env.NODE_ENV;
 
 function bind(fresh: Container) {

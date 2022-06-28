@@ -296,8 +296,6 @@ export class api {
       shopName,
     });
     const data: Result<void | SimpleShop> = res.data;
-    console.log("in setup shop");
-    console.log(data);
     return data.data;
   }
 
@@ -309,16 +307,15 @@ export class api {
 
   async getShopInfo(session: string, shopId: number) {
     const res = await axios.get(base + `/shop/${shopId}/${session}`);
-    console.log(res);
-    const data: Result<void | SimpleShop> = res.data;
-    console.log(data);
-    return data.data;
+    const data = res.data;
+    return data;
   }
 
-  async closeShop(session: string, shopId: number) {
+  async closeShop(session: string, shopId: number, username: string) {
     const res = await axios.patch(base + '/shop/close', {
       session: session,
-      shopIp: shopId,
+      shopId: shopId,
+      founder: username
     });
     const data: Result<void> = res.data;
     return data.ok;
@@ -338,24 +335,20 @@ export class api {
     return data.data;
   }
 
-  async checkShoppingCart() {
-    const res = await axios.get(base + '/cart');
+  async checkShoppingCart(session: string) {
+    const res = await axios.get(base + `/cart/${session}`);
     const data: Result<void | SimpleShoppingCart> = res.data;
     return data.data;
   }
 
-  async addToCart(session: string, product: number, quantity: number) {
-    const res = await axios.post(base + '/cart/add', {session, product, quantity});
+  async addToCart(session: string, productId: number, shopId: number, quantity: number) {
+    const res = await axios.post(base + '/cart/add', {session, productId, shopId, quantity});
     const data: Result<void> = res.data;
     return data.ok;
   }
 
-  async removeFromCart(product: number) {
-    const res = await axios.delete(base + '/cart/remove', {
-      data: {
-        product: product,
-      },
-    });
+  async removeFromCart(session: string, productId: number, shopId: number) {
+    const res = await axios.delete(base + `/cart/remove/${shopId}/${productId}/${session}`);
     const data: Result<void> = res.data;
     return data.ok;
   }

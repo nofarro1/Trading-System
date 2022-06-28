@@ -40,8 +40,8 @@ describe('initialization test', function () {
 
     test('get one shop', async () => {
         const res = await service.getShopInfo(testUser.sessionId, 0)
-        expect(res.ok).toBe(true);
-        expect((res.data as SimpleShop).ID).toBe(0)
+        // expect(res).toBe(true);
+        expect((res as SimpleShop).ID).toBe(0)
 
     })
     test('get all shops', async () => {

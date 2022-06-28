@@ -35,10 +35,8 @@ export class MarketplaceService {
     }
 
     //Guest Payment - Use-Case 1
-    async  getShopInfo(sessionID: string, shopID: number): Promise<Result<void | SimpleShop>> {
-        let ans = this.systemController.getShop(sessionID, shopID);
-        console.log("in getShopInfo in MarketPlace");
-        console.log(ans);
+    async  getShopInfo(sessionID: string, shopID: number): Promise<void | SimpleShop> {
+        let ans = this.systemController.getShop(sessionID, shopID).data;
         return ans;
     }
 

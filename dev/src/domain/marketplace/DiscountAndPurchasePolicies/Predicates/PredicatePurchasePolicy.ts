@@ -16,11 +16,11 @@ export class PredicatePurchasePolicy {
         this.relation = relation;
         this.value = value;
         let idMSG: string;
-        if (this.type === SimplePolicyType.Product)
+        if (this.type === SimplePolicyType['Product'])
                 idMSG = `the number of products with id: ${this.object} `;
-        else if (this.type ===  SimplePolicyType.Category)
+        else if (this.type ===  SimplePolicyType['Category'])
                 idMSG = `the number of products from ${this.object} `;
-        else if (this.type ===   SimplePolicyType.ShoppingBag)
+        else if (this.type ===   SimplePolicyType['ShoppingBag'])
                 idMSG = `the number of products in the bag `;
         else
                 idMSG = `the name of the user `;
@@ -28,11 +28,11 @@ export class PredicatePurchasePolicy {
     }
 
     checkPredicate(purchaseInfo: [ShoppingBag, Guest]): boolean {
-            if (this.type === SimplePolicyType.Product)
+            if (this.type === SimplePolicyType['Product'])
                 return this.predicateOnProduct(purchaseInfo);
-            else if (this.type === SimplePolicyType.Category)
+            else if (this.type === SimplePolicyType['Category'])
                 return this.predicateOnCategory(purchaseInfo);
-            else if (this.type === SimplePolicyType.ShoppingBag)
+            else if (this.type === SimplePolicyType['ShoppingBag'])
                 return this.predicateOnShoppingBag(purchaseInfo);
             else
                 return this.predicateOnUserInfo(purchaseInfo);
@@ -48,7 +48,7 @@ export class PredicatePurchasePolicy {
     }
 
     private predicateOnCategory(purchaseInfo: [ShoppingBag, Guest]): boolean{
-        if(this.object === ProductCategory.A || this.object === ProductCategory.B || this.object === ProductCategory.C){
+        if(this.object === ProductCategory['A'] || this.object === ProductCategory['B'] || this.object === ProductCategory['C']){
             let products = Array.from(purchaseInfo[0].products.values());
             let filteredProducts = products.filter((curr: [Product, number]):boolean => {
                 return curr[0].category === this.object;
@@ -82,23 +82,25 @@ export class PredicatePurchasePolicy {
     private applyRelation(quantity: any, value: number): boolean {
         switch(this.relation){
 
-            case RelationType.Equal:
+            case RelationType['Equal']:
                 return quantity === value;
 
-            case RelationType.NotEqual:
+            case RelationType['NotEqual']:
                 return quantity != value;
 
-            case RelationType.GreaterThen:
+            case RelationType['GreaterThen']:
                 return quantity > value;
 
-            case RelationType.GreaterThenOrEqual:
+            case RelationType['GreaterThenOrEqual']:
                 return quantity >= value;
 
-            case RelationType.LessThen:
+            case RelationType['LessThen']:
                 return quantity < value;
 
-            case RelationType.LessThenOrEqual:
+            case RelationType['LessThenOrEqual']:
                 return quantity <= value;
+            default:
+                return false;
         }
 
     }

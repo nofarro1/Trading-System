@@ -1,22 +1,27 @@
+<p-toast position="top-center" key="tc"></p-toast>
+
+
 <div class="header">
   <h1>Cart</h1>
 </div>
+
 <p-table [value]="products">
   <ng-template pTemplate="header">
     <tr>
       <th>Name</th>
       <th>Description</th>
       <th>Price</th>
+      <th>Quantity</th>
       <th style="color: white;"></th>
     </tr>
   </ng-template>
-  <ng-template pTemplate="body" let-Product class="body-line !important">
+  <ng-template pTemplate="body" let-product class="body-line !important">
     <tr>
-      <td class="font-bold ml-2 !important">{{Product.name}}</td>
-      <td>{{Product.description}}</td>
-      <td>{{Product.discountPrice}}</td>
-      <button pButton type="button" class="p-button-secondary" label="Modify Quatity" routerLink="/shops/{{Product.id}}"></button>
-      <button pButton type="button" class="p-button-secondary" label="Remove" routerLink="/shops/{{Product.id}}"></button>
+      <td class="font-bold ml-2 !important">{{product.name}}</td>
+      <td>{{product.description}}</td>
+      <td>{{product.price}}</td>
+      <td>{{product.quantity}}</td>
+      <button pButton type="button" class="p-button-secondary" label="Remove" (click)="removeProductFromCart(product.id, product.shopId)"></button>
     </tr>
   </ng-template>
 </p-table>
@@ -28,6 +33,6 @@
   </tr>
 </ng-template>
 <div class="checkout">
-  <p>Total price:**price**</p>
+  <p>Total price: {{totalPrice}}</p>
    <button name="checkoutbtn">Checkout</button>
 </div>

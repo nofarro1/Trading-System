@@ -19,7 +19,7 @@ export class Product implements Entity{
         this._name= name;
         this._shopId= shopId;
         this._category= category;
-        this._rate= ProductRate.NotRated
+        this._rate= ProductRate['NotRated'];
         this._description = description;
         this._fullPrice= fullPrice;
     }

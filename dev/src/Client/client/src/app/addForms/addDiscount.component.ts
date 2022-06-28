@@ -64,11 +64,11 @@ export class AddDiscountComponent implements OnInit {
   }
 
   chosenDiscountType() {
-    if (this.newDiscountType === 0){
+    if (this.newDiscountType === DiscountType["Product"]){
       this.DiscountTypeThatWasChosen = 'product';
       this.discountObjRolldown = this.products;
     }
-    else if (this.newDiscountType === 1){
+    else if (this.newDiscountType === DiscountType["Category"]){
       this.DiscountTypeThatWasChosen = 'category';
       this.discountObjRolldown = this.productCatagory;
     }

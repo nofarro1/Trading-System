@@ -16,19 +16,17 @@ export class ShoppingCartService {
     }
 
     //Guest Payment - Use-Case 4.1
-    addToCart(sessionID: string, shopId: number, productID: number, productQuantity: number): Promise<Result<void>> {
-        return new Promise<Result<void>>((resolve, reject) => {
-            let result: Result<void> = this.systemController.addToCart(sessionID, shopId, productID, productQuantity);
-            result.ok ? resolve(result) : reject(result.message);
-        });
+    async addToCart(sessionID: string, shopId: number, productID: number, productQuantity: number) {
+        return this.systemController.addToCart(sessionID, shopId, productID, productQuantity);
+
     }
 
     //Guest Payment - Use-Case 4.2
-    checkShoppingCart(sessionID: string): Promise<Result<void | SimpleShoppingCart>> {
-        return new Promise<Result<void | SimpleShoppingCart>>((resolve, reject) => {
-            let result: Result<void | SimpleShoppingCart> = this.systemController.getCart(sessionID);
-            result.ok ? resolve(result) : reject(result.message);
-        });
+    async checkShoppingCart(sessionID: string) {
+        let ss = this.systemController.getCart(sessionID);
+        console.log("[ShoppingCartService/checkShoppingCart]");
+        console.log(ss);
+        return ss;
     }
 
     //Guest Payment - Use-Case 4.3

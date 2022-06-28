@@ -82,13 +82,13 @@ export class Shop implements Entity{
     constructor(id: number, name: string, shopFounder: string, description?: string){
         this._id= id;
         this._name= name;
-        this._status= ShopStatus.Open;
+        this._status= ShopStatus['Open'];
         this._shopFounder= shopFounder;
         this._shopOwners= new Set<string>([shopFounder]);
         this._shopManagers= new Set<string>();
         this._products= new Map<number, [Product, number]>();
         this._productsCounter = 0;
-        this._rate = ShopRate.NotRated;
+        this._rate = ShopRate['NotRated'];
         this._discounts = new Map<number, DiscountComponent>();
         this._discountsArray = [];
         this._discountCounter = 0;
@@ -381,11 +381,11 @@ export class Shop implements Entity{
 
     private dalDisc2Component(dalDisc: Discount): Promise<DiscountComponent>{
         let type = dalDisc.kind;
-        if(type === DiscountKinds.SimpleDiscount)
+        if(type === DiscountKinds['SimpleDiscount'])
             return SimpleDiscount.findById(dalDisc.id);
-        if(type === DiscountKinds.ConditionalDiscount)
+        else if(type === DiscountKinds['ConditionalDiscount'])
             return ConditionalDiscount.findById(dalDisc.id);
-        if(type === DiscountKinds.ContainerDiscount)
+        else
             return ContainerDiscountComponent.findById(dalDisc.id);
     }
 
@@ -468,7 +468,7 @@ export class Shop implements Entity{
         return productsList;
     }
 
-    private discData2Component(disc: DiscountData): DiscountComponent {
+    private discData2Component(disc: DiscountData) {
         if (isSimpleDiscount(disc)) {
             let discInf = {type: disc.discountType, object: disc.object}
             return new SimpleDiscount(this._discountCounter, discInf, disc.discountPresent);
@@ -483,17 +483,18 @@ export class Shop implements Entity{
                 discComponents.push(this.discData2Component(toAdd))
             }
             switch (disc.discountRelation) {
-                case DiscountRelation.And:
+                case DiscountRelation['And']:
                     return new AndDiscounts(this.discountCounter, discComponents);
-                case DiscountRelation.Or:
+                case DiscountRelation['Or']:
                     return new OrDiscounts(this.discountCounter, discComponents);
-                case DiscountRelation.Xor:
+                case DiscountRelation['Xor']:
                     return new XorDiscounts(this.discountCounter, discComponents);
-                case DiscountRelation.Addition:
+                case DiscountRelation['Addition']:
                     return new AdditionDiscounts(this.discountCounter, discComponents);
-                case DiscountRelation.Max:
+                case DiscountRelation['Max']:
                     return new MaxDiscounts(this.discountCounter, discComponents);
             }
+            return null;
         }
         else{
             throw new Error("Discount");
@@ -510,13 +511,13 @@ export class Shop implements Entity{
                 policiesComponent.push(this.policyData2Component(toAdd))
             }
             switch (puPolicy.policiesRelation) {
-                case PurchasePoliciesRelation.And:
+                case PurchasePoliciesRelation['And']:
                     return new AndPolicy(this._purchaseCounter, policiesComponent);
                     break;
-                case PurchasePoliciesRelation.Or:
+                case PurchasePoliciesRelation['Or']:
                     return new OrPolicy(this._purchaseCounter, policiesComponent);
                     break;
-                case PurchasePoliciesRelation.Conditional:
+                case PurchasePoliciesRelation['Conditional']:
                     if (puPolicy.dependet && puPolicy.dependetOn) {
                         let dependet = this.policyData2Component(puPolicy.dependet);
                         let dependetOn = this.policyData2Component(puPolicy.dependetOn);

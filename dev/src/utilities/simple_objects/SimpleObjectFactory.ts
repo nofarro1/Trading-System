@@ -12,6 +12,7 @@ import {DiscountComponent} from "../../domain/marketplace/DiscountAndPurchasePol
 import {SimpleDiscountDescriber} from "./marketplace/SimpleDiscountDescriber";
 import {Role} from "../../domain/user/Role";
 import {SimpleRole} from "./user/SimpleRole";
+import { ShoppingBag } from "../../domain/user/ShoppingBag";
 
 
 export function toSimpleProduct(product: Product): SimpleProduct {
@@ -56,16 +57,13 @@ function toSimpleRole(role: Role): SimpleRole {
 
 export function toSimpleShoppingCart(userID: string, shoppingCart: ShoppingCart): SimpleShoppingCart {
     const simpleProducts: {product:SimpleProduct, quantity:number}[] = [];
-    for (const [shopID, shoppingBag] of Object.entries(shoppingCart.bags)) {
-
-        //Extract products and quantities from Domain Products
-        for (const [product, quantity] of shoppingBag.products.values()) {
-            const simpleProduct: SimpleProduct = new SimpleProduct(product.id, product.name, product.shopId,
-                product.fullPrice, product.category, product.rate, product.description);
-            simpleProducts.push({product:simpleProduct, quantity:quantity});
-        }
-
-    }
+    shoppingCart.bags.forEach((bag : ShoppingBag)=> {
+        bag.products.forEach((value :[product: Product, quantity: number]) => {
+            let simpleProduct: SimpleProduct = new SimpleProduct(value[0].id, value[0].name, value[0].shopId,
+                value[0].fullPrice, value[0].category, value[0].rate, value[0].description);
+            simpleProducts.push({product:simpleProduct, quantity:value[1]});
+        })
+    })
     return new SimpleShoppingCart(userID, simpleProducts, 0);
 }
 

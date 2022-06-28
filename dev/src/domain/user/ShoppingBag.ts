@@ -44,7 +44,9 @@ export class ShoppingBag implements Entity{
         }
         else
             this.products.set(toAdd.id, [toAdd, quantity]);
+        console.log(this.products);
         }
+
     
     removeProduct(toRemove: Product):void {
         if(!this.products.has(toRemove.id))

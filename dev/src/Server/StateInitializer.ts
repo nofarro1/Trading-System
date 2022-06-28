@@ -115,7 +115,7 @@ export class StateInitializer {
         const login_res: Result<void | SimpleMember> = await this.service.login(member.sessionId, member.username, member.password);
         success = success && login_res.ok;
         //setup shop
-        const res_setupShop: Result<void | SimpleShop> = await this.service.setUpShop(shop.sessionId, shop.username, shop.name);
+        const res_setupShop: Result<void | SimpleShop> = await this.service.setUpShop(shop.sessionId, shop.username, shop.shopName);
         if (!checkRes(res_setupShop)) {
             success = false;
         } else shop.Id = res_setupShop.data.ID;

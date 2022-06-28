@@ -17,19 +17,19 @@ export class PredicateDiscountPolicy {
         this.relation = relation;
         this.value = value;
         let idMSG: string;
-        if (this.type === DiscountType.Product )
+        if (this.type === DiscountType['Product'] )
                 idMSG = `products with id: ${this.object}.`;
-        else if (this.type === DiscountType.Category)
+        else if (this.type === DiscountType['Category'])
                 idMSG = `products from ${this.object}.`;
-        else (this.type === DiscountType.Bag)
+        else (this.type === DiscountType['Bag'])
                 idMSG = ``;
         this.description = `if there is ${this.relation} ${this.value} in bag.`;
     }
 
     checkPredicate(products: [Product, number, number][]): boolean {
-        if (this.type === DiscountType.Product)
+        if (this.type === DiscountType['Product'])
             return this.predicateOnProduct(products);
-        else if (this.type === DiscountType.Category)
+        else if (this.type === DiscountType['Category'])
             return this.predicateOnCategory(products);
         else
             return this.predicateOnShoppingBag(products);
@@ -49,7 +49,7 @@ export class PredicateDiscountPolicy {
     }
 
     private predicateOnCategory(products: [Product, number, number][]): boolean {
-        if(this.object === ProductCategory.A || this.object === ProductCategory.B || this.object === ProductCategory.C){
+        if(this.object === ProductCategory['A'] || this.object === ProductCategory['B'] || this.object === ProductCategory['C']){
             let filteredProducts = products.filter((curr: [Product, number, number]):boolean => {
                 return curr[0].category === this.object;
             })
@@ -76,23 +76,25 @@ export class PredicateDiscountPolicy {
     private applyRelation(quantity: any, value: number): boolean {
         switch(this.relation){
 
-            case RelationType.Equal:
+            case RelationType['Equal']:
                 return quantity === value;
 
-            case RelationType.NotEqual:
+            case RelationType['NotEqual']:
                 return quantity != value;
 
-            case RelationType.GreaterThen:
+            case RelationType['GreaterThen']:
                 return quantity > value;
 
-            case RelationType.GreaterThenOrEqual:
+            case RelationType['GreaterThenOrEqual']:
                 return quantity >= value;
 
-            case RelationType.LessThen:
+            case RelationType['LessThen']:
                 return quantity < value;
 
-            case RelationType.LessThenOrEqual:
+            case RelationType['LessThenOrEqual']:
                 return quantity <= value;
+            default:
+                return false;
         }
 
     }

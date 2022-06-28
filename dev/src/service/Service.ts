@@ -47,7 +47,7 @@ export class Service {
         this.marketplaceService = marketplaceService
         this.shoppingCartService = shoppingCartService
         this.orderService = orderService
-        this._stateInit = new StateInitializer(this, process.env.DB_URL)
+        this._stateInit = new StateInitializer(this, process.env.DATABASE_URL)
     }
 
     //----------------------Guest Service methods-------------------------------
@@ -128,14 +128,9 @@ export class Service {
     }
 
     //Guest Payment - Use-Case 1
-    getShopInfo(sessionID: string, shopID: number): Promise<Result<void | SimpleShop>> {
+    getShopInfo(sessionID: string, shopID: number): Promise<void | SimpleShop> {
         logger.info(`${sessionID} is requesting info regarding shop ${shopID}`);
         let ans = this.marketplaceService.getShopInfo(sessionID, shopID);
-        console.log("in getShopInfo in Service");
-        ans.then((val)=>{
-            console.log("in the then");
-        })
-        console.log(ans);
         return ans;
     }
 
@@ -199,7 +194,7 @@ export class Service {
     //----------------------Shopping Cart Service methods-------------------------------
 
     //Guest Payment - Use-Case 4.1
-    addToCart(sessionID: string, shopId: number, productID: number, productQuantity: number): Promise<Result<void>> {
+    async addToCart(sessionID: string, shopId: number, productID: number, productQuantity: number) {
         logger.info(`[service/addToCart] ${sessionID} wants to add the product ${productID} x${productQuantity} to his shopping cart`);
         return this.shoppingCartService.addToCart(sessionID, shopId, productID, productQuantity);
     }

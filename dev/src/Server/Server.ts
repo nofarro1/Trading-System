@@ -78,7 +78,7 @@ export class Server {
         const listen = () => this.httpsServer.listen(port, () => {
             logger.info("server started. listening on port " + port)
         });
-        if (!process.env.INIT_DATA) {
+        if (process.env.INIT_DATA !== "1") {
             listen();
         } else {
             this.backendService.stateInit

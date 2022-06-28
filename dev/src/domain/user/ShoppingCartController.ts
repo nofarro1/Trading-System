@@ -22,7 +22,7 @@ export class ShoppingCartController {
     addProduct(cartId: string, toAdd: Product, quantity: number): Result<void>{
         //TODO - Ensure that quantity does not exceed product quantity in shop
         let cart = this.carts.get(cartId);
-        if(cart){
+        if(cart instanceof ShoppingCart){
             try {
                 cart.addProduct(toAdd, quantity);
                 logger.info(`[ShoppingCartController/addProduct] The product: ${toAdd.name} was added to ${cartId}'s cart.`);
@@ -94,7 +94,9 @@ export class ShoppingCartController {
     getCart(username: string): Result<ShoppingCart | void>{
         let toReturn = this.carts.get(username);
         if(toReturn){
+            console.log(`[ShoppingCartController/getCart] ${username} try to get cart`);
             logger.info(`[ShoppingCartController/getCart] ${username}'s cart was successfully returned.`)
+            console.log(toReturn);
             return new Result(true, toReturn, `${username}'s cart was successfully returned.`);
         }
         logger.error(`[ShoppingCartController/getCart] Failed to returned ${username}'s cart, because the cart was not found.`);

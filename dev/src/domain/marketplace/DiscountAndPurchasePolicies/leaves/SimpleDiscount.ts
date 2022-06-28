@@ -16,15 +16,15 @@ export class SimpleDiscount implements DiscountComponent{
         this.discountPercent = discountPercent;
         let idMSG: string;
         switch (this.info.type) {
-            case DiscountType.Product: {
+            case DiscountType['Product']: {
                 idMSG = `on products with id: ${this.info.object}`;
                 break;
             }
-            case DiscountType.Category: {
+            case DiscountType['Category']: {
                 idMSG = `on products from ${this.info.object}`;
                 break;
             }
-            case DiscountType.Bag: {
+            case DiscountType['Bag']: {
                 idMSG = `on all products in the shop`;
                 break;
             }
@@ -45,7 +45,7 @@ export class SimpleDiscount implements DiscountComponent{
     calculateProductsPrice(products: [Product, number, number][]): [Product, number, number][] {
         let discProductsPrice: [Product, number, number][] = [];
 
-        if (this.info.type === DiscountType.Product) {
+        if (this.info.type === DiscountType['Product']) {
             let pInDisc = this.info.object;
             for (let [p, price, quantity] of products) {
                 if (p.id === pInDisc) {
@@ -54,7 +54,7 @@ export class SimpleDiscount implements DiscountComponent{
                     discProductsPrice.push([p, price, quantity]);
             }
         }
-        else if (this.info.type === DiscountType.Category) {
+        else if (this.info.type === DiscountType['Category']) {
             let cInDisc = this.info.object;
             for (let [p, price, quantity] of products) {
                 if (p.category == cInDisc) {

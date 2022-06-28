@@ -1,15 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
-import {
-  JobType,
-  ProductCategory,
-  ProductRate,
-  ShopRate,
-} from '../../../../../utilities/Enums';
 import { api } from 'src/backendService/Service';
 import { SimpleShop } from '../../../../../utilities/simple_objects/marketplace/SimpleShop';
 import { SimpleMember } from '../../../../../utilities/simple_objects/user/SimpleMember';
 import { MessageService } from 'primeng/api';
-import { SimpleProduct } from '../../../../../utilities/simple_objects/marketplace/SimpleProduct';
+import { Result } from '../../../../../utilities/Result';
 
 @Component({
   selector: 'app-shop',
@@ -18,68 +12,58 @@ import { SimpleProduct } from '../../../../../utilities/simple_objects/marketpla
   providers: [MessageService],
 })
 export class ShopComponent implements OnInit {
-  @Input() member: SimpleMember;
+  @Input() member: SimpleMember | void;
   @Input() shop: SimpleShop;
   @Input() session: string;
   memberRoleType: any;
-  // shopId: number;
   shopName: string;
 
   wantToAddDiscount: boolean = false;
   wantToAddProduct: boolean = false;
 
-  shopProducts: Map<SimpleProduct, number> = new Map<SimpleProduct, number>();
   products: Product[] = [];
   productsWithAmount: Map<number, number>[] = [];
 
-  // ADMIN = JobType.admin;
-  // FOUNDER = JobType.Founder;
-  // OWNER = JobType.Owner;
-  // MANAGER = JobType.Manager;
 
   constructor(private service: api, private messageService: MessageService) {
-    // let p1 = new Product(111, 'phone', 'A', 'ddd', 'very good phone!', 12, 20);
-    // let p2 = new Product(222, 'candy', 'B', 'ddd', 'very good candy!', 3, 28);
-    // let p3 = new Product(333, 'car', 'A', 'ddd', 'very good car!', 10000000, 3);
 
-    // this.products.push(p1);
-    // this.products.push(p2);
-    // this.products.push(p3);
   }
 
   ngOnInit(): void {
-    // this.activatedRoute.params.subscribe((params) => {
-    //   this.shopId = params['shopId'];
-    //   console.log(`shopId = ${this.shopId}`);
-    // });
-
-    this.service.getShopInfo(this.session, this.shop.ID).then((shop) => {
-      if (shop) {
-        this.shopName = shop.name;
-        this.shopProducts = shop.products;
-      }
-    });
-
-    console.log(this.shopProducts);
-    Array.prototype.forEach.call(this.shop.products.entries || [], (element) => {
-      console.log('product');
-      console.log(element);
-      this.products.push(
-        new Product(
-          element[0].productID,
-          element[0].productName,
-          ProductCategory[element[0].category],
-          element[0].description,
-          ProductRate[element[0].rating],
-          element[0].price,
-          element[1]
-        )
-      );
-    });
+    this.service
+      .getShopInfo(this.session, this.shop.ID)
+      .then((shop: Result<SimpleShop>) => {
+        this.shopName = shop['_name'];
+        shop['_products'].forEach(
+          (element: { products: Object; quantity: number }) => {
+            let product: {
+              _category: string;
+              _description: string;
+              _price: number;
+              _productID: number;
+              _productName: string;
+              _rating: number;
+              _shopID: number;
+            } = element['product'];
+            this.products.push(
+              new Product(
+                product._productID,
+                product._shopID,
+                product._productName,
+                product._category,
+                product._rating,
+                product._description,
+                product._price,
+                element.quantity
+              )
+            );
+          }
+        );
+      });
   }
 
   addProductToCart(productId: number, productName: string, quantity: number) {
-    let ans = this.service.addToCart(this.session, productId, quantity);
+    let ans = this.service.addToCart(this.session, productId ,this.shop.ID,  quantity);
     ans.then((value) => {
       if (value) {
         this.showSuccessMsg(`The product ${productName} was added to cart`);
@@ -92,34 +76,40 @@ export class ShopComponent implements OnInit {
   }
 
   removeProductFromShop(productId: number) {
-    this.service.removeProductFromShop(this.session, this.shop.ID, productId).then((value) => {
-      if (value) {
-        this.showSuccessMsg(`The shop closed successfully`);
-      } else {
-        this.showErrorMsg(
-          `Error happend, shop not closed`
-        );
-      }
-    });
+    this.service
+      .removeProductFromShop(this.session, this.shop.ID, productId)
+      .then((value) => {
+        if (value) {
+          this.showSuccessMsg(`The shop closed successfully`);
+        } else {
+          this.showErrorMsg(`Error happend, shop not closed`);
+        }
+      });
   }
 
-  closeShop(){ // onlyFounder!
-    this.service.closeShop(this.session, this.shop.ID).then((value) => {
-      if (value) {
-        this.showSuccessMsg(`The shop closed successfully`);
-      } else {
-        this.showErrorMsg(
-          `Error happend, shop not closed`
-        );
-      }
-    });
+  closeShop() {
+    // onlyFounder!
+    console.log(this.member);
+    if(this.member){
+      this.service.closeShop(this.session, this.shop.ID, this.member.username).then((value) => {
+        console.log(value);
+        if (value) {
+          this.showSuccessMsg(`The shop closed successfully`);
+        } else {
+          this.showErrorMsg(`Error happend, shop not closed`);
+        }
+      });
+    }
+    else{
+      this.showErrorMsg(`Guest dont have permission to close shop`);
+    }
   }
 
-  finishAddProduct($event){
+  finishAddProduct($event) {
     this.wantToAddProduct = false;
   }
 
-  finishAddDiscount($event){
+  finishAddDiscount($event) {
     this.wantToAddDiscount = false;
   }
 
@@ -144,6 +134,7 @@ export class ShopComponent implements OnInit {
 
 export class Product {
   id: any;
+  shopId: number;
   name: string;
   category: string;
   rate: string;
@@ -154,6 +145,7 @@ export class Product {
 
   constructor(
     id: any,
+    shopId: number,
     name: string,
     category: any,
     rate: any,
@@ -162,6 +154,7 @@ export class Product {
     quantity: number
   ) {
     this.id = id;
+    this.shopId = shopId;
     this.name = name;
     this.category = category;
     this.rate = rate;

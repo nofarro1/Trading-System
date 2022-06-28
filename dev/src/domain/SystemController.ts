@@ -366,8 +366,7 @@ export class SystemController {
         return this.authenticateMarketVisitor(sessionId, () => {
             const res = this.mpController.getShopInfo(shopId);
             if (checkRes(res)) {
-                let ss = toSimpleShop(res.data)
-                return new Result(true, ss , res.message);
+                return new Result(true, toSimpleShop(res.data) , res.message);
             }
             return new Result(false, undefined, "could not get product");
         });
@@ -431,7 +430,7 @@ export class SystemController {
         const authCallback = (id: string): Result<SimpleShoppingCart | void> => {
             const result = this.scController.getCart(id);
             return checkRes(result)
-                ? new Result(true, toSimpleShoppingCart(id, result.data))
+            ? new Result(true, toSimpleShoppingCart(id, result.data))
                 : new Result(false, undefined, result.message);
         };
         return this.authenticateMarketVisitor(sessionId, authCallback);

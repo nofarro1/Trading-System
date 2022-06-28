@@ -86,7 +86,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     closeShop(founder: string, shopId: number): Result<void>{
         let toClose= this._shops.get(shopId);
         if(toClose){
-            toClose.status= ShopStatus.close;
+            toClose.status= ShopStatus.Closed;
             this.notifySubscribers(new ShopStatusChangedMessage(false, toClose.shopOwners, toClose.name));
             logger.info(`The ${toClose.name} was closed in the market.`);
             return new Result(true, undefined);
@@ -112,7 +112,6 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             return new Result<void>(false, undefined, "Cannot add negative amount of product to a shop ");
         let shop = this._shops.get(shopId);
         console.log("MarketPlaceController/addProductToShop");
-        console.log(shop);
         if (!shop) {
             logger.error(`[MarketPlaceController/addProductToShop] Failed to add product to shop because the shop with id:${shopId} does not exit .`)
             return new Result(false, undefined, "Failed to add product to the shop because the shop isn't exist");
@@ -364,7 +363,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
     getDiscount(shopId: number, id2return: number){
         let shop = this._shops.get(shopId);
         if(shop){
-            let disc: DiscountComponent =  shop.getDiscount(id2return);
+            let disc: DiscountComponent| number =  shop.getDiscount(id2return);
             if(disc){
                 logger.info(`Discount with id: ${id2return} was returned from Shop with id: ${shopId} successfully.`)
                 return new Result(true, disc);

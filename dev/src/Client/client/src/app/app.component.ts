@@ -6,6 +6,7 @@ import { SimpleMember } from '../../../../utilities/simple_objects/user/SimpleMe
 import { SimpleGuest } from '../../../../utilities/simple_objects/user/SimpleGuest';
 import { MessageService } from 'primeng/api';
 import { SimpleShop } from '../../../../utilities/simple_objects/marketplace/SimpleShop';
+import { SimpleShoppingCart } from '../../../../utilities/simple_objects/user/SimpleShoppingCart';
 
 @Component({
   selector: 'app-root',
@@ -22,13 +23,15 @@ export class AppComponent {
   username: string = '';
   password: string = '';
   member: SimpleMember | void;
-  ADMIN: number = JobType.admin;
+  // ADMIN: number = JobType.admin;
 
   showSignUp: boolean = false;
   showShops: boolean = false;
   showShop: boolean = false;
   showCart: boolean = false;
   showHome: boolean = true;
+
+  cart: SimpleShoppingCart;
 
   constructor(
     private service: api,
@@ -51,9 +54,7 @@ export class AppComponent {
 
   async afterSignUp(member: {username: string, password: string}) {
     this.showSignUp = false;
-    console.log(member.password);
-    console.log(member.username);
-    this.loginUser(member.username, member.password);
+    this.goToPage("home")
   }
 
   goToPage(tab: string) {
@@ -118,6 +119,7 @@ export class AppComponent {
     this.shopToShow = shop;
     this.goToPage('shop');
   }
+
 
   showErrorMsg(msg: string) {
     this.messageService.add({
