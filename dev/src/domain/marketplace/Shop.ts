@@ -52,7 +52,7 @@ import {
     ShopStatus
 } from "../../utilities/Enums";
 import {AppointmentAgreement} from "./AppointmentAgreement";
-import {Discount, DiscountInContainer} from "../../../prisma/prisma";
+import {Discount, DiscountContainer, DiscountInContainer} from "../../../prisma/prisma";
 
 
 
@@ -349,6 +349,7 @@ export class Shop implements Entity{
         this._discounts.set(this._discountCounter, toAdd);
         this._discountsArray = [...this._discounts.values()];
         this._discountCounter = this._discountCounter + 1;
+        toAdd.save(toAdd.id, this.id);
         return this._discountCounter - 1;
     }
 
@@ -362,8 +363,10 @@ export class Shop implements Entity{
     }
 
     removeDiscount(idDisc: number): void {
+        this._discounts.get(idDisc).delete(this.id);
         this._discounts.delete(idDisc);
         this._discountsArray = [...this._discounts.values()];
+
     }
 
     getDiscount(discId: number): DiscountComponent | undefined{
@@ -586,11 +589,11 @@ export class Shop implements Entity{
     }
 
     static async findById(id: number) {
-        await prisma.shop.findUnique({
-            where: {
-                id: id,
-            }
+        let dalShop = await prisma.shop.findUnique({
+            where: {id: id}
         });
+        return new Shop(id, dalShop.name, dalShop.shop_founder, dalShop. description);
+        //this.findShopOwner()
         return null;
     }
 
@@ -614,6 +617,10 @@ export class Shop implements Entity{
                 }
             }
         });
+    }
+
+    static async findAllShopOwner(){
+
     }
 
     async delete() {
@@ -662,7 +669,34 @@ export class Shop implements Entity{
         if(type === DiscountKinds.ConditionalDiscount)
             return ConditionalDiscount.findById(dalDisc.id, shopId);
         if(type === DiscountKinds.ContainerDiscount)
-            return ContainerDiscountComponent.findById(dalDisc.id, shopId);
+            return Shop.findContainerById(dalDisc.id, shopId);
     }
+
+     static async findContainerById(containingDiscount: number, shopId: number): Promise<ContainerDiscountComponent> {
+        let dalDisc: DiscountContainer = await prisma.discountContainer.findUnique({
+            where: {id_shopId: {id: containingDiscount, shopId: shopId}},
+        });
+        let subDalDiscs: DiscountInContainer[] = await prisma.discountInContainer.findMany({
+            where: {containingDiscount: containingDiscount, shopId: shopId},
+        });
+
+        let subCompDiscs: Promise<DiscountComponent>[] = subDalDiscs.map((currDisc:DiscountInContainer): Promise<DiscountComponent>=>{return ContainerDiscountComponent.dalDisc2Component(currDisc, shopId)})
+        if(dalDisc.type === DiscountRelation.And){
+            return new AndDiscounts(containingDiscount, await Promise.all(subCompDiscs))
+        }
+        if (dalDisc.type === DiscountRelation.Or){
+            return new OrDiscounts(containingDiscount, await Promise.all(subCompDiscs))
+        }
+        if (dalDisc.type === DiscountRelation.Xor){
+            return new XorDiscounts(containingDiscount, await Promise.all(subCompDiscs))
+        }
+        if (dalDisc.type === DiscountRelation.Addition){
+            return new AdditionDiscounts(containingDiscount, await Promise.all(subCompDiscs))
+        }
+        if (dalDisc.type === DiscountRelation.Max){
+            return new MaxDiscounts(containingDiscount, await Promise.all(subCompDiscs))
+        }
+    }
+
 
 }
