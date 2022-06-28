@@ -89,7 +89,7 @@ export class SimpleDiscount implements DiscountComponent{
                 },
             });
         }
-        const type: number | "A" | "B" | "C" = this.info.object
+        let type: number | "A" | "B" | "C" = this.info.object
         if(typeof type === "number"){
             await prisma.simpleDiscount.create({
                 data:{
@@ -102,7 +102,6 @@ export class SimpleDiscount implements DiscountComponent{
                 }
             })
         }
-
         else if(typeof type === typeof ProductCategory){
             await prisma.simpleDiscount.create({
                 data:{
@@ -141,7 +140,7 @@ export class SimpleDiscount implements DiscountComponent{
     }
 
     static async saveForConditional(toSave: SimpleDiscount, shopId: number) {
-        const type: number | "A" | "B" | "C" = toSave.info.object
+        const type: number | ProductCategory = toSave.info.object
         if(typeof type === "number"){
             await prisma.simpleDiscount.create({
                 data:{
@@ -163,9 +162,9 @@ export class SimpleDiscount implements DiscountComponent{
                     discountType: toSave.info.type,
                     discountPercent: toSave.discountPercent,
                     description: toSave.description,
-                    category: type
+                    category: type,
                 }
-            })
+            });
         }
         else {
             await prisma.simpleDiscount.create({
@@ -175,7 +174,6 @@ export class SimpleDiscount implements DiscountComponent{
                     discountType: toSave.info.type,
                     discountPercent: toSave.discountPercent,
                     description: toSave.description,
-
                 }
             })
         }
