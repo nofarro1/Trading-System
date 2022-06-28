@@ -4,6 +4,7 @@ import {MarketplaceController} from "../../../../src/domain/marketplace/Marketpl
 import {Range} from "../../../../src/utilities/Range";
 import {Offer} from "../../../../src/domain/user/Offer";
 import {Result} from "../../../../src/utilities/Result";
+import {Shop} from "../../../../prisma/prisma";
 
 let controller: MarketplaceController;
 const p1: Product = new Product("Ski", 0, 0, ProductCategory.A, 5.9);
@@ -21,6 +22,20 @@ describe("MarketPlaceController", () => {
             expect(controller.shops.has(shop_res.data.id)).toBe(true);
             let actual = controller.shops.get(shop_res.data.id);
             expect(actual).toEqual(shop_res.data);
+        }
+    })
+
+    test("getShop", async () => {
+        let shop_res = controller.setUpShop("OfirPovi", "Ofir's shop");
+        expect(shop_res.ok).toBe(true);
+        if (shop_res.data) {
+            expect(controller.shops.has(shop_res.data.id)).toBe(true);
+            let actual = controller.shops.get(shop_res.data.id);
+            expect(actual).toEqual(shop_res.data);
+            shop_res.data.appointShopManager("Shahar");
+            let res= await controller.getShopInfo(shop_res.data.id);
+            expect(res.ok).toBe(true);
+            expect(res.data).toEqual(shop_res.data);
         }
     })
 

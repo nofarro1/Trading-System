@@ -69,11 +69,15 @@ export class ShoppingCart implements Entity {
     emptyBag(shopId: number) {
         let bag = this.bags.get(shopId);
         if (bag) {
+            bag.delete(this.username);
             this.bags.delete(bag.shopId);
         }
     }
 
     emptyCart(): void {
+        for(let bag of this.bags.values()) {
+            bag.delete(this.username);
+        }
         this.bags.clear();
         //  this._totalPrice=0;
     }
@@ -85,6 +89,7 @@ export class ShoppingCart implements Entity {
             throw new Error("Failed to update product's quantity because the needed bag wasn't found");
         // this._totalPrice= this._totalPrice - bag.totalPrice + bag.updateProductQuantity(toUpdate, quantity);
         bag.updateProductQuantity(toUpdate, quantity);
+        toUpdate.update();
     }
 
     addOffer(offer: Offer) {
@@ -127,6 +132,7 @@ export class ShoppingCart implements Entity {
     }
 
     update() {
+        //Unnecessary
     }
 
     async delete(username: string) {

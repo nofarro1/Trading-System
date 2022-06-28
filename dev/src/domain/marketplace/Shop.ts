@@ -310,11 +310,11 @@ export class Shop implements Entity{
         if (this.shopManagers?.has(managerId))
             throw new Error("Failed to appoint owner because the member is already a owner of the shop")
         this.shopManagers?.add(managerId);
-        this.createShopOwner(managerId);
+        this.createShopManager(managerId);
     }
 
     removeShopManager(managerId: string) {
-        this.deleteShopOwner(managerId);
+        this.deleteShopManager(managerId);
         return this.shopManagers.delete(managerId);
     }
 

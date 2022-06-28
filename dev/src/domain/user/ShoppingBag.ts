@@ -41,10 +41,11 @@ export class ShoppingBag implements Entity{
         if (productPair) {
             let updateQuantity = productPair[1] + quantity;
             this.products.set(toAdd.id, [toAdd, updateQuantity]);
+            toAdd.save(updateQuantity);
         }
         else
             this.products.set(toAdd.id, [toAdd, quantity]);
-
+            toAdd.save(quantity);
         }
 
     removeProduct(toRemove: Product):void {
@@ -52,12 +53,14 @@ export class ShoppingBag implements Entity{
             throw new Error("Failed to remove product because the product wasn't found in bag.")
         let pTuple= this.products.get(toRemove.id);
         this.products.delete(toRemove.id);
+        toRemove.delete();
     }
 
     updateProductQuantity(toUpdate: Product, quantity: number): void {
         if(!this.products.has(toUpdate.id))
             throw new Error("Failed to update product because the product wasn't found in bag.")
         this.products.set(toUpdate.id, [toUpdate, quantity]);
+        toUpdate.updateProductInShop(quantity);
     }
 
     emptyBag(): void{
@@ -100,8 +103,6 @@ export class ShoppingBag implements Entity{
                 shopId: this.shopId,
             },
         });
-
-
     }
 
     async saveProductInBag(username: string, productId: number, quantity: number) {
@@ -115,23 +116,19 @@ export class ShoppingBag implements Entity{
         });
     }
 
-    update() {
-    }
-
-    async updateProductInBag(username: string, productId: number, quantity: number) {
+    async update(username: string, productId: number, quantity: number) {
         await prisma.productInBag.update({
-            where:{
+            where: {
                 username_shopId_productId: {
                     username: username,
                     shopId: this.shopId,
-                    productId:productId
-                },
-
+                    productId: productId,
+                }
             },
             data: {
-                product_quantity: quantity
-            },
-        });
+                product_quantity: quantity,
+            }
+        })
     }
 
     async delete(username:string) {
@@ -158,5 +155,4 @@ export class ShoppingBag implements Entity{
             },
         });
     }
-
 }
