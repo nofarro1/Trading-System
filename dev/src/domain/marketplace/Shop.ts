@@ -374,34 +374,8 @@ export class Shop implements Entity{
 
     getDiscount(discId: number): number | DiscountComponent | undefined{
         let toReturn:DiscountComponent = this.discounts.get(discId);
-        if(!toReturn){
-            this.searchDiscInDB(discId).then((disc: DiscountComponent)=>{
-                return 1;
-            }).catch((e)=>{
-                console.log(e)
-                return 1});
-        }
         return toReturn;
     }
-
-    private async searchDiscInDB(discId: number): Promise<DiscountComponent> {
-        let dalDisc: Discount= await prisma.discount.findUnique({
-            where: {id_shopId: {id: discId, shopId: this.id}},
-        });
-        return this.dalDisc2Component(dalDisc);
-    }
-
-    private dalDisc2Component(dalDisc: Discount): Promise<DiscountComponent>{
-        let type = dalDisc.kind;
-        if(type === DiscountKinds.SimpleDiscount)
-            return SimpleDiscount.findById(dalDisc.id);
-        if(type === DiscountKinds.ConditionalDiscount)
-            return ConditionalDiscount.findById(dalDisc.id);
-        if(type === DiscountKinds.ContainerDiscount)
-            return ContainerDiscountComponent.findById(dalDisc.id);
-    }
-
-
 
     addPurchasePolicy(puPolicy: ImmediatePurchaseData): number {
         let toAdd: ImmediatePurchasePolicyComponent = this.policyData2Component(puPolicy);
@@ -676,4 +650,24 @@ export class Shop implements Entity{
             }
         });
     }
+
+
+    private async findAllDiscs(shopId: number): Promise<DiscountComponent[]> {
+        let dalDiscs: Discount[]= await prisma.discount.findMany({
+            where: {shopId : this.id},
+        });
+        const d: Promise<DiscountComponent>[] = dalDiscs.map((dalDisc)=> this.dalDisc2Component(dalDisc, shopId));
+        return await Promise.all(d);
+    }
+
+    private dalDisc2Component(dalDisc: Discount, shopId: number): Promise<DiscountComponent>{
+        let type = dalDisc.kind;
+        if(type === DiscountKinds.SimpleDiscount)
+            return SimpleDiscount.findById(dalDisc.id, shopId);
+        if(type === DiscountKinds.ConditionalDiscount)
+            return ConditionalDiscount.findById(dalDisc.id, shopId);
+        if(type === DiscountKinds.ContainerDiscount)
+            return ContainerDiscountComponent.findById(dalDisc.id, shopId);
+    }
+
 }

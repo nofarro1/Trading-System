@@ -195,7 +195,7 @@ model SimpleDiscount {
   discountType        DiscountType
   discountPercent     Int
   description         String
-  productId           Int?
+  productId           Int
   category            ProductCategory?
   //Foreign Key references
   conditionalDiscount ConditionalDiscount?
@@ -225,7 +225,6 @@ model DiscountPredicate {
   discountType DiscountType
   relation     RelationType
   value        Int
-  description  String
   productId    Int?
   category     ProductCategory?
 

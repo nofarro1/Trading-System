@@ -1,7 +1,11 @@
 import {DiscountComponent} from "../Components/DiscountComponent";
-import {DiscountType} from "../../../../utilities/Enums";
+import {DiscountKinds, DiscountType, ProductCategory} from "../../../../utilities/Enums";
 import {Product} from "../../Product";
 import {discountInf} from "../../../../utilities/Types";
+import prisma from "../../../../utilities/PrismaClient";
+import {DiscountData, SimpleDiscountData} from "../../../../utilities/DataObjects";
+import prismaClient from "../../../../utilities/PrismaClient";
+
 
 
 export class SimpleDiscount implements DiscountComponent{
@@ -75,17 +79,133 @@ export class SimpleDiscount implements DiscountComponent{
     predicate(products: [Product, number, number][]): boolean {
         return true;
     }
+   async save(shopId: number, isContained: boolean, containingId?: number) {
+        if(!isContained){
+            await prisma.discount.create({
+                data:{
+                    id: this.id,
+                    shopId: shopId,
+                    kind: DiscountKinds.SimpleContainer
+                },
+            });
+        }
+        const type: number | "A" | "B" | "C" = this.info.object
+        if(typeof type === "number"){
+            await prisma.simpleDiscount.create({
+                data:{
+                    id: this.id,
+                    shopId: shopId,
+                    discountType: this.info.type,
+                    discountPercent: this.discountPercent,
+                    description: this.description,
+                    productId: type
+                }
+            })
+        }
 
-    static findById(containingDiscount: number) : Promise<SimpleDiscount>{
-        return undefined;
+        else if(typeof type === typeof ProductCategory){
+            await prisma.simpleDiscount.create({
+                data:{
+                    id: this.id,
+                    shopId: shopId,
+                    discountType: this.info.type,
+                    discountPercent: this.discountPercent,
+                    description: this.description,
+                    category: type
+                }
+            })
+        }
+        else {
+            await prisma.simpleDiscount.create({
+                data:{
+                    id: this.id,
+                    shopId: shopId,
+                    discountType: this.info.type,
+                    discountPercent: this.discountPercent,
+                    description: this.description,
+
+                }
+            })
+        }
+
+        if(isContained){
+            await prisma.discountInContainer.create(({
+                data:{
+                    containedDiscount: containingId,
+                    containingDiscount: this.id,
+                    shopId: shopId,
+                    kind: DiscountKinds.SimpleDiscount
+                }
+            }))
+        }
+
     }
 
-    delete(...params: any) {
+    static async saveForConditional(toSave: SimpleDiscount, shopId: number) {
+        const type: number | "A" | "B" | "C" = toSave.info.object
+        if(typeof type === "number"){
+            await prisma.simpleDiscount.create({
+                data:{
+                    id: toSave.id,
+                    shopId: shopId,
+                    discountType: toSave.info.type,
+                    discountPercent: toSave.discountPercent,
+                    description: toSave.description,
+                    productId: type
+                }
+            })
+        }
+
+        else if(typeof type === typeof ProductCategory){
+            await prisma.simpleDiscount.create({
+                data:{
+                    id: toSave.id,
+                    shopId: shopId,
+                    discountType: toSave.info.type,
+                    discountPercent: toSave.discountPercent,
+                    description: toSave.description,
+                    category: type
+                }
+            })
+        }
+        else {
+            await prisma.simpleDiscount.create({
+                data:{
+                    id: toSave.id,
+                    shopId: shopId,
+                    discountType: toSave.info.type,
+                    discountPercent: toSave.discountPercent,
+                    description: toSave.description,
+
+                }
+            })
+        }
     }
 
-    save(...params: any) {
+
+    static async findById(id: number, shopId: number) : Promise<SimpleDiscount>{
+        let simpDisc = await prisma.simpleDiscount.findUnique({
+            where: {id_shopId: {id: id, shopId: shopId} }
+        })
+        const type: number | "A" | "B" | "C" = simpDisc.category
+        if(typeof type === "number")
+            return new SimpleDiscount(id, {type: simpDisc.discountType, object:simpDisc.productId}, simpDisc.discountPercent);
+        else if(typeof type === typeof ProductCategory)
+            return new SimpleDiscount(id, {type: simpDisc.discountType, object:simpDisc.category}, simpDisc.discountPercent);
+        else
+            return new SimpleDiscount(id, {type: simpDisc.discountType, object:undefined}, simpDisc.discountPercent);
     }
 
-    update(...params: any) {
+    async delete(shopId: number){
+        await prisma.simpleDiscount.delete({
+            where:{id_shopId:{id: this.id, shopId: shopId}}
+        })
+    }
+
+    async update(shopId: number) {
+        await prisma.simpleDiscount.update({
+            where: {id_shopId: {id: this.id, shopId: shopId}},
+            data: {description: this._description},
+        });
     }
 }

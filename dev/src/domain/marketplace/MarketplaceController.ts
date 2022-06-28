@@ -302,6 +302,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             logger.info(`${shop.name}'s info was returned successfully.`);
             return new Result(true, shop);
         }
+        //fetch from database
         logger.error(`Failed to return shop info because the shop with id: ${shopId} wasn't found.`);
         return new Result(false, undefined,"Failed to return shop info because the shop wasn't found.");
     }
@@ -342,6 +343,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             return new Result(true, discId);
         }
         else{
+            //fatch shop
             return new Result(false, undefined, `Shop with id: ${shopId} was not found in market`);
         }
     }
@@ -424,6 +426,7 @@ export class MarketplaceController implements IMessagePublisher<ShopStatusChange
             let offer = shop.addOfferPrice2Product(userId, pId, offeredPrice);
             logger.info(`User with id: ${userId} submitted an price offer on product with id: ${pId}.`);
             this.notifySubscribers(new AddedNewOffer2ShopMessage(shop.shopOwners, offer, shop.name))
+            //shop.save()
             return new Result(true, offer);
         }
         logger.error(`Couldn't submit offer to shop with id: ${shopId} because the shop not found in market`);
