@@ -372,7 +372,7 @@ export class Shop implements Entity{
         this._discountsArray = [...this._discounts.values()];
     }
 
-    getDiscount(discId: number): number | DiscountComponent | undefined{
+    getDiscount(discId: number): DiscountComponent | undefined{
         let toReturn:DiscountComponent = this.discounts.get(discId);
         return toReturn;
     }

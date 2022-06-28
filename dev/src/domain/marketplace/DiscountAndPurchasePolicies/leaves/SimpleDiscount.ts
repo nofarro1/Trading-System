@@ -123,7 +123,6 @@ export class SimpleDiscount implements DiscountComponent{
                     discountType: this.info.type,
                     discountPercent: this.discountPercent,
                     description: this.description,
-
                 }
             })
         }
