@@ -1,4 +1,8 @@
-export class AppointmentAgreement{
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
+import {app} from "../../Server/expressApp";
+
+export class AppointmentAgreement implements Entity{
     readonly member: string;
     private readonly _assigner: string;
     private _approves: Map<string, [boolean, boolean]>;
@@ -19,6 +23,17 @@ export class AppointmentAgreement{
 
     get assigner(): string {
         return this._assigner;
+    }
+
+    set approves(value: Set<string>) {
+        let newApproves = new Map<string, [boolean, boolean]>();
+        for (let owner of value){
+            if(this._approves.has(owner))
+                newApproves.set(owner, this._approves.get(owner));
+            else
+                newApproves.set(owner, [false, true]);
+        }
+        this._approves = newApproves;
     }
 
     getAnswer(): boolean {
@@ -50,22 +65,86 @@ export class AppointmentAgreement{
         return this._approves;
     }
 
-    set approves(value: Set<string>) {
-        let newApproves = new Map<string, [boolean, boolean]>();
-        for (let owner of value){
-            if(this._approves.has(owner))
-                newApproves.set(owner, this._approves.get(owner));
-            else
-                newApproves.set(owner, [false, true]);
-        }
-        this._approves = newApproves;
-    }
-
     resetApproves(){
         for (let i=0; i< this._approves.size; i++ ){
             this._approves[i]= [false, true];
         }
     }
 
+    static findById(username: string, shopId: number) {
+        return prisma.appointment.findUnique({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: shopId,
+                }
+            }
+        });
+    }
 
+    findAppointmentAgreement(username: string, shopId: number) {
+        return prisma.appointmentAgreement.findUnique({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: shopId,
+                }
+            }
+        });
+    }
+
+    async save(shopId: number, approvers: string[]) {
+        await prisma.appointment.create({
+            data: {
+                username: this.member,
+                shopId: shopId,
+                assigner: this._assigner,
+            },
+        });
+
+        for(let approver of approvers) {
+            if(approver != this.assigner)
+                this.saveAppointmentAgreement(this.member, shopId, approver, false);
+            else
+                this.saveAppointmentAgreement(this.member, shopId, approver, true);
+        }
+    }
+
+    async saveAppointmentAgreement(username: string, shopId: number, approver: string, approved: boolean) {
+        await prisma.appointmentAgreement.create({
+            data: {
+                username: username,
+                shopId: shopId,
+                approver: approver,
+                answered: true,
+                approved: approved,
+            }
+        });
+    }
+
+    async update(username: string, shopId: number, answered: boolean, approved: boolean) {
+        await prisma.appointmentAgreement.update({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: shopId,
+                }
+            },
+            data: {
+                answered: answered,
+                approved: approved,
+            }
+        });
+    }
+
+    async delete(shopId: number) {
+        await prisma.appointment.delete({
+            where: {
+                username_shopId: {
+                    username: this.member,
+                    shopId: shopId,
+                }
+            }
+        })
+    }
 }
