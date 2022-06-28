@@ -163,7 +163,7 @@ describe("networking tests - basic actions", () => {
     })
 
     test("POST - setup shop", (done) => {
-        serviceMockMethod = mockServiceMethod('setUpShop', new SimpleShop(0, "super shop", "founder",ShopStatus.open, new Map()))
+        serviceMockMethod = mockServiceMethod('setUpShop', new SimpleShop(0, "super shop", "founder",ShopStatus.open, []))
         postRequest("/shop", 201, {
             username: "myusername",
             shopName: "super shop",
@@ -225,7 +225,7 @@ describe("networking tests - basic actions", () => {
     })
 
     test("GET - get shop", (done) => {
-        serviceMockMethod = mockServiceMethod('getShopInfo', new SimpleShop(0, "super shop","founder", ShopStatus.open, new Map()))
+        serviceMockMethod = mockServiceMethod('getShopInfo', new SimpleShop(0, "super shop","founder", ShopStatus.open, []))
 
         getRequest(`/shop/${shopId}`, 200, (body) => {
             expect(body.ok).toBe(true);
@@ -248,7 +248,7 @@ describe("networking tests - basic actions", () => {
     })
 
     test("GET - shopping cart", (done) => {
-        serviceMockMethod = mockServiceMethod('checkShoppingCart', new SimpleShoppingCart("myusername", new Map(), 0))
+        serviceMockMethod = mockServiceMethod('checkShoppingCart', new SimpleShoppingCart("myusername", [], 0))
         getRequest(`/cart`, 200, (body) => {
             expect(body.ok).toBe(true);
             expect(body.data._userId).toBe("myusername");

@@ -538,7 +538,7 @@ describe('Shopping cart-tests', function () {
             expect((await service.addToCart(testMember.username, testProduct.shopID, testProduct.productID, 5)).ok).toBe(true);
             testShoppingCart = (await service.checkShoppingCart(testMember.username)).data;
             if (testShoppingCart instanceof SimpleShoppingCart) {
-                expect(testShoppingCart.products.has(testProduct)).toBe(true);
+                expect(testShoppingCart.products.map(p => p.product).includes(testProduct)).toBe(true);
             }
             fail('expected testShoppingCart to be SimpleShoppingCart');
         } else fail('expected testMember to be SimpleMember');
@@ -564,7 +564,7 @@ describe('Shopping cart-tests', function () {
             expect((await service.removeFromCart(testMember.username, testProduct.shopID, testProduct.productID)).ok).toBe(true);
             testShoppingCart = (await service.checkShoppingCart(testMember.username)).data;
             if (testShoppingCart instanceof SimpleShoppingCart) {
-                expect(testShoppingCart.products.has(testProduct)).toBe(false);
+                expect(testShoppingCart.products.map(p => p.product).includes(testProduct)).toBe(false);
             }
             fail('expected testShoppingCart to be SimpleShoppingCart');
         } else fail('expected testMember to be SimpleMember');

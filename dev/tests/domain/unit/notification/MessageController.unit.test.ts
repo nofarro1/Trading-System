@@ -30,7 +30,7 @@ let mb1 = new MessageBox(id1);
 const sess1 = "1";
 const sess2 = "2";
 const id2 = "u2"
-let cart2 = new ShoppingCart();
+let cart2 = new ShoppingCart(sess1);
 const tu2: Member = new Member(sess2,id2)
 let mb2 = new MessageBox(id2);
 let controller: MessageController
@@ -43,7 +43,7 @@ const tm3 = new TestMessage(recipients);
 describe('messageBox - test', function () {
 
     beforeEach(function () {
-        cart1 = new ShoppingCart();
+        cart1 = new ShoppingCart(sess1);
         tu1 = new Member(sess1,id1)
         mb1 = new MessageBox(id1);
         controller = systemContainer.get(TYPES.MessageController);
