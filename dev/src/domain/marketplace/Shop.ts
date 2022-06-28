@@ -425,16 +425,21 @@ export class Shop implements Entity{
         this._offers.set(this._offerCounter, offer);
         this.offersArray = [...this._offers.values()];
         this._offerCounter = this._offerCounter + 1;
+        offer.save(userId, pId, Array.from(this.shopOwners));
         return offer;
     }
 
     removeOffer(offerId: number) {
-        this._offers.delete(offerId);
-        this.offersArray = [...this._offers.values()];
+        if (this.offers.has(offerId)) {
+            let offer: Offer = this.offers.get(offerId);
+            this.offers.delete(offerId);
+            offer.delete();
+            this.offersArray = [...this.offers.values()];
+        }
     }
 
     getOffer(offerId: number) {
-        return this._offers.get(offerId);
+        return this.offers.get(offerId);
     }
 
     answerOffer(offerId: number, ownerId: string, answer: boolean) {
