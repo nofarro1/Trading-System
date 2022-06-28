@@ -43,18 +43,20 @@ model Role {
 }
 
 model Product {
-  id               Int             @id
+  id               Int
   name             String
   shop             Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  shopId           Int //FK - Many To One
+  shopId           Int
   category         ProductCategory @default(A)
   rate             ProductRate     @default(NotRated)
+  price            Float
   description      String?
   //Foreign Keys referenced
   products_in_shop ProductInShop[]
   products_in_bag  ProductInBag[]
   offers           Offer[]
 
+  @@id([id, shopId])
   @@map("product")
 }
 
@@ -69,11 +71,9 @@ model Shop {
   //Foreign Keys referenced
   role             Role[]
   products         Product[]
-  products_in_shop ProductInShop[]
   bags             ShoppingBag[]
   discounts        Discount[]
   policies         Policy[]
-  offers           Offer[]
   appointments     Appointment[]
 
   @@map("shop")
@@ -98,9 +98,8 @@ model ShopManager {
 }
 
 model ProductInShop {
-  shop             Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product          Product @relation(fields: [productId, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   shopId           Int //FK - Many To One
-  product          Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   productId        Int //FK - Many To One
   product_quantity Int     @default(0)
 
@@ -133,7 +132,7 @@ model ProductInBag {
   shoppingBag      ShoppingBag @relation(fields: [username, shopId], references: [username, shopId], onDelete: Cascade, onUpdate: Cascade)
   username         String
   shopId           Int
-  product          Product     @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product          Product     @relation(fields: [productId, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   productId        Int //FK - Many To One
   product_quantity Int         @default(0)
 
@@ -179,13 +178,9 @@ model Discount {
   simpleDiscount      SimpleDiscount?
   conditionalDiscount ConditionalDiscount?
   discountContainer   DiscountContainer?
-  discountInContainer DiscountInContainer? @relation(fields: [discountInContainerContainedDiscount, discountInContainerContainingDiscount, discountInContainerShopId], references: [containedDiscount, containingDiscount, shopId])
 
   @@id([id, shopId])
   @@map("discount")
-  discountInContainerContainedDiscount  Int?
-  discountInContainerContainingDiscount Int?
-  discountInContainerShopId             Int?
 }
 
 model SimpleDiscount {
@@ -254,7 +249,6 @@ model DiscountInContainer {
 
   @@id([containedDiscount, containingDiscount, shopId])
   @@map("discount_in_container")
-  Discount Discount[]
 }
 
 model Policy {
@@ -265,13 +259,9 @@ model Policy {
   simplePolicy      SimplePolicy?
   conditionalPolicy ConditionalPolicy?
   logicalPolicy     LogicalPolicy?
-  policyInContainer PolicyInContainer? @relation(fields: [policyInContainerContainedPolicy, policyInContainerContainingPolicy, policyInContainerShopId], references: [containedPolicy, containingPolicy, shopId])
 
   @@id([id, shopId])
   @@map("policy")
-  policyInContainerContainedPolicy  Int?
-  policyInContainerContainingPolicy Int?
-  policyInContainerShopId           Int?
 }
 
 model SimplePolicy {
@@ -339,16 +329,14 @@ model PolicyInContainer {
 
   @@id([containedPolicy, containingPolicy, shopId])
   @@map("policy_in_container")
-  Policy Policy[]
 }
 
 model Offer {
   id            Int             @id
   member        Member          @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
   username      String
-  shop          Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product       Product         @relation(fields: [productId, shopId], references: [id, shopId], onDelete: Cascade, onUpdate: Cascade)
   shopId        Int
-  product       Product         @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   productId     Int
   price         Float
   //Foreign Keys referenced
