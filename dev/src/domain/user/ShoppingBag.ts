@@ -41,13 +41,13 @@ export class ShoppingBag implements Entity{
         if (productPair) {
             let updateQuantity = productPair[1] + quantity;
             this.products.set(toAdd.id, [toAdd, updateQuantity]);
+
         }
         else
             this.products.set(toAdd.id, [toAdd, quantity]);
-        console.log(this.products);
+            toAdd.save(quantity);
         }
 
-    
     removeProduct(toRemove: Product):void {
         if(!this.products.has(toRemove.id))
             throw new Error("Failed to remove product because the product wasn't found in bag.")
@@ -70,7 +70,45 @@ export class ShoppingBag implements Entity{
         return this.products.size == 0;
     }
 
-    findById() {
+    static async findById(username:string, shopId:number) {
+        const result = await prisma.shoppingBag.findUnique({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: shopId
+                },
+            }
+        })
+        let products = await this.findAllBagProducts(username, shopId);
+        let bag =  new ShoppingBag(shopId);
+        bag.products = products;
+        return bag;
+    }
+
+    static async findAllBagProducts(member: string, shopId: number): Promise<Map<number, [Product, number]>> {
+        let products = await prisma.productInBag.findMany({
+            where: {username: member, shopId: shopId},
+        });
+        let productsMap = new Map<number, [Product, number]>()
+        for(let dalP of products){
+            let p = await Product.findById(dalP.productId, dalP.shopId)
+            if(p)
+                productsMap.set(dalP.productId,[p, dalP.product_quantity])
+        }
+        return productsMap;
+    }
+
+    static async findProductInBag(username:string, shopId:number,product:number) {
+        const result = await prisma.productInBag.findUnique({
+            where: {
+                username_shopId_productId:{
+                    username:username,
+                    shopId:shopId,
+                    productId:product
+                }
+            }
+        })
+        return result;
     }
 
     async save(username: string) {
@@ -93,10 +131,43 @@ export class ShoppingBag implements Entity{
         });
     }
 
-    update() {
+    async update(username: string, productId: number, quantity: number) {
+        await prisma.productInBag.update({
+            where: {
+                username_shopId_productId: {
+                    username: username,
+                    shopId: this.shopId,
+                    productId: productId,
+                }
+            },
+            data: {
+                product_quantity: quantity,
+            }
+        })
     }
 
-    delete() {
+    async delete(username:string) {
+        await prisma.shoppingBag.delete({
+            where:{
+            username_shopId: {
+                username: username,
+                shopId: this.shopId
+            }
+        }});
+        for(let pid of this.products.keys()){
+            await this.deleteProductInBag(username,pid);
+        }
+    }
 
+    async deleteProductInBag(username: string, productId: number) {
+        await prisma.productInBag.delete({
+            where: {
+                username_shopId_productId: {
+                    username: username,
+                    shopId: this.shopId,
+                    productId:productId
+                },
+            },
+        });
     }
 }

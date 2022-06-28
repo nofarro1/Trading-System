@@ -55,7 +55,15 @@ export class Role implements Entity{
         return this.permissions.has(perm);
     }
 
-    findById() {
+    static findById(username: string, shopId: number) {
+        return prisma.role.findUnique({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: shopId,
+                }
+            }
+        });
     }
 
     async save(username: string) {
@@ -69,10 +77,28 @@ export class Role implements Entity{
         });
     }
 
-    update() {
+    async update(username: string, permissions: Permissions[]) {
+        await prisma.role.update({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: this.shopId,
+                }
+            },
+            data: {
+                permissions: Array.from(permissions),
+            },
+        });
     }
 
-    delete() {
-
+    async delete(username: string) {
+        await prisma.role.delete({
+            where: {
+                username_shopId: {
+                    username: username,
+                    shopId: this.shopId,
+                }
+            }
+        })
     }
 }

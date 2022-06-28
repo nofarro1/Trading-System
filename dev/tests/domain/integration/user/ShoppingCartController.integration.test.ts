@@ -3,6 +3,7 @@ import {Member} from "../../../../src/domain/user/Member";
 import {Product} from "../../../../src/domain/marketplace/Product";
 import {ProductCategory} from "../../../../src/utilities/Enums";
 import {Result} from "../../../../src/utilities/Result";
+import {ShoppingCart} from "../../../../src/domain/user/ShoppingCart";
 
 
 let shoppingCartController: ShoppingCartController;
@@ -64,7 +65,7 @@ describe("Shopping Cart - unit tests", function () {
         expect(shoppingCartController.carts.get(member.username)?.bags.get(product2.shopId)?.products.get(product2.id)).toStrictEqual([product2, quantity]);
     })
 
-    test("Remove Product - invalid bag no bags", () => {
+    test("Remove Product - invalid bag no bags", async () => {
         //prepare
         //add cart
         shoppingCartController.addCart(member.username);
@@ -72,7 +73,7 @@ describe("Shopping Cart - unit tests", function () {
 
         //act
         //assert
-        expect(shoppingCartController.removeProduct(member.username, product1).ok).toBeFalsy();
+        expect((await shoppingCartController.removeProduct(member.username, product1)).ok).toBeFalsy();
     })
 
     test("Remove Product - invalid bag existing bags", () => {
@@ -107,7 +108,7 @@ describe("Shopping Cart - unit tests", function () {
         expect(shoppingCartController.carts.get(member.username)?.bags.get(product1.shopId)?.products.get(product1.id)).toStrictEqual([product1, newQuantity]);
     })
 
-    test("Update Product Quantity - invalid bag", () => {
+    test("Update Product Quantity - invalid bag", async () => {
         //prepare
         const newQuantity: number = 100;
         //add cart
@@ -116,7 +117,7 @@ describe("Shopping Cart - unit tests", function () {
 
         //act
         //assert
-        expect(shoppingCartController.updateProductQuantity(member.username, product1, newQuantity).ok).toBeFalsy();
+        expect((await shoppingCartController.updateProductQuantity(member.username, product1, newQuantity)).ok).toBeFalsy();
     })
 
     test("Empty Cart - valid input", () => {

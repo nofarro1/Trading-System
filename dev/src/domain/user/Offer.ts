@@ -1,4 +1,8 @@
-export class Offer{
+import {Entity} from "../../utilities/Entity";
+import prisma from "../../utilities/PrismaClient";
+import {app} from "../../Server/expressApp";
+
+export class Offer implements Entity{
     private readonly _id: number;
     private readonly _user: string;
     private readonly _shopId: number;
@@ -55,9 +59,22 @@ export class Offer{
       return answer;
     }
 
+    set approves(value: Set<string>) {
+        let newApproves = new Map<string, [boolean, boolean]>();
+        for (let owner of value){
+            let ans = this._approves.get(owner);
+            if(this._approves.has(owner) && ans)
+                newApproves.set(owner, ans);
+            else
+                newApproves.set(owner, [false, false]);
+        }
+        this._approves = newApproves;
+    }
+
     setAnswer(userId: string, answer: boolean) {
         if(this._approves.has(userId)){
             this._approves.set(userId, [true, answer]);
+            this.update(userId, answer, true);
         }
         else
             throw new Error("Only a shop owner can approve a price offer.");
@@ -72,26 +89,85 @@ export class Offer{
         this._approves = value;
     }
 
-    set approves(value: Set<string>) {
-        let newApproves = new Map<string, [boolean, boolean]>();
-        for (let owner of value){
-            let ans = this._approves.get(owner);
-            if(this._approves.has(owner) && ans)
-                newApproves.set(owner, ans);
-            else
-                newApproves.set(owner, [false, false]);
-        }
-        this._approves = newApproves;
-    }
-
     resetApproves(){
         let keys = this._approves.keys();
         for(let key of keys){
             this._approves.set(key, [false, false]);
         }
+        for(let approver of this.approves) {
+            this.update(approver, false, false);
+        }
     }
 
     getApproves(): Map<string, [boolean, boolean]> {
         return this._approves;
+    }
+
+    static findById(id: number) {
+        return prisma.offer.findUnique({
+            where: {
+                id: id,
+            }
+        });
+    }
+
+    findOfferApprover(username: string) {
+        return prisma.offerApprover.findUnique({
+            where: {
+                offerId_username: {
+                    offerId: this.id,
+                    username: username,
+                }
+            }
+        });
+    }
+
+    async save(username: string, productId: number, approvers: string[]) {
+        await prisma.offer.create({
+            data: {
+                id: this.id,
+                username: username,
+                shopId: this.shopId,
+                productId: productId,
+                price: this.price,
+            },
+        });
+
+        for(let approver of approvers)
+            await this.saveOfferApprover(username, false, false);
+    }
+
+    async saveOfferApprover(username: string, answered: boolean, approved: boolean) {
+        await prisma.offerApprover.create({
+            data: {
+                username: username,
+                offerId: this.id,
+                answered: answered,
+                approved: approved,
+            },
+        });
+    }
+
+    async update(username: string, answered: boolean, approved: boolean) {
+        await prisma.offerApprover.update({
+            where: {
+                offerId_username: {
+                    offerId: this.id,
+                    username: username,
+                }
+            },
+            data: {
+                answered: answered,
+                approved: approved,
+            }
+        });
+    }
+
+    async delete() {
+        await prisma.offer.delete({
+            where: {
+                id: this.id,
+            }
+        });
     }
 }

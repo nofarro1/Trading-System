@@ -47,8 +47,8 @@ export class MarketplaceService {
 
     //Member Payment - Use-Case 2
     async setUpShop(sessionID: string, shopName: string): Promise<Result<void | SimpleShop>> {
-        return new Promise<Result<void | SimpleShop>>((resolve, reject) => {
-            let result: Result<void | SimpleShop> = this.systemController.setUpShop(sessionID, shopName);
+        return new Promise<Result<void | SimpleShop>>(async (resolve, reject) => {
+            let result: Result<void | SimpleShop> = await this.systemController.setUpShop(sessionID, shopName);
             result.ok ? resolve(result) : reject(result.message);
         });
     }
@@ -110,41 +110,41 @@ export class MarketplaceService {
     }
 
     getDiscounts(sessionId: string, shopId: number){
-        return new Promise<Result<void | SimpleDiscountDescriber[]>>((resolve, reject)=>{
-            let result: Result<void | SimpleDiscountDescriber[]> = this.systemController.getDiscounts(sessionId, shopId);
+        return new Promise<Result<void | SimpleDiscountDescriber[]>>(async (resolve, reject) => {
+            let result: Result<void | SimpleDiscountDescriber[]> = await this.systemController.getDiscounts(sessionId, shopId);
             result.ok ? resolve(result) : reject(result.message);
         })
     }
 
     addDiscount(sessionId: string, shopId: number,discount:DiscountData){
-        return new Promise<Result<void | number>>((resolve, reject)=>{
-            let result: Result<void | number> = this.systemController.addDiscount(sessionId, shopId,discount);
+        return new Promise<Result<void | number>>(async (resolve, reject) => {
+            let result: Result<void | number> = await this.systemController.addDiscount(sessionId, shopId, discount);
             result.ok ? resolve(result) : reject(result.message);
         })
     }
     removeDiscount(sessionId: string, shopId: number,dId:number){
-        return new Promise<Result<void>>((resolve, reject)=>{
-            let result: Result<void> = this.systemController.removeDiscount(sessionId, shopId,dId);
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.removeDiscount(sessionId, shopId, dId);
             result.ok ? resolve(result) : reject(result.message);
         })
     }
 
     getPolicies(sessionId: string, shopId: number){
-        return new Promise<Result<void | ImmediatePurchasePolicyComponent[]>>((resolve, reject)=>{
-            let result: Result<void | ImmediatePurchasePolicyComponent[]> = this.systemController.getPolicies(sessionId, shopId);
+        return new Promise<Result<void | ImmediatePurchasePolicyComponent[]>>(async (resolve, reject) => {
+            let result: Result<void | ImmediatePurchasePolicyComponent[]> = await this.systemController.getPolicies(sessionId, shopId);
             result.ok ? resolve(result) : reject(result.message);
         })
     }
 
     addPurchasePolicy(sessionId: string, shopId: number,policy:ImmediatePurchaseData){
-        return new Promise<Result<void | number>>((resolve, reject)=>{
-            let result: Result<void | number> = this.systemController.addPurchasePolicy(sessionId, shopId,policy);
+        return new Promise<Result<void | number>>(async (resolve, reject) => {
+            let result: Result<void | number> = await this.systemController.addPurchasePolicy(sessionId, shopId, policy);
             result.ok ? resolve(result) : reject(result.message);
         })
     }
     removePurchasePolicy(sessionId: string, shopId: number,pId:number){
-        return new Promise<Result<void>>((resolve, reject)=>{
-            let result: Result<void> = this.systemController.removePurchasePolicy(sessionId, shopId,pId);
+        return new Promise<Result<void>>(async (resolve, reject) => {
+            let result: Result<void> = await this.systemController.removePurchasePolicy(sessionId, shopId, pId);
             result.ok ? resolve(result) : reject(result.message);
         })
     }

@@ -245,7 +245,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test('camMakePurchase- simplePurchase. Could make purchase.', ()=>{
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("shopping-cart");
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         cart.addProduct(p1, 2);
         let bag = cart.bags.get(0);
@@ -257,7 +257,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("shopping-cart");
         p1= s1.addProduct("cotage", ProductCategory.A, 5.9,  2, "Yami chees");
         cart.addProduct(p1, 6);
         let bag = cart.bags.get(0);
@@ -270,7 +270,7 @@ describe('SimpleShop- Appointed Members', function(){
     })
 
     test("canMakePurchase- simplePurchase. Couldn't make purchase.", ()=>{
-        let cart = new ShoppingCart();
+        let cart = new ShoppingCart("shopping-cart");
         cart.addProduct(p1, 5);
         let bag = cart.bags.get(0);
         let user = new Guest("1");

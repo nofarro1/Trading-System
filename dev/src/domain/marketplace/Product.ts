@@ -79,6 +79,7 @@ export class Product implements Entity{
                 id: this.id,
                 name: this.name,
                 shopId: this.shopId,
+                price: this.fullPrice,
                 category: this.category,
                 rate: this.rate,
                 description: this.description,
@@ -96,9 +97,7 @@ export class Product implements Entity{
 
     async update(name: string = this.name, shopId: number = this.shopId, category: ProductCategory = this.category, rate: ProductRate = this.rate, description: string = this.description) {
         await prisma.product.update({
-            where: {
-                id: this.id,
-            },
+            where: {id_shopId: {id: this.id, shopId}},
             data: {
                 name: name,
                 shopId: shopId,
@@ -120,33 +119,32 @@ export class Product implements Entity{
             data: {
                 product_quantity: quantity,
             }
-        })
+        });
     }
 
-    static async findById(id: number) {
-        await prisma.product.findUnique({
-            where: {
-                id: id,
-            }
-        })
+    static async findById(id: number, shopId: number): Promise<Product | undefined> {
+        let p: Product | undefined;
+        let dalP = await prisma.product.findUnique({
+            where: { id_shopId: {id, shopId}}
+        });
+            return new Product(dalP.name, dalP.shopId, dalP.id, dalP.category, dalP.price, dalP.description);
+
     }
 
-    async findProductInShop(shopId: number) {
-        await prisma.productInShop.findUnique({
+    findProductInShop(shopId: number) {
+        return prisma.productInShop.findUnique({
             where: {
                 shopId_productId: {
                     shopId: shopId,
                     productId: this.id,
                 }
             }
-        })
+        });
     }
 
     async delete() {
         await prisma.product.delete({
-            where: {
-                id: this.id,
-            },
+            where: {id_shopId: {id: this.id, shopId: this._shopId}},
         });
     }
 }

@@ -18,12 +18,17 @@ export class MemberCredentials implements Entity{
     }
 
     async save() {
-        await prisma.memberCredentials.create({
-            data: {
-                username: this.username,
-                password: this.password,
-            },
-        });
+        try{
+            await prisma.memberCredentials.create({
+                data: {
+                    username: this.username,
+                    password: this.password,
+                },
+            });
+        } catch(error) {
+            logger.error("failed at database save")
+        }
+
     }
 
     update() {

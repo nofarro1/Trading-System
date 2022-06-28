@@ -21,7 +21,7 @@ describe("Shopping Cart - unit tests", ()=> {
     })
 
     beforeEach(()=>{
-      cart = new ShoppingCart();
+      cart = new ShoppingCart("user");
       product1  = new Product("Pizza", 1, 0, ProductCategory.A, 15);
     })
 
