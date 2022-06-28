@@ -53,6 +53,7 @@ import {
 } from "../../utilities/Enums";
 import {AppointmentAgreement} from "./AppointmentAgreement";
 import {Discount, DiscountContainer, DiscountInContainer} from "../../../prisma/prisma";
+import {toSimpleShoppingCart} from "../../utilities/simple_objects/SimpleObjectFactory";
 
 
 
@@ -592,13 +593,26 @@ export class Shop implements Entity{
         let dalShop = await prisma.shop.findUnique({
             where: {id: id}
         });
-        return new Shop(id, dalShop.name, dalShop.shop_founder, dalShop. description);
-        //this.findShopOwner()
+        let shop = new Shop(id, dalShop.name, dalShop.shop_founder, dalShop. description);
+        let owners = shop.findAllShopOwner(id);
+        owners.then((value)=>{
+           for( let username of value.values()){
+               shop._shopOwners.add(username.username)
+           };
+        })
+        let managers = shop.findAllShopManager(id);
+        managers.then((value)=>{
+            for( let username of value.values()){
+                shop._shopManagers.add(username.username)
+            };
+        })
+        let products = Shop.findAllShopProducts(id);
+        products.then((value)=> shop.products = value).catch(()=> shop.products = new Map<number,[Product, number]>())
         return null;
     }
 
     private async findShopOwner(username: string) {
-        await prisma.shopOwner.findUnique({
+         await prisma.shopOwner.findUnique({
             where: {
                 username_shopId: {
                     username: username,
@@ -619,8 +633,33 @@ export class Shop implements Entity{
         });
     }
 
-    static async findAllShopOwner(){
+     private async findAllShopOwner(shopId: number){
+         let owners: { username: string }[] = await prisma.shopOwner.findMany({
+           where: {shopId},
+             select: {username: true}
+        })
+         return [...owners.values()]
+    }
 
+    static async findAllShopProducts(shopId: number): Promise<Map<number, [Product, number]>> {
+        let products = await prisma.productInShop.findMany({
+            where: {shopId: shopId}
+        })
+        let productsMap = new Map<number, [Product, number]>()
+        for(let dalP of products){
+            let p = Product.findById(dalP.productId, dalP.shopId)
+            if(p)
+                productsMap.set(dalP.productId,[p, dalP.product_quantity])
+        }
+        return productsMap;
+    }
+
+    private async findAllShopManager(shopId: number){
+         let managers: { username: string }[] = await prisma.shopManager.findMany({
+           where: {shopId},
+             select: {username: true}
+        })
+         return [...managers.values()]
     }
 
     async delete() {

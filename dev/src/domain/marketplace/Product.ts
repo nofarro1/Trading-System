@@ -79,6 +79,7 @@ export class Product implements Entity{
                 id: this.id,
                 name: this.name,
                 shopId: this.shopId,
+                price: this.fullPrice,
                 category: this.category,
                 rate: this.rate,
                 description: this.description,
@@ -96,9 +97,7 @@ export class Product implements Entity{
 
     async update(name: string = this.name, shopId: number = this.shopId, category: ProductCategory = this.category, rate: ProductRate = this.rate, description: string = this.description) {
         await prisma.product.update({
-            where: {
-                id: this.id,
-            },
+            where: {id_shopId: {id: this.id, shopId}},
             data: {
                 name: name,
                 shopId: shopId,
@@ -123,12 +122,15 @@ export class Product implements Entity{
         });
     }
 
-    static findById(id: number) {
-        return prisma.product.findUnique({
-            where: {
-                id: id,
-            }
+    static findById(id: number, shopId: number): Product | undefined {
+        let p: Product | undefined;
+        let dalP = prisma.product.findUnique({
+            where: { id_shopId: {id, shopId}}
         });
+        dalP.then((value)=>{
+            p = new Product(value.name, value.shopId, value.id, value.category, value.price, value.description);
+        }).catch(()=> p =undefined)
+        return p;
     }
 
     findProductInShop(shopId: number) {
@@ -144,9 +146,7 @@ export class Product implements Entity{
 
     async delete() {
         await prisma.product.delete({
-            where: {
-                id: this.id,
-            },
+            where: {id_shopId: {id: this.id, shopId: this._shopId}},
         });
     }
 }
